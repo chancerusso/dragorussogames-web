@@ -14,53 +14,23 @@
 
 <main class="page">
 
-  <section class="hero">
-    <div class="hero-card">
-
-      <p class="eyebrow">Campaign 21 • Session Records</p>
-
-      <h1>Dungeons of Drakkenheim</h1>
-
-      <p class="subtitle">
-        View, create, edit, and delete campaign session recaps.
-      </p>
-
-      <div class="actions">
-        <a class="btn" href="#sessionEditor" id="newSessionBtn">
-          Create Session
-        </a>
-
-        <a class="btn ghost" href="./index.html">
-          Return to Portal
-        </a>
-      </div>
-
-    </div>
-  </section>
-
-  <section class="campaign-dashboard" id="sessionEditor">
+  <section class="campaign-dashboard">
 
     <div class="dashboard-header">
-
       <div>
         <p class="eyebrow">Campaign Archive</p>
-        <h2>Session Records</h2>
+        <h1>Session Records</h1>
       </div>
 
+      <button class="btn" id="newSessionBtn">
+        Create Session
+      </button>
     </div>
 
     <div class="dashboard-layout">
 
       <aside class="session-sidebar">
-
-        <div id="sessionList">
-
-          <button class="session-tab active">
-            No Sessions Yet
-          </button>
-
-        </div>
-
+        <div id="sessionList"></div>
       </aside>
 
       <section class="session-viewer">
@@ -68,7 +38,7 @@
         <div class="session-view-header">
 
           <span class="session-status">
-            Create New Session
+            Session Editor
           </span>
 
           <input
@@ -103,6 +73,28 @@
     </div>
 
   </section>
+
+  <!-- MODAL -->
+
+  <div class="session-modal" id="sessionModal">
+
+    <div class="session-modal-content">
+
+      <button class="session-close" id="closeModalBtn">
+        ×
+      </button>
+
+      <span class="session-status">
+        Archived Session
+      </span>
+
+      <h2 id="modalTitle"></h2>
+
+      <div class="modal-recap" id="modalRecap"></div>
+
+    </div>
+
+  </div>
 
 </main>
 
