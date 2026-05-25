@@ -598,3 +598,181 @@ footer{
 .campaign-img:hover .campaign-overlay{
   opacity:1;
 }
+/* Portal Pages */
+
+.page{
+  min-height:100vh;
+  padding:48px 24px;
+}
+
+.hero-card{
+  max-width:1180px;
+  margin:0 auto;
+  background:rgba(15,12,12,.82);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:30px;
+  padding:48px;
+  box-shadow:var(--shadow);
+  position:relative;
+  z-index:2;
+}
+
+.subtitle{
+  color:var(--muted);
+  font-size:1.1rem;
+  line-height:1.6;
+  max-width:760px;
+  margin-top:18px;
+}
+
+.session-banner{
+  margin-top:36px;
+  padding:24px;
+  border-radius:22px;
+  background:
+    linear-gradient(135deg,rgba(179,0,22,.32),rgba(0,0,0,.15)),
+    rgba(18,14,14,.95);
+  border:1px solid rgba(255,255,255,.1);
+}
+
+.session-label{
+  font-family:'Cinzel', serif;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  color:var(--gold);
+  font-size:.75rem;
+  margin-bottom:10px;
+}
+
+.session-title{
+  font-size:2rem;
+  margin-bottom:8px;
+}
+
+.session-time{
+  color:var(--muted);
+  font-size:1rem;
+}
+
+.recap-card{
+  margin-top:30px;
+  background:rgba(12,10,10,.88);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:24px;
+  padding:32px;
+}
+
+.recap-label{
+  display:inline-block;
+  font-family:'Cinzel', serif;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  color:var(--gold);
+  font-size:.75rem;
+  margin-bottom:14px;
+}
+
+.recap-content p{
+  color:var(--muted);
+  line-height:1.7;
+  margin-bottom:18px;
+}
+
+.portal-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+  margin-top:32px;
+}
+
+.portal-card{
+  display:block;
+  text-decoration:none;
+  background:rgba(15,12,12,.92);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:24px;
+  padding:28px;
+  transition:all .25s ease;
+  box-shadow:var(--shadow);
+}
+
+.portal-card:hover{
+  transform:translateY(-4px);
+  border-color:rgba(214,167,86,.45);
+}
+
+.card-label{
+  display:inline-block;
+  font-family:'Cinzel', serif;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  color:var(--gold);
+  font-size:.72rem;
+  margin-bottom:14px;
+}
+
+.portal-card h2{
+  color:var(--text);
+  margin-bottom:12px;
+}
+
+.portal-card p{
+  color:var(--muted);
+  line-height:1.6;
+}
+
+.play-card{
+  background:
+    linear-gradient(135deg,rgba(179,0,22,.35),rgba(0,0,0,.15)),
+    rgba(15,12,12,.95);
+}
+
+.notion-panel{
+  width:min(1180px,100%);
+  margin:40px auto 80px;
+  background:rgba(15,12,12,.88);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:28px;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+}
+
+.panel-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:24px 28px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.open-notion{
+  color:var(--gold);
+  text-decoration:none;
+  font-family:'Cinzel', serif;
+  font-size:.8rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+iframe{
+  display:block;
+  border:none;
+  background:#fff;
+}
+
+@media(max-width:900px){
+
+  .portal-grid{
+    grid-template-columns:1fr;
+  }
+
+  .hero-card{
+    padding:32px 24px;
+  }
+
+  .panel-header{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:12px;
+  }
+}
