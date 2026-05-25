@@ -5,16 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>C21 Session Recaps</title>
+
   <link rel="icon" type="image/png" href="../assets/LogoDrago_Mesa_de_trabajo_1.png" />
   <link rel="stylesheet" href="../style.css" />
 </head>
 
 <body>
+
 <main class="page">
 
   <section class="hero">
     <div class="hero-card">
+
       <p class="eyebrow">Campaign 21 • Session Records</p>
+
       <h1>Dungeons of Drakkenheim</h1>
 
       <p class="subtitle">
@@ -22,35 +26,87 @@
       </p>
 
       <div class="actions">
-        <button class="btn" id="newSessionBtn">Create Session</button>
-        <a class="btn ghost" href="./index.html">Return to Portal</a>
+        <a class="btn" href="#sessionEditor" id="newSessionBtn">
+          Create Session
+        </a>
+
+        <a class="btn ghost" href="./index.html">
+          Return to Portal
+        </a>
       </div>
+
     </div>
   </section>
 
-  <section class="campaign-dashboard">
+  <section class="campaign-dashboard" id="sessionEditor">
+
+    <div class="dashboard-header">
+
+      <div>
+        <p class="eyebrow">Campaign Archive</p>
+        <h2>Session Records</h2>
+      </div>
+
+    </div>
+
     <div class="dashboard-layout">
 
       <aside class="session-sidebar">
-        <div id="sessionList"></div>
+
+        <div id="sessionList">
+
+          <button class="session-tab active">
+            No Sessions Yet
+          </button>
+
+        </div>
+
       </aside>
 
       <section class="session-viewer">
-        <input id="sessionTitle" class="session-input" type="text" placeholder="Session 24 • The Battle of Temple Gate II" />
 
-        <textarea id="sessionRecap" class="session-textarea" placeholder="Write the recap here..."></textarea>
+        <div class="session-view-header">
+
+          <span class="session-status">
+            Create New Session
+          </span>
+
+          <input
+            id="sessionTitle"
+            class="session-input"
+            type="text"
+            placeholder="Session 24 • The Battle of Temple Gate II"
+          />
+
+        </div>
+
+        <textarea
+          id="sessionRecap"
+          class="session-textarea"
+          placeholder="Write your campaign recap here..."
+        ></textarea>
 
         <div class="session-controls">
-          <button class="btn" id="saveSessionBtn">Save Session</button>
-          <button class="btn ghost" id="deleteSessionBtn">Delete Session</button>
+
+          <button class="btn" id="saveSessionBtn">
+            Save Session
+          </button>
+
+          <button class="btn ghost" id="deleteSessionBtn">
+            Delete Session
+          </button>
+
         </div>
+
       </section>
 
     </div>
+
   </section>
 
 </main>
 
 <script src="./sessions.js"></script>
+
 </body>
 </html>
