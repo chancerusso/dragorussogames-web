@@ -140,7 +140,9 @@ newSessionBtn.addEventListener("click", clearEditor)
 saveSessionBtn.addEventListener("click", saveSession)
 deleteSessionBtn.addEventListener("click", deleteSession)
 
-closeModalBtn.addEventListener("click", closeModal)
+if (closeModalBtn) {
+  closeModalBtn.addEventListener("click", closeModal)
+}
 returnModalBtn.addEventListener("click", closeModal)
 editSessionBtn.addEventListener("click", editModalSession)
 deleteModalBtn.addEventListener("click", deleteModalSession)
