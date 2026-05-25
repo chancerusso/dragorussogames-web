@@ -76,26 +76,33 @@
 
   <!-- MODAL -->
 
-  <div class="session-modal" id="sessionModal">
+<div class="session-modal" id="sessionModal">
 
-    <div class="session-modal-content">
+  <div class="modal-card">
 
-      <button class="session-close" id="closeModalBtn">
-        ×
+    <h2 id="modalTitle"></h2>
+
+    <div class="modal-recap" id="modalRecap"></div>
+
+    <div class="modal-actions">
+
+      <button class="btn ghost" id="returnModalBtn">
+        Return
       </button>
 
-      <span class="session-status">
-        Archived Session
-      </span>
+      <button class="btn" id="editSessionBtn">
+        Edit
+      </button>
 
-      <h2 id="modalTitle"></h2>
-
-      <div class="modal-recap" id="modalRecap"></div>
+      <button class="btn ghost" id="deleteModalBtn">
+        Delete
+      </button>
 
     </div>
 
   </div>
 
+</div>
 </main>
 
 <script src="./sessions.js"></script>
