@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>C21 Drakkenheim Portal</title>
-<link rel="icon" type="image/png" href="../assets/LogoDrago_Mesa_de_trabajo_1.png" />
-<link rel="stylesheet" href="../style.css" />
+  <link rel="icon" type="image/png" href="../assets/LogoDrago_Mesa_de_trabajo_1.png" />
+  <link rel="stylesheet" href="../style.css" />
 </head>
 
 <body>
@@ -20,42 +20,18 @@
         <h1>Dungeons of Drakkenheim</h1>
 
         <p class="subtitle">
-          Campaign portal, faction notes, personal quests, session records, and access to the ruined city.
+          Campaign portal, session records, campaign guide, and access to the ruined city.
         </p>
 
-        <div class="session-banner">
-          <p class="session-label">Current Session</p>
-
-          <h2 class="session-title">
-            Session 24 • The Battle of Temple Gate II
-          </h2>
-
-          <p class="session-time">
-            Monday • 7:00 PM GMT -5
-          </p>
-        </div>
-
         <div class="recap-card">
-          <span class="recap-label">Previous Session</span>
+          <span class="recap-label">Latest Session Recap</span>
 
-          <h3>What Happened Last Time</h3>
+          <h3 id="latestSessionTitle">No session recap saved yet.</h3>
 
-          <div class="recap-content">
+          <div class="recap-content" id="latestSessionRecap">
             <p>
-              The party made their way on the griffons and were immediately
-              targeted by the ballistae.  One of the griffons was even shot
-              down in the process.  Calendil had to fly up to the tower and 
-              everyone else jumped off and the battle was on in full.
+              Once a session recap is created, the latest recap will appear here automatically.
             </p>
-
-            <p>
-              Multiple characters were brought down to zero hit points and 
-              the battle was intense.  But they prevailed in the end.
-              This week, Jamie will come to the rescue and replace Wick in 
-              the battle.
-            </p>
-
-                    
           </div>
         </div>
 
@@ -73,104 +49,34 @@
             <p>Review setting rules, character creation, personal quests, factions, and table expectations.</p>
           </a>
 
-          <a class="portal-card" href="https://cooing-snap-813.notion.site/ebd/32a3fdbc06b083c798d1818e6f94376d" target="_blank">
-            <span class="card-label">Notion</span>
-            <h2>Open Workspace</h2>
-            <p>Edit notes, update journals, track NPCs, and manage campaign records.</p>
+          <a class="portal-card" href="./sessions.html">
+            <span class="card-label">Sessions</span>
+            <h2>Session Recaps</h2>
+            <p>View, create, edit, and manage campaign session recaps.</p>
           </a>
 
         </div>
       </div>
     </section>
 
-    <section class="campaign-dashboard">
-
-  <div class="dashboard-header">
-
-    <div>
-      <p class="eyebrow">Campaign Archive</p>
-      <h2>Session Records</h2>
-    </div>
-
-    <button class="btn session-create-btn">
-      + Create Session
-    </button>
-
-  </div>
-
-  <div class="dashboard-layout">
-
-    <aside class="session-sidebar">
-
-      <button class="session-tab active">
-        Session 24 • The Battle of Temple Gate II
-      </button>
-
-      <button class="session-tab">
-        Session 23 • Return to Temple Gate
-      </button>
-
-      <button class="session-tab">
-        Session 22 • The Duchess Below
-      </button>
-
-      <button class="session-tab">
-        Session 21 • The River Escape
-      </button>
-
-    </aside>
-
-    <section class="session-viewer">
-
-      <div class="session-view-header">
-        <span class="session-status">Latest Session</span>
-
-        <h3>Session 24 • The Battle of Temple Gate II</h3>
-
-        <p class="session-date">
-          Monday • 7:00 PM GMT -5
-        </p>
-      </div>
-
-      <div class="session-recap">
-
-        <p>
-          The party made their way on the griffons and were immediately
-          targeted by the ballistae. One of the griffons was even shot
-          down in the process.
-        </p>
-
-        <p>
-          Calendil had to fly up to the tower while the others leapt
-          directly into the chaos below as the battle erupted across
-          Temple Gate.
-        </p>
-
-        <p>
-          Multiple characters were brought down to zero hit points and
-          the battle was intense, but the party prevailed in the end.
-        </p>
-
-      </div>
-
-      <div class="session-controls">
-
-        <button class="btn ghost">
-          Edit Session
-        </button>
-
-        <button class="btn ghost">
-          Delete Session
-        </button>
-
-      </div>
-
-    </section>
-
-  </div>
-
-</section>
-
   </main>
+
+  <script>
+    const sessions = JSON.parse(localStorage.getItem("c21Sessions")) || []
+
+    const latestTitle = document.getElementById("latestSessionTitle")
+    const latestRecap = document.getElementById("latestSessionRecap")
+
+    if (sessions.length > 0) {
+      latestTitle.textContent = sessions[0].title
+
+      latestRecap.innerHTML = sessions[0].recap
+        .split("\n")
+        .filter(line => line.trim() !== "")
+        .map(line => `<p>${line}</p>`)
+        .join("")
+    }
+  </script>
+
 </body>
 </html>
