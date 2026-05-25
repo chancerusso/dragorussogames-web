@@ -1,0 +1,600 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Cinzel+Decorative:wght@700;900&family=EB+Garamond:wght@500;600;700&display=swap');
+
+:root {
+  --bg:#050405;
+  --panel:rgba(16,13,13,.82);
+  --panel2:rgba(25,19,18,.92);
+  --text:#f3eee7;
+  --muted:#c8b9a5;
+  --dim:#8f8173;
+  --red:#b30016;
+  --red2:#e0222f;
+  --gold:#d6a756;
+  --line:rgba(255,255,255,.14);
+  --shadow:0 24px 90px rgba(0,0,0,.65);
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(179,0,22,.26), transparent 32%),
+    linear-gradient(180deg,#120809 0%,#050405 58%,#020202 100%);
+  color:var(--text);
+  font-family:'EB Garamond', Georgia, serif;
+}
+
+body:before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.09;
+  background-image:
+    linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);
+  background-size:34px 34px;
+}
+
+.hero{
+  position:relative;
+  min-height:100vh;
+  overflow:hidden;
+  padding:80px 22px 70px;
+}
+/* Avernus */
+
+.hero-avernus .hero-bg{
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.82),rgba(0,0,0,.42),rgba(0,0,0,.88)),
+    url("./assets/avernus.jpeg") center/cover;
+}
+
+/* Vecna */
+
+.hero-vecna .hero-bg{
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.82),rgba(0,0,0,.42),rgba(0,0,0,.88)),
+    url("./assets/red.jpeg") center/cover;
+}
+
+/* Drakkenheim */
+
+.hero-drakkenheim .hero-bg{
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.82),rgba(0,0,0,.42),rgba(0,0,0,.88)),
+    url("./assets/drakkenheim.png") center/cover;
+}
+
+/* Tomb */
+
+.hero-tomb .hero-bg{
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.82),rgba(0,0,0,.42),rgba(0,0,0,.88)),
+    url("./assets/tomb.jpeg") center/cover;
+}
+
+/* Dragonlance */
+
+.hero-dragonlance .hero-bg{
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.82),rgba(0,0,0,.42),rgba(0,0,0,.88)),
+    url("./assets/dragonlance.png") center/cover;
+}
+
+/* Strahd */
+
+.hero-strahd .hero-bg{
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.82),rgba(0,0,0,.42),rgba(0,0,0,.88)),
+    url("./assets/strahd.jpg") center/cover;
+}
+
+/* Rime */
+
+.hero-rime .hero-bg{
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.82),rgba(0,0,0,.42),rgba(0,0,0,.88)),
+    url("./assets/rime.jpeg") center/cover;
+}
+.hero-bg{
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.82),rgba(0,0,0,.45),rgba(0,0,0,.88)),
+    url("./assets/red.jpeg") center/cover;
+  filter:saturate(1.05) contrast(1.08);
+  transform:scale(1.03);
+}
+
+/* Waterdeep Guide Hero */
+
+.hero-wddh .hero-bg{
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.82),rgba(0,0,0,.42),rgba(0,0,0,.88)),
+    url("./assets/1v1campaign-wddh.jpeg") center/cover;
+}
+
+.hero-avernus .hero-bg{
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.82),rgba(0,0,0,.42),rgba(0,0,0,.88)),
+    url("./assets/avernus.jpeg") center/cover;
+}
+
+.hero:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at center,transparent 0%,rgba(0,0,0,.24) 45%,rgba(0,0,0,.78) 100%);
+}
+
+.hero-inner{
+  position:relative;
+  z-index:2;
+  width:min(1180px,100%);
+  margin:0 auto;
+  text-align:left;
+  padding-top:150px;
+}
+
+.banner{
+  width:100%;
+  max-width:980px;
+  height:auto;
+  display:block;
+  object-fit:contain;
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:var(--shadow);
+  margin-bottom:34px;
+}
+
+.eyebrow{
+  font-family:'Cinzel', serif;
+  color:var(--gold);
+  text-transform:uppercase;
+  letter-spacing:.22em;
+  font-weight:800;
+  font-size:.76rem;
+  margin:0 0 14px;
+}
+
+h1,h2,h3{
+  margin:0;
+  line-height:1.08;
+}
+
+h1{
+  font-family:'Cinzel Decorative', serif;
+  font-size:clamp(2.3rem,5vw,4.4rem);
+  letter-spacing:.01em;
+  max-width:760px;
+  text-shadow:0 0 25px rgba(214,167,86,.16),0 10px 50px rgba(0,0,0,.85);
+}
+
+h2{
+  font-family:'Cinzel Decorative', serif;
+  font-size:clamp(1.55rem,3vw,2.6rem);
+  letter-spacing:.01em;
+}
+
+h3{
+  font-family:'Cinzel', serif;
+  font-size:1.18rem;
+  letter-spacing:.04em;
+}
+
+.lead{
+  color:var(--muted);
+  max-width:560px;
+  margin:20px 0 0;
+  font-size:clamp(1.02rem,1.7vw,1.18rem);
+  line-height:1.6;
+}
+
+.actions{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:28px;
+}
+
+.btn{
+  font-family:'Cinzel', serif;
+  display:inline-flex;
+  min-height:42px;
+  align-items:center;
+  justify-content:center;
+  padding:11px 17px;
+  border-radius:999px;
+  text-decoration:none;
+  font-weight:900;
+  font-size:.82rem;
+  letter-spacing:.04em;
+  color:var(--text);
+  border:1px solid rgba(255,255,255,.18);
+  background:linear-gradient(180deg,var(--red2),#72030d);
+  box-shadow:0 16px 45px rgba(179,0,22,.34);
+}
+
+.btn.ghost{
+  background:rgba(0,0,0,.46);
+  box-shadow:none;
+}
+
+.private-note{
+  color:rgba(243,238,231,.72);
+  font-size:.92rem;
+  margin-top:18px;
+}
+
+.section{
+  position:relative;
+  z-index:1;
+  width:min(1180px,100%);
+  margin:0 auto;
+  padding:64px 22px;
+}
+
+.intro{
+  background:linear-gradient(180deg,rgba(0,0,0,.48),rgba(0,0,0,.28));
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:30px;
+  box-shadow:var(--shadow);
+  padding:42px;
+  margin-top:36px;
+}
+
+.intro h2{
+  max-width:820px;
+}
+
+.features{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+  margin-top:30px;
+}
+
+.features article,
+.campaign,
+.event-card,
+.contact-card{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:24px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+
+.features article{
+  padding:24px;
+}
+
+.features span{
+  font-size:1.7rem;
+  display:block;
+  margin-bottom:12px;
+}
+
+.features p,
+.campaign p,
+.event-card p,
+.contact p,
+.small{
+  color:var(--muted);
+  line-height:1.55;
+}
+
+.campaign-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+  margin-top:24px;
+}
+
+.campaign{
+  min-width:0;
+}
+
+.campaign img{
+  width:100%;
+  height:220px;
+  object-fit:cover;
+  object-position:center;
+  display:block;
+  filter:saturate(1.04) contrast(1.05);
+}
+
+.campaign div{
+  padding:22px;
+}
+
+.tag{
+  font-family:'Cinzel', serif;
+  color:var(--gold)!important;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  font-size:.72rem;
+  font-weight:800;
+  margin-top:0;
+}
+
+.event-card{
+  padding:42px;
+  background:
+    linear-gradient(135deg,rgba(179,0,22,.34),rgba(0,0,0,.1)),
+    var(--panel2);
+}
+
+.event-card p{
+  max-width:820px;
+  font-size:1.05rem;
+}
+
+.contact{
+  display:grid;
+  grid-template-columns:1fr .8fr;
+  gap:22px;
+  align-items:center;
+}
+
+.contact-card{
+  padding:26px;
+  text-align:center;
+}
+
+.small{
+  font-size:.94rem;
+  color:var(--dim);
+}
+
+footer{
+  border-top:1px solid var(--line);
+  padding:30px 22px;
+  text-align:center;
+  color:var(--dim);
+}
+
+/* Primer Layout */
+
+.primer-hero{
+  min-height:60vh;
+}
+
+.primer-wrap{
+  width:min(1180px,100%);
+  margin:0 auto;
+  padding:42px 22px 80px;
+  display:grid;
+  grid-template-columns:260px 1fr;
+  gap:34px;
+}
+
+.primer-nav{
+  position:sticky;
+  top:24px;
+  align-self:start;
+  background:rgba(12,10,10,.88);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:18px;
+  box-shadow:var(--shadow);
+}
+
+.primer-nav a{
+  display:block;
+  font-family:'Cinzel', serif;
+  font-size:.78rem;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:var(--muted);
+  text-decoration:none;
+  padding:10px 8px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.primer-nav a:hover{
+  color:var(--gold);
+}
+
+.primer-content{
+  background:#f4efe5;
+  color:#221b18;
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+  border:1px solid rgba(0,0,0,.25);
+}
+
+.ddb-section{
+  padding:38px 46px;
+  border-bottom:1px solid rgba(70,46,31,.18);
+}
+
+.ddb-section:last-child{
+  border-bottom:none;
+}
+
+.ddb-section h2{
+  color:#321b14;
+  font-family:'Cinzel', serif;
+  font-size:clamp(1.6rem,2.6vw,2.3rem);
+  margin-bottom:18px;
+}
+
+.ddb-section h3{
+  color:#6e2019;
+  margin-top:22px;
+  margin-bottom:8px;
+}
+
+.ddb-section p,
+.ddb-section li{
+  color:#2b2521;
+  font-size:1.06rem;
+  line-height:1.65;
+}
+
+.ddb-section .eyebrow{
+  color:#9a2c1d;
+}
+
+.ddb-callout{
+  border-left:5px solid #9a2c1d;
+  background:#eadfce;
+  padding:18px 22px;
+  margin:24px 0;
+  border-radius:0 12px 12px 0;
+}
+
+.ddb-table{
+  border:1px solid rgba(70,46,31,.22);
+  border-radius:14px;
+  overflow:hidden;
+  margin:22px 0;
+}
+
+.ddb-table div{
+  display:grid;
+  grid-template-columns:220px 1fr;
+  border-bottom:1px solid rgba(70,46,31,.16);
+}
+
+.ddb-table div:last-child{
+  border-bottom:none;
+}
+
+.ddb-table strong{
+  background:#dfd1bd;
+  padding:13px 16px;
+  color:#321b14;
+  font-family:'Cinzel', serif;
+}
+
+.ddb-table span{
+  padding:13px 16px;
+  color:#2b2521;
+}
+
+.faction-list{
+  display:grid;
+  gap:18px;
+  margin-top:24px;
+}
+
+.faction-entry{
+  background:#fffaf0;
+  border:1px solid rgba(70,46,31,.2);
+  border-radius:14px;
+  padding:22px;
+}
+
+.faction-entry h3{
+  margin-top:0;
+}
+
+@media(max-width:900px){
+
+  .hero{
+    padding-top:40px;
+  }
+
+  .features,
+  .campaign-grid,
+  .contact,
+  .primer-wrap{
+    grid-template-columns:1fr;
+  }
+
+  .campaign img{
+    height:260px;
+  }
+
+  .intro{
+    padding:30px 20px;
+  }
+
+  .primer-nav{
+    position:relative;
+    top:auto;
+  }
+
+  .ddb-table div{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:520px){
+
+  .section{
+    padding:44px 16px;
+  }
+
+  .campaign img{
+    height:220px;
+  }
+
+  .event-card{
+    padding:26px;
+  }
+
+  .ddb-section{
+    padding:28px 22px;
+  }
+}
+
+/* Campaign Hover Overlay */
+
+.campaign-img{
+  position:relative;
+  overflow:hidden;
+  padding:0 !important;
+}
+
+.campaign-img img{
+  width:100%;
+  height:220px;
+  object-fit:cover;
+  object-position:center;
+  display:block;
+  filter:saturate(1.04) contrast(1.05);
+  transition:transform 0.5s ease;
+}
+
+.campaign-overlay{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  background:linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.15),
+    rgba(0,0,0,0.9)
+  );
+  display:flex;
+  align-items:flex-end;
+  padding:20px;
+  opacity:0;
+  transition:opacity 0.35s ease;
+}
+
+.campaign-overlay p{
+  margin:0;
+  color:var(--text);
+  font-size:0.95rem;
+  line-height:1.45;
+}
+
+.campaign-img:hover img{
+  transform:scale(1.08);
+}
+
+.campaign-img:hover .campaign-overlay{
+  opacity:1;
+}
