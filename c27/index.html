@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>C27 Vecna Portal</title>
+
+  <link rel="icon" type="image/png" href="../assets/LogoDrago_Mesa_de_trabajo_1.png" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+
+<body>
+  <main class="page">
+
+    <section class="hero">
+      <div class="hero-card">
+
+        <p class="eyebrow">Drago Russo Games • Campaign 27</p>
+
+        <h1>Vecna: Eve of Ruin</h1>
+
+        <p class="subtitle">
+          Campaign portal, session records, campaign guide, and access to the multiversal adventure.
+        </p>
+
+        <div class="recap-card">
+
+          <span class="recap-label">
+            Latest Session Recap
+          </span>
+
+          <h3 id="latestSessionTitle">
+            No session recap saved yet.
+          </h3>
+
+          <div class="recap-content" id="latestSessionRecap">
+            <p>
+              Once a session recap is created, the latest recap will appear here automatically.
+            </p>
+          </div>
+
+        </div>
+
+        <div class="portal-grid">
+
+          <a class="portal-card" href="../guides/vecna/">
+            <span class="card-label">Guide</span>
+            <h2>Campaign Guide</h2>
+            <p>
+              Review setting rules, campaign details, characters, and table expectations.
+            </p>
+          </a>
+
+          <a
+            class="portal-card play-card"
+            href="https://www.dndbeyond.com/campaigns/join/70229952225082301"
+            target="_blank"
+          >
+            <span class="card-label">D&D Beyond</span>
+            <h2>Join Campaign</h2>
+            <p>
+              Access characters, campaign tools, maps, and the live game session.
+            </p>
+          </a>
+
+          <a class="portal-card" href="./sessions.html">
+            <span class="card-label">Sessions</span>
+            <h2>Session Recaps</h2>
+            <p>
+              View, create, edit, and manage campaign session recaps.
+            </p>
+          </a>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+
+    const sessions =
+      JSON.parse(localStorage.getItem("c27Sessions")) || []
+
+    const latestTitle =
+      document.getElementById("latestSessionTitle")
+
+    const latestRecap =
+      document.getElementById("latestSessionRecap")
+
+    if (sessions.length > 0) {
+
+      latestTitle.textContent = sessions[0].title
+
+      latestRecap.innerHTML =
+        sessions[0].recap
+          .split("\n")
+          .filter(line => line.trim() !== "")
+          .map(line => `<p>${line}</p>`)
+          .join("")
+    }
+
+  </script>
+
+</body>
+</html>
