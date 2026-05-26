@@ -5,9 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>C22 Drakkenheim Portal</title>
-
   <link rel="icon" type="image/png" href="../assets/LogoDrago_Mesa_de_trabajo_1.png" />
-<link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="../style.css" />
 </head>
 
 <body>
@@ -21,76 +20,20 @@
         <h1>Dungeons of Drakkenheim</h1>
 
         <p class="subtitle">
-          Campaign portal, faction notes, personal quests, session records, and access to the ruined city.
+          Campaign portal, session records, campaign guide, and access to the ruined city.
         </p>
 
-        <div class="session-banner">
+        <div class="recap-card">
+          <span class="recap-label">Latest Session Recap</span>
 
-  <p class="session-label">
-    Current Session
-  </p>
+          <h3 id="latestSessionTitle">No session recap saved yet.</h3>
 
-  <h2 class="session-title">
-    Session 19 • Tea With The Duchess
-  </h2>
-
-  <p class="session-time">
-    Sunday • 12:00 PM GMT -5
-  </p>
-
-</div>
-
-<div class="recap-card">
-
-  <span class="recap-label">
-    Previous Session
-  </span>
-
-  <h3>
-    What Happened Last Time
-  </h3>
-
-  <div class="recap-content">
-
-    <p>
-      Last week our heroes navigated the flooded sewers beneath Drakkenheim,
-      searching for the hidden compound of the Queen’s Men. Deep below the city,
-      they encountered the twisted remains of a delerium-infused gator lurking
-      within the darkness.
-    </p>
-
-    <p>
-      Though the party initially slipped past the creature unnoticed, disaster
-      struck when a sudden light source revealed their position. The beast seized
-      Lavitz in its maw and attempted to drag him into the depths before the party
-      leapt into action. Little Grimble delivered the killing blow, and the group
-      harvested what useful components they could from the corrupted creature.
-    </p>
-
-    <p>
-      Continuing deeper into the tunnels, the adventurers discovered a chamber
-      occupied by strange robed humanoids clearly intoxicated by contaminated
-      delerium water. In a moment of questionable judgment, Lavitz joined them,
-      drinking deeply from the corrupted liquid and suffering two levels of
-      exhaustion as a result.
-    </p>
-
-    <p>
-      Beyond the chamber, the party encountered three attendants known as the
-      Cardinal, the Chancellor, and the Chamberlain. One among them wore a Seal
-      of Drakkenheim upon their cloak. Following these mysterious figures further
-      into the compound, the party survived yet another confrontation with a
-      horrifying sewer monstrosity before finally arriving at the inner chamber.
-    </p>
-
-    <p class="recap-ending">
-      There, beneath the ruined city, the Duchess awaited them with cups of
-      delerium tea already prepared.
-    </p>
-
-  </div>
-
-</div>
+          <div class="recap-content" id="latestSessionRecap">
+            <p>
+              Once a session recap is created, the latest recap will appear here automatically.
+            </p>
+          </div>
+        </div>
 
         <div class="portal-grid">
 
@@ -106,33 +49,34 @@
             <p>Review setting rules, character creation, personal quests, factions, and table expectations.</p>
           </a>
 
-          <a class="portal-card" href="https://cooing-snap-813.notion.site/ebd/9423fdbc06b082099c3d814e55cab43f" target="_blank">
-            <span class="card-label">Notion</span>
-            <h2>Open Workspace</h2>
-            <p>Edit notes, update journals, track NPCs, and manage campaign records.</p>
+          <a class="portal-card" href="./sessions.html">
+            <span class="card-label">Sessions</span>
+            <h2>Session Recaps</h2>
+            <p>View, create, edit, and manage campaign session recaps.</p>
           </a>
 
         </div>
       </div>
     </section>
 
-    <section class="notion-panel">
-
-      <div class="panel-header">
-        <h3>Campaign Workspace</h3>
-
-        <a class="open-notion" href="https://cooing-snap-813.notion.site/ebd/9423fdbc06b082099c3d814e55cab43f" target="_blank">
-          Open in Notion
-        </a>
-      </div>
-
-      <iframe
-        src="https://cooing-snap-813.notion.site/ebd/9423fdbc06b082099c3d814e55cab43f"
-        allowfullscreen>
-      </iframe>
-
-    </section>
-
   </main>
+
+  <script>
+    const sessions = JSON.parse(localStorage.getItem("c22Sessions")) || []
+
+    const latestTitle = document.getElementById("latestSessionTitle")
+    const latestRecap = document.getElementById("latestSessionRecap")
+
+    if (sessions.length > 0) {
+      latestTitle.textContent = sessions[0].title
+
+      latestRecap.innerHTML = sessions[0].recap
+        .split("\n")
+        .filter(line => line.trim() !== "")
+        .map(line => `<p>${line}</p>`)
+        .join("")
+    }
+  </script>
+
 </body>
 </html>
