@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>C26 Session Records</title>
+
+  <link rel="icon" type="image/png" href="../assets/LogoDrago_Mesa_de_trabajo_1.png" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+
+<body>
+
+<main class="page">
+
+  <section class="campaign-dashboard">
+
+    <div class="dashboard-shell">
+
+      <div class="dashboard-header">
+
+        <div>
+          <p class="eyebrow">Campaign 26 • Sunday 10:00 PM GMT-5</p>
+          <h1>Session Records</h1>
+        </div>
+
+        <div class="actions">
+
+          <button class="btn" id="newSessionBtn">
+            Create Session
+          </button>
+
+          <a class="btn ghost" href="./index.html">
+            Return to Campaign
+          </a>
+
+        </div>
+
+      </div>
+
+      <div class="dashboard-layout">
+
+        <aside class="session-sidebar">
+
+          <div class="sidebar-header">
+            Saved Sessions
+          </div>
+
+          <div id="sessionList"></div>
+
+        </aside>
+
+        <section class="session-viewer">
+
+          <div class="session-view-header">
+
+            <span class="session-status">
+              Session Editor
+            </span>
+
+            <input
+              id="sessionTitle"
+              class="session-input"
+              type="text"
+              placeholder="Session 1 • Into the Nine Hells"
+            />
+
+          </div>
+
+          <textarea
+            id="sessionRecap"
+            class="session-textarea"
+            placeholder="Write your campaign recap here..."
+          ></textarea>
+
+          <div class="session-controls">
+
+            <button class="btn" id="saveSessionBtn">
+              Save Session
+            </button>
+
+            <button class="btn ghost" id="deleteSessionBtn">
+              Delete Session
+            </button>
+
+          </div>
+
+        </section>
+
+      </div>
+
+    </div>
+
+  </section>
+
+</main>
+
+<div class="session-modal" id="sessionModal">
+
+  <div class="modal-card">
+
+    <h2 id="modalTitle"></h2>
+
+    <div class="modal-recap" id="modalRecap"></div>
+
+    <div class="modal-actions">
+
+      <button class="btn ghost" id="returnModalBtn">
+        Return
+      </button>
+
+      <button class="btn" id="editSessionBtn">
+        Edit
+      </button>
+
+      <button class="btn ghost" id="deleteModalBtn">
+        Delete
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script src="./sessions.js"></script>
+
+</body>
+</html>
