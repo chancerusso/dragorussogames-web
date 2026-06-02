@@ -52,7 +52,7 @@
           <a class="portal-card" href="./sessions.html">
             <span class="card-label">Sessions</span>
             <h2>Session Recaps</h2>
-            <p>View, create, edit, and manage campaign session recaps.</p>
+             <p>View the complete campaign session archive.</p>
           </a>
 
         </div>
@@ -61,22 +61,70 @@
 
   </main>
 
-  <script>
-    const sessions = JSON.parse(localStorage.getItem("c26Sessions")) || []
+ <script>
 
-    const latestTitle = document.getElementById("latestSessionTitle")
-    const latestRecap = document.getElementById("latestSessionRecap")
+async function loadLatestSession() {
 
-    if (sessions.length > 0) {
-      latestTitle.textContent = sessions[0].title
+  const latestTitle =
+    document.getElementById("latestSessionTitle")
 
-      latestRecap.innerHTML = sessions[0].recap
-        .split("\n")
-        .filter(line => line.trim() !== "")
-        .map(line => `<p>${line}</p>`)
-        .join("")
+  const latestRecap =
+    document.getElementById("latestSessionRecap")
+
+  try {
+
+    const response =
+      await fetch("./data/c26-sessions.json")
+
+    if (!response.ok) {
+      throw new Error()
     }
-  </script>
+
+    const data =
+      await response.json()
+
+    const sessions =
+      (data.sessions || [])
+      .sort((a, b) => b.number - a.number)
+
+    if (sessions.length === 0) {
+      return
+    }
+
+    const latest =
+      sessions[0]
+
+    latestTitle.textContent =
+      `Session ${latest.number} • ${latest.title}`
+
+    latestRecap.innerHTML =
+      latest.recap
+      .map(
+        paragraph =>
+          `<p>${paragraph}</p>`
+      )
+      .join("")
+
+  }
+
+  catch {
+
+    latestTitle.textContent =
+      "No session recap available."
+
+    latestRecap.innerHTML =
+      `
+      <p>
+      Session archive unavailable.
+      </p>
+      `
+  }
+
+}
+
+loadLatestSession()
+
+</script>
 
 </body>
 </html>

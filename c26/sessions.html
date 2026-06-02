@@ -21,20 +21,14 @@
       <div class="dashboard-header">
 
         <div>
-          <p class="eyebrow">Campaign 26 • Sunday 10:00 PM GMT-5</p>
+          <p class="eyebrow">Campaign Archive</p>
           <h1>Session Records</h1>
         </div>
 
         <div class="actions">
-
-          <button class="btn" id="newSessionBtn">
-            Create Session
-          </button>
-
           <a class="btn ghost" href="./index.html">
             Return to Campaign
           </a>
-
         </div>
 
       </div>
@@ -56,34 +50,17 @@
           <div class="session-view-header">
 
             <span class="session-status">
-              Session Editor
+              Campaign Archive
             </span>
 
-            <input
-              id="sessionTitle"
-              class="session-input"
-              type="text"
-              placeholder="Session 1 • Into the Nine Hells"
-            />
+            <h2 id="sessionTitle" class="session-display-title">
+              Select a session
+            </h2>
 
           </div>
 
-          <textarea
-            id="sessionRecap"
-            class="session-textarea"
-            placeholder="Write your campaign recap here..."
-          ></textarea>
-
-          <div class="session-controls">
-
-            <button class="btn" id="saveSessionBtn">
-              Save Session
-            </button>
-
-            <button class="btn ghost" id="deleteSessionBtn">
-              Delete Session
-            </button>
-
+          <div id="sessionRecap" class="session-display">
+            Choose a session from the left.
           </div>
 
         </section>
@@ -95,34 +72,6 @@
   </section>
 
 </main>
-
-<div class="session-modal" id="sessionModal">
-
-  <div class="modal-card">
-
-    <h2 id="modalTitle"></h2>
-
-    <div class="modal-recap" id="modalRecap"></div>
-
-    <div class="modal-actions">
-
-      <button class="btn ghost" id="returnModalBtn">
-        Return
-      </button>
-
-      <button class="btn" id="editSessionBtn">
-        Edit
-      </button>
-
-      <button class="btn ghost" id="deleteModalBtn">
-        Delete
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
 
 <script src="./sessions.js"></script>
 
