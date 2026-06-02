@@ -97,6 +97,12 @@ body:before{
     url("./assets/strahd.jpg") center/cover;
 }
 
+.hero-wildemount .hero-bg{
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.82),rgba(0,0,0,.45),rgba(0,0,0,.88)),
+    url("./wildemount.jpg") center/cover;
+}
+
 /* Rime */
 
 .hero-rime .hero-bg{
