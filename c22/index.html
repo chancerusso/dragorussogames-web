@@ -52,7 +52,7 @@
           <a class="portal-card" href="./sessions.html">
             <span class="card-label">Sessions</span>
             <h2>Session Recaps</h2>
-            <p>View, create, edit, and manage campaign session recaps.</p>
+            <p>View the complete campaign session archive.</p>
           </a>
 
         </div>
@@ -62,21 +62,46 @@
   </main>
 
   <script>
-    const sessions = JSON.parse(localStorage.getItem("c22Sessions")) || []
-
+  async function loadLatestSession() {
     const latestTitle = document.getElementById("latestSessionTitle")
     const latestRecap = document.getElementById("latestSessionRecap")
 
-    if (sessions.length > 0) {
-      latestTitle.textContent = sessions[0].title
+    try {
+      const response = await fetch("./data/c22-sessions.json")
 
-      latestRecap.innerHTML = sessions[0].recap
-        .split("\n")
-        .filter(line => line.trim() !== "")
-        .map(line => `<p>${line}</p>`)
+      if (!response.ok) {
+        throw new Error("Could not load session archive")
+      }
+
+      const data = await response.json()
+      const sessions = (data.sessions || []).sort((a, b) => b.number - a.number)
+
+      if (sessions.length === 0) {
+        return
+      }
+
+      const latest = sessions[0]
+
+      latestTitle.textContent = `Session ${latest.number} - ${latest.title}`
+
+      latestRecap.innerHTML = latest.recap
+        .map(paragraph => `<p>${paragraph}</p>`)
         .join("")
+    } catch (error) {
+      console.error(error)
+
+      latestTitle.textContent = "Could not load latest recap"
+
+      latestRecap.innerHTML = `
+        <p>
+          The session archive could not be loaded. Please try refreshing the page.
+        </p>
+      `
     }
-  </script>
+  }
+
+  loadLatestSession()
+</script>
 
 </body>
 </html>
