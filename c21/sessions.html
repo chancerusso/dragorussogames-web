@@ -18,30 +18,22 @@
 
     <div class="dashboard-shell">
 
-     <div class="dashboard-header">
+      <div class="dashboard-header">
 
-  <div>
-    <p class="eyebrow">Campaign Archive</p>
-    <h1>Session Records</h1>
-  </div>
+        <div>
+          <p class="eyebrow">Campaign Archive</p>
+          <h1>Session Records</h1>
+        </div>
 
-  <div class="actions">
+        <div class="actions">
+          <a class="btn ghost" href="./index.html">
+            Return to Campaign
+          </a>
+        </div>
 
-    <button class="btn" id="newSessionBtn">
-      Create Session
-    </button>
-
-    <a class="btn ghost" href="./index.html">
-      Return to Campaign
-    </a>
-
-  </div>
-
-</div>
+      </div>
 
       <div class="dashboard-layout">
-
-        <!-- LEFT SIDE -->
 
         <aside class="session-sidebar">
 
@@ -53,41 +45,22 @@
 
         </aside>
 
-        <!-- RIGHT SIDE -->
-
         <section class="session-viewer">
 
           <div class="session-view-header">
 
             <span class="session-status">
-              Session Editor
+              Campaign Archive
             </span>
 
-            <input
-              id="sessionTitle"
-              class="session-input"
-              type="text"
-              placeholder="Session 24 • The Battle of Temple Gate II"
-            />
+            <h2 id="sessionTitle" class="session-display-title">
+              Select a session
+            </h2>
 
           </div>
 
-          <textarea
-            id="sessionRecap"
-            class="session-textarea"
-            placeholder="Write your campaign recap here..."
-          ></textarea>
-
-          <div class="session-controls">
-
-            <button class="btn" id="saveSessionBtn">
-              Save Session
-            </button>
-
-            <button class="btn ghost" id="deleteSessionBtn">
-              Delete Session
-            </button>
-
+          <div id="sessionRecap" class="session-display">
+            Choose a session from the left.
           </div>
 
         </section>
@@ -99,36 +72,6 @@
   </section>
 
 </main>
-
-<!-- MODAL -->
-
-<div class="session-modal" id="sessionModal">
-
-  <div class="modal-card">
-
-    <h2 id="modalTitle"></h2>
-
-    <div class="modal-recap" id="modalRecap"></div>
-
-    <div class="modal-actions">
-
-      <button class="btn ghost" id="returnModalBtn">
-        Return
-      </button>
-
-      <button class="btn" id="editSessionBtn">
-        Edit
-      </button>
-
-      <button class="btn ghost" id="deleteModalBtn">
-        Delete
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
 
 <script src="./sessions.js"></script>
 
