@@ -1,224 +1,78 @@
-const STORAGE_KEY = "c27Sessions"
+const DATA_FILE = "./data/c27-sessions.json"
 
 const sessionList = document.getElementById("sessionList")
 const sessionTitle = document.getElementById("sessionTitle")
 const sessionRecap = document.getElementById("sessionRecap")
 
-const newSessionBtn = document.getElementById("newSessionBtn")
-const saveSessionBtn = document.getElementById("saveSessionBtn")
-const deleteSessionBtn = document.getElementById("deleteSessionBtn")
+let sessions = []
 
-const sessionModal = document.getElementById("sessionModal")
-const modalTitle = document.getElementById("modalTitle")
-const modalRecap = document.getElementById("modalRecap")
-const closeModalBtn = document.getElementById("closeModalBtn")
-const returnModalBtn = document.getElementById("returnModalBtn")
-const editSessionBtn = document.getElementById("editSessionBtn")
-const deleteModalBtn = document.getElementById("deleteModalBtn")
+async function loadSessions() {
+  try {
+    const response = await fetch(DATA_FILE)
 
-let sessions =
-  JSON.parse(localStorage.getItem(STORAGE_KEY)) || []
+    if (!response.ok) {
+      throw new Error("Failed to load sessions")
+    }
 
-let currentIndex = null
-let modalSessionIndex = null
+    const data = await response.json()
 
-function saveToStorage() {
-  localStorage.setItem(
-    STORAGE_KEY,
-    JSON.stringify(sessions)
-  )
-}
+    sessions = (data.sessions || []).sort((a, b) => b.number - a.number)
 
-function renderList() {
+    renderList()
 
-  sessionList.innerHTML = ""
-
-  if (sessions.length === 0) {
+    if (sessions.length > 0) {
+      showSession(0)
+    }
+  } catch (err) {
+    console.error(err)
 
     sessionList.innerHTML = `
       <div class="empty-state">
-        No sessions saved yet.
+        Could not load session archive.
       </div>
     `
+  }
+}
 
+function renderList() {
+  sessionList.innerHTML = ""
+
+  if (sessions.length === 0) {
+    sessionList.innerHTML = `
+      <div class="empty-state">
+        No sessions available.
+      </div>
+    `
     return
   }
 
   sessions.forEach((session, index) => {
-
     const btn = document.createElement("button")
-
     btn.className = "session-tab"
 
     btn.innerHTML = `
+      <div class="session-number">Session ${session.number}</div>
       <span>${session.title}</span>
     `
 
-    btn.addEventListener("click", () => {
-      openModal(session, index)
-    })
+    btn.addEventListener("click", () => showSession(index))
 
     sessionList.appendChild(btn)
-
   })
 }
 
-function openModal(session, index) {
+function showSession(index) {
+  const session = sessions[index]
 
-  modalSessionIndex = index
+  document.querySelectorAll(".session-tab").forEach((tab, i) => {
+    tab.classList.toggle("active", i === index)
+  })
 
-  modalTitle.textContent = session.title
+  sessionTitle.textContent = `Session ${session.number} • ${session.title}`
 
-  modalRecap.innerHTML =
-    `<p>${session.recap.replace(/\n/g, "</p><p>")}</p>`
-
-  sessionModal.classList.add("active")
+  sessionRecap.innerHTML = session.recap
+    .map(paragraph => `<p>${paragraph}</p>`)
+    .join("")
 }
 
-function closeModal() {
-
-  sessionModal.classList.remove("active")
-
-  modalSessionIndex = null
-}
-
-function clearEditor() {
-
-  currentIndex = null
-
-  sessionTitle.value = ""
-  sessionRecap.value = ""
-
-  sessionTitle.focus()
-}
-
-function saveSession() {
-
-  const title = sessionTitle.value.trim()
-  const recap = sessionRecap.value.trim()
-
-  if (!title || !recap) {
-
-    alert("Please complete the session title and recap.")
-    return
-  }
-
-  const sessionData = {
-    title,
-    recap,
-    updatedAt: new Date().toISOString()
-  }
-
-  if (currentIndex === null) {
-    sessions.unshift(sessionData)
-  } else {
-    sessions[currentIndex] = sessionData
-  }
-
-  saveToStorage()
-  renderList()
-  clearEditor()
-}
-
-function deleteSession() {
-
-  if (currentIndex === null) return
-
-  const confirmDelete =
-    confirm("Delete this session recap?")
-
-  if (!confirmDelete) return
-
-  sessions.splice(currentIndex, 1)
-
-  saveToStorage()
-  renderList()
-  clearEditor()
-}
-
-function editModalSession() {
-
-  if (modalSessionIndex === null) return
-
-  currentIndex = modalSessionIndex
-
-  sessionTitle.value =
-    sessions[currentIndex].title
-
-  sessionRecap.value =
-    sessions[currentIndex].recap
-
-  closeModal()
-
-  document
-    .querySelector(".session-viewer")
-    .scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    })
-}
-
-function deleteModalSession() {
-
-  if (modalSessionIndex === null) return
-
-  const confirmDelete =
-    confirm("Delete this session recap?")
-
-  if (!confirmDelete) return
-
-  sessions.splice(modalSessionIndex, 1)
-
-  saveToStorage()
-  renderList()
-  closeModal()
-  clearEditor()
-}
-
-newSessionBtn.addEventListener(
-  "click",
-  clearEditor
-)
-
-saveSessionBtn.addEventListener(
-  "click",
-  saveSession
-)
-
-deleteSessionBtn.addEventListener(
-  "click",
-  deleteSession
-)
-
-if (closeModalBtn) {
-  closeModalBtn.addEventListener(
-    "click",
-    closeModal
-  )
-}
-
-returnModalBtn.addEventListener(
-  "click",
-  closeModal
-)
-
-editSessionBtn.addEventListener(
-  "click",
-  editModalSession
-)
-
-deleteModalBtn.addEventListener(
-  "click",
-  deleteModalSession
-)
-
-sessionModal.addEventListener(
-  "click",
-  (e) => {
-    if (e.target === sessionModal) {
-      closeModal()
-    }
-  }
-)
-
-renderList()
+loadSessions()

@@ -67,9 +67,7 @@
           <a class="portal-card" href="./sessions.html">
             <span class="card-label">Sessions</span>
             <h2>Session Recaps</h2>
-            <p>
-              View, create, edit, and manage campaign session recaps.
-            </p>
+            <p>View the complete campaign session archive.</p>
           </a>
 
         </div>
@@ -81,28 +79,52 @@
 
   <script>
 
-    const sessions =
-      JSON.parse(localStorage.getItem("c27Sessions")) || []
+async function loadLatestSession() {
 
-    const latestTitle =
-      document.getElementById("latestSessionTitle")
+try {
 
-    const latestRecap =
-      document.getElementById("latestSessionRecap")
+const response =
+await fetch("./data/c27-sessions.json")
 
-    if (sessions.length > 0) {
+const data =
+await response.json()
 
-      latestTitle.textContent = sessions[0].title
+const sessions =
+data.sessions || []
 
-      latestRecap.innerHTML =
-        sessions[0].recap
-          .split("\n")
-          .filter(line => line.trim() !== "")
-          .map(line => `<p>${line}</p>`)
-          .join("")
-    }
+if (sessions.length > 0) {
 
-  </script>
+document.getElementById(
+"latestSessionTitle"
+).textContent =
+`Session ${sessions[0].number} - ${sessions[0].title}`
+
+document.getElementById(
+"latestSessionRecap"
+).innerHTML =
+sessions[0].recap
+.map(
+line => `<p>${line}</p>`
+)
+.join("")
+
+}
+
+}
+
+catch (err) {
+
+console.error(
+"Failed loading latest session"
+)
+
+}
+
+}
+
+loadLatestSession()
+
+</script>
 
 </body>
 </html>
