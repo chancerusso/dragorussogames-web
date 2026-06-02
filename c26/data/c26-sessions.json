@@ -1,3 +1,51 @@
 {
-  "sessions": []
+  "sessions": [
+    {
+      "number": 2,
+      "title": "The Refugees of Elturel",
+      "recap": [
+        "After the disaster and chaos surrounding Elturel, our heroes found themselves among a growing refugee caravan gathering survivors and preparing to travel west toward Baldur’s Gate.",
+        "There they met Dara, a determined young woman organizing survivors, along with Ghorin and his faithful goat Clyde. Supplies were scarce and survival depended on helping others.",
+        "Their first task led them toward Wellum’s Smithy. Along the way they encountered signs that something darker had taken root in the region. Wellum explained that his supplies had been stolen by bandits, and a quiet elven woman named Vollis pointed the party toward their hideout.",
+        "Following the trail, the heroes discovered an abandoned temple hidden in the countryside.",
+        "Inside they found not ordinary bandits but cultists devoted to Zariel. Blood rituals and sacrifices were underway in an attempt to summon devils from Avernus and spread greater chaos throughout the region. After a brutal confrontation the heroes stopped the ritual, defeated the cultists, and recovered the stolen supplies.",
+        "Returning victorious, they reunited with the refugees and helped move the caravan forward.",
+        "They later assisted Ippon the miller, ensuring horses and supplies reached the caravan so the journey could continue. During this effort they met Billiam, a reluctant poet unwilling to abandon his home. Eventually the heroes convinced him to join the caravan by reminding him that stories survive where cities do not.",
+        "Billiam agreed. He wished to record the Fall of Elturel and tell the tale of the heroes helping its people survive.",
+        "Before departure another crisis emerged. The heroes learned that friends of two among them were in danger at a nearby inn. Racing there, they confronted infernal forces and rescued Segren—the husband of Vasha, the innkeeper.",
+        "Though reunited, something was terribly wrong.",
+        "Segren still lived, but he did not wake.",
+        "He remained trapped in a strange coma with no obvious cause.",
+        "With refugees gathered and hope fragile, the caravan finally departed for Baldur’s Gate.",
+        "For several days the road was calm. Stories were exchanged. Friendships formed. For a brief moment it seemed survival might actually be possible.",
+        "Then, on the morning of the fourth day—a scream shattered the camp.",
+        "The heroes rushed to Billiam’s tent.",
+        "Inside they found the poet dead.",
+        "His throat had been slit.",
+        "Carved into his chest was a strange infernal symbol.",
+        "And suddenly, the road to Baldur’s Gate no longer felt safe at all."
+      ]
+    },
+    {
+      "number": 1,
+      "title": "We Meet at an Inn",
+      "recap": [
+        "Our story begins in the city of Elturel at the tavern known as A Pair of Black Antlers, where three unlikely heroes found themselves seated together for a meeting that would change their lives.",
+        "Daen Ashwonder, a human ranger, had been sent by Gideon Lightward with a simple task: watch over and protect the young Hellrider Reya Mantlemorn.",
+        "Dael Morningsong, an elven druid, had come due to his familiarity with the woods and old places surrounding Elturel.",
+        "Gannon, a goliath paladin, attended at the request of Onthar Frume and the Order of the Gauntlet.",
+        "The gathering was meant to unite leaders and agents against troubling news coming from the north. Reports had reached Elturel that the Cult of the Dragon had become active in the Elturgard Woods.",
+        "Grand Duke Ulder Ravengard had been invited by High Overseer Thavius Kreeg to discuss the matter, but strangely, Kreeg never arrived.",
+        "The heroes agreed to investigate the woods and return with their findings.",
+        "Along the road they witnessed a local wedding where strangers witnessing vows was considered good fortune.",
+        "Later they rescued a young girl named Grace from wolves. In thanks she gifted them threads from her colorful scarf.",
+        "Upon reaching the Elturgard Woods they discovered something unexpected.",
+        "The Cult of the Dragon had already been attacked by cultists of the Dead Three.",
+        "Searching the site revealed a note connecting Duke Thalamra Vanthampur to hidden dragon treasure and suggesting she had been funding the Dead Three cultists in Baldur’s Gate.",
+        "The note also revealed operations centered beneath a bathhouse.",
+        "The heroes returned to Elturel carrying information that felt far larger than a simple cult investigation.",
+        "They did not yet realize they had already stepped onto the road to hell."
+      ]
+    }
+  ]
 }
