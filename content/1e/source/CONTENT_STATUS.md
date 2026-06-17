@@ -9,10 +9,10 @@ Statuses:
 
 ## Character Creation
 
-### Ability Scores
+### [Review] Ability Scores
 Owner:
-Source:
-Status: Not Started
+Source: OSRIC Chapter I, Ability Scores
+Status: Review
 
 ### Race
 Owner:

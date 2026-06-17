@@ -25,6 +25,23 @@ Result:
 Approved.
 
 Date:
+2026-06-17
+
+Decision:
+Question: Should we keep classic generation?
+
+Reason:
+Ability score generation affects tone, character survivability, and player control.
+
+Options:
+- A. 3d6 in order
+- B. 4d6 drop lowest arrange
+- C. Multiple arrays choose one
+
+Result:
+Status: Undecided.
+
+Date:
 Pending
 
 Decision:
