@@ -14,10 +14,10 @@ Owner:
 Source: OSRIC Chapter I, Ability Scores
 Status: Review
 
-### Race
+### [Review] Race
 Owner:
-Source:
-Status: Not Started
+Source: OSRIC Chapter I, Character Races
+Status: Review
 
 ### Class
 Owner:
