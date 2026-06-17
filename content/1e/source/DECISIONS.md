@@ -42,6 +42,18 @@ Result:
 Status: Undecided.
 
 Date:
+2026-06-17
+
+Decision:
+Character creation pages will follow OSRIC order.
+
+Reason:
+Players should learn the game in the same sequence as the rules source, while our explanations and house rules remain separate.
+
+Result:
+Approved.
+
+Date:
 Pending
 
 Decision:
