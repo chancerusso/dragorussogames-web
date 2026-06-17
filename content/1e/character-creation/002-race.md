@@ -191,6 +191,20 @@ Do not treat Human as boring.
 
 In First Edition, fewer racial powers often means fewer racial limits.
 
+### Complete Rules
+
+| Rule | Human |
+| --- | --- |
+| Ability limits | No race-based minimums, maximums, or adjustments from this section. |
+| Single classes | Assassin, Cleric, Druid, Fighter, Illusionist, Magic User, Paladin, Ranger, Thief. |
+| Multi-class | None. Humans use dual-class rules instead of racial multi-class options. |
+| Starting languages | Common and alignment language. |
+| Additional languages | Use Intelligence language allowance when the Languages step assigns them. |
+| Movement | 12"; write 120 ft. |
+| Vision | Normal vision. |
+| Special abilities | None from race. |
+| Advancement | No race-based class limit for most classes; Assassin and Druid limits are class limits. |
+
 ### Write This Down
 
 Race:
@@ -365,6 +379,23 @@ Choose Dwarf if you want:
 Do not choose Dwarf only for toughness.
 
 Make sure the slower movement and narrower class list fit the character you want.
+
+### Complete Rules
+
+| Rule | Dwarf |
+| --- | --- |
+| Ability adjustments | Constitution increases by 1; Charisma decreases by 1. |
+| Ability limits | Minimum Constitution 12. Maximum Dexterity 17, Charisma 16, Strength 18/99. |
+| Single classes | Assassin, Cleric, Fighter, Thief. |
+| Multi-class | Fighter/Thief. |
+| Unavailable classes | Druid, Illusionist, Magic User, Paladin, Ranger. |
+| Starting languages | Common, alignment, dwarfish, gnomish, goblin, kobold, orcish. |
+| Additional languages | No more than two additional languages beyond the starting list. |
+| Movement | 9"; write 90 ft. |
+| Vision | Infravision 60'. |
+| Special abilities | Constitution-based saves against magic and poison; stonework detection; bonuses against goblin/orc enemies; harder for large giant-type foes to hit. |
+| Detection | Can deliberately check slopes, new construction, shifting stone, stone traps, and approximate depth underground. |
+| Advancement | Assassin 9, Cleric 8, Fighter 7-9 by Strength, Thief unlimited. |
 
 ### Write This Down
 
@@ -548,6 +579,23 @@ Do not assume Elf is simply Human plus bonuses.
 
 Elf is powerful, but the class and advancement limits are part of the choice.
 
+### Complete Rules
+
+| Rule | Elf |
+| --- | --- |
+| Ability adjustments | Dexterity increases by 1; Constitution decreases by 1. |
+| Ability limits | Minimum Intelligence 8. Maximum Constitution 17, Strength 18/75. |
+| Single classes | Assassin, Cleric, Fighter, Magic User, Thief. |
+| Multi-class | Fighter/Magic User, Fighter/Thief, Magic User/Thief, Fighter/Magic User/Thief. |
+| Unavailable classes | Druid, Illusionist, Paladin, Ranger. |
+| Starting languages | Common, elven, gnoll, gnomish, goblin, halfling, hobgoblin, orcish. |
+| Additional languages | Intelligence 16 grants one additional language, 17 grants two, 18 grants three. |
+| Movement | 12"; write 120 ft. |
+| Vision | Infravision 60'. |
+| Special abilities | Strong resistance to sleep and charm; bonuses with bows, longsword, and short sword; secret and concealed door detection; improved surprise when scouting in the right conditions. |
+| Detection | Can notice secret doors while passing and can actively search for secret or concealed doors. |
+| Advancement | Assassin 10, Cleric 7, Fighter 5-7 by Strength, Magic User 9-11 by Intelligence, Thief unlimited. |
+
 ### Write This Down
 
 Race:
@@ -718,6 +766,23 @@ Choose Gnome if you want:
 Gnome is not just a smaller Dwarf.
 
 Choose it for illusion, scouting, and underground utility.
+
+### Complete Rules
+
+| Rule | Gnome |
+| --- | --- |
+| Ability adjustments | None listed in this page. |
+| Ability limits | Minimum Constitution 8. Maximum Wisdom 17, Strength 18/50. |
+| Single classes | Assassin, Cleric, Fighter, Illusionist, Thief. |
+| Multi-class | Fighter/Illusionist, Fighter/Thief, Illusionist/Thief. |
+| Unavailable classes | Druid, Magic User, Paladin, Ranger. |
+| Starting languages | Common, dwarfish, gnomish, goblin, halfling, kobold. |
+| Additional languages | No more than two additional languages beyond the starting list. |
+| Movement | 9"; write 90 ft. |
+| Vision | Infravision 60'. |
+| Special abilities | Constitution-based saves against magic and poison; bonuses against kobolds and goblins; harder for several large foes to hit; underground detection; communication with normal burrowing animals. |
+| Detection | Can deliberately check slopes, unsafe walls, unsafe ceilings, unsafe floors, depth underground, and north underground. |
+| Advancement | Assassin 8, Cleric 7, Fighter 5-6 by Strength, Illusionist 5-7 by Dexterity and Intelligence, Thief unlimited. |
 
 ### Write This Down
 
@@ -895,6 +960,23 @@ Do not choose Half-Elf because you cannot decide.
 
 Choose it because flexibility is the character concept.
 
+### Complete Rules
+
+| Rule | Half-Elf |
+| --- | --- |
+| Ability adjustments | None listed in this page. |
+| Ability limits | Minimum Constitution 6, Intelligence 4. Maximum Strength 18/90. |
+| Single classes | Assassin, Cleric, Fighter, Magic User, Ranger, Thief. |
+| Multi-class | Cleric/Fighter, Cleric/Ranger, Cleric/Magic User, Fighter/Magic User, Fighter/Thief, Magic User/Thief, Cleric/Fighter/Magic User, Fighter/Magic User/Thief. |
+| Unavailable classes | Druid, Illusionist, Paladin. |
+| Starting languages | Common, elven, gnoll, gnome, goblin, halfling, hobgoblin, orcish. |
+| Additional languages | Use Intelligence language allowance when the Languages step assigns them. |
+| Movement | 12"; write 120 ft. |
+| Vision | Infravision 60'. |
+| Special abilities | Partial resistance to sleep and charm; secret and concealed door detection. |
+| Detection | Can notice concealed doors while passing and can actively search for secret or concealed doors. |
+| Advancement | Assassin 11, Cleric 5, Fighter 6-8 by Strength, Magic User 6-8 by Intelligence, Ranger 6-8 by Strength, Thief unlimited. |
+
 ### Write This Down
 
 Race:
@@ -1065,6 +1147,23 @@ Do not play a Halfling like a small Human Fighter.
 
 Use stealth, scouting, missile fire, and retreat routes.
 
+### Complete Rules
+
+| Rule | Halfling |
+| --- | --- |
+| Ability adjustments | Dexterity increases by 1; Strength decreases by 1. |
+| Ability limits | Minimum Constitution 10, Dexterity 10. Maximum Strength 17. |
+| Single classes | Druid, Fighter, Thief. |
+| Multi-class | Fighter/Thief. |
+| Unavailable classes | Assassin, Cleric, Illusionist, Magic User, Paladin, Ranger. |
+| Starting languages | Common, dwarfish, gnome, goblin, halfling, orcish. |
+| Additional languages | One additional language for each Intelligence point above 16, maximum two additional languages. |
+| Movement | 9"; write 90 ft. |
+| Vision | Infravision 60'. |
+| Special abilities | Constitution-based saves against magic and poison; bonus with bow or sling; improved surprise when scouting in the right conditions. |
+| Surprise | Best when lightly armored and scouting alone, far ahead, or with only elves and/or halflings. |
+| Advancement | Druid 6, Fighter 4, Thief unlimited. |
+
 ### Write This Down
 
 Race:
@@ -1234,6 +1333,23 @@ Choose Half-Orc if you want:
 Do not choose Half-Orc only for physical bonuses.
 
 Be ready for limited class options and lower social ease.
+
+### Complete Rules
+
+| Rule | Half-Orc |
+| --- | --- |
+| Ability adjustments | Strength increases by 1; Constitution increases by 1; Charisma decreases by 2. |
+| Ability limits | Minimum Constitution 13. Maximum Charisma 12. |
+| Single classes | Assassin, Cleric, Fighter, Thief. |
+| Multi-class | Cleric/Fighter, Cleric/Thief, Cleric/Assassin, Fighter/Thief, Fighter/Assassin. |
+| Unavailable classes | Druid, Illusionist, Magic User, Paladin, Ranger. |
+| Starting languages | Common, orcish. |
+| Additional languages | No more than two additional languages beyond the starting list. |
+| Movement | 12"; write 120 ft. |
+| Vision | Infravision 60'. |
+| Special abilities | Strength and Constitution increase; Charisma decreases; strong fit for hard combat or stealth classes. |
+| Restrictions | Class choices are narrow, and Charisma penalty can affect hirelings, reactions, and social scenes. |
+| Advancement | Assassin 15, Cleric 4, Fighter 10, Thief 6-7 by Dexterity. |
 
 ### Write This Down
 

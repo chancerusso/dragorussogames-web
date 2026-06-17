@@ -19,10 +19,10 @@ Owner:
 Source: OSRIC Chapter I, Character Races
 Status: Review
 
-### Class
+### [Review] Class
 Owner:
-Source:
-Status: Not Started
+Source: OSRIC Chapter I, Character Classes
+Status: Review
 
 ### Alignment
 Owner:

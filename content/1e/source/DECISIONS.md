@@ -54,6 +54,18 @@ Result:
 Approved.
 
 Date:
+2026-06-17
+
+Decision:
+First Edition pages may include full mechanical rules and tables where license permits.
+
+Reason:
+Players should complete character creation and normal play using the website only.
+
+Result:
+Approved.
+
+Date:
 Pending
 
 Decision:
@@ -81,10 +93,22 @@ Date:
 Pending
 
 Decision:
-OSRIC used as reference only.
+OSRIC is the rules source.
 
 Reason:
-This project is not an OSRIC mirror.
+The website may reproduce permitted mechanics and tables where the license allows, while adding our own layout, explanations, navigation, and house-rule separation.
 
 Result:
 Approved.
+
+Date:
+2026-06-17
+
+Decision:
+First Edition is a step-by-step online rules manual, not an interactive character builder.
+
+Reason:
+Players should read the rules, follow clear steps, make manual choices, write information on a paper or printable character sheet, and continue to the next page. The website may include permitted OSRIC mechanics and tables, but it should not add selectors, form fields, auto-calculation, saved character state, generated character sheets, or account storage.
+
+Result:
+Approved. House rules remain clearly separated from official rules and campaign procedures.

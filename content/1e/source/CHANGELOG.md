@@ -29,3 +29,14 @@ Added:
 
 Changed:
 002 Race finalized for race selection workflow
+002 Race expanded into complete race selection reference
+
+Date:
+2026-06-17
+
+Added:
+003 Class created
+
+Changed:
+003 Class corrected for full-rules model review
+TODO: Need table responsiveness pass for class tables.

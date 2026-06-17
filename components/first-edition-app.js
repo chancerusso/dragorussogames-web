@@ -97,6 +97,41 @@ function slugify(text) {
     .replace(/^-|-$/g, "");
 }
 
+function isTableSeparator(line) {
+  return /^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?$/.test(line);
+}
+
+function isTableRow(line) {
+  return line.includes("|") && !isTableSeparator(line);
+}
+
+function parseTableRow(line) {
+  return line
+    .replace(/^\|/, "")
+    .replace(/\|$/, "")
+    .split("|")
+    .map((cell) => cell.trim());
+}
+
+function tableToHtml(rows) {
+  const header = parseTableRow(rows[0]);
+  const body = rows.slice(2).map(parseTableRow);
+
+  return `
+<div class="one-e-table-wrap" role="region" aria-label="Scrollable rules table" tabindex="0">
+  <table>
+    <thead>
+      <tr>${header.map((cell) => `<th scope="col">${inlineMarkdown(cell)}</th>`).join("")}</tr>
+    </thead>
+    <tbody>
+      ${body
+        .map((row) => `<tr>${row.map((cell) => `<td>${inlineMarkdown(cell)}</td>`).join("")}</tr>`)
+        .join("\n")}
+    </tbody>
+  </table>
+</div>`;
+}
+
 function markdownToHtml(markdown) {
   const lines = markdown.replace(/\r\n/g, "\n").split("\n");
   const html = [];
@@ -109,11 +144,28 @@ function markdownToHtml(markdown) {
     }
   }
 
-  for (const rawLine of lines) {
+  for (let index = 0; index < lines.length; index += 1) {
+    const rawLine = lines[index];
     const line = rawLine.trim();
 
     if (!line) {
       closeList();
+      continue;
+    }
+
+    const nextLine = lines[index + 1]?.trim() || "";
+    if (isTableRow(line) && isTableSeparator(nextLine)) {
+      closeList();
+      const tableRows = [line, nextLine];
+      index += 2;
+
+      while (index < lines.length && isTableRow(lines[index].trim())) {
+        tableRows.push(lines[index].trim());
+        index += 1;
+      }
+
+      index -= 1;
+      html.push(tableToHtml(tableRows));
       continue;
     }
 
