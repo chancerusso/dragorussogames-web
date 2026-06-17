@@ -2,6 +2,7 @@ const RULES_BASE = "/1e";
 const CONTENT_BASE = "/content/1e";
 
 const navItems = [
+  { title: "Home", href: "/1e/" },
   { title: "Start Here", href: "/1e/start-here/" },
   { title: "Character Creation", href: "/1e/character-creation/" },
   { title: "How To Play", href: "/1e/how-to-play/" },
@@ -12,6 +13,12 @@ const navItems = [
 ];
 
 const sectionItems = {
+  index: [
+    ["Character Creation", "/1e/character-creation/"],
+    ["How To Play", "/1e/how-to-play/"],
+    ["House Rules", "/1e/house-rules/"],
+    ["Downloads", "/1e/downloads/"]
+  ],
   "character-creation": [
     ["001 Ability Scores", "/1e/character-creation/001-ability-scores/"],
     ["002 Race", "/1e/character-creation/002-race/"],

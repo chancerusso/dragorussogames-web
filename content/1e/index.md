@@ -1,30 +1,42 @@
-# First Edition
+# Drago Russo Games First Edition
 
 ## Purpose
-This is the home for the Drago Russo Games First Edition rules experience.
+This is the home for the Drago Russo Games First Edition rules manual.
+
+It teaches players how to build characters and use the rules step by step with paper or printable character sheets.
 
 ## Rule Source
-Drago Russo Games framework. Final rules are not published yet.
+OSRIC is the rules source.
+
+OSRIC is an open First Edition rules reference. Drago Russo Games uses it as the baseline rules authority where the license permits, while presenting the material with our own layout, explanations, navigation, examples, procedures, and clearly separated house rules.
 
 ## Official Rule Summary
-Pending. OSRIC will be used as a baseline reference page-by-page, with original summaries and table procedures written later.
+This is not an interactive character builder and it is not account storage.
+
+Read a page, follow the rule, make a manual choice, write it on your sheet, and continue to the next step.
 
 ## Simple Explanation
-This site is not an OSRIC mirror. It is a structured home for our own First Edition ruleset, house rules, printable tools, and future browser sheet support.
+This site is our presentation of First Edition play.
+
+It includes rules, tables, examples, write-this-down guidance, printable support, and campaign house rules when approved.
 
 ## Procedure
-- Start with the Start Here page.
-- Use Character Creation when building a new character.
+- To build a character, choose **Start Character Creation** below.
+- Follow the Character Creation pages in order.
 - Use How To Play and Procedures during sessions.
 - Use Downloads for printable sheets when they are released.
 
 ## Examples
-Pending.
+- New player path: Ability Scores → Race → Class → Alignment.
+- Table path: How To Play → Procedures → Reference.
 
 ## Quick Reference
-- Phase 1: printable sheets only.
-- Phase 2: fillable browser sheet.
-- Phase 3: optional account storage.
+- [Start Character Creation](/1e/character-creation/)
+- [Start Here](/1e/start-here/)
+- [How To Play](/1e/how-to-play/)
+- [Reference](/1e/reference/)
+- [House Rules](/1e/house-rules/)
+- [Downloads](/1e/downloads/)
 
 ## House Rules
 Pending.
@@ -35,4 +47,7 @@ Download placeholders are available in the Downloads section.
 ## Related Pages
 - [Start Here](/1e/start-here/)
 - [Character Creation](/1e/character-creation/)
+- [How To Play](/1e/how-to-play/)
+- [Reference](/1e/reference/)
+- [House Rules](/1e/house-rules/)
 - [Downloads](/1e/downloads/)

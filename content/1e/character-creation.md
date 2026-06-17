@@ -10,24 +10,31 @@ OSRIC baseline / House Rule pending.
 Pending original summary.
 
 ## Simple Explanation
-Use these pages in order when building a new character. Each page is a placeholder until its source review and house rules are written.
+Use these pages in order when building a new character.
+
+Read the page, use the rules and tables, write the result on your sheet, then continue to the next page.
 
 ## Procedure
-- 001 Ability Scores
-- 002 Race
-- 003 Class
-- 004 Alignment
-- 005 Starting Wealth
-- 006 Equipment
-- 007 Hit Points
-- 008 Languages
-- 009 Final Character
+- [001 Ability Scores](/1e/character-creation/001-ability-scores/)
+- [002 Race](/1e/character-creation/002-race/)
+- [003 Class](/1e/character-creation/003-class/)
+- [004 Alignment](/1e/character-creation/004-alignment/)
+- [005 Starting Wealth](/1e/character-creation/005-starting-wealth/)
+- [006 Equipment](/1e/character-creation/006-equipment/)
+- [007 Hit Points](/1e/character-creation/007-hit-points/)
+- [008 Languages](/1e/character-creation/008-languages/)
+- [009 Final Character](/1e/character-creation/009-final-character/)
 
 ## Examples
 Pending.
 
 ## Quick Reference
-Pending.
+Current authored sequence:
+
+- 001 Ability Scores
+- 002 Race
+- 003 Class
+- 004 Alignment
 
 ## House Rules
 Pending.
@@ -36,5 +43,7 @@ Pending.
 Character Sheet placeholders are in [Downloads](/1e/downloads/).
 
 ## Related Pages
+- [Home](/1e/)
+- [Start Character Creation](/1e/character-creation/001-ability-scores/)
 - [Reference](/1e/reference/)
 - [Downloads](/1e/downloads/)
