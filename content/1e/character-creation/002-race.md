@@ -1,7 +1,5 @@
 # 002 Race
 
-Status: Draft
-
 Read Time:
 8-12 minutes
 
@@ -41,37 +39,32 @@ Race can affect:
 
 Humans are the baseline. Demi-human races often gain useful abilities, but they usually trade that power for class limits, advancement limits, or narrower options.
 
-## Race Comparison
-
-Best for simple first character:
-Human
-
-Best for long-term class freedom:
-Human
-
-Best for dungeon toughness:
-Dwarf
-
-Best for fighter/magic flexibility:
-Elf or Half-Elf
-
-Best for illusion and underground tricks:
-Gnome
-
-Best for stealth and scouting:
-Halfling, Elf, Half-Elf, or Gnome
-
-Best for harsh combat roles:
-Half-Orc
-
-Best for social leadership:
-Human or Half-Elf
-
-## Race Sections
+## Race Overview
 
 Each race below uses the same structure.
 
 Read Overview first. Then check Ability Considerations and Allowed Class Considerations before you fall in love with the concept.
+
+## Race Navigation
+
+- [Human](/1e/races/human/)
+- [Dwarf](/1e/races/dwarf/)
+- [Elf](/1e/races/elf/)
+- [Gnome](/1e/races/gnome/)
+- [Half-Elf](/1e/races/half-elf/)
+- [Halfling](/1e/races/halfling/)
+- [Half-Orc](/1e/races/half-orc/)
+
+## Race Comparison
+
+- Best for simple first character: [Human](/1e/races/human/)
+- Best for long-term class freedom: [Human](/1e/races/human/)
+- Best for dungeon toughness: [Dwarf](/1e/races/dwarf/)
+- Best for fighter/magic flexibility: [Elf](/1e/races/elf/) or [Half-Elf](/1e/races/half-elf/)
+- Best for illusion and underground tricks: [Gnome](/1e/races/gnome/)
+- Best for stealth and scouting: [Halfling](/1e/races/halfling/), [Elf](/1e/races/elf/), [Half-Elf](/1e/races/half-elf/), or [Gnome](/1e/races/gnome/)
+- Best for harsh combat roles: [Half-Orc](/1e/races/half-orc/)
+- Best for social leadership: [Human](/1e/races/human/) or [Half-Elf](/1e/races/half-elf/)
 
 ## Human
 
@@ -1398,16 +1391,6 @@ If you are stuck, choose the race that best supports the class you want next.
 ## House Rules
 
 No approved house rule yet.
-
-Draft note:
-Race rules should stay close to OSRIC until a campaign decision changes eligibility, advancement, languages, movement, vision, or special abilities.
-
-## Page References
-
-OSRIC, Chapter I: Creating a Character, Character Races, pages 3-7.
-
-Relevant section read only:
-Character Races through Humans, ending before Character Classes.
 
 ## Related Pages
 

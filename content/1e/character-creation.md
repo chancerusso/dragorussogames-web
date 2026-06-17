@@ -1,20 +1,12 @@
 # Character Creation
 
 ## Purpose
-Provide the ordered workflow for creating a First Edition character.
+Build a First Edition character by reading each page, making manual choices, and writing the results on your character sheet.
 
-## Rule Source
-OSRIC baseline / House Rule pending.
+## Build Your Character
+Use these pages in order. Each page teaches the rule, shows what to decide, and tells you what to record.
 
-## Official Rule Summary
-Pending original summary.
-
-## Simple Explanation
-Use these pages in order when building a new character.
-
-Read the page, use the rules and tables, write the result on your sheet, then continue to the next page.
-
-## Procedure
+## Character Creation Path
 - [001 Ability Scores](/1e/character-creation/001-ability-scores/)
 - [002 Race](/1e/character-creation/002-race/)
 - [003 Class](/1e/character-creation/003-class/)
@@ -25,22 +17,20 @@ Read the page, use the rules and tables, write the result on your sheet, then co
 - [008 Languages](/1e/character-creation/008-languages/)
 - [009 Final Character](/1e/character-creation/009-final-character/)
 
-## Examples
-Pending.
+## What You Need
+- A blank or printable character sheet
+- Dice
+- A pencil
+- These character creation pages
 
-## Quick Reference
-Current authored sequence:
+## What You Decide
+- Ability scores
+- Race
+- Class
+- Alignment
 
-- 001 Ability Scores
-- 002 Race
-- 003 Class
-- 004 Alignment
-
-## House Rules
-Pending.
-
-## Downloads
-Character Sheet placeholders are in [Downloads](/1e/downloads/).
+## What Comes Next
+After Alignment, continue through wealth, equipment, hit points, languages, and final character review.
 
 ## Related Pages
 - [Home](/1e/)

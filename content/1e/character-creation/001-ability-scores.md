@@ -1,7 +1,5 @@
 # 001 Ability Scores
 
-Status: Review
-
 Read Time:
 3 minutes
 
@@ -21,7 +19,7 @@ They answer the first big question of character creation:
 - Where are they ordinary?
 - Where are they vulnerable?
 
-## Official Rule
+## The Rule
 
 OSRIC uses six ability scores:
 
@@ -34,15 +32,12 @@ OSRIC uses six ability scores:
 
 Each score normally falls from 3 to 18. Higher is better.
 
-The referee decides how scores are generated. OSRIC presents several approaches, ranging from strict old-school randomness to more flexible methods.
+Drago Russo Games rule:
+Roll 4d6 and drop the lowest die. Add the remaining three dice together.
 
-Common options include:
+Do this six times.
 
-- Roll 3d6 for each ability in order.
-- Roll six scores, then assign them to abilities.
-- Roll 4d6 for each score and drop the lowest die, then use the result.
-
-The strictest method creates characters from whatever the dice give you. The more flexible methods make it easier to aim for a class or party role.
+Assign the six results to whichever abilities you choose.
 
 Each ability matters in a different way:
 
@@ -63,52 +58,45 @@ Term notes:
 
 ## How We Use It
 
-For Drago Russo Games First Edition, ability score generation is a table procedure. The referee announces the method before character creation begins.
-
-Until a campaign-specific house rule is approved, do not assume a default rolling method.
+This method gives you a little control without removing the danger and surprise of the dice.
 
 The goal is not to build a perfect character. The goal is to discover a playable adventurer and then make interesting choices from the scores you rolled.
 
-## Procedure
+## Build Your Character
 
-1. Confirm the ability score method with the referee.
-2. Roll or assign scores using that method.
-3. Record Strength, Dexterity, Constitution, Intelligence, Wisdom, and Charisma.
-4. Note which scores may qualify or limit race and class choices.
-5. Keep the original scores visible while choosing race and class.
-6. Apply later adjustments only when the relevant page tells you to do so.
+1. Roll 4d6.
+2. Drop the lowest die.
+3. Add the remaining three dice.
+4. Write that result in a temporary list.
+5. Repeat until you have six scores.
+6. Assign those scores to Strength, Dexterity, Constitution, Intelligence, Wisdom, and Charisma.
+7. Keep the scores visible while choosing race and class.
 
 ## Examples
 
 Example 1:
-A player rolls high Strength and Constitution but low Intelligence. That character may naturally lean toward a front-line role, but the player should still check class requirements before deciding.
+A player rolls 16, 15, 13, 12, 10, and 8. They want a Fighter, so they place 16 in Strength and 15 in Constitution.
 
 Example 2:
-A player wants to play a magic user. If the table is using a method that allows assignment, the player may place the best score in Intelligence. If the table is rolling in order, the dice may push the player toward a different character concept.
+A player wants a Magic User, so they place their best score in Intelligence.
 
 Example 3:
-A high Charisma character may be especially valuable in a campaign where henchmen, negotiation, and reaction rolls matter.
+A player wants a Cleric, so they place a strong score in Wisdom.
 
-## Quick Reference
+Example 4:
+A player wants a Thief, so they place a strong score in Dexterity.
+
+## What You Decide
 
 - Ability scores usually range from 3 to 18.
 - The six abilities are Strength, Dexterity, Constitution, Intelligence, Wisdom, Charisma.
-- The referee chooses the generation method.
+- Roll six scores using 4d6, drop lowest.
+- Assign the six results where you want them.
 - Scores can influence class choice, race choice, survival, combat, languages, henchmen, and reactions.
-- Do not copy ability modifiers from memory. Check the relevant reference when a modifier matters.
 
 ## House Rule
 
-No approved house rule yet.
-
-Draft note:
-If the campaign uses a standard Drago Russo method later, record it here and add the decision to `HOUSE_RULES.md`.
-
-## Page Reference
-
-OSRIC, Chapter I: Creating a Character, Ability Scores, pages 1-3.
-
-Relevant section read only: Ability Scores through Charisma, ending before Character Races.
+Drago Russo Games uses 4d6, drop the lowest die, six times. Assign the six results to abilities in any order.
 
 ## Related Pages
 

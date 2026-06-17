@@ -9,26 +9,52 @@ const navItems = [
   { title: "House Rules", href: "/1e/house-rules/" },
   { title: "Procedures", href: "/1e/procedures/" },
   { title: "Reference", href: "/1e/reference/" },
+  { title: "Races", href: "/1e/races/" },
+  { title: "Classes", href: "/1e/classes/" },
   { title: "Downloads", href: "/1e/downloads/" }
 ];
 
 const sectionItems = {
   index: [
-    ["Character Creation", "/1e/character-creation/"],
-    ["How To Play", "/1e/how-to-play/"],
-    ["House Rules", "/1e/house-rules/"],
-    ["Downloads", "/1e/downloads/"]
+    ["Character Creation", "/1e/character-creation/", "Build a character step by step with rules, tables, and write-this-down guidance."],
+    ["How To Play", "/1e/how-to-play/", "Use the table procedures for exploration, encounters, combat, magic, and advancement."],
+    ["House Rules", "/1e/house-rules/", "Read Drago Russo campaign changes separately from the baseline rules."],
+    ["Downloads", "/1e/downloads/", "Find printable sheets and table aids as they become available."]
   ],
   "character-creation": [
-    ["001 Ability Scores", "/1e/character-creation/001-ability-scores/"],
-    ["002 Race", "/1e/character-creation/002-race/"],
-    ["003 Class", "/1e/character-creation/003-class/"],
-    ["004 Alignment", "/1e/character-creation/004-alignment/"],
-    ["005 Starting Wealth", "/1e/character-creation/005-starting-wealth/"],
-    ["006 Equipment", "/1e/character-creation/006-equipment/"],
-    ["007 Hit Points", "/1e/character-creation/007-hit-points/"],
-    ["008 Languages", "/1e/character-creation/008-languages/"],
-    ["009 Final Character", "/1e/character-creation/009-final-character/"]
+    ["001 Ability Scores", "/1e/character-creation/001-ability-scores/", "Roll six scores, assign them, and record your ability line."],
+    ["002 Race", "/1e/character-creation/002-race/", "Choose ancestry, movement, vision, languages, restrictions, and race notes."],
+    ["003 Class", "/1e/character-creation/003-class/", "Choose your adventuring role, hit die, advancement path, and class abilities."],
+    ["004 Alignment", "/1e/character-creation/004-alignment/", "Choose the moral and cosmic direction of the character."],
+    ["005 Starting Wealth", "/1e/character-creation/005-starting-wealth/", "Roll starting money before buying equipment."],
+    ["006 Equipment", "/1e/character-creation/006-equipment/", "Buy armor, weapons, gear, and expedition supplies."],
+    ["007 Hit Points", "/1e/character-creation/007-hit-points/", "Determine starting durability and record hit points."],
+    ["008 Languages", "/1e/character-creation/008-languages/", "Record starting languages and any Intelligence-based choices."],
+    ["009 Final Character", "/1e/character-creation/009-final-character/", "Review the sheet before the character enters play."]
+  ],
+  races: [
+    ["Race Index", "/1e/races/", "Reference stubs for race pages."],
+    ["Human", "/1e/races/human/", "Future complete Human reference."],
+    ["Dwarf", "/1e/races/dwarf/", "Future complete Dwarf reference."],
+    ["Elf", "/1e/races/elf/", "Future complete Elf reference."],
+    ["Gnome", "/1e/races/gnome/", "Future complete Gnome reference."],
+    ["Half-Elf", "/1e/races/half-elf/", "Future complete Half-Elf reference."],
+    ["Halfling", "/1e/races/halfling/", "Future complete Halfling reference."],
+    ["Half-Orc", "/1e/races/half-orc/", "Future complete Half-Orc reference."]
+  ],
+  classes: [
+    ["Class Index", "/1e/classes/", "Reference stubs for class pages."],
+    ["Fighter", "/1e/classes/fighter/", "Future complete Fighter reference."],
+    ["Cleric", "/1e/classes/cleric/", "Future complete Cleric reference."],
+    ["Magic-User", "/1e/classes/magic-user/", "Future complete Magic-User reference."],
+    ["Thief", "/1e/classes/thief/", "Future complete Thief reference."],
+    ["Assassin", "/1e/classes/assassin/", "Future complete Assassin reference."],
+    ["Druid", "/1e/classes/druid/", "Future complete Druid reference."],
+    ["Illusionist", "/1e/classes/illusionist/", "Future complete Illusionist reference."],
+    ["Paladin", "/1e/classes/paladin/", "Future complete Paladin reference."],
+    ["Ranger", "/1e/classes/ranger/", "Future complete Ranger reference."],
+    ["Monk", "/1e/classes/monk/", "Future complete Monk reference."],
+    ["Bard", "/1e/classes/bard/", "Advanced/special path reference."]
   ],
   "how-to-play": [
     ["001 Time", "/1e/how-to-play/001-time/"],
@@ -143,11 +169,16 @@ function markdownToHtml(markdown) {
   const lines = markdown.replace(/\r\n/g, "\n").split("\n");
   const html = [];
   let listOpen = false;
+  let orderedListOpen = false;
 
   function closeList() {
     if (listOpen) {
       html.push("</ul>");
       listOpen = false;
+    }
+    if (orderedListOpen) {
+      html.push("</ol>");
+      orderedListOpen = false;
     }
   }
 
@@ -198,11 +229,29 @@ function markdownToHtml(markdown) {
     }
 
     if (line.startsWith("- ")) {
+      if (orderedListOpen) {
+        html.push("</ol>");
+        orderedListOpen = false;
+      }
       if (!listOpen) {
         html.push("<ul>");
         listOpen = true;
       }
       html.push(`<li>${inlineMarkdown(line.slice(2))}</li>`);
+      continue;
+    }
+
+    const orderedMatch = line.match(/^\d+\.\s+(.+)$/);
+    if (orderedMatch) {
+      if (listOpen) {
+        html.push("</ul>");
+        listOpen = false;
+      }
+      if (!orderedListOpen) {
+        html.push("<ol>");
+        orderedListOpen = true;
+      }
+      html.push(`<li>${inlineMarkdown(orderedMatch[1])}</li>`);
       continue;
     }
 
@@ -212,6 +261,82 @@ function markdownToHtml(markdown) {
 
   closeList();
   return html.join("\n");
+}
+
+const detailIds = new Set([
+  "human",
+  "dwarf",
+  "elf",
+  "gnome",
+  "half-elf",
+  "halfling",
+  "half-orc",
+  "assassin",
+  "cleric",
+  "druid",
+  "fighter",
+  "illusionist",
+  "magic-user",
+  "paladin",
+  "ranger",
+  "thief"
+]);
+
+function wrapRulePanels(article) {
+  const children = Array.from(article.children);
+  let currentPanel = null;
+
+  for (const child of children) {
+    if (child.tagName === "H2") {
+      currentPanel = document.createElement("section");
+      currentPanel.className = detailIds.has(child.id)
+        ? "one-e-rule-panel one-e-detail-panel"
+        : "one-e-rule-panel";
+      child.before(currentPanel);
+    }
+
+    if (currentPanel && child.tagName !== "H1") {
+      currentPanel.appendChild(child);
+    }
+  }
+}
+
+function enhanceChapterNavigation(article) {
+  const navHeadings = article.querySelectorAll("#race-navigation, #class-navigation, #choose-your-next-step, #character-creation-path");
+
+  for (const heading of navHeadings) {
+    const list = heading.nextElementSibling;
+    if (list?.tagName === "UL") {
+      list.classList.add("one-e-anchor-nav");
+    }
+  }
+
+  const comparisonSections = article.querySelectorAll("#race-comparison, #class-comparison, #standard-classes, #advanced-special-paths, #race-references");
+  for (const heading of comparisonSections) {
+    const section = heading.closest(".one-e-rule-panel");
+    const list = section?.querySelector("ul");
+    if (list) list.classList.add("one-e-comparison-grid");
+  }
+}
+
+function enhanceActiveAnchorNav(article) {
+  const navLinks = Array.from(article.querySelectorAll(".one-e-anchor-nav a[href^='#']"));
+
+  function updateActiveLink() {
+    const activeHash = window.location.hash;
+    for (const link of navLinks) {
+      link.toggleAttribute("aria-current", activeHash && link.getAttribute("href") === activeHash);
+    }
+  }
+
+  updateActiveLink();
+  window.addEventListener("hashchange", updateActiveLink);
+}
+
+function enhanceMarkdownUi(article) {
+  wrapRulePanels(article);
+  enhanceChapterNavigation(article);
+  enhanceActiveAnchorNav(article);
 }
 
 function currentSlug() {
@@ -273,6 +398,11 @@ function renderSectionCards(slug) {
   const target = document.querySelector("[data-section-cards]");
   if (!target) return;
 
+  if (slug === "classes") {
+    target.innerHTML = "";
+    return;
+  }
+
   const items = sectionItems[slug];
   if (!items) {
     target.innerHTML = "";
@@ -280,11 +410,11 @@ function renderSectionCards(slug) {
   }
 
   target.innerHTML = items
-    .map(([title, href]) => `
+    .map(([title, href, description = "Open this rules page."]) => `
       <a class="one-e-card link-card" href="${href}">
-        <p class="tag">Placeholder</p>
+        <p class="tag">Rules Chapter</p>
         <h3>${title}</h3>
-        <p>Markdown scaffold ready for this page.</p>
+        <p>${description}</p>
       </a>
     `)
     .join("");
@@ -302,6 +432,7 @@ async function loadPage() {
     if (!response.ok) throw new Error(`Missing markdown: ${slug}`);
     const markdown = await response.text();
     article.innerHTML = markdownToHtml(markdown);
+    enhanceMarkdownUi(article);
 
     const title = article.querySelector("h1")?.textContent || "First Edition";
     document.title = `${title} | Drago Russo Games`;

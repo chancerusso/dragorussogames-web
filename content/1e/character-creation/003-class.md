@@ -1,7 +1,5 @@
 # 003 Class
 
-Status: Draft
-
 Read Time:
 15-20 minutes
 
@@ -19,9 +17,6 @@ Class is your character's job in the adventuring party.
 Race told you what kinds of characters are available. Class tells you what you can do, what equipment you can use, how you improve, and what rules you must remember during play.
 
 Use this page to choose a legal class, record the starting class details, and understand the advancement track you are entering.
-
-Table usability note:
-The class tables are intentionally compact for screen and print. A later table responsiveness pass should add mobile-friendly wrappers or collapsible views without changing the rules content.
 
 ## How Classes Work
 
@@ -49,20 +44,38 @@ A weapon your character is trained to use.
 Non-Proficiency Penalty:
 The attack penalty for using a weapon you did not choose as a proficiency.
 
+## Class Overview
+
+Choose class after ability scores and race.
+
+Race determines which classes are available. Class determines your hit die, armor, weapons, spellcasting, special abilities, advancement, and long-term role.
+
+## Class Navigation
+
+- [Cleric](/1e/classes/cleric/)
+- [Druid](/1e/classes/druid/)
+- [Fighter](/1e/classes/fighter/)
+- [Paladin](/1e/classes/paladin/)
+- [Ranger](/1e/classes/ranger/)
+- [Magic-User](/1e/classes/magic-user/)
+- [Illusionist](/1e/classes/illusionist/)
+- [Thief](/1e/classes/thief/)
+- [Assassin](/1e/classes/assassin/)
+- [Monk](/1e/classes/monk/)
+- [Bard](/1e/classes/bard/)
+
 ## Class Comparison
 
 | I want to... | Look at... |
 | --- | --- |
-| Fight | Fighter, Paladin, Ranger |
-| Cast arcane magic | Magic User, Illusionist |
-| Cast divine magic | Cleric, Druid |
-| Lead or protect | Cleric, Paladin, Fighter |
-| Sneak | Thief, Assassin |
-| Support the party | Cleric, Druid, Thief, Magic User |
-| Survive punishment | Fighter, Paladin, Ranger, Cleric |
-| Play something complex | Druid, Illusionist, Paladin, Ranger, Assassin |
-
-## Class Sections
+| Fight | [Fighter](/1e/classes/fighter/), [Paladin](/1e/classes/paladin/), [Ranger](/1e/classes/ranger/) |
+| Cast arcane magic | [Magic-User](/1e/classes/magic-user/), [Illusionist](/1e/classes/illusionist/) |
+| Cast divine magic | [Cleric](/1e/classes/cleric/), [Druid](/1e/classes/druid/) |
+| Lead or protect | [Cleric](/1e/classes/cleric/), [Paladin](/1e/classes/paladin/), [Fighter](/1e/classes/fighter/) |
+| Sneak | [Thief](/1e/classes/thief/), [Assassin](/1e/classes/assassin/) |
+| Support the party | [Cleric](/1e/classes/cleric/), [Druid](/1e/classes/druid/), [Thief](/1e/classes/thief/), [Magic-User](/1e/classes/magic-user/) |
+| Survive punishment | [Fighter](/1e/classes/fighter/), [Paladin](/1e/classes/paladin/), [Ranger](/1e/classes/ranger/), [Cleric](/1e/classes/cleric/) |
+| Play something complex | [Druid](/1e/classes/druid/), [Illusionist](/1e/classes/illusionist/), [Paladin](/1e/classes/paladin/), [Ranger](/1e/classes/ranger/), [Assassin](/1e/classes/assassin/), [Bard](/1e/classes/bard/) |
 
 ## Assassin
 
@@ -1444,26 +1457,15 @@ Choose Druid, Illusionist, or Assassin if you want a more specialized character 
 
 No class house rules are approved yet.
 
-Use OSRIC class rules as the baseline until HOUSE_RULES.md records a change.
+Use the class rules on this page unless a house rule says otherwise.
 
-## Page References
+## Class Notes
 
-Rule Source:
-OSRIC Character Classes section only.
-
-Page Reference:
-OSRIC Chapter I, Character Classes.
-
-Notes:
 This page provides class selection, class advancement, and class abilities.
 
-Detailed spell descriptions belong in Magic.
+Detailed spell descriptions belong in Magic. Detailed turning procedure belongs in How To Play or Magic.
 
-Detailed turning procedure belongs in How To Play or Magic.
-
-The class tables here include the advancement mechanics that determine spell access and turning capability.
-
-The bounded Character Classes section used for this page includes Assassin, Cleric, Druid, Fighter, Illusionist, Magic User, Paladin, Ranger, and Thief.
+Monk and Bard have dedicated reference stubs in the Classes section. Bard is treated as an advanced/special path rather than a normal starting class.
 
 ## Related Pages
 
