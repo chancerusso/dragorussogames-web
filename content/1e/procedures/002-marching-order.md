@@ -1,7 +1,7 @@
-# 002 Marching Order
+# Marching Order
 
 ## Purpose
-Placeholder for marching order procedure.
+This chapter will cover marching order procedure.
 
 ## Rule Source
 Campaign Rule.
@@ -24,14 +24,9 @@ Pending.
 ## House Rules
 Pending.
 
-## Downloads
-Pending.
 
 ## Related Pages
 - [Roles](/1e/procedures/005-roles/)
 
 ## Notes
-Pending.
-
-## Page Reference
 Pending.

@@ -1,7 +1,7 @@
-# 004 Encounters
+# Encounters
 
 ## Purpose
-Placeholder for encounter rules.
+This chapter will cover encounter rules.
 
 ## Rule Source
 OSRIC baseline / House Rule pending.
@@ -24,14 +24,9 @@ Pending.
 ## House Rules
 Pending.
 
-## Downloads
-Pending.
 
 ## Related Pages
 - [How To Play](/1e/how-to-play/)
 
 ## Notes
-Pending.
-
-## Page Reference
 Pending.

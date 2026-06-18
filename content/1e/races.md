@@ -1,9 +1,9 @@
 # Races
 
-## Purpose
-This section is prepared for complete race reference pages.
+## Overview
+This section collects the race rules used during character creation.
 
-For character creation right now, use the Race step.
+Use the Race step when building a character, then open a race page when you need the full race details in one place.
 
 ## Race References
 - [Human](/1e/races/human/)
@@ -14,9 +14,9 @@ For character creation right now, use the Race step.
 - [Halfling](/1e/races/halfling/)
 - [Half-Orc](/1e/races/half-orc/)
 
-## What Comes Next
-These pages will become full race references after the character creation Race page is reviewed and approved.
+## What You Use
+Each race page includes the current race rules, explanations, tables, and what the player records.
 
-## Related Pages
+## Next Step
 - [Race Step](/1e/character-creation/002-race/)
 - [Character Creation](/1e/character-creation/)

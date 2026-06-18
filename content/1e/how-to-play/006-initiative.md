@@ -1,7 +1,7 @@
-# 006 Initiative
+# Initiative
 
 ## Purpose
-Placeholder for initiative rules.
+This chapter will cover initiative rules.
 
 ## Rule Source
 OSRIC baseline / House Rule pending.
@@ -24,14 +24,9 @@ Pending.
 ## House Rules
 Pending.
 
-## Downloads
-Pending.
 
 ## Related Pages
 - [How To Play](/1e/how-to-play/)
 
 ## Notes
-Pending.
-
-## Page Reference
 Pending.

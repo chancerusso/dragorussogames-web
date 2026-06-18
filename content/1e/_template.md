@@ -24,14 +24,9 @@ Short bullets for print and table use go here.
 ## House Rules
 Local changes go here.
 
-## Downloads
-Related printable aids go here.
 
 ## Related Pages
 Links to supporting pages go here.
 
 ## Notes
 Drafting notes and page references go here.
-
-## Page Reference
-OSRIC page reference goes here when the page is drafted.

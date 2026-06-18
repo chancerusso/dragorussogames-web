@@ -1,7 +1,7 @@
-# 001 Time
+# Time
 
 ## Purpose
-Placeholder for timekeeping rules.
+This chapter will cover timekeeping rules.
 
 ## Rule Source
 OSRIC baseline / House Rule pending.
@@ -24,14 +24,9 @@ Pending.
 ## House Rules
 Pending.
 
-## Downloads
-Pending.
 
 ## Related Pages
 - [How To Play](/1e/how-to-play/)
 
 ## Notes
-Pending.
-
-## Page Reference
 Pending.

@@ -1,7 +1,7 @@
-# 009 Final Character
+# Final Character
 
 ## Purpose
-Placeholder for final review before play.
+This chapter will cover final review before play.
 
 ## Rule Source
 Campaign Rule.
@@ -24,14 +24,12 @@ Pending.
 ## House Rules
 Pending.
 
-## Downloads
-Use the Full Sheet or Session Sheet when available.
 
 ## Related Pages
-- [Downloads](/1e/downloads/)
+- [Character Creation](/1e/character-creation/)
+- [Ability Scores](/1e/character-creation/001-ability-scores/)
+- [Race](/1e/character-creation/002-race/)
+- [Class](/1e/character-creation/003-class/)
 
 ## Notes
-Pending.
-
-## Page Reference
 Pending.

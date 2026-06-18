@@ -1,7 +1,7 @@
-# 003 Rest Rules
+# Rest Rules
 
 ## Purpose
-Placeholder for rest house rules.
+This chapter will cover rest house rules.
 
 ## Rule Source
 House Rule.
@@ -24,14 +24,9 @@ Pending.
 ## House Rules
 Pending.
 
-## Downloads
-Pending.
 
 ## Related Pages
 - [Camping](/1e/procedures/004-camping/)
 
 ## Notes
-Pending.
-
-## Page Reference
 Pending.

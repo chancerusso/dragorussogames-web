@@ -1,9 +1,9 @@
 # Classes
 
-## Purpose
-This section is prepared for complete class reference pages.
+## Overview
+Classes define what your character does in the adventuring party.
 
-For character creation right now, use the Class step.
+Use these pages as rules references after reading the Class step during character creation.
 
 ## Standard Classes
 - [Fighter](/1e/classes/fighter/)
@@ -17,12 +17,12 @@ For character creation right now, use the Class step.
 - [Ranger](/1e/classes/ranger/)
 - [Monk](/1e/classes/monk/)
 
-## Advanced / Special Paths
-- [Bard](/1e/classes/bard/) — Advanced
+## Advanced / Special Entry
+- [Bard](/1e/classes/bard/) — Advanced / Special Entry
 
-## What Comes Next
-These pages will become full class references as each class is authored.
+## What You Use
+Each class page includes the current class rules, advancement, tables, examples, and what the player records.
 
-## Related Pages
+## Next Step
 - [Class Step](/1e/character-creation/003-class/)
 - [Character Creation](/1e/character-creation/)

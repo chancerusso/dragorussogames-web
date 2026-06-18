@@ -1,7 +1,7 @@
-# 008 Magic
+# Magic
 
 ## Purpose
-Placeholder for magic rules.
+This chapter will cover magic rules.
 
 ## Rule Source
 OSRIC baseline / House Rule pending.
@@ -24,14 +24,9 @@ Pending.
 ## House Rules
 Pending.
 
-## Downloads
-Pending.
 
 ## Related Pages
 - [How To Play](/1e/how-to-play/)
 
 ## Notes
 Avoid copying spell text.
-
-## Page Reference
-Pending.

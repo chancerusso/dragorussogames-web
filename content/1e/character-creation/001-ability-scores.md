@@ -1,13 +1,5 @@
-# 001 Ability Scores
+# Ability Scores
 
-Read Time:
-3 minutes
-
-Prerequisites:
-None
-
-Next:
-002 Race
 
 ## Purpose
 

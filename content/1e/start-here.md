@@ -1,38 +1,22 @@
 # Start Here
 
-## Purpose
+## Overview
 Orient players and referees before using the First Edition rules pages.
 
-## Rule Source
-Campaign Rule.
+## What This Site Does
+Drago Russo Games First Edition teaches manual character creation and explains the rules for table play.
 
-## Official Rule Summary
-Pending.
-
-## Simple Explanation
-This section will explain what kind of game this ruleset supports, how to read the rules pages, and what is ready for use.
-
-## Procedure
+## Start Reading
 - Read the character philosophy.
-- Print the current sheets when they become available.
 - Build characters from the Character Creation section.
-- Use table procedures during play.
+- Use rules chapters during play.
 
-## Examples
-Pending.
+## Table Method
+- Read the rule.
+- Make the choice by hand.
+- Write the result on paper.
+- Continue to the next chapter.
 
-## Quick Reference
-- No character accounts in Phase 1.
-- Session Sheet is a one-page play aid.
-- Full Sheet is the traditional complete character sheet.
-
-## House Rules
-Pending.
-
-## Downloads
-See [Downloads](/1e/downloads/).
-
-## Related Pages
+## Choose Your Next Step
 - [Character Creation](/1e/character-creation/)
 - [How To Play](/1e/how-to-play/)
-- [Procedures](/1e/procedures/)

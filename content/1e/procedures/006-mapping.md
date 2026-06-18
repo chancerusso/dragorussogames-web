@@ -1,7 +1,7 @@
-# 006 Mapping
+# Mapping
 
 ## Purpose
-Placeholder for mapping procedure.
+This chapter will cover mapping procedure.
 
 ## Rule Source
 Campaign Rule.
@@ -24,14 +24,9 @@ Pending.
 ## House Rules
 Pending.
 
-## Downloads
-Pending.
 
 ## Related Pages
 - [Roles](/1e/procedures/005-roles/)
 
 ## Notes
-Pending.
-
-## Page Reference
 Pending.

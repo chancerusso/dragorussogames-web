@@ -13,13 +13,13 @@ Pending original summary.
 Procedures turn common table moments into clear steps.
 
 ## Procedure
-- 001 Dungeon Turn
-- 002 Marching Order
-- 003 Watches
-- 004 Camping
-- 005 Roles
-- 006 Mapping
-- 007 Treasure Handling
+- Dungeon Turn
+- Marching Order
+- Watches
+- Camping
+- Roles
+- Mapping
+- Treasure Handling
 
 ## Examples
 Pending.
@@ -30,8 +30,6 @@ Pending.
 ## House Rules
 Pending.
 
-## Downloads
-Party Tracker and Campaign Log placeholders are in [Downloads](/1e/downloads/).
 
 ## Related Pages
 - [How To Play](/1e/how-to-play/)

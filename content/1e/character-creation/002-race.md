@@ -1,13 +1,5 @@
-# 002 Race
+# Race
 
-Read Time:
-8-12 minutes
-
-Prerequisites:
-001 Ability Scores
-
-Next:
-003 Class
 
 ## Introduction
 
@@ -15,7 +7,7 @@ Race is chosen after ability scores.
 
 Your race shapes what classes you can choose, what languages you begin with, how fast you move, what you can see, and what special abilities you bring into the dungeon.
 
-This page is not a teaser for another reference page. It gives you enough information to choose your race and continue to Class.
+This page gives you enough information to choose your race and continue to Class.
 
 ## How Race Works
 
@@ -160,7 +152,7 @@ Assassin and Druid have class-specific limits handled on the Class page.
 
 Human is direct and flexible.
 
-You spend less time tracking race rules and more time learning class, equipment, and table procedure.
+You spend less time managing race exceptions and more time learning class, equipment, and table procedure.
 
 ### Who Should Play This
 
@@ -1391,9 +1383,3 @@ If you are stuck, choose the race that best supports the class you want next.
 ## House Rules
 
 No approved house rule yet.
-
-## Related Pages
-
-- [Ability Scores](/1e/character-creation/001-ability-scores/)
-- [Class](/1e/character-creation/003-class/)
-- [Languages](/1e/character-creation/008-languages/)

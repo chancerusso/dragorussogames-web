@@ -3,104 +3,86 @@ const CONTENT_BASE = "/content/1e";
 
 const navItems = [
   { title: "Home", href: "/1e/" },
-  { title: "Start Here", href: "/1e/start-here/" },
   { title: "Character Creation", href: "/1e/character-creation/" },
-  { title: "How To Play", href: "/1e/how-to-play/" },
-  { title: "House Rules", href: "/1e/house-rules/" },
-  { title: "Procedures", href: "/1e/procedures/" },
-  { title: "Reference", href: "/1e/reference/" },
+  { title: "Rules", href: "/1e/how-to-play/" },
   { title: "Races", href: "/1e/races/" },
   { title: "Classes", href: "/1e/classes/" },
-  { title: "Downloads", href: "/1e/downloads/" }
+  { title: "House Rules", href: "/1e/house-rules/" }
 ];
 
 const sectionItems = {
   index: [
     ["Character Creation", "/1e/character-creation/", "Build a character step by step with rules, tables, and write-this-down guidance."],
-    ["How To Play", "/1e/how-to-play/", "Use the table procedures for exploration, encounters, combat, magic, and advancement."],
-    ["House Rules", "/1e/house-rules/", "Read Drago Russo campaign changes separately from the baseline rules."],
-    ["Downloads", "/1e/downloads/", "Find printable sheets and table aids as they become available."]
+    ["Rules", "/1e/how-to-play/", "Read the procedures for exploration, encounters, combat, magic, and advancement."],
+    ["Races", "/1e/races/", "Use race references after reading the Race step."],
+    ["Classes", "/1e/classes/", "Use class references after reading the Class step."],
+    ["House Rules", "/1e/house-rules/", "Read Drago Russo campaign changes separately from the baseline rules."]
   ],
   "character-creation": [
-    ["001 Ability Scores", "/1e/character-creation/001-ability-scores/", "Roll six scores, assign them, and record your ability line."],
-    ["002 Race", "/1e/character-creation/002-race/", "Choose ancestry, movement, vision, languages, restrictions, and race notes."],
-    ["003 Class", "/1e/character-creation/003-class/", "Choose your adventuring role, hit die, advancement path, and class abilities."],
-    ["004 Alignment", "/1e/character-creation/004-alignment/", "Choose the moral and cosmic direction of the character."],
-    ["005 Starting Wealth", "/1e/character-creation/005-starting-wealth/", "Roll starting money before buying equipment."],
-    ["006 Equipment", "/1e/character-creation/006-equipment/", "Buy armor, weapons, gear, and expedition supplies."],
-    ["007 Hit Points", "/1e/character-creation/007-hit-points/", "Determine starting durability and record hit points."],
-    ["008 Languages", "/1e/character-creation/008-languages/", "Record starting languages and any Intelligence-based choices."],
-    ["009 Final Character", "/1e/character-creation/009-final-character/", "Review the sheet before the character enters play."]
+    ["Ability Scores", "/1e/character-creation/001-ability-scores/", "Roll six scores, assign them, and record your ability line."],
+    ["Race", "/1e/character-creation/002-race/", "Choose ancestry, movement, vision, languages, restrictions, and race notes."],
+    ["Class", "/1e/character-creation/003-class/", "Choose your adventuring role, hit die, advancement path, and class abilities."],
+    ["Alignment", "/1e/character-creation/004-alignment/", "Choose the moral and cosmic direction of the character."],
+    ["Starting Wealth", "/1e/character-creation/005-starting-wealth/", "Roll starting money before buying equipment."],
+    ["Equipment", "/1e/character-creation/006-equipment/", "Buy armor, weapons, gear, and expedition supplies."],
+    ["Hit Points", "/1e/character-creation/007-hit-points/", "Determine starting durability and record hit points."],
+    ["Languages", "/1e/character-creation/008-languages/", "Record starting languages and any Intelligence-based choices."],
+    ["Final Character", "/1e/character-creation/009-final-character/", "Review the sheet before the character enters play."]
   ],
   races: [
-    ["Race Index", "/1e/races/", "Reference stubs for race pages."],
-    ["Human", "/1e/races/human/", "Future complete Human reference."],
-    ["Dwarf", "/1e/races/dwarf/", "Future complete Dwarf reference."],
-    ["Elf", "/1e/races/elf/", "Future complete Elf reference."],
-    ["Gnome", "/1e/races/gnome/", "Future complete Gnome reference."],
-    ["Half-Elf", "/1e/races/half-elf/", "Future complete Half-Elf reference."],
-    ["Halfling", "/1e/races/halfling/", "Future complete Halfling reference."],
-    ["Half-Orc", "/1e/races/half-orc/", "Future complete Half-Orc reference."]
+    ["Races", "/1e/races/", "Race reference index."],
+    ["Human", "/1e/races/human/", "Human race rules."],
+    ["Dwarf", "/1e/races/dwarf/", "Dwarf race rules."],
+    ["Elf", "/1e/races/elf/", "Elf race rules."],
+    ["Gnome", "/1e/races/gnome/", "Gnome race rules."],
+    ["Half-Elf", "/1e/races/half-elf/", "Half-Elf race rules."],
+    ["Halfling", "/1e/races/halfling/", "Halfling race rules."],
+    ["Half-Orc", "/1e/races/half-orc/", "Half-Orc race rules."]
   ],
   classes: [
-    ["Class Index", "/1e/classes/", "Reference stubs for class pages."],
-    ["Fighter", "/1e/classes/fighter/", "Future complete Fighter reference."],
-    ["Cleric", "/1e/classes/cleric/", "Future complete Cleric reference."],
-    ["Magic-User", "/1e/classes/magic-user/", "Future complete Magic-User reference."],
-    ["Thief", "/1e/classes/thief/", "Future complete Thief reference."],
-    ["Assassin", "/1e/classes/assassin/", "Future complete Assassin reference."],
-    ["Druid", "/1e/classes/druid/", "Future complete Druid reference."],
-    ["Illusionist", "/1e/classes/illusionist/", "Future complete Illusionist reference."],
-    ["Paladin", "/1e/classes/paladin/", "Future complete Paladin reference."],
-    ["Ranger", "/1e/classes/ranger/", "Future complete Ranger reference."],
-    ["Monk", "/1e/classes/monk/", "Future complete Monk reference."],
-    ["Bard", "/1e/classes/bard/", "Advanced/special path reference."]
+    ["Classes", "/1e/classes/", "Class reference index."],
+    ["Fighter", "/1e/classes/fighter/", "Fighter class rules."],
+    ["Cleric", "/1e/classes/cleric/", "Cleric class rules."],
+    ["Magic-User", "/1e/classes/magic-user/", "Magic-User class rules."],
+    ["Thief", "/1e/classes/thief/", "Thief class rules."],
+    ["Assassin", "/1e/classes/assassin/", "Assassin class rules."],
+    ["Druid", "/1e/classes/druid/", "Druid class rules."],
+    ["Illusionist", "/1e/classes/illusionist/", "Illusionist class rules."],
+    ["Paladin", "/1e/classes/paladin/", "Paladin class rules."],
+    ["Ranger", "/1e/classes/ranger/", "Ranger class rules."],
+    ["Monk", "/1e/classes/monk/", "Monk class rules."],
+    ["Bard", "/1e/classes/bard/", "Advanced / Special Entry class rules."]
   ],
   "how-to-play": [
-    ["001 Time", "/1e/how-to-play/001-time/"],
-    ["002 Movement", "/1e/how-to-play/002-movement/"],
-    ["003 Exploration", "/1e/how-to-play/003-exploration/"],
-    ["004 Encounters", "/1e/how-to-play/004-encounters/"],
-    ["005 Surprise", "/1e/how-to-play/005-surprise/"],
-    ["006 Initiative", "/1e/how-to-play/006-initiative/"],
-    ["007 Combat", "/1e/how-to-play/007-combat/"],
-    ["008 Magic", "/1e/how-to-play/008-magic/"],
-    ["009 Death", "/1e/how-to-play/009-death/"],
-    ["010 Experience", "/1e/how-to-play/010-experience/"]
+    ["Time", "/1e/how-to-play/001-time/"],
+    ["Movement", "/1e/how-to-play/002-movement/"],
+    ["Exploration", "/1e/how-to-play/003-exploration/"],
+    ["Encounters", "/1e/how-to-play/004-encounters/"],
+    ["Surprise", "/1e/how-to-play/005-surprise/"],
+    ["Initiative", "/1e/how-to-play/006-initiative/"],
+    ["Combat", "/1e/how-to-play/007-combat/"],
+    ["Magic", "/1e/how-to-play/008-magic/"],
+    ["Death", "/1e/how-to-play/009-death/"],
+    ["Experience", "/1e/how-to-play/010-experience/"]
   ],
   "house-rules": [
-    ["001 Character Rules", "/1e/house-rules/001-character-rules/"],
-    ["002 Combat Rules", "/1e/house-rules/002-combat-rules/"],
-    ["003 Rest Rules", "/1e/house-rules/003-rest-rules/"],
-    ["004 Encumbrance", "/1e/house-rules/004-encumbrance/"],
-    ["005 Death Rules", "/1e/house-rules/005-death-rules/"],
-    ["006 Table Rules", "/1e/house-rules/006-table-rules/"]
+    ["Character Rules", "/1e/house-rules/001-character-rules/"],
+    ["Combat Rules", "/1e/house-rules/002-combat-rules/"],
+    ["Rest Rules", "/1e/house-rules/003-rest-rules/"],
+    ["Encumbrance", "/1e/house-rules/004-encumbrance/"],
+    ["Death Rules", "/1e/house-rules/005-death-rules/"],
+    ["Table Rules", "/1e/house-rules/006-table-rules/"]
   ],
   procedures: [
-    ["001 Dungeon Turn", "/1e/procedures/001-dungeon-turn/"],
-    ["002 Marching Order", "/1e/procedures/002-marching-order/"],
-    ["003 Watches", "/1e/procedures/003-watches/"],
-    ["004 Camping", "/1e/procedures/004-camping/"],
-    ["005 Roles", "/1e/procedures/005-roles/"],
-    ["006 Mapping", "/1e/procedures/006-mapping/"],
-    ["007 Treasure Handling", "/1e/procedures/007-treasure-handling/"]
+    ["Dungeon Turn", "/1e/procedures/001-dungeon-turn/"],
+    ["Marching Order", "/1e/procedures/002-marching-order/"],
+    ["Watches", "/1e/procedures/003-watches/"],
+    ["Camping", "/1e/procedures/004-camping/"],
+    ["Roles", "/1e/procedures/005-roles/"],
+    ["Mapping", "/1e/procedures/006-mapping/"],
+    ["Treasure Handling", "/1e/procedures/007-treasure-handling/"]
   ],
-  reference: [
-    ["Classes", "/1e/reference/#classes"],
-    ["Races", "/1e/reference/#races"],
-    ["Equipment", "/1e/reference/#equipment"],
-    ["Conditions", "/1e/reference/#conditions"],
-    ["Glossary", "/1e/reference/#glossary"]
-  ]
 };
-
-const downloadItems = [
-  ["Character Sheet (Full)", "Traditional complete character sheet.", "/public/downloads/character-sheet-full.pdf"],
-  ["Character Sheet (Session)", "One-page play aid for active sessions.", "/public/downloads/character-sheet-session.pdf"],
-  ["Party Tracker", "Shared party state and expedition tracker.", "/public/downloads/party-tracker.pdf"],
-  ["Inventory Sheet", "Inventory and encumbrance worksheet.", "/public/downloads/inventory-sheet.pdf"],
-  ["Campaign Log", "Campaign notes, sessions, and discoveries.", "/public/downloads/campaign-log.pdf"]
-];
 
 const pageAliases = {
   "/1e": "index",
@@ -255,6 +237,12 @@ function markdownToHtml(markdown) {
       continue;
     }
 
+    if (/^[A-Za-z][A-Za-z0-9 /&'()?-]{1,48}:$/.test(line)) {
+      closeList();
+      html.push(`<p class="one-e-field-label">${inlineMarkdown(line.slice(0, -1))}</p>`);
+      continue;
+    }
+
     closeList();
     html.push(`<p>${inlineMarkdown(line)}</p>`);
   }
@@ -279,7 +267,9 @@ const detailIds = new Set([
   "magic-user",
   "paladin",
   "ranger",
-  "thief"
+  "thief",
+  "monk",
+  "bard"
 ]);
 
 function wrapRulePanels(article) {
@@ -378,22 +368,6 @@ function renderSidebar(slug) {
     .join("");
 }
 
-function renderDownloads() {
-  const target = document.querySelector("[data-downloads]");
-  if (!target) return;
-
-  target.innerHTML = downloadItems
-    .map(([title, description, href]) => `
-      <article class="one-e-card">
-        <p class="tag">PDF Placeholder</p>
-        <h3>${title}</h3>
-        <p>${description}</p>
-        <a class="btn ghost" href="${href}" aria-disabled="true">Coming Soon</a>
-      </article>
-    `)
-    .join("");
-}
-
 function renderSectionCards(slug) {
   const target = document.querySelector("[data-section-cards]");
   if (!target) return;
@@ -438,16 +412,13 @@ async function loadPage() {
     document.title = `${title} | Drago Russo Games`;
   } catch (error) {
     article.innerHTML = `
-      <h1>Page Placeholder</h1>
-      <p>This route exists, but its Markdown file has not been added yet.</p>
-      <h2>Rule Source</h2>
-      <p>Pending.</p>
+      <h1>Page Not Found</h1>
+      <p>This First Edition page is not available.</p>
     `;
     console.error(error);
   }
 
   renderSectionCards(slug);
-  renderDownloads();
 }
 
 loadPage();

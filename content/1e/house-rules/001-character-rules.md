@@ -1,7 +1,7 @@
-# 001 Character Rules
+# Character Rules
 
 ## Purpose
-Placeholder for character-specific house rules.
+This chapter will cover character-specific house rules.
 
 ## Rule Source
 House Rule.
@@ -24,14 +24,9 @@ Pending.
 ## House Rules
 Pending.
 
-## Downloads
-Pending.
 
 ## Related Pages
 - [Character Creation](/1e/character-creation/)
 
 ## Notes
-Pending.
-
-## Page Reference
 Pending.

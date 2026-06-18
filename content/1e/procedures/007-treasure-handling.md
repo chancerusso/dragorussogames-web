@@ -1,7 +1,7 @@
-# 007 Treasure Handling
+# Treasure Handling
 
 ## Purpose
-Placeholder for treasure handling procedure.
+This chapter will cover treasure handling procedure.
 
 ## Rule Source
 Campaign Rule.
@@ -24,15 +24,10 @@ Pending.
 ## House Rules
 Pending.
 
-## Downloads
-Pending.
 
 ## Related Pages
 - [Roles](/1e/procedures/005-roles/)
-- [Inventory Sheet](/1e/downloads/)
+- [Equipment](/1e/character-creation/006-equipment/)
 
 ## Notes
-Pending.
-
-## Page Reference
 Pending.

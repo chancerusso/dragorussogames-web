@@ -1,7 +1,7 @@
-# 001 Dungeon Turn
+# Dungeon Turn
 
 ## Purpose
-Placeholder for the dungeon turn procedure.
+This chapter will cover the dungeon turn procedure.
 
 ## Rule Source
 OSRIC baseline / Campaign Rule pending.
@@ -24,15 +24,10 @@ Pending.
 ## House Rules
 Pending.
 
-## Downloads
-Pending.
 
 ## Related Pages
 - [Time](/1e/how-to-play/001-time/)
 - [Exploration](/1e/how-to-play/003-exploration/)
 
 ## Notes
-Pending.
-
-## Page Reference
 Pending.

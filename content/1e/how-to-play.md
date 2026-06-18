@@ -1,41 +1,19 @@
 # How To Play
 
-## Purpose
-Collect the core play explanations used during a session.
+## Overview
+This section collects the core rules used during a session.
 
-## Rule Source
-OSRIC baseline / House Rule pending.
-
-## Official Rule Summary
-Pending original summary.
-
-## Simple Explanation
-These pages will explain the main rhythms of play without reproducing complete source chapters.
-
-## Procedure
-- 001 Time
-- 002 Movement
-- 003 Exploration
-- 004 Encounters
-- 005 Surprise
-- 006 Initiative
-- 007 Combat
-- 008 Magic
-- 009 Death
-- 010 Experience
-
-## Examples
-Pending.
-
-## Quick Reference
-Pending.
+## Rules Chapters
+- [Time](/1e/how-to-play/001-time/)
+- [Movement](/1e/how-to-play/002-movement/)
+- [Exploration](/1e/how-to-play/003-exploration/)
+- [Encounters](/1e/how-to-play/004-encounters/)
+- [Surprise](/1e/how-to-play/005-surprise/)
+- [Initiative](/1e/how-to-play/006-initiative/)
+- [Combat](/1e/how-to-play/007-combat/)
+- [Magic](/1e/how-to-play/008-magic/)
+- [Death](/1e/how-to-play/009-death/)
+- [Experience](/1e/how-to-play/010-experience/)
 
 ## House Rules
-Pending.
-
-## Downloads
-Session aids will be listed in [Downloads](/1e/downloads/).
-
-## Related Pages
-- [Procedures](/1e/procedures/)
-- [House Rules](/1e/house-rules/)
+House rules remain separate from baseline rules and are collected in [House Rules](/1e/house-rules/).

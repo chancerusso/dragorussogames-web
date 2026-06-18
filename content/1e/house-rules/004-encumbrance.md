@@ -1,7 +1,7 @@
-# 004 Encumbrance
+# Encumbrance
 
 ## Purpose
-Placeholder for encumbrance house rules.
+This chapter will cover encumbrance house rules.
 
 ## Rule Source
 House Rule.
@@ -24,14 +24,9 @@ Pending.
 ## House Rules
 Pending.
 
-## Downloads
-Pending.
 
 ## Related Pages
 - [Equipment](/1e/character-creation/006-equipment/)
 
 ## Notes
-Pending.
-
-## Page Reference
 Pending.

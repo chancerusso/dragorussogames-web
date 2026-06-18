@@ -1,7 +1,7 @@
-# 003 Watches
+# Watches
 
 ## Purpose
-Placeholder for watch order procedure.
+This chapter will cover watch order procedure.
 
 ## Rule Source
 Campaign Rule.
@@ -24,14 +24,9 @@ Pending.
 ## House Rules
 Pending.
 
-## Downloads
-Pending.
 
 ## Related Pages
 - [Camping](/1e/procedures/004-camping/)
 
 ## Notes
-Pending.
-
-## Page Reference
 Pending.

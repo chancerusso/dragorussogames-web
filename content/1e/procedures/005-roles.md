@@ -1,7 +1,7 @@
-# 005 Roles
+# Roles
 
 ## Purpose
-Placeholder for party roles at the table.
+This chapter will cover party roles at the table.
 
 ## Rule Source
 Campaign Rule.
@@ -31,8 +31,6 @@ Pending.
 ## House Rules
 Pending.
 
-## Downloads
-Pending.
 
 ## Related Pages
 - [Marching Order](/1e/procedures/002-marching-order/)
@@ -40,7 +38,4 @@ Pending.
 - [Treasure Handling](/1e/procedures/007-treasure-handling/)
 
 ## Notes
-Pending.
-
-## Page Reference
 Pending.

@@ -1,7 +1,7 @@
-# 005 Death Rules
+# Death Rules
 
 ## Purpose
-Placeholder for death house rules.
+This chapter will cover death house rules.
 
 ## Rule Source
 House Rule.
@@ -24,14 +24,9 @@ Pending.
 ## House Rules
 Pending.
 
-## Downloads
-Pending.
 
 ## Related Pages
 - [Death](/1e/how-to-play/009-death/)
 
 ## Notes
-Pending.
-
-## Page Reference
 Pending.

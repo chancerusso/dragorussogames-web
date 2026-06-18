@@ -1,7 +1,7 @@
-# 003 Exploration
+# Exploration
 
 ## Purpose
-Placeholder for exploration rules.
+This chapter will cover exploration rules.
 
 ## Rule Source
 OSRIC baseline / House Rule pending.
@@ -24,14 +24,9 @@ Pending.
 ## House Rules
 Pending.
 
-## Downloads
-Pending.
 
 ## Related Pages
 - [Procedures](/1e/procedures/)
 
 ## Notes
-Pending.
-
-## Page Reference
 Pending.

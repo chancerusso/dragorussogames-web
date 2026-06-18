@@ -1,14 +1,5 @@
-# 003 Class
+# Class
 
-Read Time:
-15-20 minutes
-
-Prerequisites:
-001 Ability Scores
-002 Race
-
-Next:
-004 Alignment
 
 ## Introduction
 
@@ -75,7 +66,8 @@ Race determines which classes are available. Class determines your hit die, armo
 | Sneak | [Thief](/1e/classes/thief/), [Assassin](/1e/classes/assassin/) |
 | Support the party | [Cleric](/1e/classes/cleric/), [Druid](/1e/classes/druid/), [Thief](/1e/classes/thief/), [Magic-User](/1e/classes/magic-user/) |
 | Survive punishment | [Fighter](/1e/classes/fighter/), [Paladin](/1e/classes/paladin/), [Ranger](/1e/classes/ranger/), [Cleric](/1e/classes/cleric/) |
-| Play something complex | [Druid](/1e/classes/druid/), [Illusionist](/1e/classes/illusionist/), [Paladin](/1e/classes/paladin/), [Ranger](/1e/classes/ranger/), [Assassin](/1e/classes/assassin/), [Bard](/1e/classes/bard/) |
+| Play something complex | [Druid](/1e/classes/druid/), [Illusionist](/1e/classes/illusionist/), [Paladin](/1e/classes/paladin/), [Ranger](/1e/classes/ranger/), [Assassin](/1e/classes/assassin/), [Monk](/1e/classes/monk/) |
+| Follow an advanced special path | [Bard](/1e/classes/bard/) |
 
 ## Assassin
 
@@ -1458,18 +1450,3 @@ Choose Druid, Illusionist, or Assassin if you want a more specialized character 
 No class house rules are approved yet.
 
 Use the class rules on this page unless a house rule says otherwise.
-
-## Class Notes
-
-This page provides class selection, class advancement, and class abilities.
-
-Detailed spell descriptions belong in Magic. Detailed turning procedure belongs in How To Play or Magic.
-
-Monk and Bard have dedicated reference stubs in the Classes section. Bard is treated as an advanced/special path rather than a normal starting class.
-
-## Related Pages
-
-- 001 Ability Scores
-- 002 Race
-- 004 Alignment
-- 005 Starting Wealth

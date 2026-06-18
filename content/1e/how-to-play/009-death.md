@@ -1,7 +1,7 @@
-# 009 Death
+# Death
 
 ## Purpose
-Placeholder for death and dying rules.
+This chapter will cover death and dying rules.
 
 ## Rule Source
 OSRIC baseline / House Rule pending.
@@ -24,14 +24,9 @@ Pending.
 ## House Rules
 Pending.
 
-## Downloads
-Pending.
 
 ## Related Pages
 - [House Rules: Death Rules](/1e/house-rules/005-death-rules/)
 
 ## Notes
-Pending.
-
-## Page Reference
 Pending.

@@ -1,7 +1,7 @@
-# 008 Languages
+# Languages
 
 ## Purpose
-Placeholder for character languages.
+This chapter will cover character languages.
 
 ## Rule Source
 OSRIC baseline / House Rule pending.
@@ -24,14 +24,9 @@ Pending.
 ## House Rules
 Pending.
 
-## Downloads
-Pending.
 
 ## Related Pages
 - [Character Creation](/1e/character-creation/)
 
 ## Notes
-Pending.
-
-## Page Reference
 Pending.

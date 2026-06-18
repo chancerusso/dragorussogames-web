@@ -1,7 +1,7 @@
-# 004 Alignment
+# Alignment
 
 ## Purpose
-Placeholder for alignment selection.
+This chapter will cover alignment selection.
 
 ## Rule Source
 OSRIC baseline / House Rule pending.
@@ -24,14 +24,9 @@ Pending.
 ## House Rules
 Pending.
 
-## Downloads
-Pending.
 
 ## Related Pages
 - [Character Creation](/1e/character-creation/)
 
 ## Notes
-Pending.
-
-## Page Reference
 Pending.

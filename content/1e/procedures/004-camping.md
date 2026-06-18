@@ -1,7 +1,7 @@
-# 004 Camping
+# Camping
 
 ## Purpose
-Placeholder for camping procedure.
+This chapter will cover camping procedure.
 
 ## Rule Source
 Campaign Rule / House Rule pending.
@@ -24,15 +24,10 @@ Pending.
 ## House Rules
 Pending.
 
-## Downloads
-Pending.
 
 ## Related Pages
 - [Rest Rules](/1e/house-rules/003-rest-rules/)
 - [Watches](/1e/procedures/003-watches/)
 
 ## Notes
-Pending.
-
-## Page Reference
 Pending.

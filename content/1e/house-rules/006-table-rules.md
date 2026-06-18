@@ -1,7 +1,7 @@
-# 006 Table Rules
+# Table Rules
 
 ## Purpose
-Placeholder for table conduct and campaign operation rules.
+This chapter will cover table conduct and campaign operation rules.
 
 ## Rule Source
 House Rule / Campaign Rule.
@@ -24,14 +24,9 @@ Pending.
 ## House Rules
 Pending.
 
-## Downloads
-Pending.
 
 ## Related Pages
 - [Start Here](/1e/start-here/)
 
 ## Notes
-Pending.
-
-## Page Reference
 Pending.
