@@ -113,11 +113,12 @@ function slugify(text) {
 }
 
 function isTableSeparator(line) {
-  return /^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?$/.test(line);
+  const cells = parseTableRow(line);
+  return cells.length > 1 && cells.every((cell) => /^:?-{3,}:?$/.test(cell));
 }
 
 function isTableRow(line) {
-  return line.includes("|") && !isTableSeparator(line);
+  return line.includes("|") && parseTableRow(line).length > 1 && !isTableSeparator(line);
 }
 
 function parseTableRow(line) {
@@ -130,7 +131,11 @@ function parseTableRow(line) {
 
 function tableToHtml(rows) {
   const header = parseTableRow(rows[0]);
-  const body = rows.slice(2).map(parseTableRow);
+  const columnCount = header.length;
+  const body = rows.slice(2).map((row) => {
+    const cells = parseTableRow(row);
+    return Array.from({ length: columnCount }, (_, index) => cells[index] || "");
+  });
 
   return `
 <div class="one-e-table-wrap" role="region" aria-label="Scrollable rules table" tabindex="0">
@@ -177,10 +182,25 @@ function markdownToHtml(markdown) {
     if (isTableRow(line) && isTableSeparator(nextLine)) {
       closeList();
       const tableRows = [line, nextLine];
+      const columnCount = parseTableRow(line).length;
       index += 2;
 
-      while (index < lines.length && isTableRow(lines[index].trim())) {
-        tableRows.push(lines[index].trim());
+      while (
+        index < lines.length
+      ) {
+        const tableLine = lines[index].trim();
+        if (!tableLine) {
+          const nextTableLine = lines[index + 1]?.trim() || "";
+          if (isTableRow(nextTableLine) && parseTableRow(nextTableLine).length === columnCount) {
+            index += 1;
+            continue;
+          }
+          break;
+        }
+
+        if (!isTableRow(tableLine) || parseTableRow(tableLine).length !== columnCount) break;
+
+        tableRows.push(tableLine);
         index += 1;
       }
 
@@ -323,9 +343,37 @@ function enhanceActiveAnchorNav(article) {
   window.addEventListener("hashchange", updateActiveLink);
 }
 
+function headingLevel(heading) {
+  return Number(heading.tagName.slice(1));
+}
+
+function enhanceWriteThisDown(article) {
+  const headings = article.querySelectorAll("#write-this-down");
+
+  for (const heading of headings) {
+    const panel = heading.closest(".one-e-rule-panel");
+    if (panel) panel.classList.add("one-e-write-panel");
+    heading.classList.add("one-e-write-heading");
+
+    const notebook = document.createElement("div");
+    notebook.className = "one-e-write-card";
+    heading.after(notebook);
+
+    const level = headingLevel(heading);
+    let node = notebook.nextElementSibling;
+
+    while (node && !(node.matches("h1, h2, h3") && headingLevel(node) <= level)) {
+      const next = node.nextElementSibling;
+      notebook.appendChild(node);
+      node = next;
+    }
+  }
+}
+
 function enhanceMarkdownUi(article) {
   wrapRulePanels(article);
   enhanceChapterNavigation(article);
+  enhanceWriteThisDown(article);
   enhanceActiveAnchorNav(article);
 }
 
