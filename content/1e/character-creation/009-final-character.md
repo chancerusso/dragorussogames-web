@@ -1,35 +1,11 @@
-# Final Character
+# Character Creation Complete
 
-## Purpose
-This chapter will cover final review before play.
+This older review page is preserved for existing links.
 
-## Rule Source
-Campaign Rule.
+The active Drago Russo Games First Edition character creation flow now ends with Languages.
 
-## Official Rule Summary
-Pending.
+## Continue
 
-## Simple Explanation
-Pending.
-
-## Procedure
-Pending.
-
-## Examples
-Pending.
-
-## Quick Reference
-Pending.
-
-## House Rules
-Pending.
-
-
-## Related Pages
-- [Character Creation](/1e/character-creation/)
-- [Ability Scores](/1e/character-creation/001-ability-scores/)
-- [Race](/1e/character-creation/002-race/)
-- [Class](/1e/character-creation/003-class/)
-
-## Notes
-Pending.
+- **[Character Creation](/1e/character-creation/)**
+- **[Languages](/1e/character-creation/008-languages/)**
+- **[Start Here](/1e/start-here/)**

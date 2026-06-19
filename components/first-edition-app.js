@@ -26,8 +26,7 @@ const sectionItems = {
     ["Starting Wealth", "/1e/character-creation/005-starting-wealth/", "Roll starting money before buying equipment."],
     ["Equipment", "/1e/character-creation/006-equipment/", "Buy armor, weapons, gear, and expedition supplies."],
     ["Hit Points", "/1e/character-creation/007-hit-points/", "Determine starting durability and record hit points."],
-    ["Languages", "/1e/character-creation/008-languages/", "Record starting languages and any Intelligence-based choices."],
-    ["Final Character", "/1e/character-creation/009-final-character/", "Review the sheet before the character enters play."]
+    ["Languages", "/1e/character-creation/008-languages/", "Record starting languages and any Intelligence-based choices."]
   ],
   races: [
     ["Races", "/1e/races/", "Race reference index."],
@@ -86,7 +85,12 @@ const sectionItems = {
 
 const pageAliases = {
   "/1e": "index",
-  "/1e/": "index"
+  "/1e/": "index",
+  "/1e/character-creation/alignment/": "character-creation/alignment",
+  "/1e/character-creation/starting-wealth/": "character-creation/starting-wealth",
+  "/1e/character-creation/equipment/": "character-creation/equipment",
+  "/1e/character-creation/hit-points/": "character-creation/hit-points",
+  "/1e/character-creation/languages/": "character-creation/languages"
 };
 
 function escapeHtml(value) {
@@ -99,10 +103,10 @@ function escapeHtml(value) {
 
 function inlineMarkdown(text) {
   return escapeHtml(text)
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
     .replace(/\*([^*]+)\*/g, "<em>$1</em>")
-    .replace(/`([^`]+)`/g, "<code>$1</code>")
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+    .replace(/`([^`]+)`/g, "<code>$1</code>");
 }
 
 function slugify(text) {
@@ -312,12 +316,16 @@ function wrapRulePanels(article) {
 }
 
 function enhanceChapterNavigation(article) {
-  const navHeadings = article.querySelectorAll("#race-navigation, #class-navigation, #choose-your-next-step, #character-creation-path");
+  const navHeadings = article.querySelectorAll("#race-navigation, #class-navigation, #choose-your-next-step, #character-creation-path, #equipment-categories, #previous-next");
 
   for (const heading of navHeadings) {
     const list = heading.nextElementSibling;
     if (list?.tagName === "UL") {
       list.classList.add("one-e-anchor-nav");
+    }
+
+    if (heading.id === "equipment-categories") {
+      heading.closest(".one-e-rule-panel")?.classList.add("one-e-sticky-panel");
     }
   }
 
@@ -326,6 +334,39 @@ function enhanceChapterNavigation(article) {
     const section = heading.closest(".one-e-rule-panel");
     const list = section?.querySelector("ul");
     if (list) list.classList.add("one-e-comparison-grid");
+  }
+}
+
+function enhanceSubcardPanels(article) {
+  const panelIds = new Set(["alignment-choices", "recommended-starting-kits"]);
+
+  for (const heading of article.querySelectorAll("h2")) {
+    if (!panelIds.has(heading.id)) continue;
+
+    const panel = heading.closest(".one-e-rule-panel");
+    if (!panel) continue;
+
+    panel.classList.add("one-e-subcard-panel");
+    if (heading.id === "alignment-choices") panel.classList.add("one-e-alignment-panel");
+
+    let node = heading.nextElementSibling;
+    while (node) {
+      if (node.tagName === "H2") break;
+      if (node.tagName !== "H3") {
+        node = node.nextElementSibling;
+        continue;
+      }
+
+      const card = document.createElement("section");
+      card.className = "one-e-subcard";
+      node.before(card);
+
+      while (node && node.tagName !== "H2" && !(node.tagName === "H3" && card.children.length > 0)) {
+        const next = node.nextElementSibling;
+        card.appendChild(node);
+        node = next;
+      }
+    }
   }
 }
 
@@ -373,6 +414,7 @@ function enhanceWriteThisDown(article) {
 function enhanceMarkdownUi(article) {
   wrapRulePanels(article);
   enhanceChapterNavigation(article);
+  enhanceSubcardPanels(article);
   enhanceWriteThisDown(article);
   enhanceActiveAnchorNav(article);
 }

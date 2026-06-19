@@ -13,6 +13,22 @@ Changed
 Removed
 
 Date:
+2026-06-18
+
+Added:
+004 Alignment completed
+005 Starting Wealth completed
+006 Equipment completed
+007 Hit Points completed
+008 Languages completed
+Unnumbered character creation content mirrors for alignment, starting wealth, equipment, hit points, and languages
+
+Changed:
+Character Creation flow now reads Ability Scores, Race, Class, Alignment, Starting Wealth, Equipment, Hit Points, Languages
+Equipment page now uses compact boxed tables, sticky category navigation, recommended starting kits, and notebook guidance
+Renderer now supports selectable-style subcards for alignment choices and starting kit examples
+
+Date:
 2026-06-17
 
 Added:
