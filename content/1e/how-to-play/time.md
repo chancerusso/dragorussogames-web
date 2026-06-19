@@ -1,52 +1,56 @@
 # Time
 
-## Purpose
+Time is the pressure behind OSRIC exploration. The referee tracks game time so light burns down, spell durations expire, wounded characters heal, food is consumed, and wandering monster checks matter.
 
-Time turns choices into pressure.
+OSRIC measures game time in turns, rounds, and segments.
 
-This section teaches the time scales used in play, why dungeon turns matter, when combat changes the clock, and how rest, light, spells, food, wounds, and wandering monsters make delay dangerous.
+## Time Scales
 
-## What OSRIC Says
+| Scale | Length | Used For |
+| --- | ---: | --- |
+| Segment | 6 seconds | Surprise, spell timing, and detailed combat timing |
+| Round | 1 minute | Combat and other moment-by-moment danger |
+| Turn | 10 minutes | Dungeon exploration, searching, mapping, light, and rest |
 
-Game time is not table time. The referee tracks turns, rounds, segments, hours, and days according to what the characters are doing.
+Unless the party is in combat, almost all dungeon time is measured in 10-minute turns. Combat switches to 1-minute rounds, subdivided into 6-second segments when exact timing matters.
 
-| Time Scale | Length | Used For | Why It Matters |
-| --- | ---: | --- | --- |
-| Segment | 6 seconds | Surprise, spell timing, initiative details | Determines exactly when a fast action or spell completes |
-| Round | 1 minute | Combat | Attacks, spells, movement, morale, and retreat are resolved here |
-| Turn | 10 minutes | Dungeon exploration | Mapping, searching, resting, light, and wandering monster checks use turns |
-| Hour | 6 turns | Longer waits and travel blocks | Helps track sustained activity and rest |
-| Day | Campaign day | Wilderness travel and recovery | Food, sleep, camping, weather, and long travel are measured here |
+## Why Time Matters
 
-In dungeons, most non-combat play is measured in turns. A turn is long enough for cautious movement, mapping, a search, a door attempt, a rest period, or other exploration work.
+The referee normally records elapsed time. OSRIC notes that some tables delegate timekeeping to a trustworthy player, but the referee remains responsible for applying the consequences.
 
-| Dungeon Time Event | Usual Timing |
+Time matters because torches burn out, lantern oil is spent, food is consumed, wounds recover only with rest, spell durations end, and dangerous places may produce wandering monsters.
+
+## Wandering Monster Pressure
+
+In dangerous environments, the referee makes periodic wandering monster checks. The interval depends on the location: turns in a dungeon, hours or days in broader travel.
+
+Wandering monsters usually carry little treasure, so they punish wasted time more than they reward combat. They also make the dungeon feel alive.
+
+## Dungeon Time
+
+Dungeon turns are used for cautious movement, mapping, searching, listening, opening doors, resting, and other exploration work. The standard dungeon procedure checks for wandering monsters every third turn unless the adventure says otherwise.
+
+Rest is normally required for one turn in every six, and for one turn after each combat.
+
+## Example At The Table
+
+The party spends one turn moving cautiously, one turn listening and forcing a stuck door, and one turn searching the chamber beyond. Three turns have passed, so the referee checks for wandering monsters and marks off light and spell durations.
+
+## Quick Reference
+
+| Question | OSRIC Time Unit |
 | --- | --- |
-| Wandering monster check | Every third turn, commonly 1 chance in 6 |
-| Routine dungeon action | Usually one turn, unless the action is brief |
-| Rest | Typically one turn in every six |
-| Rest after combat | Typically one turn after each combat |
-| Bookkeeping | At the end of each turn |
+| Is the party exploring a dungeon? | Turns |
+| Is combat happening? | Rounds |
+| Does surprise or spell timing matter? | Segments |
+| Has three dungeon turns passed? | Check wandering monsters if appropriate |
+| Has six turns of exploration passed? | The party normally needs a rest turn |
 
-Bookkeeping means the referee records time passed and marks off resources: light burning down, spell durations expiring, hit points lost, noise made, and similar expedition costs.
+## Notes
 
-In the wilderness, time usually shifts to days. A wilderness day accounts for travel, weather, navigation, wandering monster checks, camping, watches, sleep, and spell recovery.
+Verified against OSRIC core rules, Chapter III, Time Measurement, plus the dungeon exploration order of play. No DRG1e time house rule is added here.
 
-## How It Works At The Table
-
-Time matters because the dungeon reacts while the party debates.
-
-Careful players can search, listen, map, and rest, but every turn spent underground may burn light, shorten spells, invite wandering monsters, and reduce the party's margin for escape. Hurrying is dangerous too, because fast movement gives up mapping and caution.
-
-The referee does not need to turn every breath into arithmetic. The goal is to mark meaningful chunks of risk so that choices have weight.
-
-## Example
-
-The party spends one turn moving cautiously down a corridor, one turn listening and forcing a stuck door, and one turn searching the chamber beyond. Three turns have passed, so the referee checks for a wandering monster.
-
-Nothing attacks, but a torch is closer to guttering and the party has lost half an hour underground.
-
-## Next Step
+## Continue
 
 Time tells you when things happen. **[Movement](/1e/how-to-play/movement/)** tells you how far the party gets before the next risk arrives.
 

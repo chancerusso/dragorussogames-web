@@ -1,73 +1,65 @@
 # Movement
 
-## Purpose
+OSRIC movement rates show how far a character or monster can move in one combat round. Exploration, running, and overland travel convert that rate for different situations.
 
-Movement decides pace, formation, pursuit, retreat, and how much treasure the party can carry out.
+The party usually moves at the speed of its slowest member.
 
-This section teaches movement rates, cautious exploration, combat movement, wilderness travel, running, fleeing, and encumbrance.
+## Movement Rates
 
-## What OSRIC Says
-
-A movement rate is the distance a character or monster can move in one combat round. In ordinary combat, that distance is measured per round. In cautious dungeon exploration, the rate is divided by ten and measured per turn.
-
-| Situation | Movement Used |
+| Situation | OSRIC Conversion |
 | --- | --- |
-| Combat movement | Full movement rate per round |
-| Cautious dungeon movement | Movement rate per turn |
-| Familiar mapped dungeon route | Up to five times cautious dungeon movement |
-| Fleeing through a dungeon | Up to ten times cautious dungeon movement |
-| Running | Double movement rate when the situation permits |
-| Wilderness travel | Movement rate divided by 5 gives miles per day |
+| Combat movement | Movement rate in feet per 1-minute round |
+| Cautious dungeon movement | Movement rate divided by 10, measured per 10-minute turn |
+| Familiar dungeon areas | Up to 5 times normal per-turn movement, with no mapping |
+| Fleeing in a dungeon | 10 times normal per-turn movement, with no mapping and double rest afterward |
+| Running | Double movement rate |
+| Daily walking travel | Movement rate divided by 5 gives miles per day on fairly level terrain |
 
-A party usually moves at the speed of its slowest member. Mapping and caution require slow movement. Fleeing gives up mapping and requires a double rest period after the pursuit ends.
+Example: a character with movement 90 ft moves 90 ft in a combat round, 90 ft per dungeon turn while moving cautiously, and about 18 miles per day on fairly level terrain.
+
+## Encumbrance
+
+Encumbrance limits movement and can affect surprise. OSRIC assumes a base 120 ft move for the table below. Small races with a base move of 90 ft deduct 30 ft from the movement rates, to a minimum of 30 ft, but do not change the surprise effects.
 
 | Weight Carried | Maximum Movement | Surprise Effect |
 | --- | ---: | --- |
-| Up to 35 lb. | 120 ft. per round | +1 if armor is lighter than chain mail |
-| 36-70 lb. | 90 ft. per round | Normal bonuses apply |
-| 71-105 lb. | 60 ft. per round | Normal bonuses do not apply, but penalties do |
-| 106-150 lb. | 30 ft. per round | Normal bonuses do not apply, penalties do, and there is an extra -1 penalty |
-| More than 150 lb. adjusted | No movement | Cannot move |
+| Up to 35 lb | 120 ft/round | +1 surprise bonus, for armour lighter than chain mail only |
+| 36-70 lb | 90 ft/round | Normal bonuses apply |
+| 71-105 lb | 60 ft/round | Normal bonuses do not apply, but penalties do |
+| 106-150 lb | 30 ft/round | Normal bonuses do not apply, penalties do, and there is an extra -1 penalty |
+| More than 150 lb, adjusted by Strength | No movement | Cannot move |
 
-The maximum carried weight is 150 lb. plus any Strength allowance. Armor also sets a maximum movement rate because of bulk, even before other gear is counted.
+Armour also sets a maximum movement rate because of bulk, independent of total carried weight.
 
-Small races with a base movement of 90 ft. deduct 30 ft. from each movement category, to a minimum of 30 ft. This does not change the surprise or initiative effect of encumbrance.
+## Combat Movement
 
-| Container | Capacity |
-| --- | ---: |
-| Small pouch or purse | 1/4 cu. ft. or 2.5 lb. |
-| Large pouch | 1/2 cu. ft. or 5 lb. |
-| Small sack | 1 cu. ft. or 10 lb. |
-| Backpack | 3 cu. ft. or 30 lb. |
-| Large sack | 4 cu. ft. or 40 lb. |
-| Waterskin | 3 pints |
+During combat, flat-out running is not normally possible unless the character is charging or fleeing. Charging lets the attacker move and attack in the same round at twice normal movement, but it carries risks and can be met by longer weapons or weapons set against a charge.
 
-## How It Works At The Table
+## Dungeon Movement
 
-Movement is a group problem.
+Cautious dungeon movement includes mapping and watching for danger. Moving through known areas can be faster, but mapping is not allowed at that pace.
 
-A lightly equipped scout may move quickly, but the expedition is usually limited by the armored fighter, the dwarf with the lantern, the wounded hireling, or the sacks of coin everyone insists are worth the risk.
+Fleeing uses full combat speed through the dungeon. No mapping is possible, and OSRIC calls for a double rest period after the pursuit.
 
-When danger appears, the party decides whether to stand, close, withdraw, flee, or abandon weight. Those choices are movement choices before they are combat choices.
+## Example At The Table
 
-## Example
+A party with a slowest movement rate of 60 ft moves 60 ft per turn while mapping. When fleeing, they can cover 600 ft per turn, but they cannot map and must take two turns of rest afterward.
 
-A party with a movement rate of 90 ft. explores cautiously. In the dungeon they move 90 ft. per turn while mapping.
+## Quick Reference
 
-Later, they flee through a known passage at ten times that cautious rate. They cover ground quickly, but make no map and must spend extra time resting when they escape pursuit.
+| Question | Check |
+| --- | --- |
+| Who sets the pace? | Slowest party member |
+| Is the party mapping? | Use cautious dungeon movement |
+| Is the route known? | Up to 5 times per-turn movement, no mapping |
+| Is the party fleeing? | 10 times per-turn movement, no mapping, double rest |
+| Is the character overloaded? | More than 150 lb adjusted means no movement |
 
-## Write This Down
+## Notes
 
-Movement Rate:
-Write your adjusted movement rate after armor and encumbrance.
+Verified against OSRIC core rules, Chapter III, Movement and Encumbrance and Base Movement Rate. DRG1e encumbrance changes belong in **[House Rules](/1e/house-rules/004-encumbrance/)**.
 
-Encumbrance:
-Write enough equipment weight to know when your movement category changes.
-
-Containers:
-Write where treasure and important gear are actually carried.
-
-## Next Step
+## Continue
 
 Movement gets the party through the underworld. **[Exploration](/1e/how-to-play/exploration/)** explains what the party does while moving.
 

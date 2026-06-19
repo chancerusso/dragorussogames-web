@@ -9,13 +9,13 @@ Read the rules, make decisions at the table, and write only the needed results o
 - **[Time](/1e/how-to-play/time/)**
 - **[Movement](/1e/how-to-play/movement/)**
 - **[Exploration](/1e/how-to-play/exploration/)**
-- **[Encounter Procedure](/1e/how-to-play/encounter-procedure/)**
+- **[Encounters](/1e/how-to-play/encounters/)**
 - **[Surprise](/1e/how-to-play/surprise/)**
 - **[Initiative](/1e/how-to-play/initiative/)**
 - **[Combat](/1e/how-to-play/combat/)**
 - **[Magic](/1e/how-to-play/magic/)**
-- **[Death & Recovery](/1e/how-to-play/death-recovery/)**
-- **[Experience & Advancement](/1e/how-to-play/experience-advancement/)**
+- **[Death](/1e/how-to-play/death/)**
+- **[Experience](/1e/how-to-play/experience/)**
 
 ## House Rules
 

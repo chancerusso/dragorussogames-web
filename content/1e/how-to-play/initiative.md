@@ -1,46 +1,55 @@
 # Initiative
 
-## Purpose
+Initiative orders the combat round after surprise segments are resolved and spells and general actions have been declared.
 
-Initiative decides the order of action once the encounter becomes a combat round.
+OSRIC uses d6 side initiative. The higher roll is better, but the number rolled tells when the other side acts.
 
-This section teaches declarations, initiative dice, simultaneous action, held action, spell timing, and interruptions.
+## Before Initiative
 
-## What OSRIC Says
+Spellcasters must declare what spell they will cast before initiative is rolled. They may choose not to cast it as the round unfolds, but they may not substitute a different action because the mental focus has already been committed.
 
-After surprise is resolved, spellcasters declare spells and all sides state general actions. Then each side rolls initiative on a d6.
+Non-spellcasters should also declare general action: sword, bow, climbing, fleeing, negotiating, and so on.
 
-| Step | Table Action |
+## Rolling Initiative
+
+Each side rolls 1d6. The higher roll wins initiative.
+
+The die result represents the 6-second segment when the other side acts. If the party rolls 6 and the monsters roll 1, the party acts in segment 1 and the monsters act in segment 6.
+
+A combat round has 10 segments. The d6 initiative roll covers the first six segments, leaving four later segments where delayed actions and spells may still resolve.
+
+## Ties And Missile Dexterity
+
+If initiative ties, both sides act simultaneously. Damage from simultaneous action still happens even if one combatant dies in that round.
+
+Dexterity surprise bonuses do not modify melee initiative. If a character has a missile weapon in hand, the character's missile attack bonus applies to initiative as well as to the attack roll.
+
+## Spell Timing
+
+Spellcasting begins in the caster's initiative segment. That segment is the first segment of casting time. The spell takes effect only after the full casting time is complete.
+
+If the caster is damaged while casting, the spell is lost. While casting, the caster receives no Dexterity bonus to Armor Class.
+
+## Example At The Table
+
+The magic-user declares a spell with casting time 2 segments. The party rolls 5 and the monsters roll 4. The magic-user begins in segment 4. The monsters act in segment 5. The spell resolves in segment 6 if the monster action does not interrupt it.
+
+## Quick Reference
+
+| Initiative Question | OSRIC Baseline |
 | --- | --- |
-| Declarations | Spellcasters name spells; other characters state general intent |
-| Initiative roll | Each side rolls d6 |
-| Higher roll | Better result |
-| Action segment | One side acts in the segment shown by the other side's die |
-| Tie | Actions are simultaneous |
+| When are spells declared? | Before initiative |
+| What is rolled? | 1d6 by side |
+| Which roll wins? | Higher roll |
+| What does the die number mean? | The segment when the other side acts |
+| What happens on a tie? | Simultaneous action |
+| When does a spell start? | Caster's initiative segment |
 
-The initiative die is unusual: it indicates when the other side acts. If the party rolls 6 and the monsters roll 1, the party acts in segment 1 and the monsters act in segment 6.
+## Notes
 
-Damage from simultaneous action still happens even if one combatant dies during the exchange. Some characters or creatures with separate attack routines use later routines only after the other side's initiative segment has resolved.
+Verified against OSRIC core rules, Chapter III, Combat, Declare Spells and General Actions and Determine Initiative. No DRG1e initiative house rule is added here.
 
-Spellcasting begins in the caster's initiative segment. The spell completes after its casting time. If the caster takes damage while casting, the spell is lost. A caster receives no Dexterity bonus to Armor Class while casting.
-
-Missile attack bonuses from Dexterity apply to missile attacks. If a missile weapon is already in hand, that missile bonus also applies to initiative.
-
-## How It Works At The Table
-
-Declarations force commitment before the dice reveal the moment.
-
-A magic-user who declared a spell may choose not to cast it, but cannot switch to a different action. A fighter may hold position, close, retreat, fire, attack, or wait. The referee already knows the enemy's general intent before hearing the players' declarations.
-
-Initiative is not only speed. It is timing, opening, hesitation, distance, and the first clear chance to act.
-
-## Example
-
-The magic-user declares a spell with a two-segment casting time. The party rolls 5. The monsters roll 4.
-
-The party acts in segment 4, so the spell begins in segment 4 and completes in segment 6. The monsters act in segment 5. If they damage the caster before segment 6, the spell is lost.
-
-## Next Step
+## Continue
 
 Initiative orders the round. **[Combat](/1e/how-to-play/combat/)** explains attacks, Armor Class, damage, morale, missiles, and retreat.
 

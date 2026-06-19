@@ -1,68 +1,77 @@
 # Death & Recovery
 
-## Purpose
+OSRIC damage and death are explicit. Hit point loss can knock a character unconscious, cause bleeding, and lead to death if aid does not arrive quickly.
 
-Hit points run out before danger does.
+Use these baseline rules unless a DRG1e house rule clearly says otherwise.
 
-This section teaches damage, unconsciousness, bleeding, death, magical aid, natural healing, and the cost of surviving a terrible wound.
+## Damage And Death
 
-## What OSRIC Says
+When a character or creature is hit, subtract damage from hit points.
 
-When a character or creature is hit, damage is deducted from hit points.
+At 0 hit points, the character is unconscious and loses 1 hit point per round from blood loss. Death occurs at -10 hit points.
 
-| Hit Point State | Result |
+Any additional damage to an unconscious character, other than the automatic blood loss, kills the character instantly.
+
+## Stopping Blood Loss
+
+The loss of 1 hit point per round stops immediately in the same round that aid of some kind is administered.
+
+OSRIC does not require a special named action here; the important rule is that aid stops the bleeding immediately.
+
+## After Unconsciousness
+
+Being knocked unconscious is serious. Even after returning to 1 or more hit points through healing magic, potion, or natural rest, the character remains in a coma for 1-6 turns.
+
+Afterward, the character must rest for at least one week before resuming strenuous mental or physical activity.
+
+If reduced to -6 hit points or below, the character likely bears scars from the wound for life.
+
+## Raising The Dead
+
+Characters who are slain may be raised if a cleric of sufficient level is available. OSRIC notes an exception: elves are unaffected by raise dead or resurrection.
+
+If the party lacks such a cleric, an NPC high priest may be sought, typically charging at least 1,000 gp.
+
+## Natural Healing
+
+OSRIC natural healing restores 1 hit point per day of uninterrupted rest.
+
+If the character has a Constitution penalty to hit points, the character must first rest a number of days equal to that penalty before rest begins restoring hit points.
+
+After one full week of rest, a character with a Constitution hit point bonus gains that bonus to the hit points recovered during the second week. Four weeks of rest returns any character to full hit points.
+
+## Subdual Damage
+
+If a player wants to beat down rather than kill an opponent, weapon damage can be half real damage and half subdual damage. Subdual damage recovers at 1 hit point per hour.
+
+Not all monsters can be subdued; this usually applies to humanoids and special creatures such as dragons.
+
+## Example At The Table
+
+A fighter is reduced to 0 hit points. The fighter falls unconscious and will lose 1 hit point per round. An ally reaches the fighter and gives aid in the same round, stopping the blood loss. Even if later healed to positive hit points, the fighter remains comatose for 1-6 turns and needs a week of rest before strenuous activity.
+
+## Quick Reference
+
+| Recovery Question | OSRIC Baseline |
 | --- | --- |
-| Above 0 hp | Still conscious unless another effect says otherwise |
-| 0 hp | Unconscious |
-| Below 0 hp | Bleeding for 1 hp per round |
-| -10 hp | Dead |
-| Additional damage while unconscious | Instant death, except the ongoing bleeding loss |
+| What happens at 0 hp? | Unconscious |
+| How fast does bleeding continue? | 1 hp per round |
+| When does death occur? | -10 hp |
+| What if an unconscious character takes more damage? | Instant death |
+| How long is coma after recovery? | 1-6 turns |
+| How long before strenuous activity? | At least 1 week |
+| Natural healing rate | 1 hp per day of uninterrupted rest |
+| Full natural recovery | 4 weeks of rest |
 
-Aid can stop bleeding immediately in the round it is administered. Healing magic, potions, and rest can return hit points, but unconsciousness is serious.
+## Notes
 
-After returning to 1 or more hit points, the character remains in a coma for 1-6 turns and must rest at least one week before resuming strenuous physical or mental activity. A character reduced to -6 hit points or worse is likely to bear lasting scars.
+Verified against OSRIC core rules, Chapter III, Damage and Death, Natural Healing, and Subdual Damage. DRG1e death changes belong in **[House Rules](/1e/house-rules/005-death-rules/)**.
 
-| Natural Healing | Result |
-| --- | --- |
-| Uninterrupted rest | Recover 1 hp per day |
-| Constitution penalty | Rest that many days before healing begins to affect hp |
-| High Constitution | After one week, the second week's healing is increased by the hp bonus |
-| Four weeks of rest | Restores any character to full hp |
-| Subdual damage | Recovers at 1 hp per hour |
+## Continue
 
-Dead characters may be raised if a cleric of sufficient level is available, though such aid is costly and not always possible.
-
-## How It Works At The Table
-
-Dropping to 0 hp is an expedition crisis.
-
-Someone must reach the fallen character, stop the bleeding, keep enemies away, and decide whether the party can retreat or continue while carrying the wounded. Even if the character lives, the week of required rest can change the campaign's immediate plans.
-
-## Drago Russo Games Rule
-
-At first level, characters roll their hit die normally and then begin with the maximum result for that die. Constitution still applies.
-
-Future levels use normal rolling.
-
-## Example
-
-A thief is reduced to -3 hp. The thief is unconscious and loses 1 hp per round.
-
-An ally reaches the thief and administers aid before the next round of blood loss. The bleeding stops, but the thief still needs healing, a coma recovery period after reaching 1 hp, and a week of rest before strenuous action.
-
-## Write This Down
-
-Current HP:
-Update hit points immediately when damage or healing happens.
-
-Recovery Notes:
-Write coma time, required rest, scars, or lingering consequences after a serious wound.
-
-## Next Step
-
-Survival is not the only reward. **[Experience & Advancement](/1e/how-to-play/experience-advancement/)** explains treasure, monsters, XP, and training.
+Survival is not the only reward. **[Experience & Advancement](/1e/how-to-play/experience/)** explains treasure, monsters, XP, and training.
 
 ## Previous / Next
 
 - **[Previous: Magic](/1e/how-to-play/magic/)**
-- **[Next: Experience & Advancement](/1e/how-to-play/experience-advancement/)**
+- **[Next: Experience](/1e/how-to-play/experience/)**

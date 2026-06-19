@@ -1,55 +1,64 @@
 # Surprise
 
-## Purpose
+Surprise is checked once per combat, at the beginning of an encounter, when either side might be caught flat-footed.
 
-Surprise decides who is caught flat-footed at the beginning of danger.
+OSRIC surprise is measured in 6-second segments.
 
-This section teaches surprise rolls, surprise segments, Dexterity adjustment, and how special creatures may change the normal chance.
+## Surprise Roll
 
-## What OSRIC Says
+Each side rolls 1d6.
 
-Surprise is checked once at the beginning of an encounter or combat. Each side rolls a d6 unless circumstances make surprise impossible.
-
-| d6 Result | Surprise Result |
+| Roll | Result |
 | ---: | --- |
 | 1 | Surprised for 1 segment |
 | 2 | Surprised for 2 segments |
 | 3-6 | Not surprised |
 
-A surprised side cannot act during its surprise segments. The unsurprised side may act during the difference in segments.
+Some monsters, races, classes, or situations change these numbers. If alerted monsters already know the party is coming, they may not need to roll surprise at all.
 
-| Situation | Result |
+## Comparing Surprise
+
+If both sides are surprised, compare the number of surprise segments. The side surprised for fewer segments can act during the difference.
+
+Example: if the party rolls 1 and the monsters roll 2, the party is surprised for one segment and the monsters for two. The party gets one surprise segment to act.
+
+If one side is not surprised and the other is surprised, the unsurprised side acts for all of the surprised side's segments.
+
+## What Can Happen In Surprise
+
+Actions that would normally happen during a round may be completed in one surprise segment if they can reasonably fit into six seconds: talking, attacking, charging, closing to melee, beginning a spell, and similar immediate actions.
+
+A one-segment spell can be fully cast during one surprise segment. A longer spell can be begun, but it does not finish until its casting time is complete.
+
+## Dexterity And Special Surprise
+
+A character's surprise bonus negates surprise segments if that character is surprised. A penalty can create additional segments. Dexterity cannot create surprise by itself; it only changes how many segments surprise lasts.
+
+Some monsters surprise on more than 1-2 on d6. A monster that surprises on 1-3 can gain three surprise segments if the party rolls a 3 and the monster is not surprised.
+
+## Example At The Table
+
+The party rolls a 2 for surprise. The monsters roll a 5. The monsters are not surprised, and the party is surprised for two segments, so the monsters can act during both surprise segments before the first regular round begins.
+
+## Quick Reference
+
+| Question | OSRIC Baseline |
 | --- | --- |
-| Party rolls 1, monsters roll 2 | Party is surprised for 1 segment, monsters for 2; the party has 1 segment to act |
-| Party rolls 2, monsters roll 5 | Party is surprised for 2 segments, monsters are not surprised; monsters have 2 segments to act |
-| Both sides roll 3-6 | No surprise; proceed to declarations and initiative |
+| How often is surprise checked? | Once, at the beginning of combat |
+| What die is rolled? | 1d6 by side |
+| What rolls indicate surprise? | 1 means 1 segment, 2 means 2 segments |
+| How long is a segment? | 6 seconds |
+| Can Dexterity create surprise? | No, it modifies surprise segments |
 
-Actions during surprise must fit a six-second segment. A character might attack, move, charge, speak briefly, close, or begin a spell. A long speech or a spell with more than one segment of casting time cannot fully resolve in a single surprise segment.
+## Notes
 
-A Dexterity surprise bonus can reduce or negate surprise segments for that character. It cannot create surprise against the enemy. Some monsters have special rules, such as surprising on 1-3, and may gain more than two segments.
+Verified against OSRIC core rules, Chapter III, Combat, Determine Surprise. No DRG1e surprise house rule is added here.
 
-## How It Works At The Table
-
-Surprise belongs to the first flash of danger.
-
-A party hammering at a stuck door may warn the creatures beyond, so those creatures might not roll to be surprised. A quiet party, moving carefully with light controlled and formation set, has better odds of meeting danger on its own terms.
-
-## Example
-
-The party rolls a 2 for surprise. The monsters roll a 5.
-
-The party is surprised for two segments. The monsters can close and attack before the first regular combat round begins.
-
-## Write This Down
-
-Surprise Adjustment:
-Write any Dexterity, race, class, armor, or encumbrance note that affects surprise.
-
-## Next Step
+## Continue
 
 After surprise is resolved, the first full combat round begins. **[Initiative](/1e/how-to-play/initiative/)** explains who acts first inside the round.
 
 ## Previous / Next
 
-- **[Previous: Encounter Procedure](/1e/how-to-play/encounter-procedure/)**
+- **[Previous: Encounters](/1e/how-to-play/encounters/)**
 - **[Next: Initiative](/1e/how-to-play/initiative/)**

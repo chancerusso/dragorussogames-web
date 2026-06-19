@@ -1,65 +1,76 @@
 # Exploration
 
-## Purpose
+OSRIC says exploration is the primary activity of adventure. Combat has detailed rules, but play usually centers on investigating dungeons, wildernesses, seas, towns, and other dangerous places.
 
-Exploration is the heart of old-school dungeon play.
+Dungeon exploration is measured in turns. Wilderness exploration is usually measured in days.
 
-This section teaches mapping, doors, listening, searching, light, rest, marching order, and the behavior that keeps an expedition alive.
+## Dungeon Turn Order
 
-## What OSRIC Says
+While exploring a dungeon, OSRIC resolves each turn separately.
 
-Dungeon exploration is measured in turns. During a turn, the party declares what it is doing, the referee resolves the action, encounters may occur, and time and resources are recorded.
+| Turn Step | What Happens |
+| --- | --- |
+| Wandering Monster Check | Every third turn, usually 1 chance in 6 unless the dungeon key says otherwise |
+| Statement of Action | The party caller or players state movement, listening, searching, opening doors, resting, spellcasting, or other actions |
+| Encounters | If an encounter occurs, the referee determines surprise, distance, reactions, and resolves negotiation, evasion, or combat |
+| Bookkeeping | The referee marks a turn elapsed and deducts resources such as light, spell duration, and hit points |
 
-| Exploration Action | Usual Time | Rule |
-| --- | ---: | --- |
-| Move cautiously and map | 1 turn | Move up to the party's cautious dungeon movement |
-| Move through familiar mapped areas | 1 turn | Up to five times cautious dungeon movement |
-| Listen | 1 round per attempt | Most characters have a 10% chance; elves, gnomes, halflings, and half-orcs have 15%; thieves and assassins use class rules |
-| Force a stuck door | 1 round per attempt | Standard chance is 2 in 6, modified by Strength |
-| Search for traps | 1-4 rounds per attempt | Covers one object or location |
-| Casually examine and map a room | 1 turn | Covers about a 20 ft. by 20 ft. room or area |
-| Search for secret doors | 1 turn | Covers about a 10 ft. by 10 ft. area; standard chance is 1 in 6, or 2 in 6 for elves and half-elves |
-| Cast a spell | By spell | Use the spell's casting time |
-| Rest | 1 turn | Usually one turn in six, plus one turn after combat |
+Brief actions can be combined in a single turn. Longer actions may take several turns.
 
-Listening requires quiet. Helmets and noise interfere. The referee usually rolls listening checks secretly because silence may mean failure, distance, or that nothing is there.
+## Common Dungeon Actions
 
-Locked doors require a key, a spell, exceptional force, lock picking, or breaking. A failed attempt to force or break a door usually removes the chance to surprise anything beyond it.
+| Action | OSRIC Timing And Chance |
+| --- | --- |
+| Cautious movement with mapping | Up to full cautious move rate per turn |
+| Known route, no mapping | Up to 5 times normal per-turn movement |
+| Listen for noise | 1 round per attempt; 10% base chance, 15% for elves, gnomes, halflings, and half-orcs; thieves and assassins use class chances; no more than 3 attempts per situation before resting |
+| Force stuck door | 1 round per attempt; 2 in 6 standard chance, adjusted by Strength |
+| Search for traps | 1-4 rounds for one object or small location; race, class, or negotiated method may matter |
+| Casually examine and map room | 1 turn per 20 x 20 ft area |
+| Search for secret doors | 1 turn per 10 x 10 ft area; 1 in 6 standard chance, 2 in 6 for elves and half-elves |
+| Rest | 1 turn in every 6, plus 1 turn after combat |
 
-Wandering monsters are normally checked every third turn, often with a 1 in 6 chance. Their job is not only danger; they make the dungeon feel alive and keep time from becoming free.
+## Light And Mapping
 
-## How It Works At The Table
+OSRIC treats the players' map as an in-game object. A character must have light, mapping supplies, and enough time to map. Moving too fast prevents mapping.
 
-Players describe real actions.
+The point of mapping is not perfect drafting. It helps the party know what has been explored, find the way out, and notice tricks such as loops, slopes, teleporters, or missing rooms.
 
-"We listen at the bronze door." "I tap the flagstones with the pole." "The thief checks the coffer for needles." "The front rank holds while the magic-user copies the inscription."
+## Doors, Traps, And Searching
 
-The referee answers with what the characters perceive, asks for rolls when the rules call for them, and advances the clock when the party spends meaningful time.
+Opening a normal door is simple. Stuck doors require force. Locked doors require a key, lock picking, a knock spell, exceptional strength, or breaking down the door.
 
-Mapping and marching order matter. A 10 ft. corridor can usually hold up to three characters abreast, but large weapons may reduce that. Characters in a second rank need reach weapons, missile openings, or shorter allies to attack past the front line.
+Failed attempts to force a door are noisy and prevent surprise against creatures on the other side. Chopping down a door takes at least a full turn and may require several wandering monster checks.
 
-## Example
+Searching for traps is specific: a door, chest, floor space, throne area, or similar declared target. Disarming a simple trap usually takes 1-4 rounds; a complex trap may take a full turn.
 
-The party reaches a swollen wooden door. They stop, listen for one round, and hear nothing. The fighter tries to force it, fails, and the noise carries.
+## Rest And Fatigue
 
-The second attempt opens the door, but whatever waits beyond is no longer likely to be surprised.
+Parties normally rest one turn in every six, one turn after combat, and two turns after evasion or pursuit. If they skip required rest, OSRIC leaves the exact fatigue effects to the referee, but likely consequences include reduced movement, combat penalties, reduced ability scores, and lower NPC morale.
 
-## Write This Down
+## Example At The Table
 
-Marching Order:
-Write the party's default formation.
+The party spends a turn crossing 60 ft of corridor while mapping, then listens at a door for one round and forces it on the next. The door attempt fails, so anything beyond cannot be surprised. The referee marks the elapsed turn, checks whether a wandering monster check is due, and updates light.
 
-Light:
-Write who carries the light and what backup light exists.
+## Quick Reference
 
-Common Procedures:
-Write how the group opens doors, searches rooms, and handles suspicious treasure.
+| Exploration Question | OSRIC Baseline |
+| --- | --- |
+| How often are wandering monsters checked? | Every third dungeon turn, usually 1 in 6 |
+| How long does a turn last? | 10 minutes |
+| How long does listening take? | 1 round per attempt |
+| How long does secret-door searching take? | 1 turn per 10 x 10 ft area |
+| How often does the party rest? | 1 turn in 6, plus after combat |
 
-## Next Step
+## Notes
 
-Exploration produces meetings, hazards, and sudden danger. **[Encounter Procedure](/1e/how-to-play/encounter-procedure/)** explains what happens when something meets the party.
+Verified against OSRIC core rules, Chapter IV, Adventure and Exploration and Searching the Dungeon. No DRG1e exploration house rule is added here.
+
+## Continue
+
+Exploration produces meetings, hazards, and sudden danger. **[Encounter Procedure](/1e/how-to-play/encounters/)** explains what happens when something meets the party.
 
 ## Previous / Next
 
 - **[Previous: Movement](/1e/how-to-play/movement/)**
-- **[Next: Encounter Procedure](/1e/how-to-play/encounter-procedure/)**
+- **[Next: Encounters](/1e/how-to-play/encounters/)**

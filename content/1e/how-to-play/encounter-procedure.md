@@ -1,43 +1,52 @@
 # Encounter Procedure
 
-## Purpose
+An encounter occurs when the party meets a monster, NPC, hazard, or planned situation that requires resolution. OSRIC explicitly says encounters may be resolved through negotiation, evasion, or combat.
 
-An encounter is contact, not automatic combat.
+Do not assume every encounter is a fight.
 
-This section teaches how an encounter begins, how distance and surprise shape the first seconds, and how the party may negotiate, withdraw, evade, or fight.
+## Contact During Exploration
 
-## What OSRIC Says
+In the dungeon turn sequence, encounters happen after the party states actions. If an encounter occurs, the referee determines surprise, distance, reactions, and then resolves the encounter.
 
-When an encounter occurs, the referee determines surprise, distance, reactions, and then resolves the situation through negotiation, evasion, or combat.
+The same broad procedure applies in wilderness encounters, although distances, mounts, missile weapons, and long-range spells matter much more outside the dungeon.
 
-| Encounter Element | What It Decides |
+## Surprise And Distance
+
+When sudden contact is possible, resolve surprise first. Surprise determines whether either side is flat-footed during the opening seconds.
+
+Distance is then judged by the place: doorways, corridors, light, line of sight, terrain, weather, sound, and whether either side was moving cautiously.
+
+## Reactions
+
+OSRIC gives the referee responsibility for determining reactions. Prior events, language, alignment, visible strength, offers, threats, morale, hunger, fear, and faction goals can all matter.
+
+The outcome may be parley, demand, warning, pursuit, retreat, surrender, or combat.
+
+## Evasion And Pursuit
+
+If a side runs, use movement rates, distance, doors, terrain, speed, dropped distractions, and the situation to decide whether evasion succeeds.
+
+Dungeon fleeing uses 10 times normal per-turn movement, prevents mapping, and requires a double rest period afterward.
+
+## Example At The Table
+
+The party opens a door after hammering at it for two rounds. The creatures beyond are already alerted, so they do not need a surprise roll. The referee determines distance at the doorway, decides the creatures' reaction to the armed party, and the scene becomes a warning and demand before initiative is ever rolled.
+
+## Quick Reference
+
+| Encounter Question | OSRIC Check |
 | --- | --- |
-| Encounter begins | What the party meets and why it is here |
-| Distance | How far apart the sides are when contact is made |
-| Surprise | Whether either side is caught unready |
-| Reaction | Whether the other side is hostile, uncertain, wary, curious, or willing to talk |
-| Negotiation or withdrawal | Whether words, bribes, threats, retreat, or evasion can prevent battle |
-| Combat | What happens if violence begins |
+| Did contact occur? | Wandering monster, planned encounter, or player action |
+| Is either side unaware? | Resolve surprise |
+| How far apart are they? | Judge encounter distance from the situation |
+| What do they want? | Determine reactions |
+| What happens next? | Negotiate, evade, pursue, surrender, or fight |
 
-The referee may use dice, creature intelligence, faction loyalties, noise, light, language, hunger, fear, treasure, orders, and player speech to judge reactions.
+## Notes
 
-Combat begins only when the situation turns violent or when one side forces the issue.
+Verified against OSRIC core rules, Chapter IV, dungeon and wilderness encounter procedures, and Chapter III, surprise and combat entry. No DRG1e encounter house rule is added here.
 
-## How It Works At The Table
-
-The party should ask what it can see, hear, and infer before reaching for weapons.
-
-Some encounters are predators. Some are guards. Some are lost. Some want tribute, food, news, revenge, directions, or an excuse to leave without losing face.
-
-Old-school play rewards reading the room. A bad fight avoided is still a victory if the party keeps its resources and reaches the treasure.
-
-## Example
-
-The party turns a corner and sees four armed figures near a shrine. The referee checks distance and surprise. No one is surprised.
-
-The figures raise weapons but do not charge. The cleric speaks in their language and offers safe passage in exchange for news. The encounter becomes a negotiation instead of a fight.
-
-## Next Step
+## Continue
 
 When contact is sudden, the next question is readiness. **[Surprise](/1e/how-to-play/surprise/)** explains who acts before the first full round.
 

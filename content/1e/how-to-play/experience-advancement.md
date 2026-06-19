@@ -1,83 +1,64 @@
 # Experience & Advancement
 
-## Purpose
+OSRIC experience is awarded by the referee for monsters slain and treasure recovered. The referee may also award extra XP for deserving situations, but OSRIC recommends keeping those awards infrequent and not too large.
 
-Experience measures what the character survives, recovers, and learns.
+Advancement requires both enough XP and training.
 
-This section teaches experience from monsters, treasure, advancement, and training.
+## Treasure Experience
 
-## What OSRIC Says
+The baseline treasure guideline is 1 XP to the party per gold piece value, assuming the treasure is successfully extracted from the adventure area and brought to a suitable home base or town.
 
-Experience points are awarded by the referee for treasure recovered and monsters defeated. The referee may award additional XP for worthy play, but such awards should not be frequent or large.
+Magic items are different. If kept, a magic item should award no more than one tenth of its gold piece value. If sold to an NPC, full experience may be awarded.
 
-| XP Source | Guideline |
+## Monster Experience
+
+Monsters award XP by hit dice, hit points, and special or exceptional abilities. OSRIC provides a full monster XP table by hit dice.
+
+Special abilities can add XP. Examples include low-level spell-like powers, invulnerability to non-magical weapons, three or more attacks, and similar features.
+
+Exceptional abilities add larger bonuses. Examples include dragon breath, powerful spells, very low Armor Class, very high damage potential, or petrifying gaze.
+
+If the player character level vastly exceeds the monster level, OSRIC says to reduce the XP proportionally.
+
+## Level Advancement
+
+When a character gains the required XP for the next level, the character may increase in level after completing training.
+
+Training is under a more experienced teacher at lower levels, or by study and practice at higher levels. OSRIC gives a typical training cost of about 1,500 gp per level and a training time of 1d4 weeks.
+
+The referee may alternatively set training time based on the player and character's performance.
+
+## Class Bonuses
+
+Some character classes grant XP bonuses for high ability scores. Apply those class rules when awarding experience.
+
+Each class has its own advancement table, so different classes require different XP totals for the same level.
+
+## Example At The Table
+
+The party returns to town with 1,200 gp in coin, a jeweled idol worth 500 gp, and XP for monsters slain. The treasure is safely extracted, so it is worth 1,700 XP to the party before division. A magic item kept by the party would use the limited kept-item award instead of full sale value.
+
+## Quick Reference
+
+| XP Question | OSRIC Baseline |
 | --- | --- |
-| Treasure | 1 XP per gold piece value recovered to a suitable home base or town |
-| Magic items kept | No more than one tenth of gold piece value |
-| Magic items sold | Full value may be awarded |
-| Monsters defeated | Award by monster XP table |
-| Vastly weaker monsters | Reduce award when character level greatly exceeds monster level |
+| Treasure XP | 1 XP per gp value recovered to safety |
+| Kept magic item XP | No more than one tenth gp value |
+| Sold magic item XP | Full XP may be awarded |
+| Monster XP | By HD, hp, special, and exceptional abilities |
+| Overmatched monster | Reduce XP proportionally |
+| Training cost | About 1,500 gp per level |
+| Training time | 1d4 weeks, or referee-assigned |
 
-Monster XP uses the creature's hit dice, hit points, and special or exceptional abilities.
+## Notes
 
-| Monster HD | Base XP | Per HP | Special | Exceptional |
-| --- | ---: | ---: | ---: | ---: |
-| Less than 1-1 | 5 | 1 | 3 | 25 |
-| 1-1 to 1 | 10 | 1 | 5 | 35 |
-| 1+1 to 2 | 30 | 1 | 10 | 50 |
-| 2+1 to 3 | 50 | 2 | 15 | 60 |
-| 3+1 to 4 | 75 | 3 | 30 | 70 |
-| 4+1 to 5 | 110 | 4 | 45 | 80 |
-| 5+1 to 6 | 160 | 6 | 70 | 120 |
-| 6+1 to 7 | 225 | 8 | 120 | 200 |
-| 7+1 to 8 | 350 | 10 | 200 | 300 |
-| 8+1 to 9 | 600 | 12 | 300 | 400 |
-| 9+1 to 10 | 700 | 13 | 400 | 500 |
-| 10+1 to 11 | 900 | 14 | 500 | 600 |
-| 11+1 to 12 | 1,200 | 16 | 700 | 850 |
-| 12+1 to 13 | 1,500 | 17 | 800 | 1,000 |
-| 13+1 to 14 | 1,800 | 18 | 950 | 1,200 |
-| 14+1 to 15 | 2,100 | 19 | 1,100 | 1,400 |
-| 15+1 to 16 | 2,400 | 20 | 1,250 | 1,600 |
-| 16+1 to 17 | 2,700 | 23 | 1,400 | 1,800 |
-| 17+1 to 18 | 3,000 | 25 | 1,550 | 2,000 |
-| 18+1 to 19 | 3,500 | 28 | 1,800 | 2,250 |
-| 19+1 to 20 | 4,000 | 30 | 2,100 | 2,500 |
-| 20+1 to 21 | 4,500 | 33 | 2,350 | 2,750 |
-| 21+1 and up | 5,000 | 35 | 2,600 | 3,000 |
+Verified against OSRIC core rules, Chapter III, Gaining Levels and Experience. No DRG1e advancement house rule is added here.
 
-When a character has enough XP for the next level, advancement requires training, study, or practice. Training usually costs about 1,500 gp per level and requires 1d4 weeks.
-
-## How It Works At The Table
-
-The party earns most experience by getting treasure out, not by fighting everything in sight.
-
-This changes play. Sneaking, bargaining, mapping, clever retreat, and choosing the right target all matter because the real reward must be recovered, carried, and brought home.
-
-Training also keeps advancement rooted in the campaign world. Tutors, guilds, temples, mentors, downtime, debts, and obligations can all matter once the coin is counted.
-
-## Example
-
-The party recovers 1,200 gp worth of treasure and defeats several monsters. The treasure is carried safely back to town, so it becomes experience.
-
-A fighter reaches the XP required for the next level. The player records the new total, then arranges training time and cost before the level is gained.
-
-## Write This Down
-
-XP:
-Write current XP and next level XP.
-
-Treasure Recovered:
-Write treasure only when it is actually brought to safety.
-
-Training:
-Write training cost, teacher, and downtime when advancement begins.
-
-## Next Step
+## Continue
 
 You now have the core play procedures: time, movement, exploration, encounters, combat, magic, recovery, and advancement. Return to **[How To Play](/1e/how-to-play/)** whenever the table needs the flow again.
 
 ## Previous / Next
 
-- **[Previous: Death & Recovery](/1e/how-to-play/death-recovery/)**
+- **[Previous: Death](/1e/how-to-play/death/)**
 - **[Next: How To Play](/1e/how-to-play/)**

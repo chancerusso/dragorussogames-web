@@ -1,75 +1,74 @@
 # Combat
 
-## Purpose
+Combat begins when contact with enemies becomes immediate danger. OSRIC switches from 10-minute exploration turns to 1-minute combat rounds, subdivided into 6-second segments.
 
-Combat is dangerous, fast, and rarely the only answer.
+Combat is procedural: surprise, declarations, initiative, action, results, and the next round.
 
-This section teaches THAC0, Armor Class, attack rolls, damage, missile fire, morale, charge, retreat, and the choices that keep combat from becoming automatic.
+## Combat Sequence
 
-## What OSRIC Says
-
-Combat uses rounds of one minute, divided into six-second segments for timing. Each round begins with declarations, initiative, and then actions in order.
-
-| Combat Term | Meaning |
+| Step | OSRIC Procedure |
 | --- | --- |
-| Armor Class | Defensive rating; lower Armor Class is better |
-| THAC0 | A shorthand for the attack roll needed to hit Armor Class 0 |
-| Attack roll | A d20 roll modified by ability, magic, situation, and class rules |
-| Damage | Hit point loss from a successful attack |
-| Melee range | Combatants within 10 ft. are engaged |
-| Missile attack | A ranged attack; firing into melee may hit a random participant |
+| 1 | Determine surprise with d6 rolls |
+| 2 | Declare spells and general actions |
+| 3 | Determine initiative with d6 side rolls |
+| 4 | Side with initiative acts first; non-spell results take effect immediately |
+| 5 | Side that lost initiative acts; non-spell results take effect immediately |
+| 6 | Round ends; declare next round if combat continues |
 
-Use the class attack tables or the recorded THAC0 to determine whether an attack hits. As a practical table shorthand, the roll needed to hit a target is THAC0 minus the target's Armor Class, then adjusted by the referee for situational modifiers.
+Some actions can interrupt the normal order, such as attacks against charging opponents with set spears or attacks made when an enemy flees.
 
-| Common Combat Choice | Rule |
+## Common Combat Actions
+
+| Action | OSRIC Summary |
 | --- | --- |
-| Charge | Move at double rate and attack; defender with longer weapon may strike first; attacker gains +2 to hit if the attack happens |
-| Close into combat | Move into melee without attacking that round |
+| Charge | Move and attack in the same round at twice normal movement; +2 to hit if the attacker survives; only once per turn |
+| Close into combat | Move into 10 ft melee range cautiously; no attack that round |
 | Fighting retreat | Back out while defending; may parry but not attack |
-| Flee from melee | Opponents may make an immediate additional attack at +4 to hit |
-| Hold initiative | Wait until later in the round |
-| Parry | Give up attack to apply a useful to-hit bonus defensively |
-| Set weapon against charge | Certain braced weapons deal double damage against a charging opponent |
+| Flee from combat | Opponents in melee get an immediate extra attack at +4 to hit |
+| Hold initiative | Wait until the other side has acted |
+| Melee attack | Attack within 10 ft; Strength bonuses apply |
+| Missile attack | Ranged attack; firing into melee randomly targets melee participants and may hit allies |
+| Negotiation | Words may avert, delay, or change combat |
+| Parry | Give up attack and subtract the character's to-hit bonus from the opponent's attack roll |
+| Set weapon against charge | Brace a spear, lance, pole arm, or trident to deal double damage against a charging opponent |
 
-Melee attacks use Strength bonuses where applicable. Missile attacks use Dexterity missile bonuses where applicable. When firing into melee, the target is determined randomly from those in the melee, and allies can be hit.
+## Attacks And Defense
 
-Morale matters. Player characters do not check morale, but hirelings, henchmen, men-at-arms, and monsters may. The referee decides when morale is checked, usually when a side is clearly losing, badly hurt, leaderless, outnumbered, or otherwise shaken.
+Melee range is 10 ft. Combatants within 10 ft are engaged. When a character faces multiple melee opponents, the target of an attack roll is determined randomly unless a rule says otherwise.
 
-| Morale Pressure | Typical Effect |
+Armor Class can be modified by cover, concealment, shields, Dexterity, position, magic, and other situational factors.
+
+## Spells In Combat
+
+Spellcasting begins in the caster's initiative segment and completes only after the spell's casting time. If the caster takes damage while casting, the spell is lost. While casting, the caster receives no Dexterity bonus to Armor Class.
+
+## Damage, Morale, And Retreat
+
+Damage is deducted from hit points. At 0 hit points, use OSRIC's damage and death procedure.
+
+Many monsters will not fight hopeless battles. OSRIC morale is checked when the referee judges that monsters are losing or taking unacceptable losses. No more than two morale checks should be made per battle; if monsters pass a second check, they fight to the death.
+
+## Example At The Table
+
+The party wins initiative. The fighter attacks in the monsters' initiative segment, while the magic-user begins a spell. The monsters then act. One monster flees from melee, giving the fighter an immediate extra attack at +4 to hit. Another hits the magic-user before the spell completes, spoiling the spell.
+
+## Quick Reference
+
+| Combat Item | OSRIC Baseline |
 | --- | --- |
-| Friends killed, surrendered, or fled | Morale worsens |
-| Own side suffers heavy casualties | Morale worsens |
-| Outnumbered or leader down | Morale worsens |
-| Enemies killed, surrendered, or fled | Morale improves |
-| Own side has superiority or inflicts heavy casualties | Morale improves |
+| Round | 1 minute |
+| Segment | 6 seconds |
+| Melee range | 10 ft |
+| Fleeing from melee | Enemies get immediate extra attack at +4 |
+| Charge | Double movement, +2 to hit, once per turn |
+| Firing into melee | Target is random among melee participants |
+| Morale | Base 50% plus 5% per hit die, adjusted by situation |
 
-## How It Works At The Table
+## Notes
 
-Combat is not a sport.
+Verified against OSRIC core rules, Chapter III, Combat, Combat Actions, Combat Modifiers, Damage and Death, and Morale. DRG1e combat changes belong in **[House Rules](/1e/house-rules/002-combat-rules/)**.
 
-The party should care about distance, light, doorways, morale, missile lines, retreat paths, and who is carrying the treasure. Winning can mean forcing morale, blocking pursuit, dragging a wounded ally away, or deciding the room is not worth the bodies.
-
-## Example
-
-A fighter with THAC0 19 attacks a creature with Armor Class 5. The needed roll is 14 before modifiers.
-
-If the fighter has a +1 bonus to hit, a roll of 13 becomes enough. If the creature has cover or the fighter is impaired, the referee adjusts the target number.
-
-## Write This Down
-
-THAC0:
-Write your current attack value or the relevant class attack table reference.
-
-Armor Class:
-Write your Armor Class with shield and armor notes.
-
-Weapons:
-Write damage, range, and any table rulings you use often.
-
-Retreat Plan:
-Write who protects the rear when the party withdraws.
-
-## Next Step
+## Continue
 
 Combat includes swords, missiles, morale, and spells. **[Magic](/1e/how-to-play/magic/)** explains preparation, casting, interruption, and recovery.
 
