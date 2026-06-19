@@ -82,3 +82,14 @@ Write one language that carries fear, shame, secrecy, danger, or old grief.
 
 - **[Previous: Hit Points](/1e/character-creation/007-hit-points/)**
 - **[Back to Character Creation](/1e/character-creation/)**
+
+## Record Your Character
+
+Your character is yours.
+
+Store it locally or print it.
+
+No online storage.
+
+- **[Print Blank Character Sheet](/1e/character-sheet/DRG1e_CharacterSheet_Blank.pdf)**
+- **[Download Fillable Character Sheet](/1e/character-sheet/DRG1e_CharacterSheet_Fillable.pdf)**

@@ -472,6 +472,43 @@ body:before{
   text-decoration:none;
 }
 
+.one-e-download-button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:36px;
+  padding:8px 12px;
+  border:1px solid rgba(122,33,27,.42);
+  border-radius:999px;
+  background:#7a211b;
+  color:#fff7ea !important;
+  font-family:'Cinzel', serif;
+  font-size:.76rem;
+  font-weight:900;
+  letter-spacing:.04em;
+  text-align:center;
+  text-transform:uppercase;
+  box-shadow:0 8px 18px rgba(75,47,31,.12);
+}
+
+.one-e-download-button:hover{
+  background:#5f1613;
+  border-color:rgba(95,22,19,.7);
+  text-decoration:none !important;
+}
+
+.one-e-download-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  padding:0;
+  list-style:none;
+}
+
+.one-e-download-list li{
+  margin:0;
+}
+
 .one-e-comparison-grid{
   grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
 }

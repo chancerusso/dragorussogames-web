@@ -4,6 +4,7 @@ const CONTENT_BASE = "/content/1e";
 const navItems = [
   { title: "Home", href: "/1e/" },
   { title: "Character Creation", href: "/1e/character-creation/" },
+  { title: "Character Sheet", href: "/1e/character-sheet/" },
   { title: "Rules", href: "/1e/how-to-play/" },
   { title: "Races", href: "/1e/races/" },
   { title: "Classes", href: "/1e/classes/" },
@@ -16,7 +17,14 @@ const sectionItems = {
     ["Rules", "/1e/how-to-play/", "Read the procedures for exploration, encounters, combat, magic, and advancement."],
     ["Races", "/1e/races/", "Use race references after reading the Race step."],
     ["Classes", "/1e/classes/", "Use class references after reading the Class step."],
+    ["Character Sheet", "/1e/character-sheet/", "Download blank and fillable Drago Russo First Edition sheets."],
     ["House Rules", "/1e/house-rules/", "Read Drago Russo campaign changes separately from the baseline rules."]
+  ],
+  "character-sheet": [
+    ["Character Sheet", "/1e/character-sheet/", "Download official Drago Russo Games First Edition sheets."],
+    ["Character Creation", "/1e/character-creation/", "Use the rules flow before recording the sheet."],
+    ["Languages", "/1e/character-creation/008-languages/", "Finish the character creation flow."],
+    ["Start Here", "/1e/start-here/", "Read the First Edition orientation."]
   ],
   "character-creation": [
     ["Ability Scores", "/1e/character-creation/001-ability-scores/", "Roll six scores, assign them, and record your ability line."],
@@ -316,7 +324,7 @@ function wrapRulePanels(article) {
 }
 
 function enhanceChapterNavigation(article) {
-  const navHeadings = article.querySelectorAll("#race-navigation, #class-navigation, #choose-your-next-step, #character-creation-path, #equipment-categories, #previous-next");
+  const navHeadings = article.querySelectorAll("#race-navigation, #class-navigation, #choose-your-next-step, #character-creation-path, #equipment-categories, #previous-next, #continue, #record-your-character");
 
   for (const heading of navHeadings) {
     const list = heading.nextElementSibling;
@@ -384,6 +392,16 @@ function enhanceActiveAnchorNav(article) {
   window.addEventListener("hashchange", updateActiveLink);
 }
 
+function enhancePdfLinks(article) {
+  const links = article.querySelectorAll('a[href$=".pdf"]');
+
+  for (const link of links) {
+    link.classList.add("one-e-download-button");
+    link.setAttribute("download", "");
+    link.closest("ul")?.classList.add("one-e-download-list");
+  }
+}
+
 function headingLevel(heading) {
   return Number(heading.tagName.slice(1));
 }
@@ -416,6 +434,7 @@ function enhanceMarkdownUi(article) {
   enhanceChapterNavigation(article);
   enhanceSubcardPanels(article);
   enhanceWriteThisDown(article);
+  enhancePdfLinks(article);
   enhanceActiveAnchorNav(article);
 }
 
@@ -462,7 +481,7 @@ function renderSectionCards(slug) {
   const target = document.querySelector("[data-section-cards]");
   if (!target) return;
 
-  if (slug === "classes") {
+  if (slug === "classes" || slug === "character-sheet") {
     target.innerHTML = "";
     return;
   }

@@ -16,6 +16,17 @@ Date:
 2026-06-18
 
 Added:
+Character Sheet download area
+Blank four-page printable character sheet PDF
+Fillable four-page character sheet PDF with editable fields and no formulas
+
+Changed:
+Languages and legacy Final Character pages now point players to local or printed character sheet options
+
+Date:
+2026-06-18
+
+Added:
 004 Alignment completed
 005 Starting Wealth completed
 006 Equipment completed
