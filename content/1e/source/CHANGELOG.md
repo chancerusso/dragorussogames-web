@@ -16,6 +16,18 @@ Date:
 2026-06-18
 
 Added:
+How To Play completed in DRG1e rulebook style
+Time, Movement, Exploration, Encounter Procedure, Surprise, Initiative, Combat, Magic, Death & Recovery, and Experience & Advancement pages
+Unnumbered How To Play routes with legacy numbered route support
+
+Changed:
+How To Play navigation now follows the public rules flow without numbered chapter labels
+Rules pages now use compact tables, islands, practical examples, Write This Down blocks where needed, and Previous / Next navigation
+
+Date:
+2026-06-18
+
+Added:
 Character Sheet download area
 Blank four-page printable character sheet PDF
 Fillable four-page character sheet PDF with editable fields and no formulas

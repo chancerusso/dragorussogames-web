@@ -61,16 +61,16 @@ const sectionItems = {
     ["Bard", "/1e/classes/bard/", "Advanced / Special Entry class rules."]
   ],
   "how-to-play": [
-    ["Time", "/1e/how-to-play/001-time/"],
-    ["Movement", "/1e/how-to-play/002-movement/"],
-    ["Exploration", "/1e/how-to-play/003-exploration/"],
-    ["Encounters", "/1e/how-to-play/004-encounters/"],
-    ["Surprise", "/1e/how-to-play/005-surprise/"],
-    ["Initiative", "/1e/how-to-play/006-initiative/"],
-    ["Combat", "/1e/how-to-play/007-combat/"],
-    ["Magic", "/1e/how-to-play/008-magic/"],
-    ["Death", "/1e/how-to-play/009-death/"],
-    ["Experience", "/1e/how-to-play/010-experience/"]
+    ["Time", "/1e/how-to-play/time/", "Track rounds, turns, dungeon time, wilderness days, and rest."],
+    ["Movement", "/1e/how-to-play/movement/", "Use movement rates, cautious travel, combat movement, and encumbrance."],
+    ["Exploration", "/1e/how-to-play/exploration/", "Map, listen, search, manage light, and move through dangerous places."],
+    ["Encounter Procedure", "/1e/how-to-play/encounter-procedure/", "Resolve contact before assuming combat."],
+    ["Surprise", "/1e/how-to-play/surprise/", "Determine who is ready in the first seconds of danger."],
+    ["Initiative", "/1e/how-to-play/initiative/", "Declare actions, roll timing, and handle spell interruptions."],
+    ["Combat", "/1e/how-to-play/combat/", "Use THAC0, Armor Class, attacks, morale, missiles, and retreat."],
+    ["Magic", "/1e/how-to-play/magic/", "Prepare spells, cast under pressure, and recover magic."],
+    ["Death & Recovery", "/1e/how-to-play/death-recovery/", "Handle unconsciousness, bleeding, healing, and recovery."],
+    ["Experience & Advancement", "/1e/how-to-play/experience-advancement/", "Award XP, recover treasure, and train for new levels."]
   ],
   "house-rules": [
     ["Character Rules", "/1e/house-rules/001-character-rules/"],
@@ -98,7 +98,17 @@ const pageAliases = {
   "/1e/character-creation/starting-wealth/": "character-creation/starting-wealth",
   "/1e/character-creation/equipment/": "character-creation/equipment",
   "/1e/character-creation/hit-points/": "character-creation/hit-points",
-  "/1e/character-creation/languages/": "character-creation/languages"
+  "/1e/character-creation/languages/": "character-creation/languages",
+  "/1e/how-to-play/001-time/": "how-to-play/time",
+  "/1e/how-to-play/002-movement/": "how-to-play/movement",
+  "/1e/how-to-play/003-exploration/": "how-to-play/exploration",
+  "/1e/how-to-play/004-encounters/": "how-to-play/encounter-procedure",
+  "/1e/how-to-play/005-surprise/": "how-to-play/surprise",
+  "/1e/how-to-play/006-initiative/": "how-to-play/initiative",
+  "/1e/how-to-play/007-combat/": "how-to-play/combat",
+  "/1e/how-to-play/008-magic/": "how-to-play/magic",
+  "/1e/how-to-play/009-death/": "how-to-play/death-recovery",
+  "/1e/how-to-play/010-experience/": "how-to-play/experience-advancement"
 };
 
 function escapeHtml(value) {
@@ -324,7 +334,7 @@ function wrapRulePanels(article) {
 }
 
 function enhanceChapterNavigation(article) {
-  const navHeadings = article.querySelectorAll("#race-navigation, #class-navigation, #choose-your-next-step, #character-creation-path, #equipment-categories, #previous-next, #continue, #record-your-character");
+  const navHeadings = article.querySelectorAll("#race-navigation, #class-navigation, #choose-your-next-step, #character-creation-path, #equipment-categories, #rules-path, #previous-next, #continue, #record-your-character");
 
   for (const heading of navHeadings) {
     const list = heading.nextElementSibling;
