@@ -4,7 +4,7 @@ Choose your preferred way to keep your character.
 
 These are official Drago Russo Games First Edition sheets for local use. There are no accounts, uploads, stored characters, or online records.
 
-## Print Blank Character Sheet
+## Recommended: Print Blank Character Sheet
 
 Print and fill by hand.
 
@@ -14,24 +14,16 @@ Old-school experience.
 
 ## Fillable Character Sheet
 
-Type directly into the PDF.
+Fillable version coming soon.
 
-Save locally.
-
-Print later.
-
-No calculations.
-
-- **[Download Fillable PDF](/1e/character-sheet/DRG1e_CharacterSheet_Fillable.pdf)**
+For now, use the blank PDF and keep your character locally or on paper.
 
 ## Sheet Layout
 
 | Page | Contents |
 | --- | --- |
-| 1 | Character + Equipped Gear |
-| 2 | Inventory + Treasure |
-| 3 | Spells |
-| 4 | Notes |
+| 1 | Character Record |
+| 2 | Spells + Adventure Journal |
 
 ## Ownership
 
