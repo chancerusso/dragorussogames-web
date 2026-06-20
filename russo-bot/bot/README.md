@@ -57,6 +57,14 @@ Use `#pc-maintenance` for character creation, equipment changes, treasure update
 
 RUSSO™ is the Referee Utility System for Sessions & Operations. It keeps your persistent old-school character ledger between sessions.
 
+Player onboarding:
+
+1. Go to `#pc-maintenance`.
+2. Run `/character create`.
+3. Run `/character sheet`.
+4. Run `/show card`.
+5. Maintain HP, XP, coins, and equipment with `/ledger` and `/equipment`.
+
 ## Future Roster Cards
 
 Future RUSSO may support a `#pc-roster` channel with `/card publish`, `/card refresh`, and `/card archive`.

@@ -3,7 +3,7 @@ import { EmbedBuilder } from "discord.js";
 export function buildHelpEmbed(): EmbedBuilder {
   return new EmbedBuilder()
     .setTitle("RUSSO™ Help")
-    .setDescription("RUSSO™ is the Referee Utility System for Sessions & Operations. It keeps your persistent old-school character ledger between sessions.")
+    .setDescription("RUSSO™ is the Referee Utility System for Sessions & Operations.")
     .addFields(
       {
         name: "Where To Use It",
@@ -23,7 +23,7 @@ export function buildHelpEmbed(): EmbedBuilder {
       },
       {
         name: "Referee Authority",
-        value: "Your printed character sheet is welcome at the table. RUSSO is the campaign register that keeps your character record persistent between sessions.\n\nThe Referee has final authority over all records, rulings, rewards, treasure, and character state."
+        value: "Your printed character sheet is welcome at the table. RUSSO is the persistent campaign ledger between sessions.\n\nThe Referee has final authority over all records, rulings, rewards, treasure, and character state."
       }
     );
 }

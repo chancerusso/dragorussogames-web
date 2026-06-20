@@ -149,6 +149,8 @@ def add_equipment_route(
         data.quantity,
         data.weight,
         data.damage,
+        data.value,
+        data.equipped,
         data.location,
         data.notes,
     )

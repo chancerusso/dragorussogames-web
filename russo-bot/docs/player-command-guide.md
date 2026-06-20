@@ -27,6 +27,13 @@ alignment
 hp_max
 hp_current
 armor_class
+movement
+thac0
+xp
+coins
+languages
+saves
+notes
 strength
 intelligence
 wisdom
@@ -36,6 +43,12 @@ charisma
 ```
 
 Enter only raw ability scores. RUSSO calculates the modifier automatically, such as `STR 17 (+1)`.
+
+Full starting example:
+
+```text
+/character create character_name:Testus race:Human class_name:Fighter level:1 alignment:Neutral hp_max:10 hp_current:10 armor_class:5 movement:90 ft thac0:20 xp:0 coins:15 gp, 8 sp languages:Common saves:death 13, wands 14, paralysis 13, breath 16, spells 15 strength:17 intelligence:12 wisdom:9 dexterity:15 constitution:13 charisma:8 notes:Retainer contact in town
+```
 
 Your first character is marked Active. Later characters are created Inactive until you switch active characters.
 
@@ -50,6 +63,8 @@ Use the compact table card:
 ```
 
 The card is read-only and shows identity, combat, ability scores with modifiers, equipped weapons, encumbrance, spells if tracked, XP, and coins.
+
+The sheet is the fuller view. It shows name, player, race, class, level, alignment, status, HP, AC, movement, THAC0, XP, coins, abilities with modifiers, saves, languages, equipment summary, encumbrance, and notes.
 
 Use the fuller ledger view when you need more detail:
 
@@ -83,7 +98,7 @@ Every ledger change creates a Character Register entry in the Campaign Record.
 Equipment belongs to your active character by default.
 
 ```text
-/equipment add item_name:Longsword quantity:1 weight:6 damage:1d8 location:carried
+/equipment add item_name:Longsword quantity:1 weight:6 value:15 gp damage:1d8 equipped:true
 /equipment list
 /equipment equip item_name:Longsword
 /equipment unequip item_name:Longsword
@@ -91,6 +106,8 @@ Equipment belongs to your active character by default.
 ```
 
 Equipment changes are logged in the Character Register. Encumbrance recalculates after add, remove, equip, and unequip.
+
+Weapon damage appears on `/show card` when entered.
 
 ### Active Characters
 

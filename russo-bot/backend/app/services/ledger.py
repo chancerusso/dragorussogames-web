@@ -4,7 +4,23 @@ from app.schemas import CharacterCreateRequest
 from app.services.ability_modifiers import sync_ability_modifiers
 
 
+def _coins(data: CharacterCreateRequest) -> dict[str, int]:
+    return {coin: int(data.coins.get(coin, 0) or 0) for coin in ("pp", "gp", "ep", "sp", "cp")}
+
+
+def _saves(data: CharacterCreateRequest) -> dict[str, int | None]:
+    return {
+        "death": data.saves.get("death"),
+        "wands": data.saves.get("wands"),
+        "paralysis_petrify": data.saves.get("paralysis_petrify"),
+        "breath": data.saves.get("breath"),
+        "spells": data.saves.get("spells"),
+    }
+
+
 def build_initial_ledger(data: CharacterCreateRequest) -> dict[str, Any]:
+    coins = _coins(data)
+    saves = _saves(data)
     ledger = {
         "identity": {
             "character_name": data.character_name,
@@ -18,8 +34,10 @@ def build_initial_ledger(data: CharacterCreateRequest) -> dict[str, Any]:
             "class_name": data.class_name,
             "level": data.level,
             "alignment": data.alignment,
-            "xp_current": 0,
+            "xp_current": data.xp,
             "xp_needed": None,
+            "languages": data.languages,
+            "notes": data.notes,
         },
         "abilities": {
             "str": data.strength,
@@ -33,14 +51,9 @@ def build_initial_ledger(data: CharacterCreateRequest) -> dict[str, Any]:
             "hp_current": data.hp_current,
             "hp_max": data.hp_max,
             "armor_class": data.armor_class,
-            "movement": None,
-            "saving_throws": {
-                "death": None,
-                "wands": None,
-                "paralysis_petrify": None,
-                "breath": None,
-                "spells": None,
-            },
+            "movement": data.movement,
+            "thac0": data.thac0,
+            "saving_throws": saves,
         },
         "equipment": {
             "inventory": [],
@@ -49,13 +62,7 @@ def build_initial_ledger(data: CharacterCreateRequest) -> dict[str, Any]:
             "encumbrance_total": 0,
             "encumbrance_category": None,
         },
-        "wealth": {
-            "pp": 0,
-            "gp": 0,
-            "ep": 0,
-            "sp": 0,
-            "cp": 0,
-        },
+        "wealth": coins,
         "resources": {
             "torches": 0,
             "lantern_oil": 0,
@@ -77,8 +84,9 @@ def build_initial_ledger(data: CharacterCreateRequest) -> dict[str, Any]:
             "class_name": data.class_name,
             "level": data.level,
             "alignment": data.alignment,
-            "languages": [],
-            "xp": 0,
+            "languages": data.languages,
+            "xp": data.xp,
+            "notes": data.notes,
         },
         "Ability Scores": {
             "strength": data.strength,
@@ -92,8 +100,9 @@ def build_initial_ledger(data: CharacterCreateRequest) -> dict[str, Any]:
             "hp": data.hp_current,
             "max_hp": data.hp_max,
             "ac": data.armor_class,
-            "movement": None,
-            "saving_throws": {},
+            "movement": data.movement,
+            "thac0": data.thac0,
+            "saving_throws": saves,
             "attacks": [],
         },
         "Equipment": {
@@ -102,13 +111,7 @@ def build_initial_ledger(data: CharacterCreateRequest) -> dict[str, Any]:
             "weapons": [],
             "encumbrance": None,
         },
-        "Wealth": {
-            "pp": 0,
-            "gp": 0,
-            "ep": 0,
-            "sp": 0,
-            "cp": 0,
-        },
+        "Wealth": coins,
         "Resources": {
             "torches": 0,
             "lantern_oil": 0,
@@ -128,6 +131,7 @@ def build_initial_ledger(data: CharacterCreateRequest) -> dict[str, Any]:
             "spell_slots": {},
         },
         "Conditions": [],
+        "Notes": data.notes,
         "Recovery": {
             "resting": False,
             "healing_notes": None,

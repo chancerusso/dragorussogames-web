@@ -17,6 +17,13 @@ class CharacterCreateRequest(BaseModel):
     hp_max: int | None = Field(default=None)
     hp_current: int | None = Field(default=None)
     armor_class: int | None = Field(default=None)
+    movement: str | None = Field(default=None, max_length=80)
+    thac0: int | None = Field(default=None)
+    xp: int = Field(default=0, ge=0)
+    coins: dict[str, int] = Field(default_factory=dict)
+    languages: list[str] = Field(default_factory=list)
+    saves: dict[str, int] = Field(default_factory=dict)
+    notes: str | None = Field(default=None, max_length=1000)
     strength: int | None = Field(default=None, ge=1, le=25)
     intelligence: int | None = Field(default=None, ge=1, le=25)
     wisdom: int | None = Field(default=None, ge=1, le=25)
@@ -65,6 +72,8 @@ class EquipmentAddRequest(BaseModel):
     quantity: int = Field(default=1, ge=1)
     weight: float = Field(default=0, ge=0)
     damage: str | None = Field(default=None, max_length=80)
+    value: str | None = Field(default=None, max_length=80)
+    equipped: bool = False
     location: str = Field(default="carried", max_length=40)
     notes: str | None = Field(default=None, max_length=500)
 

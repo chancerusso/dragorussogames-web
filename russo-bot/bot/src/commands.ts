@@ -228,6 +228,8 @@ export const commandData = [
           .addIntegerOption((option) => option.setName("quantity").setDescription("Quantity").setRequired(false).setMinValue(1))
           .addNumberOption((option) => option.setName("weight").setDescription("Weight per item").setRequired(false).setMinValue(0))
           .addStringOption((option) => option.setName("damage").setDescription("Weapon damage, if applicable").setRequired(false))
+          .addStringOption((option) => option.setName("value").setDescription("Item value, if known").setRequired(false))
+          .addBooleanOption((option) => option.setName("equipped").setDescription("Add directly as equipped").setRequired(false))
           .addStringOption((option) =>
             option
               .setName("location")
@@ -301,6 +303,27 @@ export const commandData = [
         )
         .addIntegerOption((option) =>
           option.setName("armor_class").setDescription("Armor Class").setRequired(false)
+        )
+        .addStringOption((option) =>
+          option.setName("movement").setDescription("Movement rate, such as 90 ft").setRequired(false)
+        )
+        .addIntegerOption((option) =>
+          option.setName("thac0").setDescription("THAC0").setRequired(false)
+        )
+        .addIntegerOption((option) =>
+          option.setName("xp").setDescription("Starting XP").setRequired(false).setMinValue(0)
+        )
+        .addStringOption((option) =>
+          option.setName("coins").setDescription("Coins, such as '15 gp, 3 sp'").setRequired(false)
+        )
+        .addStringOption((option) =>
+          option.setName("languages").setDescription("Comma-separated languages").setRequired(false)
+        )
+        .addStringOption((option) =>
+          option.setName("saves").setDescription("Saves, such as 'death 13, wands 14, spells 15'").setRequired(false)
+        )
+        .addStringOption((option) =>
+          option.setName("notes").setDescription("Character notes").setRequired(false)
         )
         .addIntegerOption((option) =>
           option.setName("strength").setDescription("Strength score").setRequired(false).setMinValue(1).setMaxValue(25)
@@ -488,6 +511,12 @@ export const commandData = [
               )
               .addStringOption((option) =>
                 option.setName("damage").setDescription("Weapon damage, if applicable").setRequired(false)
+              )
+              .addStringOption((option) =>
+                option.setName("value").setDescription("Item value, if known").setRequired(false)
+              )
+              .addBooleanOption((option) =>
+                option.setName("equipped").setDescription("Add directly as equipped").setRequired(false)
               )
           )
         )

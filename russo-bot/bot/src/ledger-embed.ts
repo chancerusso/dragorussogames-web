@@ -1,7 +1,7 @@
 import { EmbedBuilder } from "discord.js";
 
 import type { CharacterResponse } from "./api.js";
-import { abilityLabels, abilityModifier, formatModifier } from "./ability-format.js";
+import { abilityLabels, formatModifier } from "./ability-format.js";
 
 function section(ledger: Record<string, unknown>, name: string): Record<string, unknown> {
   const value = ledger[name];
@@ -61,7 +61,7 @@ function abilitiesSummary(abilities: Record<string, unknown>, legacyAbilities: R
   const legacyModifiers = section(legacyAbilities, "modifiers");
   const scores = abilityLabels.map(([key, label, legacyKey]) => {
     const score = firstValue(abilities[key], legacyAbilities[legacyKey]);
-    const modifier = firstValue(modifiers[key], legacyModifiers[legacyKey], abilityModifier(score));
+    const modifier = firstValue(modifiers[key], legacyModifiers[legacyKey]);
     return `${label} ${valueOrEmpty(score)} (${formatModifier(modifier)})`;
   });
   return scores.join(" | ");
@@ -81,6 +81,7 @@ export function buildLedgerEmbed(character: CharacterResponse): EmbedBuilder {
   const wealth = section(character.ledger, "wealth");
   const legacyWealth = section(character.ledger, "Wealth");
   const conditions = character.ledger["Conditions"];
+  const notes = firstValue(basics.notes, character.ledger["Notes"]);
 
   return new EmbedBuilder()
     .setTitle("RUSSO Character Ledger")
@@ -95,11 +96,14 @@ export function buildLedgerEmbed(character: CharacterResponse): EmbedBuilder {
       { name: "Alignment", value: valueOrEmpty(firstValue(basics.alignment, legacyBasics.alignment)), inline: true },
       { name: "HP", value: hpSummary(combat, legacyCombat), inline: true },
       { name: "AC", value: valueOrEmpty(firstValue(combat.armor_class, legacyCombat.ac)), inline: true },
+      { name: "THAC0", value: valueOrEmpty(firstValue(combat.thac0, legacyCombat.thac0)), inline: true },
       { name: "XP", value: xpSummary(basics, legacyBasics), inline: true },
       { name: "Abilities", value: abilitiesSummary(abilities, legacyAbilities), inline: false },
       { name: "Coins", value: coinSummary({ ...legacyWealth, ...wealth }), inline: false },
       { name: "Movement", value: valueOrEmpty(firstValue(combat.movement, legacyCombat.movement)), inline: true },
       { name: "Encumbrance", value: encumbranceSummary(equipment, legacyEquipment), inline: true },
+      { name: "Languages", value: valueOrEmpty(firstValue(basics.languages, legacyBasics.languages)), inline: false },
+      { name: "Notes", value: valueOrEmpty(notes), inline: false },
       { name: "Conditions", value: valueOrEmpty(conditions), inline: false }
     )
     .setFooter({ text: "RUSSO™ | Official Character Ledger" });

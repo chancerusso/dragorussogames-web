@@ -12,6 +12,11 @@ from app.services.ledger import merge_ledger, sync_active_status
 VALID_STATUSES = {"Active", "Inactive", "Dead", "Retired", "Missing", "Poisoned", "Petrified", "Imprisoned"}
 
 
+def sync_response_ledger(character: Character) -> Character:
+    character.ledger = sync_ability_modifiers(character.ledger or {})
+    return character
+
+
 def audit(
     db: Session,
     actor_discord_user_id: str | None,
@@ -47,7 +52,7 @@ def get_character(db: Session, character_id: int, actor_discord_user_id: str, ac
     if character is None:
         raise HTTPException(status_code=404, detail="Character not found.")
     ensure_can_access(character, actor_discord_user_id, actor_is_admin)
-    return character
+    return sync_response_ledger(character)
 
 
 def get_active_character_by_discord(db: Session, discord_user_id: str) -> Character:
@@ -58,7 +63,7 @@ def get_active_character_by_discord(db: Session, discord_user_id: str) -> Charac
     )
     if character is None:
         raise HTTPException(status_code=404, detail="No active character found for this Discord user.")
-    return character
+    return sync_response_ledger(character)
 
 
 def find_character_by_name(
@@ -77,15 +82,16 @@ def find_character_by_name(
     if len(matches) > 1:
         names = ", ".join(f"{match.character_name} ({match.player_name})" for match in matches[:8])
         raise HTTPException(status_code=409, detail=f"More than one character matches that name: {names}.")
-    return matches[0]
+    return sync_response_ledger(matches[0])
 
 
 def list_owned_characters(db: Session, discord_user_id: str) -> list[Character]:
-    return db.scalars(
+    characters = db.scalars(
         select(Character)
         .where(Character.discord_user_id == discord_user_id)
         .order_by(Character.is_active.desc(), Character.character_name.asc())
     ).all()
+    return [sync_response_ledger(character) for character in characters]
 
 
 def update_character_status(character: Character, status: str) -> None:
@@ -184,12 +190,14 @@ def add_equipment(
     quantity: int,
     weight: float,
     damage: str | None,
+    value: str | None,
+    equipped: bool,
     location: str,
     notes: str | None,
 ) -> Character:
     ledger = dict(character.ledger or {})
     equipment = _equipment(ledger)
-    bucket = _bucket_for_location(location)
+    bucket = "equipped" if equipped else _bucket_for_location(location)
     items = equipment[bucket]
     item = _find_item(items, item_name)
     if item is None:
@@ -198,7 +206,9 @@ def add_equipment(
             "quantity": quantity,
             "weight": weight,
             "damage": damage,
-            "location": location,
+            "value": value,
+            "equipped": bucket == "equipped",
+            "location": "equipped" if bucket == "equipped" else location,
             "notes": notes,
         }
         items.append(item)
@@ -207,6 +217,9 @@ def add_equipment(
         item["weight"] = weight
         if damage:
             item["damage"] = damage
+        if value:
+            item["value"] = value
+        item["equipped"] = bucket == "equipped"
         if notes:
             item["notes"] = notes
     _recalculate_encumbrance(equipment)
@@ -272,6 +285,7 @@ def move_equipment(
         raise HTTPException(status_code=404, detail="Equipment item not found.")
     equipment[source_bucket].remove(source_item)
     source_item["location"] = "equipped" if destination == "equipped" else "carried"
+    source_item["equipped"] = destination == "equipped"
     if target is None:
         equipment[destination].append(source_item)
     else:

@@ -10,6 +10,13 @@ export interface CharacterCreatePayload {
   hp_max?: number | null;
   hp_current?: number | null;
   armor_class?: number | null;
+  movement?: string | null;
+  thac0?: number | null;
+  xp?: number;
+  coins?: Record<string, number>;
+  languages?: string[];
+  saves?: Record<string, number>;
+  notes?: string | null;
   strength?: number | null;
   intelligence?: number | null;
   wisdom?: number | null;
@@ -48,6 +55,8 @@ export interface EquipmentAddPayload extends CharacterActorPayload {
   quantity?: number;
   weight?: number;
   damage?: string | null;
+  value?: string | null;
+  equipped?: boolean;
   location?: string;
   notes?: string | null;
 }

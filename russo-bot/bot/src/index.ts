@@ -15,6 +15,7 @@ import {
 import { config } from "./config.js";
 import { buildCharacterCardEmbed } from "./card-embed.js";
 import { buildHelpEmbed } from "./help-embed.js";
+import { buildCharacterSheetEmbed } from "./sheet-embed.js";
 import { buildLedgerEmbed } from "./ledger-embed.js";
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -87,6 +88,54 @@ function applyMode(current: unknown, value: number, mode = "set"): number {
   return value;
 }
 
+function parseCoins(input: string | null): Record<string, number> {
+  const coins: Record<string, number> = {};
+  if (!input) {
+    return coins;
+  }
+  const matches = input.matchAll(/(\d+)\s*(pp|gp|ep|sp|cp)\b/gi);
+  for (const match of matches) {
+    const coin = match[2].toLowerCase();
+    coins[coin] = (coins[coin] ?? 0) + Number(match[1]);
+  }
+  return coins;
+}
+
+function parseLanguages(input: string | null): string[] {
+  if (!input) {
+    return [];
+  }
+  return input.split(",").map((language) => language.trim()).filter(Boolean);
+}
+
+function parseSaves(input: string | null): Record<string, number> {
+  const saves: Record<string, number> = {};
+  if (!input) {
+    return saves;
+  }
+  const aliases: Record<string, string> = {
+    death: "death",
+    poison: "death",
+    wands: "wands",
+    wand: "wands",
+    paralysis: "paralysis_petrify",
+    petrify: "paralysis_petrify",
+    petrification: "paralysis_petrify",
+    breath: "breath",
+    spells: "spells",
+    spell: "spells"
+  };
+  const matches = input.matchAll(/([a-z_/ -]+?)\s*[:=]?\s*(\d+)/gi);
+  for (const match of matches) {
+    const normalized = match[1].toLowerCase().replace(/[^a-z]/g, " ").trim().split(/\s+/)[0];
+    const key = aliases[normalized];
+    if (key) {
+      saves[key] = Number(match[2]);
+    }
+  }
+  return saves;
+}
+
 async function replyEquipment(interaction: ChatInputCommandInteraction, character: CharacterResponse, subcommand: string): Promise<boolean> {
   if (subcommand === "add") {
     const updated = await addEquipment(character.id, {
@@ -95,6 +144,8 @@ async function replyEquipment(interaction: ChatInputCommandInteraction, characte
       quantity: interaction.options.getInteger("quantity") ?? 1,
       weight: interaction.options.getNumber("weight") ?? 0,
       damage: interaction.options.getString("damage"),
+      value: interaction.options.getString("value"),
+      equipped: interaction.options.getBoolean("equipped") ?? false,
       location: interaction.options.getString("location") ?? "carried",
       notes: interaction.options.getString("notes")
     });
@@ -362,6 +413,13 @@ client.on(Events.InteractionCreate, async (interaction) => {
         hp_max: interaction.options.getInteger("hp_max"),
         hp_current: interaction.options.getInteger("hp_current"),
         armor_class: interaction.options.getInteger("armor_class"),
+        movement: interaction.options.getString("movement"),
+        thac0: interaction.options.getInteger("thac0"),
+        xp: interaction.options.getInteger("xp") ?? 0,
+        coins: parseCoins(interaction.options.getString("coins")),
+        languages: parseLanguages(interaction.options.getString("languages")),
+        saves: parseSaves(interaction.options.getString("saves")),
+        notes: interaction.options.getString("notes"),
         strength: interaction.options.getInteger("strength"),
         intelligence: interaction.options.getInteger("intelligence"),
         wisdom: interaction.options.getInteger("wisdom"),
@@ -402,7 +460,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
     if (subcommand === "sheet") {
       const character = await targetCharacter(interaction);
-      await interaction.reply({ embeds: [buildCharacterCardEmbed(character)], ephemeral: true });
+      await interaction.reply({ embeds: [buildCharacterSheetEmbed(character)], ephemeral: true });
       return;
     }
 

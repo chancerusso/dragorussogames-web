@@ -1,7 +1,7 @@
 import { EmbedBuilder } from "discord.js";
 
 import type { CharacterResponse } from "./api.js";
-import { abilityLabels, abilityModifier, formatModifier } from "./ability-format.js";
+import { abilityLabels, formatModifier } from "./ability-format.js";
 
 function section(ledger: Record<string, unknown>, name: string): Record<string, unknown> {
   const value = ledger[name];
@@ -37,7 +37,7 @@ function abilitySummary(ledger: Record<string, unknown>): string {
   return abilityLabels
     .map(([key, label, legacyKey]) => {
       const score = firstValue(abilities[key], legacyAbilities[legacyKey]);
-      const modifier = firstValue(modifiers[key], legacyModifiers[legacyKey], abilityModifier(score));
+      const modifier = firstValue(modifiers[key], legacyModifiers[legacyKey]);
       return `${label} ${valueOrEmpty(score)} (${formatModifier(modifier)})`;
     })
     .join("\n");

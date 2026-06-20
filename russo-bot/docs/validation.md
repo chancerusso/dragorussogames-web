@@ -221,6 +221,47 @@ Checklist:
 - [ ] Weapons display damage if damage field exists
 - [ ] Card remains read-only
 
+## Phase 1.3A Complete Character Sheet
+
+Discord validation flow:
+
+```text
+/help
+/character create character_name:Testus race:Human class_name:Fighter level:1 alignment:Neutral hp_max:10 hp_current:10 armor_class:5 movement:90 ft thac0:20 xp:0 coins:15 gp, 8 sp languages:Common saves:death 13, wands 14, paralysis 13, breath 16, spells 15 strength:17 intelligence:12 wisdom:9 dexterity:15 constitution:13 charisma:8 notes:Retainer contact in town
+/character sheet
+/show card
+/equipment add item_name:Longsword quantity:1 weight:6 value:15 gp damage:1d8 equipped:true
+/equipment add item_name:Dagger quantity:1 weight:1 value:2 gp damage:1d4 location:carried
+/equipment list
+/show card
+/ledger hp value:2 mode:subtract
+/ledger xp value:250 mode:add
+/ledger coins coin:gp value:5 mode:add
+/character sheet
+```
+
+Checklist:
+
+- [ ] Player creates full character
+- [ ] Ledger auto-created
+- [ ] First full character is Active
+- [ ] Ability modifiers display correctly
+- [ ] STR 17 shows +1
+- [ ] `/character sheet` works
+- [ ] `/character sheet character:<name>` works for an owned character
+- [ ] Admin can view another player's sheet
+- [ ] `/show card` works
+- [ ] `/show card character:<name>` works
+- [ ] Equipment weapon damage appears on card
+- [ ] Equipment value is stored when entered
+- [ ] Equipped state is preserved
+- [ ] Encumbrance recalculates
+- [ ] `/help` works
+- [ ] Admin can view/edit other characters
+- [ ] Non-admin cannot edit another player
+- [ ] Restart preserves data
+- [ ] No VTT, attack rolling, damage rolling, initiative, spell automation, rest automation, encounter system, or referee dashboard behavior appears
+
 ## Future: Pinned Character Cards
 
 Future RUSSO may support a `#pc-roster` channel where each active character has a pinned or refreshable compact character card.
