@@ -44,7 +44,7 @@ The party opens a door after hammering at it for two rounds. The creatures beyon
 
 ## Notes
 
-Verified against OSRIC core rules, Chapter IV, dungeon and wilderness encounter procedures, and Chapter III, surprise and combat entry. No DRG1e encounter house rule is added here.
+Verified against OSRIC core encounter rules for dungeon and wilderness play, plus the surprise and combat entry rules. No DRG1e encounter house rule is added here.
 
 ## Continue
 

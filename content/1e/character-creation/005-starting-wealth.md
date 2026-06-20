@@ -10,17 +10,17 @@ Gold is scarce enough to matter. A first-level character is not assumed to own a
 | --- | --- | ---: |
 | Assassin | 2d6 x 10 gp | 70 gp |
 | Cleric | 3d6 x 10 gp | 105 gp |
-| Druid | 2d6 x 10 gp | 70 gp |
-| Fighter | 5d4 x 10 gp | 125 gp |
+| Druid | 3d6 x 10 gp | 105 gp |
+| Fighter | (3d6 + 2) x 10 gp | 125 gp |
 | Illusionist | 2d4 x 10 gp | 50 gp |
 | Magic-User | 2d4 x 10 gp | 50 gp |
 | Monk | 5d4 gp | 12 gp, 5 sp |
-| Paladin | 5d4 x 10 gp | 125 gp |
-| Ranger | 5d4 x 10 gp | 125 gp |
+| Paladin | (3d6 + 2) x 10 gp | 125 gp |
+| Ranger | (3d6 + 2) x 10 gp | 125 gp |
 | Thief | 2d6 x 10 gp | 70 gp |
 | Bard | Use the starting class before Bard entry | By class |
 
-## Drago Russo Rule
+## Baseline Rule
 
 After determining wealth, purchase equipment.
 
@@ -37,6 +37,10 @@ Use these coin notes when reading the equipment page:
 - 1 gold piece equals 10 silver pieces.
 - 1 silver piece equals 10 copper pieces.
 - Platinum and electrum may appear in treasure, but starting purchases usually use gold, silver, and copper.
+
+## OSRIC Note
+
+The fighter, paladin, and ranger formula is written as `(3d6 + 2) x 10 gp`, matching the OSRIC starting wealth table. Multi-class characters use the wealthiest starting class available to the character.
 
 ## Write This Down
 

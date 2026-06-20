@@ -64,7 +64,7 @@ The party spends a turn crossing 60 ft of corridor while mapping, then listens a
 
 ## Notes
 
-Verified against OSRIC core rules, Chapter IV, Adventure and Exploration and Searching the Dungeon. No DRG1e exploration house rule is added here.
+Verified against OSRIC core exploration rules for adventure play and searching the dungeon. No DRG1e exploration house rule is added here.
 
 ## Continue
 
