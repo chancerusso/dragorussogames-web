@@ -15,7 +15,8 @@ npm start
 ## Slash Commands
 
 - `/ping`
-- `/help`
+- `/guide`
+- `/help` deprecated alias for `/guide`
 - `/show card`
 - `/character create`
 - `/character list`

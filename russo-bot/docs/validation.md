@@ -168,7 +168,7 @@ Aldric
 Discord validation flow:
 
 ```text
-/help
+/guide
 /character create character_name:Testus race:Human class_name:Fighter level:1 alignment:Neutral hp_max:10 hp_current:10 armor_class:5 strength:17 intelligence:12 wisdom:9 dexterity:15 constitution:13 charisma:8
 /show card
 /character create character_name:Aldric race:Elf class_name:Magic-User level:1 alignment:Chaotic Good hp_max:4 hp_current:4 armor_class:9
@@ -226,7 +226,7 @@ Checklist:
 Discord validation flow:
 
 ```text
-/help
+/guide
 /character create character_name:Testus race:Human class_name:Fighter level:1 alignment:Neutral hp_max:10 hp_current:10 armor_class:5 movement:90 ft thac0:20 xp:0 coins:15 gp, 8 sp languages:Common saves:death 13, wands 14, paralysis 13, breath 16, spells 15 strength:17 intelligence:12 wisdom:9 dexterity:15 constitution:13 charisma:8 notes:Retainer contact in town
 /character sheet
 /show card
@@ -256,7 +256,8 @@ Checklist:
 - [ ] Equipment value is stored when entered
 - [ ] Equipped state is preserved
 - [ ] Encumbrance recalculates
-- [ ] `/help` works
+- [ ] `/guide` works
+- [ ] `/help` replies as a deprecated alias for `/guide`
 - [ ] Admin can view/edit other characters
 - [ ] Non-admin cannot edit another player
 - [ ] Restart preserves data

@@ -28,8 +28,11 @@ export const commandData = [
     .setName("ping")
     .setDescription("Check whether RUSSO is online."),
   new SlashCommandBuilder()
-    .setName("help")
+    .setName("guide")
     .setDescription("Show the RUSSO player command guide."),
+  new SlashCommandBuilder()
+    .setName("help")
+    .setDescription("Deprecated alias. Use /guide."),
   new SlashCommandBuilder()
     .setName("show")
     .setDescription("Show read-only RUSSO table references.")

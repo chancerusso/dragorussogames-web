@@ -368,8 +368,17 @@ client.on(Events.InteractionCreate, async (interaction) => {
       return;
     }
 
-    if (interaction.commandName === "help") {
+    if (interaction.commandName === "guide") {
       await interaction.reply({ embeds: [buildHelpEmbed()], ephemeral: true });
+      return;
+    }
+
+    if (interaction.commandName === "help") {
+      await interaction.reply({
+        content: "`/help` is deprecated. Use `/guide` for the RUSSO player command guide.",
+        embeds: [buildHelpEmbed()],
+        ephemeral: true
+      });
       return;
     }
 

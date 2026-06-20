@@ -8,7 +8,7 @@ Phase 1 scope:
 - Campaign, player, party, character, and audit log tables
 - Character ledger stored as JSON
 - Discord slash commands for ping, character creation, ledger display, and table-use ledger updates
-- Player self-service character ledgers through `/character`, `/ledger`, `/equipment`, `/show card`, and `/help`
+- Player self-service character ledgers through `/character`, `/ledger`, `/equipment`, `/show card`, and `/guide`
 - Complete player-maintained character sheets with ability modifiers, saves, languages, notes, equipment, encumbrance, and compact table cards
 
 Phase 1 intentionally does not include combat automation, spell automation, initiative tracking, encounter systems, referee dashboards, economy automation, downtime automation, or a web UI.
