@@ -16,6 +16,8 @@ from app.schemas import (
     LedgerPatchRequest,
     MarchingOrderRequest,
     MarchingOrderResponse,
+    GroupStoreRequest,
+    GroupStoreResponse,
     TrackerScope,
     TrackerResponse,
     TrackerStartRequest,
@@ -36,12 +38,14 @@ from app.services.characters import (
 from app.services.ledger import build_initial_ledger, sync_active_status
 from app.services.expedition import (
     get_order,
+    get_store,
     get_tracker,
     order_payload,
     require_admin,
     start_tracker,
     tracker_payload,
     update_tracker,
+    update_store,
     upsert_order,
 )
 
@@ -226,3 +230,12 @@ def marching_order_route(data: MarchingOrderRequest, db: Session = Depends(get_d
         require_admin(data.actor_is_admin)
         return upsert_order(db, data.guild_id, data.channel_id, data.actor_discord_user_id, data.positions, data.notes)
     return order_payload(get_order(db, data.guild_id, data.channel_id), data.guild_id, data.channel_id)
+
+
+@router.post("/store", response_model=GroupStoreResponse)
+def group_store_route(data: GroupStoreRequest, db: Session = Depends(get_db)) -> dict:
+    if data.action != "status":
+        require_admin(data.actor_is_admin)
+    store = get_store(db, data.guild_id, data.channel_id, data.actor_discord_user_id, data.channel_name_snapshot)
+    item = data.item.model_dump() if data.item is not None else None
+    return update_store(db, store, data.actor_discord_user_id, data.action, item, data.coin, data.amount, data.notes)

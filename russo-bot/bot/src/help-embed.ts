@@ -15,11 +15,19 @@ export function buildHelpEmbed(): EmbedBuilder {
       },
       {
         name: "Maintain The Ledger",
-        value: "`/ledger hp`, `/ledger ac`, `/ledger xp`, `/ledger coins`, `/ledger abilities`, `/ledger status`, `/ledger resources`, `/ledger saves`, and `/ledger movement` update your active character unless a DM/admin targets another character."
+        value: "`/rest` applies daily recovery. `/coin add` and `/coin status` manage carried coins and encumbrance. `/ledger hp`, `/ledger ac`, `/ledger xp`, `/ledger abilities`, `/ledger status`, `/ledger resources`, `/ledger saves`, and `/ledger movement` update your active character unless a DM/admin targets another character."
       },
       {
         name: "Equipment",
-        value: "`/equipment add`, `/equipment list`, `/equipment equip`, `/equipment unequip`, and `/equipment remove` maintain inventory and create Character Register entries."
+        value: "`/equipment add` opens a prompt, or use `/equipment add item:longsword`. RUSSO uses the OSRIC catalog for weight, value, and damage. Use `/equipment elim`, `/equipment equip`, `/equipment unequip`, `/equipment list`, or `/equipment custom`."
+      },
+      {
+        name: "Expedition",
+        value: "`/tracker status`, `/tracker next`, `/tracker rest`, `/tracker day`, and `/tracker xp` track channel-scoped expedition time and pending XP. `/order` shows the channel marching order. `/camp` runs the overnight/end-of-day procedure."
+      },
+      {
+        name: "Group Storage",
+        value: "`/mule add`, `/mule elim`, `/mule coins`, and `/mule status` maintain channel-scoped party storage. Mule gear does not affect your character encumbrance."
       },
       {
         name: "Referee Authority",

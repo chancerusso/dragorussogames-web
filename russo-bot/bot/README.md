@@ -17,6 +17,8 @@ npm start
 - `/ping`
 - `/guide`
 - `/help` deprecated alias for `/guide`
+- `/rest`
+- `/camp`
 - `/ref screen`
 - `/tracker start`
 - `/tracker status`
@@ -28,7 +30,13 @@ npm start
 - `/tracker lantern`
 - `/tracker oil`
 - `/tracker ration`
+- `/tracker xp`
+- `/tracker day`
 - `/tracker stop`
+- `/mule add`
+- `/mule elim`
+- `/mule status`
+- `/mule coins`
 - `/order`
 - `/show card`
 - `/character create`
@@ -60,12 +68,28 @@ npm start
 - `/ledger saves`
 - `/ledger movement`
 - `/equipment add`
+- `/equipment custom`
 - `/equipment list`
 - `/equipment equip`
 - `/equipment unequip`
 - `/equipment remove`
+- `/equipment elim`
+- `/coin add`
+- `/coin elim`
+- `/coin set`
+- `/coin status`
 
 Use `/show card` to display your compact table card for quick play reference.
+
+Use `/rest` for active-character long rest / daily recovery. It adds +1 HP up to max HP, logs the change, and reminds casters to prepare spells without automating spell preparation.
+
+Use `/camp` for the current channel group's overnight/end-of-day procedure. `/camp` can advance the tracker day and reset turns, but it does not heal characters; use `/rest` after camp for daily natural recovery.
+
+Standard equipment uses the OSRIC catalog. `/equipment add item:longsword` fills in canonical name, weight, value, and weapon damage when present. `/equipment custom` is for referee-approved unusual items.
+
+Use `/coin` for character-carried coins. Character coins affect character encumbrance; mule coins do not.
+
+Use `/mule` for channel-scoped group storage, coins, and treasure. Mule equipment does not affect character encumbrance. Use `/tracker xp` for pending channel XP that has not been awarded yet.
 
 Use `#pc-maintenance` for character creation, equipment changes, treasure updates, and between-session maintenance.
 

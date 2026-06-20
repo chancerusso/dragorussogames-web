@@ -112,3 +112,18 @@ class MarchingOrder(TimestampMixin, Base):
     positions: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
     notes: Mapped[str | None] = mapped_column(String(1000), nullable=True)
     updated_by_discord_id: Mapped[str] = mapped_column(String(32), nullable=False)
+
+
+class GroupStore(TimestampMixin, Base):
+    __tablename__ = "group_stores"
+    __table_args__ = (UniqueConstraint("guild_id", "channel_id", name="uq_group_store_scope"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    guild_id: Mapped[str] = mapped_column(String(32), nullable=False)
+    channel_id: Mapped[str] = mapped_column(String(32), nullable=False)
+    channel_name_snapshot: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    items: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, nullable=False)
+    coins: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
+    xp_bank: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
+    notes: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+    updated_by_discord_id: Mapped[str] = mapped_column(String(32), nullable=False)

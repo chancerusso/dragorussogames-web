@@ -51,6 +51,29 @@ export const commandData = [
     .setName("help")
     .setDescription("Deprecated alias. Use /guide."),
   new SlashCommandBuilder()
+    .setName("rest")
+    .setDescription("Apply long rest daily recovery to an active character.")
+    .addStringOption((option) =>
+      option
+        .setName("character")
+        .setDescription("Character name. DM/admin may target any character.")
+        .setRequired(false)
+    )
+    .addBooleanOption((option) =>
+      option
+        .setName("all")
+        .setDescription("DM/admin only: rest active characters in this channel's marching order.")
+        .setRequired(false)
+    ),
+  new SlashCommandBuilder()
+    .setName("camp")
+    .setDescription("Run the overnight/end-of-day camp procedure for this channel group.")
+    .addStringOption((option) => option.setName("watches").setDescription("Watch order").setRequired(false))
+    .addStringOption((option) => option.setName("location").setDescription("Camp location").setRequired(false))
+    .addStringOption((option) => option.setName("notes").setDescription("Camp notes").setRequired(false))
+    .addBooleanOption((option) => option.setName("consume_rations").setDescription("Prompt ration consumption check").setRequired(false))
+    .addBooleanOption((option) => option.setName("advance_day").setDescription("Advance tracker day and reset turns").setRequired(false)),
+  new SlashCommandBuilder()
     .setName("ref")
     .setDescription("Referee-only DRG1e quick references.")
     .addSubcommand((subcommand) =>
@@ -147,7 +170,62 @@ export const commandData = [
         ))
         .addIntegerOption((option) => option.setName("amount").setDescription("Amount").setRequired(true).setMinValue(0))
     )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("xp")
+        .setDescription("Manage channel XP bank.")
+        .addStringOption((option) => option.setName("action").setDescription("XP action").setRequired(true).addChoices(
+          { name: "add", value: "add" },
+          { name: "elim", value: "elim" },
+          { name: "set", value: "set" },
+          { name: "status", value: "status" }
+        ))
+        .addIntegerOption((option) => option.setName("amount").setDescription("XP amount").setRequired(false).setMinValue(0))
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("day")
+        .setDescription("Manage expedition day.")
+        .addStringOption((option) => option.setName("action").setDescription("Day action").setRequired(true).addChoices(
+          { name: "next", value: "next" },
+          { name: "set", value: "set" },
+          { name: "status", value: "status" }
+        ))
+        .addIntegerOption((option) => option.setName("number").setDescription("Day number").setRequired(false).setMinValue(1))
+    )
     .addSubcommand((subcommand) => subcommand.setName("stop").setDescription("Stop the expedition tracker.")),
+  new SlashCommandBuilder()
+    .setName("mule")
+    .setDescription("Manage channel group storage.")
+    .addSubcommand((subcommand) =>
+      subcommand.setName("add").setDescription("Add catalog item to group storage.")
+        .addStringOption((option) => option.setName("item").setDescription("Catalog item").setRequired(true))
+        .addIntegerOption((option) => option.setName("qty").setDescription("Quantity").setRequired(false).setMinValue(1))
+        .addStringOption((option) => option.setName("notes").setDescription("Notes").setRequired(false))
+    )
+    .addSubcommand((subcommand) =>
+      subcommand.setName("elim").setDescription("Remove catalog item from group storage.")
+        .addStringOption((option) => option.setName("item").setDescription("Catalog item").setRequired(true))
+        .addIntegerOption((option) => option.setName("qty").setDescription("Quantity").setRequired(false).setMinValue(1))
+    )
+    .addSubcommand((subcommand) => subcommand.setName("status").setDescription("Show group storage."))
+    .addSubcommand((subcommand) =>
+      subcommand.setName("coins").setDescription("Manage group coins.")
+        .addStringOption((option) => option.setName("action").setDescription("Coin action").setRequired(true).addChoices(
+          { name: "add", value: "add" },
+          { name: "elim", value: "elim" },
+          { name: "subtract", value: "subtract" },
+          { name: "set", value: "set" }
+        ))
+        .addStringOption((option) => option.setName("coin").setDescription("Coin").setRequired(true).addChoices(
+          { name: "cp", value: "cp" },
+          { name: "sp", value: "sp" },
+          { name: "ep", value: "ep" },
+          { name: "gp", value: "gp" },
+          { name: "pp", value: "pp" }
+        ))
+        .addIntegerOption((option) => option.setName("amount").setDescription("Amount").setRequired(true).setMinValue(0))
+    ),
   new SlashCommandBuilder()
     .setName("order")
     .setDescription("Show or update exploration marching order.")
@@ -354,11 +432,8 @@ export const commandData = [
         subcommand
           .setName("add")
           .setDescription("Add equipment.")
-          .addStringOption((option) => option.setName("item_name").setDescription("Item name").setRequired(true))
-          .addIntegerOption((option) => option.setName("quantity").setDescription("Quantity").setRequired(false).setMinValue(1))
-          .addNumberOption((option) => option.setName("weight").setDescription("Weight per item").setRequired(false).setMinValue(0))
-          .addStringOption((option) => option.setName("damage").setDescription("Weapon damage, if applicable").setRequired(false))
-          .addStringOption((option) => option.setName("value").setDescription("Item value, if known").setRequired(false))
+          .addStringOption((option) => option.setName("item").setDescription("Catalog item").setRequired(false))
+          .addIntegerOption((option) => option.setName("qty").setDescription("Quantity").setRequired(false).setMinValue(1))
           .addBooleanOption((option) => option.setName("equipped").setDescription("Add directly as equipped").setRequired(false))
           .addStringOption((option) =>
             option
@@ -377,10 +452,33 @@ export const commandData = [
     .addSubcommand((subcommand) =>
       addOptionalCharacter(
         subcommand
+          .setName("custom")
+          .setDescription("Add custom equipment.")
+          .addStringOption((option) => option.setName("name").setDescription("Custom item name").setRequired(true))
+          .addNumberOption((option) => option.setName("weight").setDescription("Weight per item").setRequired(true).setMinValue(0))
+          .addStringOption((option) => option.setName("value").setDescription("Item value").setRequired(false))
+          .addStringOption((option) => option.setName("damage").setDescription("Weapon damage, if applicable").setRequired(false))
+          .addIntegerOption((option) => option.setName("qty").setDescription("Quantity").setRequired(false).setMinValue(1))
+          .addBooleanOption((option) => option.setName("equipped").setDescription("Add directly as equipped").setRequired(false))
+          .addStringOption((option) => option.setName("notes").setDescription("Notes").setRequired(false))
+      )
+    )
+    .addSubcommand((subcommand) =>
+      addOptionalCharacter(
+        subcommand
           .setName("remove")
           .setDescription("Remove equipment.")
-          .addStringOption((option) => option.setName("item_name").setDescription("Item name").setRequired(true))
-          .addIntegerOption((option) => option.setName("quantity").setDescription("Quantity").setRequired(false).setMinValue(1))
+          .addStringOption((option) => option.setName("item").setDescription("Catalog item").setRequired(false))
+          .addIntegerOption((option) => option.setName("qty").setDescription("Quantity").setRequired(false).setMinValue(1))
+      )
+    )
+    .addSubcommand((subcommand) =>
+      addOptionalCharacter(
+        subcommand
+          .setName("elim")
+          .setDescription("Eliminate equipment.")
+          .addStringOption((option) => option.setName("item").setDescription("Catalog item").setRequired(false))
+          .addIntegerOption((option) => option.setName("qty").setDescription("Quantity").setRequired(false).setMinValue(1))
       )
     )
     .addSubcommand((subcommand) => addOptionalCharacter(subcommand.setName("list").setDescription("List equipment.")))
@@ -389,7 +487,7 @@ export const commandData = [
         subcommand
           .setName("equip")
           .setDescription("Equip an item.")
-          .addStringOption((option) => option.setName("item_name").setDescription("Item name").setRequired(true))
+          .addStringOption((option) => option.setName("item").setDescription("Item name").setRequired(true))
       )
     )
     .addSubcommand((subcommand) =>
@@ -397,9 +495,52 @@ export const commandData = [
         subcommand
           .setName("unequip")
           .setDescription("Unequip an item.")
-          .addStringOption((option) => option.setName("item_name").setDescription("Item name").setRequired(true))
+          .addStringOption((option) => option.setName("item").setDescription("Item name").setRequired(true))
       )
     ),
+  new SlashCommandBuilder()
+    .setName("coin")
+    .setDescription("Maintain active-character carried coins.")
+    .addSubcommand((subcommand) =>
+      addOptionalCharacter(
+        subcommand
+          .setName("add")
+          .setDescription("Add carried coins.")
+          .addIntegerOption((option) => option.setName("gp").setDescription("Gold pieces").setRequired(false).setMinValue(0))
+          .addIntegerOption((option) => option.setName("sp").setDescription("Silver pieces").setRequired(false).setMinValue(0))
+          .addIntegerOption((option) => option.setName("cp").setDescription("Copper pieces").setRequired(false).setMinValue(0))
+          .addIntegerOption((option) => option.setName("ep").setDescription("Electrum pieces").setRequired(false).setMinValue(0))
+          .addIntegerOption((option) => option.setName("pp").setDescription("Platinum pieces").setRequired(false).setMinValue(0))
+          .addStringOption((option) => option.setName("notes").setDescription("Coin note").setRequired(false))
+      )
+    )
+    .addSubcommand((subcommand) =>
+      addOptionalCharacter(
+        subcommand
+          .setName("elim")
+          .setDescription("Subtract carried coins.")
+          .addIntegerOption((option) => option.setName("gp").setDescription("Gold pieces").setRequired(false).setMinValue(0))
+          .addIntegerOption((option) => option.setName("sp").setDescription("Silver pieces").setRequired(false).setMinValue(0))
+          .addIntegerOption((option) => option.setName("cp").setDescription("Copper pieces").setRequired(false).setMinValue(0))
+          .addIntegerOption((option) => option.setName("ep").setDescription("Electrum pieces").setRequired(false).setMinValue(0))
+          .addIntegerOption((option) => option.setName("pp").setDescription("Platinum pieces").setRequired(false).setMinValue(0))
+          .addStringOption((option) => option.setName("notes").setDescription("Coin note").setRequired(false))
+      )
+    )
+    .addSubcommand((subcommand) =>
+      addOptionalCharacter(
+        subcommand
+          .setName("set")
+          .setDescription("Set carried coin totals.")
+          .addIntegerOption((option) => option.setName("gp").setDescription("Gold pieces").setRequired(false).setMinValue(0))
+          .addIntegerOption((option) => option.setName("sp").setDescription("Silver pieces").setRequired(false).setMinValue(0))
+          .addIntegerOption((option) => option.setName("cp").setDescription("Copper pieces").setRequired(false).setMinValue(0))
+          .addIntegerOption((option) => option.setName("ep").setDescription("Electrum pieces").setRequired(false).setMinValue(0))
+          .addIntegerOption((option) => option.setName("pp").setDescription("Platinum pieces").setRequired(false).setMinValue(0))
+          .addStringOption((option) => option.setName("notes").setDescription("Coin note").setRequired(false))
+      )
+    )
+    .addSubcommand((subcommand) => addOptionalCharacter(subcommand.setName("status").setDescription("Show carried coins and coin weight."))),
   new SlashCommandBuilder()
     .setName("character")
     .setDescription("Manage your RUSSO character ledger.")

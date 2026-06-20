@@ -128,14 +128,14 @@ Discord validation flow:
 /character resources torches:6 rations:7 water:3 arrows:20
 /character saves death:13 wands:14 paralysis_petrify:13 breath:16 spells:15
 /character movement movement:90 encumbrance_category:Light
-/character equipment add item_name:longsword quantity:1 weight:6 location:carried
-/character equipment add item_name:shield quantity:1 weight:10 location:carried
-/character equipment add item_name:backpack quantity:1 weight:2 location:carried
-/character equipment add item_name:torches quantity:6 weight:1 location:carried
-/character equipment equip item_name:longsword
-/character equipment equip item_name:shield
-/character equipment remove item_name:torches quantity:1
-/character equipment list
+/equipment add item:longsword qty:1
+/equipment add item:shield qty:1
+/equipment add item:backpack qty:1
+/equipment add item:torch qty:6
+/equipment equip item:longsword
+/equipment equip item:shield
+/equipment elim item:torch qty:1
+/equipment list
 /ledger show
 ```
 
@@ -183,10 +183,10 @@ Discord validation flow:
 /ledger resources resource:torches value:6 mode:set
 /ledger saves death:13 wands:14 paralysis_petrify:13 breath:16 spells:15
 /ledger movement movement:90 ft encumbrance_category:Light
-/equipment add item_name:Longsword quantity:1 weight:6 damage:1d8 location:carried
-/equipment add item_name:Shortbow quantity:1 weight:5 damage:1d6 location:carried notes:range
-/equipment equip item_name:Longsword
-/equipment equip item_name:Shortbow
+/equipment add item:longsword qty:1
+/equipment add item:shortbow qty:1 notes:range
+/equipment equip item:longsword
+/equipment equip item:shortbow
 /equipment list
 /show card
 /show card character:Aldric
@@ -230,8 +230,8 @@ Discord validation flow:
 /character create character_name:Testus race:Human class_name:Fighter level:1 alignment:Neutral hp_max:10 hp_current:10 armor_class:5 movement:90 ft thac0:20 xp:0 coins:15 gp, 8 sp languages:Common saves:death 13, wands 14, paralysis 13, breath 16, spells 15 strength:17 intelligence:12 wisdom:9 dexterity:15 constitution:13 charisma:8 notes:Retainer contact in town
 /character sheet
 /show card
-/equipment add item_name:Longsword quantity:1 weight:6 value:15 gp damage:1d8 equipped:true
-/equipment add item_name:Dagger quantity:1 weight:1 value:2 gp damage:1d4 location:carried
+/equipment add item:longsword qty:1 equipped:true
+/equipment add item:dagger qty:1
 /equipment list
 /show card
 /ledger hp value:2 mode:subtract
@@ -338,6 +338,172 @@ Checklist:
 - [ ] Non-admin update attempts are rejected
 - [ ] Service restart preserves tracker and order state
 - [ ] No combat tracker, initiative tracker, monster roller, encounter generator, automatic wandering monster roll, VTT map, grid combat, or spell duration engine appears
+
+## Rest / Daily Recovery
+
+Discord validation flow:
+
+```text
+/rest
+/rest character:Aldric
+/order pos1:Testus pos2:Aldric
+/rest all:true
+```
+
+Checklist:
+
+- [ ] `/rest` targets the player's active character
+- [ ] `/rest` adds +1 HP
+- [ ] `/rest` does not exceed max HP
+- [ ] `/rest` shows current HP after rest
+- [ ] Caster receives: "Prepare spells: minimum 4 hours quiet rest, then 15 minutes per spell level memorized."
+- [ ] `/rest` creates a Character Register / audit entry
+- [ ] Temporary daily notes/resources clear if tracked
+- [ ] `/rest character:<name>` works for DM/admin
+- [ ] `/rest all:true` is admin-only
+- [ ] `/rest all:true` applies to active characters in the current channel's `/order`
+- [ ] `/rest` does not auto-prepare spells
+- [ ] `/rest` does not auto-reset spell slots
+
+## Camp / End-Of-Day Procedure
+
+Discord validation flow:
+
+```text
+/tracker status
+/order pos1:Testus pos2:Aldric
+/mule status
+/camp watches:"Testus, Aldric" location:"Old watchtower" consume_rations:true advance_day:true
+/tracker status
+/rest
+/tracker rest
+```
+
+Checklist:
+
+- [ ] `/camp` displays
+- [ ] `/camp` is scoped to current Discord channel/group
+- [ ] `/camp advance_day:true` increments day for Referee/admin
+- [ ] `/camp advance_day:true` resets turn counter
+- [ ] `/camp` shows "Camp Set"
+- [ ] `/camp` shows "Day X ends / Day Y begins" when day advances
+- [ ] `/camp` shows watches
+- [ ] `/camp` shows `/order` roster if available
+- [ ] `/camp` shows ration check/consume reminder
+- [ ] `/camp` shows light/fire reminder
+- [ ] `/camp` shows night encounter reminder
+- [ ] `/camp` shows caster spell preparation reminder
+- [ ] `/camp` shows recovery prompt to use `/rest`
+- [ ] `/camp` includes XP bank/mule summary
+- [ ] `/camp` does not heal automatically
+- [ ] `/rest` still handles +1 HP daily natural recovery
+- [ ] `/tracker rest` still means 1 exploration turn only and no HP healing
+
+## Phase 1.6 Equipment Catalog, Mule Store, XP Bank, Channel Groups
+
+Discord validation flow:
+
+```text
+/equipment add
+/equipment add item:longsword
+/equipment add item:"long sword" qty:1
+/equipment list
+/equipment equip item:longsword
+/equipment elim
+/equipment elim item:longsword qty:1
+/equipment custom name:"Silver Idol" weight:12 value:"250 gp"
+/coin add
+/coin add gp:10 sp:5 cp:20
+/coin elim gp:5 sp:2 cp:0
+/coin set gp:100 sp:0 cp:0
+/coin status
+/mule add item:torch qty:6
+/mule elim item:torch qty:2
+/mule coins action:add coin:gp amount:500
+/mule coins action:subtract coin:gp amount:50
+/mule coins action:elim coin:gp amount:50
+/mule coins action:set coin:gp amount:1000
+/mule status
+/tracker xp action:add amount:500
+/tracker xp action:status
+/tracker day action:next
+/tracker day action:set number:3
+/tracker status
+```
+
+Equipment UX:
+
+- [ ] `/equipment add` with no item opens modal/prompt
+- [ ] `/equipment add item:longsword` adds Longsword
+- [ ] `/equipment add item:longsword qty:1` works directly
+- [ ] Longsword auto-fills damage
+- [ ] Longsword auto-fills weight
+- [ ] Longsword auto-fills value/cost
+- [ ] `/equipment elim` with no item opens modal/prompt
+- [ ] `/equipment elim item:longsword` removes it
+- [ ] `/equipment elim item:longsword qty:1` removes it
+- [ ] `/equipment remove item:longsword` still works as an alias
+- [ ] Encumbrance recalculates after add
+- [ ] Encumbrance recalculates after elim
+- [ ] Movement warning appears when movement changes or when Referee encumbrance review is needed
+- [ ] Alias lookup works
+- [ ] Typo suggestion works
+- [ ] `/equipment custom` still works for custom/referee-approved items
+
+Coin UX:
+
+- [ ] `/coin add` opens modal/prompt
+- [ ] `/coin add gp:10 sp:5 cp:20` works if options implemented
+- [ ] Character coins update
+- [ ] Coin weight affects encumbrance
+- [ ] Movement warning appears when coin weight changes movement or when Referee encumbrance review is needed
+- [ ] `/coin status` displays coin totals and coin weight
+- [ ] Character coins affect character encumbrance
+- [ ] Mule coins do not affect character encumbrance
+
+Mule / Group Store:
+
+- [ ] `/mule add item:torch qty:6` adds torches to channel store
+- [ ] `/mule elim item:torch qty:2` removes 2
+- [ ] `/mule status` shows items
+- [ ] `/mule status` shows total group-store weight
+- [ ] Mule storage does not affect character encumbrance
+- [ ] Mule coins can add/subtract/set gp
+- [ ] Separate channels have separate mule stores
+
+XP Bank:
+
+- [ ] `/tracker xp action:add amount:500`
+- [ ] `/tracker xp action:status`
+- [ ] XP bank appears in tracker status
+- [ ] XP bank appears in mule status
+- [ ] XP bank is channel-scoped
+- [ ] XP is not auto-distributed
+
+Days:
+
+- [ ] `/tracker day action:next`
+- [ ] `/tracker day action:set number:3`
+- [ ] Day increments or sets
+- [ ] Turn counter behavior is clear
+- [ ] Tracker status shows day
+
+Channel Scope:
+
+- [ ] Tracker in channel A does not affect channel B
+- [ ] Mule in channel A does not affect channel B
+- [ ] Order in channel A does not affect channel B
+
+Command registration:
+
+- [ ] Slash command registration includes `equipment`
+- [ ] Slash command registration includes `coin`
+- [ ] Slash command registration includes `mule`
+- [ ] Slash command registration includes `tracker`
+- [ ] Slash command registration includes `order`
+- [ ] Slash command registration includes `camp`
+- [ ] Slash command registration includes `rest`
+- [ ] Slash command registration includes `guide`
 
 ## Future: Pinned Character Cards
 

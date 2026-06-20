@@ -117,6 +117,36 @@ export interface MarchingOrderResponse {
   notes?: string | null;
 }
 
+export interface StoreItemPayload {
+  item_name: string;
+  quantity?: number;
+  weight?: number;
+  damage?: string | null;
+  value?: string | null;
+  notes?: string | null;
+  custom?: boolean;
+}
+
+export interface GroupStorePayload extends TrackerScopePayload {
+  channel_name_snapshot?: string | null;
+  action?: string;
+  item?: StoreItemPayload | null;
+  coin?: string | null;
+  amount?: number | null;
+  notes?: string | null;
+}
+
+export interface GroupStoreResponse {
+  guild_id: string;
+  channel_id: string;
+  channel_name_snapshot?: string | null;
+  items: Record<string, unknown>[];
+  coins: Record<string, number>;
+  xp_bank: number;
+  notes?: string | null;
+  reminders: string[];
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${config.apiBaseUrl}${path}`, {
     ...init,
@@ -229,4 +259,8 @@ export function updateTracker(payload: TrackerUpdatePayload): Promise<TrackerRes
 
 export function marchingOrder(payload: MarchingOrderPayload): Promise<MarchingOrderResponse> {
   return request<MarchingOrderResponse>("/order", { method: "POST", body: JSON.stringify(payload) });
+}
+
+export function groupStore(payload: GroupStorePayload): Promise<GroupStoreResponse> {
+  return request<GroupStoreResponse>("/store", { method: "POST", body: JSON.stringify(payload) });
 }

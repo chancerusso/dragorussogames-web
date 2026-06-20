@@ -138,3 +138,33 @@ class MarchingOrderResponse(BaseModel):
     channel_id: str
     positions: dict[str, str | None]
     notes: str | None = None
+
+
+class StoreItemPayload(BaseModel):
+    item_name: str = Field(min_length=1, max_length=120)
+    quantity: int = Field(default=1, ge=1)
+    weight: float = Field(default=0, ge=0)
+    damage: str | None = Field(default=None, max_length=80)
+    value: str | None = Field(default=None, max_length=80)
+    notes: str | None = Field(default=None, max_length=500)
+    custom: bool = False
+
+
+class GroupStoreRequest(TrackerScope):
+    channel_name_snapshot: str | None = Field(default=None, max_length=120)
+    action: str = Field(default="status", max_length=40)
+    item: StoreItemPayload | None = None
+    coin: str | None = Field(default=None, max_length=2)
+    amount: int | None = None
+    notes: str | None = Field(default=None, max_length=1000)
+
+
+class GroupStoreResponse(BaseModel):
+    guild_id: str
+    channel_id: str
+    channel_name_snapshot: str | None = None
+    items: list[dict[str, Any]]
+    coins: dict[str, int]
+    xp_bank: int
+    notes: str | None = None
+    reminders: list[str] = Field(default_factory=list)

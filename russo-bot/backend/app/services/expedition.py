@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import flag_modified
 
-from app.db.models import ExpeditionTracker, MarchingOrder
+from app.db.models import ExpeditionTracker, GroupStore, MarchingOrder
 
 VALID_MOVE_RATES = {120, 90, 60, 30}
 
@@ -156,10 +156,20 @@ def update_tracker(db: Session, tracker: ExpeditionTracker, action: str, amount:
         else:
             setattr(tracker, field, max(0, amount))
         reminders.append(f"{field.replace('_', ' ').title()} updated.")
+    elif action in {"day_next", "day_set"}:
+        if action == "day_next":
+            tracker.day += 1
+        else:
+            if amount is None or amount < 1:
+                raise HTTPException(status_code=422, detail="day number must be 1 or higher.")
+            tracker.day = amount
+        tracker.turn = 0
+        tracker.combat_rest_required = False
+        reminders.append(f"Expedition day set to {tracker.day}. Turn count reset.")
     elif action == "stop":
         tracker.active = False
         reminders.append("Expedition tracker stopped.")
-    elif action in {"status", "torch_status", "lantern_status"}:
+    elif action in {"status", "torch_status", "lantern_status", "day_status"}:
         pass
     else:
         raise HTTPException(status_code=422, detail="Unknown tracker action.")
@@ -198,3 +208,113 @@ def upsert_order(db: Session, guild_id: str, channel_id: str, actor_id: str, pos
     db.commit()
     db.refresh(order)
     return order_payload(order, guild_id, channel_id)
+
+
+def _coins() -> dict[str, int]:
+    return {"cp": 0, "sp": 0, "ep": 0, "gp": 0, "pp": 0}
+
+
+def get_store(db: Session, guild_id: str, channel_id: str, actor_id: str, channel_name: str | None = None) -> GroupStore:
+    store = db.scalar(select(GroupStore).where(GroupStore.guild_id == guild_id, GroupStore.channel_id == channel_id))
+    if store is None:
+        store = GroupStore(
+            guild_id=guild_id,
+            channel_id=channel_id,
+            channel_name_snapshot=channel_name,
+            items=[],
+            coins=_coins(),
+            xp_bank=0,
+            updated_by_discord_id=actor_id,
+        )
+        db.add(store)
+        db.flush()
+    if channel_name:
+        store.channel_name_snapshot = channel_name
+    return store
+
+
+def store_payload(store: GroupStore, reminders: list[str] | None = None) -> dict[str, Any]:
+    coins = _coins()
+    coins.update(store.coins or {})
+    return {
+        "guild_id": store.guild_id,
+        "channel_id": store.channel_id,
+        "channel_name_snapshot": store.channel_name_snapshot,
+        "items": store.items or [],
+        "coins": coins,
+        "xp_bank": store.xp_bank,
+        "notes": store.notes,
+        "reminders": reminders or [],
+    }
+
+
+def _find_item(items: list[dict[str, Any]], name: str) -> dict[str, Any] | None:
+    lowered = name.lower()
+    for item in items:
+        if str(item.get("item_name", "")).lower() == lowered:
+            return item
+    return None
+
+
+def update_store(db: Session, store: GroupStore, actor_id: str, action: str, item: dict[str, Any] | None = None, coin: str | None = None, amount: int | None = None, notes: str | None = None) -> dict[str, Any]:
+    reminders: list[str] = []
+    if action == "status":
+        return store_payload(store)
+    if action == "add":
+        if item is None:
+            raise HTTPException(status_code=422, detail="item is required.")
+        items = list(store.items or [])
+        existing = _find_item(items, item["item_name"])
+        if existing is None:
+            items.append(item)
+        else:
+            existing["quantity"] = int(existing.get("quantity", 0) or 0) + int(item.get("quantity", 1) or 1)
+        store.items = items
+        flag_modified(store, "items")
+        reminders.append(f"Added {item['item_name']} to group storage.")
+    elif action == "elim":
+        if item is None:
+            raise HTTPException(status_code=422, detail="item is required.")
+        items = list(store.items or [])
+        existing = _find_item(items, item["item_name"])
+        if existing is None:
+            raise HTTPException(status_code=404, detail="Item not found in group storage.")
+        qty = int(item.get("quantity", 1) or 1)
+        existing["quantity"] = int(existing.get("quantity", 1) or 1) - qty
+        if existing["quantity"] <= 0:
+            items.remove(existing)
+        store.items = items
+        flag_modified(store, "items")
+        reminders.append(f"Removed {item['item_name']} from group storage.")
+    elif action in {"coin_add", "coin_elim", "coin_set"}:
+        if coin not in _coins() or amount is None:
+            raise HTTPException(status_code=422, detail="valid coin and amount are required.")
+        coins = _coins()
+        coins.update(store.coins or {})
+        if action == "coin_add":
+            coins[coin] += amount
+        elif action == "coin_elim":
+            coins[coin] = max(0, coins[coin] - amount)
+        else:
+            coins[coin] = max(0, amount)
+        store.coins = coins
+        flag_modified(store, "coins")
+        reminders.append("Group coins updated.")
+    elif action in {"xp_add", "xp_elim", "xp_set"}:
+        if amount is None:
+            raise HTTPException(status_code=422, detail="amount is required.")
+        if action == "xp_add":
+            store.xp_bank += amount
+        elif action == "xp_elim":
+            store.xp_bank = max(0, store.xp_bank - amount)
+        else:
+            store.xp_bank = max(0, amount)
+        reminders.append("XP bank updated.")
+    else:
+        raise HTTPException(status_code=422, detail="Unknown group store action.")
+    if notes is not None:
+        store.notes = notes
+    store.updated_by_discord_id = actor_id
+    db.commit()
+    db.refresh(store)
+    return store_payload(store, reminders)

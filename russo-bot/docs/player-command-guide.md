@@ -89,25 +89,83 @@ Ledger commands update your active character by default.
 /ledger resources resource:torches value:1 mode:subtract
 /ledger saves death:13 wands:14 paralysis_petrify:13 breath:16 spells:15
 /ledger movement movement:90 ft encumbrance_category:Light
+/rest
 ```
 
 Every ledger change creates a Character Register entry in the Campaign Record.
+
+`/rest` applies long rest / daily recovery to your active character: +1 HP, not exceeding max HP. If your character is a caster, RUSSO reminds you to prepare spells. RUSSO does not auto-prepare spells or reset spell slots yet.
+
+Rule distinction: `/tracker rest` is one exploration turn of party rest and does not heal HP. `/rest` is daily natural recovery and adds +1 HP, not exceeding max HP.
+
+DM/admin options:
+
+```text
+/rest character:Aldric
+/rest all:true
+```
+
+`/rest all:true` uses the current channel's `/order` as the group roster when available.
 
 ### Step 4: Maintain Equipment
 
 Equipment belongs to your active character by default.
 
 ```text
-/equipment add item_name:Longsword quantity:1 weight:6 value:15 gp damage:1d8 equipped:true
+/equipment add
+/equipment add item:longsword qty:1 equipped:true
 /equipment list
-/equipment equip item_name:Longsword
-/equipment unequip item_name:Longsword
-/equipment remove item_name:Longsword quantity:1
+/equipment equip item:longsword
+/equipment unequip item:longsword
+/equipment elim
+/equipment elim item:longsword qty:1
+/equipment remove item:longsword qty:1
+/equipment custom name:"Silver Idol" weight:12 value:"250 gp"
 ```
 
-Equipment changes are logged in the Character Register. Encumbrance recalculates after add, remove, equip, and unequip.
+Standard equipment comes from the OSRIC catalog. You can type common aliases such as `long sword`; RUSSO stores the canonical name and fills in weight, value, and weapon damage when present. If you run `/equipment add` or `/equipment elim` without an item, RUSSO opens a prompt for item name, quantity, and notes.
 
-Weapon damage appears on `/show card` when entered.
+Equipment changes are logged in the Character Register. Encumbrance recalculates after add, elim/remove, equip, unequip, and custom item changes. RUSSO shows carried weight before/after and a movement warning when encumbrance needs Referee review. Weapon damage appears on `/show card` when the catalog or custom entry includes damage.
+
+### Character Coins
+
+Character-carried coins affect character encumbrance.
+
+```text
+/coin add
+/coin add gp:10 sp:5 cp:20
+/coin elim gp:5 sp:2
+/coin set gp:100 sp:0 cp:0
+/coin status
+```
+
+If you run `/coin add`, `/coin elim`, or `/coin set` without coin fields, RUSSO opens a prompt. Coin changes update the Character Register, coin totals, coin weight, and carried encumbrance.
+
+### Group Storage And XP Bank
+
+Group storage belongs to the Discord channel, not one character. Use it for a pack mule, cart, camp stash, party treasure chest, or safe room.
+
+```text
+/mule add item:torch qty:6
+/mule elim item:torch qty:2
+/mule coins action:add coin:gp amount:500
+/mule coins action:subtract coin:gp amount:50
+/mule coins action:set coin:gp amount:1000
+/mule status
+```
+
+Mule equipment and mule coins do not affect character encumbrance. Character-carried coins use `/coin`; group coins use `/mule coins`. Group storage is scoped by `guild_id + channel_id`, so different game channels keep separate stores.
+
+The XP bank is for treasure XP, monster XP, or session XP not yet awarded:
+
+```text
+/tracker xp action:add amount:500
+/tracker xp action:elim amount:100
+/tracker xp action:set amount:1200
+/tracker xp action:status
+```
+
+XP bank totals appear in `/tracker status` and `/mule status`. XP is not automatically distributed.
 
 ### Active Characters
 
@@ -127,10 +185,24 @@ Players may view:
 
 ```text
 /tracker status
+/tracker day action:status
 /order
+/camp
 ```
 
+The Referee may use `/tracker day action:next` or `/tracker day action:set number:3` to move between expedition days. The turn counter tracks the current day's exploration turns.
+
 Marching order is exploration posture, not tactical grid combat.
+
+Use `/camp` for the current channel group's overnight / end-of-day procedure:
+
+```text
+/camp watches:"Aldric, Testus, hirelings" location:"Ruined farmhouse" consume_rations:true advance_day:true
+```
+
+`/camp` shows the day ending, watch order, `/order` roster, ration reminder, light/fire reminder, night encounter reminder, spell preparation reminder, mule/XP summary, and recovery prompt. It does not heal automatically. After camp is complete, each player may use `/rest` for +1 HP daily natural recovery.
+
+Rule distinction: `/tracker rest` is one exploration turn of party rest and does not heal HP. `/rest` is daily natural recovery and adds +1 HP, not exceeding max HP.
 
 ### Printed Sheets
 
