@@ -6,9 +6,10 @@ from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import flag_modified
 
 from app.db.models import AuditLog, Character
+from app.services.ability_modifiers import sync_ability_modifiers
 from app.services.ledger import merge_ledger, sync_active_status
 
-VALID_STATUSES = {"Active", "Inactive", "Dead", "Retired", "Missing", "Petrified", "Imprisoned"}
+VALID_STATUSES = {"Active", "Inactive", "Dead", "Retired", "Missing", "Poisoned", "Petrified", "Imprisoned"}
 
 
 def audit(
@@ -66,15 +67,16 @@ def find_character_by_name(
     actor_discord_user_id: str,
     actor_is_admin: bool,
 ) -> Character:
-    query = select(Character).where(Character.character_name.ilike(character_name))
+    query = select(Character).where(Character.character_name.ilike(f"%{character_name}%"))
     if not actor_is_admin:
         query = query.where(Character.discord_user_id == actor_discord_user_id)
 
     matches = db.scalars(query.order_by(Character.created_at.desc())).all()
     if not matches:
         raise HTTPException(status_code=404, detail="Character not found.")
-    if len(matches) > 1 and actor_is_admin:
-        raise HTTPException(status_code=409, detail="More than one character matches that name.")
+    if len(matches) > 1:
+        names = ", ".join(f"{match.character_name} ({match.player_name})" for match in matches[:8])
+        raise HTTPException(status_code=409, detail=f"More than one character matches that name: {names}.")
     return matches[0]
 
 
@@ -114,6 +116,8 @@ def update_ledger_section(
     action: str,
 ) -> Character:
     character.ledger = merge_ledger(character.ledger or {}, patch)
+    if "abilities" in patch or "Ability Scores" in patch:
+        character.ledger = sync_ability_modifiers(character.ledger)
     status = None
     if "identity" in patch and "status" in patch["identity"]:
         raw_status = patch["identity"]["status"]
@@ -179,6 +183,7 @@ def add_equipment(
     item_name: str,
     quantity: int,
     weight: float,
+    damage: str | None,
     location: str,
     notes: str | None,
 ) -> Character:
@@ -192,6 +197,7 @@ def add_equipment(
             "item_name": item_name,
             "quantity": quantity,
             "weight": weight,
+            "damage": damage,
             "location": location,
             "notes": notes,
         }
@@ -199,6 +205,8 @@ def add_equipment(
     else:
         item["quantity"] = int(item.get("quantity", 0) or 0) + quantity
         item["weight"] = weight
+        if damage:
+            item["damage"] = damage
         if notes:
             item["notes"] = notes
     _recalculate_encumbrance(equipment)

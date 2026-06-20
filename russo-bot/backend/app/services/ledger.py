@@ -1,10 +1,11 @@
 from typing import Any
 
 from app.schemas import CharacterCreateRequest
+from app.services.ability_modifiers import sync_ability_modifiers
 
 
 def build_initial_ledger(data: CharacterCreateRequest) -> dict[str, Any]:
-    return {
+    ledger = {
         "identity": {
             "character_name": data.character_name,
             "player_name": data.player_name,
@@ -21,12 +22,12 @@ def build_initial_ledger(data: CharacterCreateRequest) -> dict[str, Any]:
             "xp_needed": None,
         },
         "abilities": {
-            "str": None,
-            "int": None,
-            "wis": None,
-            "dex": None,
-            "con": None,
-            "cha": None,
+            "str": data.strength,
+            "int": data.intelligence,
+            "wis": data.wisdom,
+            "dex": data.dexterity,
+            "con": data.constitution,
+            "cha": data.charisma,
         },
         "combat": {
             "hp_current": data.hp_current,
@@ -80,12 +81,12 @@ def build_initial_ledger(data: CharacterCreateRequest) -> dict[str, Any]:
             "xp": 0,
         },
         "Ability Scores": {
-            "strength": None,
-            "dexterity": None,
-            "constitution": None,
-            "intelligence": None,
-            "wisdom": None,
-            "charisma": None,
+            "strength": data.strength,
+            "dexterity": data.dexterity,
+            "constitution": data.constitution,
+            "intelligence": data.intelligence,
+            "wisdom": data.wisdom,
+            "charisma": data.charisma,
         },
         "Combat": {
             "hp": data.hp_current,
@@ -133,6 +134,7 @@ def build_initial_ledger(data: CharacterCreateRequest) -> dict[str, Any]:
             "death_state": None,
         },
     }
+    return sync_ability_modifiers(ledger)
 
 
 def merge_ledger(base: dict[str, Any], patch: dict[str, Any]) -> dict[str, Any]:

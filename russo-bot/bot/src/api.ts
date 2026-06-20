@@ -10,6 +10,12 @@ export interface CharacterCreatePayload {
   hp_max?: number | null;
   hp_current?: number | null;
   armor_class?: number | null;
+  strength?: number | null;
+  intelligence?: number | null;
+  wisdom?: number | null;
+  dexterity?: number | null;
+  constitution?: number | null;
+  charisma?: number | null;
   discord_username: string;
   discord_user_id: string;
 }
@@ -41,6 +47,7 @@ export interface EquipmentAddPayload extends CharacterActorPayload {
   item_name: string;
   quantity?: number;
   weight?: number;
+  damage?: string | null;
   location?: string;
   notes?: string | null;
 }

@@ -1,6 +1,7 @@
 import { EmbedBuilder } from "discord.js";
 
 import type { CharacterResponse } from "./api.js";
+import { abilityLabels, abilityModifier, formatModifier } from "./ability-format.js";
 
 function section(ledger: Record<string, unknown>, name: string): Record<string, unknown> {
   const value = ledger[name];
@@ -56,16 +57,14 @@ function xpSummary(basics: Record<string, unknown>, legacyBasics: Record<string,
 }
 
 function abilitiesSummary(abilities: Record<string, unknown>, legacyAbilities: Record<string, unknown>): string {
-  const scores = [
-    ["STR", firstValue(abilities.str, legacyAbilities.strength)],
-    ["EX", abilities.exceptional_str],
-    ["INT", firstValue(abilities.int, legacyAbilities.intelligence)],
-    ["WIS", firstValue(abilities.wis, legacyAbilities.wisdom)],
-    ["DEX", firstValue(abilities.dex, legacyAbilities.dexterity)],
-    ["CON", firstValue(abilities.con, legacyAbilities.constitution)],
-    ["CHA", firstValue(abilities.cha, legacyAbilities.charisma)]
-  ];
-  return scores.map(([label, score]) => `${label} ${valueOrEmpty(score)}`).join(" | ");
+  const modifiers = section(abilities, "modifiers");
+  const legacyModifiers = section(legacyAbilities, "modifiers");
+  const scores = abilityLabels.map(([key, label, legacyKey]) => {
+    const score = firstValue(abilities[key], legacyAbilities[legacyKey]);
+    const modifier = firstValue(modifiers[key], legacyModifiers[legacyKey], abilityModifier(score));
+    return `${label} ${valueOrEmpty(score)} (${formatModifier(modifier)})`;
+  });
+  return scores.join(" | ");
 }
 
 export function buildLedgerEmbed(character: CharacterResponse): EmbedBuilder {

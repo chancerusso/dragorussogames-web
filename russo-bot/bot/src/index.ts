@@ -13,6 +13,8 @@ import {
   type CharacterResponse
 } from "./api.js";
 import { config } from "./config.js";
+import { buildCharacterCardEmbed } from "./card-embed.js";
+import { buildHelpEmbed } from "./help-embed.js";
 import { buildLedgerEmbed } from "./ledger-embed.js";
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -44,6 +46,14 @@ function actor(interaction: ChatInputCommandInteraction) {
   };
 }
 
+function discordDisplayName(interaction: ChatInputCommandInteraction): string {
+  const member = interaction.member;
+  if (member && "displayName" in member && typeof member.displayName === "string") {
+    return member.displayName;
+  }
+  return interaction.user.globalName ?? interaction.user.username;
+}
+
 function numberPatch(
   interaction: ChatInputCommandInteraction,
   names: string[],
@@ -64,6 +74,208 @@ function numberPatch(
     }
   }
   return patch;
+}
+
+function applyMode(current: unknown, value: number, mode = "set"): number {
+  const existing = Number(current ?? 0);
+  if (mode === "add") {
+    return existing + value;
+  }
+  if (mode === "subtract") {
+    return Math.max(0, existing - value);
+  }
+  return value;
+}
+
+async function replyEquipment(interaction: ChatInputCommandInteraction, character: CharacterResponse, subcommand: string): Promise<boolean> {
+  if (subcommand === "add") {
+    const updated = await addEquipment(character.id, {
+      ...actor(interaction),
+      item_name: interaction.options.getString("item_name", true),
+      quantity: interaction.options.getInteger("quantity") ?? 1,
+      weight: interaction.options.getNumber("weight") ?? 0,
+      damage: interaction.options.getString("damage"),
+      location: interaction.options.getString("location") ?? "carried",
+      notes: interaction.options.getString("notes")
+    });
+    await interaction.reply({ content: `Added equipment to ${updated.character_name}.`, ephemeral: true });
+    return true;
+  }
+
+  if (subcommand === "remove") {
+    const updated = await removeEquipment(character.id, {
+      ...actor(interaction),
+      item_name: interaction.options.getString("item_name", true),
+      quantity: interaction.options.getInteger("quantity") ?? 1
+    });
+    await interaction.reply({ content: `Removed equipment from ${updated.character_name}.`, ephemeral: true });
+    return true;
+  }
+
+  if (subcommand === "equip") {
+    const updated = await equipEquipment(character.id, {
+      ...actor(interaction),
+      item_name: interaction.options.getString("item_name", true)
+    });
+    await interaction.reply({ content: `Equipped item for ${updated.character_name}.`, ephemeral: true });
+    return true;
+  }
+
+  if (subcommand === "unequip") {
+    const updated = await unequipEquipment(character.id, {
+      ...actor(interaction),
+      item_name: interaction.options.getString("item_name", true)
+    });
+    await interaction.reply({ content: `Unequipped item for ${updated.character_name}.`, ephemeral: true });
+    return true;
+  }
+
+  if (subcommand === "list") {
+    await interaction.reply({
+      embeds: [
+        new EmbedBuilder()
+          .setTitle(`${character.character_name} Equipment`)
+          .setDescription(equipmentLines(character))
+      ],
+      ephemeral: true
+    });
+    return true;
+  }
+
+  return false;
+}
+
+async function replyLedgerMutation(interaction: ChatInputCommandInteraction, character: CharacterResponse, subcommand: string): Promise<boolean> {
+  const mode = interaction.options.getString("mode") ?? "set";
+
+  if (subcommand === "show") {
+    await interaction.reply({ embeds: [buildLedgerEmbed(character)], ephemeral: true });
+    return true;
+  }
+
+  if (subcommand === "hp") {
+    const combat = section(character.ledger, "combat");
+    const value = interaction.options.getInteger("value", true);
+    const patch: Record<string, number> = { hp_current: applyMode(combat.hp_current, value, mode) };
+    const maxHp = interaction.options.getInteger("max_hp");
+    if (maxHp !== null) {
+      patch.hp_max = maxHp;
+    }
+    await patchCharacterLedger(character.id, {
+      ...actor(interaction),
+      audit_action: "ledger.hp",
+      patch: { combat: patch }
+    });
+    await interaction.reply({ content: `Updated HP for ${character.character_name}.`, ephemeral: true });
+    return true;
+  }
+
+  if (subcommand === "ac") {
+    await patchCharacterLedger(character.id, {
+      ...actor(interaction),
+      audit_action: "ledger.ac",
+      patch: { combat: { armor_class: interaction.options.getInteger("value", true) } }
+    });
+    await interaction.reply({ content: `Updated AC for ${character.character_name}.`, ephemeral: true });
+    return true;
+  }
+
+  if (subcommand === "xp") {
+    const basics = section(character.ledger, "basics");
+    const value = interaction.options.getInteger("value", true);
+    await patchCharacterLedger(character.id, {
+      ...actor(interaction),
+      audit_action: "ledger.xp",
+      patch: { basics: { xp_current: applyMode(basics.xp_current, value, mode) } }
+    });
+    await interaction.reply({ content: `Updated XP for ${character.character_name}.`, ephemeral: true });
+    return true;
+  }
+
+  if (subcommand === "coins") {
+    const wealth = section(character.ledger, "wealth");
+    const coin = interaction.options.getString("coin", true);
+    const value = interaction.options.getInteger("value", true);
+    await patchCharacterLedger(character.id, {
+      ...actor(interaction),
+      audit_action: "ledger.coins",
+      patch: { wealth: { [coin]: applyMode(wealth[coin], value, mode) } }
+    });
+    await interaction.reply({ content: `Updated coins for ${character.character_name}.`, ephemeral: true });
+    return true;
+  }
+
+  if (subcommand === "abilities") {
+    const abilities = numberPatch(interaction, ["str", "int", "wis", "dex", "con", "cha"]);
+    if (Object.keys(abilities).length === 0) {
+      await interaction.reply({ content: "No ability scores supplied.", ephemeral: true });
+      return true;
+    }
+    await patchCharacterLedger(character.id, {
+      ...actor(interaction),
+      audit_action: "ledger.abilities",
+      patch: { abilities }
+    });
+    await interaction.reply({ content: `Updated abilities for ${character.character_name}.`, ephemeral: true });
+    return true;
+  }
+
+  if (subcommand === "status") {
+    const status = interaction.options.getString("value", true);
+    await patchCharacterLedger(character.id, {
+      ...actor(interaction),
+      audit_action: "ledger.status",
+      patch: { identity: { status }, Identity: { status } }
+    });
+    await interaction.reply({ content: `Updated ${character.character_name} status to ${status}.`, ephemeral: true });
+    return true;
+  }
+
+  if (subcommand === "resources") {
+    const resources = { ...section(character.ledger, "Resources"), ...section(character.ledger, "resources") };
+    const resource = interaction.options.getString("resource", true);
+    const value = interaction.options.getInteger("value", true);
+    const next = applyMode(resources[resource], value, mode);
+    await patchCharacterLedger(character.id, {
+      ...actor(interaction),
+      audit_action: "ledger.resources",
+      patch: { resources: { [resource]: next }, Resources: { [resource]: next } }
+    });
+    await interaction.reply({ content: `Updated resources for ${character.character_name}.`, ephemeral: true });
+    return true;
+  }
+
+  if (subcommand === "saves") {
+    const savingThrows = numberPatch(interaction, ["death", "wands", "paralysis_petrify", "breath", "spells"]);
+    if (Object.keys(savingThrows).length === 0) {
+      await interaction.reply({ content: "No saving throws supplied.", ephemeral: true });
+      return true;
+    }
+    await patchCharacterLedger(character.id, {
+      ...actor(interaction),
+      audit_action: "ledger.saves",
+      patch: { combat: { saving_throws: savingThrows } }
+    });
+    await interaction.reply({ content: `Updated saves for ${character.character_name}.`, ephemeral: true });
+    return true;
+  }
+
+  if (subcommand === "movement") {
+    const movement = interaction.options.getString("movement", true);
+    const encumbranceCategory = interaction.options.getString("encumbrance_category");
+    await patchCharacterLedger(character.id, {
+      ...actor(interaction),
+      audit_action: "ledger.movement",
+      patch: {
+        combat: { movement },
+        equipment: encumbranceCategory ? { encumbrance_category: encumbranceCategory } : {}
+      }
+    });
+    await interaction.reply({ content: `Updated movement for ${character.character_name}.`, ephemeral: true });
+    return true;
+  }
+
+  return false;
 }
 
 function equipmentLines(character: CharacterResponse): string {
@@ -105,9 +317,30 @@ client.on(Events.InteractionCreate, async (interaction) => {
       return;
     }
 
+    if (interaction.commandName === "help") {
+      await interaction.reply({ embeds: [buildHelpEmbed()], ephemeral: true });
+      return;
+    }
+
+    if (interaction.commandName === "show") {
+      const subcommand = interaction.options.getSubcommand();
+      if (subcommand === "card") {
+        const character = await targetCharacter(interaction);
+        await interaction.reply({ embeds: [buildCharacterCardEmbed(character)], ephemeral: true });
+      }
+      return;
+    }
+
     if (interaction.commandName === "ledger") {
+      const subcommand = interaction.options.getSubcommand(false) ?? "show";
       const character = await targetCharacter(interaction);
-      await interaction.reply({ embeds: [buildLedgerEmbed(character)], ephemeral: true });
+      await replyLedgerMutation(interaction, character, subcommand);
+      return;
+    }
+
+    if (interaction.commandName === "equipment") {
+      const character = await targetCharacter(interaction);
+      await replyEquipment(interaction, character, interaction.options.getSubcommand());
       return;
     }
 
@@ -121,7 +354,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     if (subcommand === "create") {
       const character = await createCharacter({
         character_name: interaction.options.getString("character_name", true),
-        player_name: interaction.options.getString("player_name", true),
+        player_name: interaction.options.getString("player_name") ?? discordDisplayName(interaction),
         race: interaction.options.getString("race", true),
         class_name: interaction.options.getString("class_name", true),
         level: interaction.options.getInteger("level", true),
@@ -129,6 +362,12 @@ client.on(Events.InteractionCreate, async (interaction) => {
         hp_max: interaction.options.getInteger("hp_max"),
         hp_current: interaction.options.getInteger("hp_current"),
         armor_class: interaction.options.getInteger("armor_class"),
+        strength: interaction.options.getInteger("strength"),
+        intelligence: interaction.options.getInteger("intelligence"),
+        wisdom: interaction.options.getInteger("wisdom"),
+        dexterity: interaction.options.getInteger("dexterity"),
+        constitution: interaction.options.getInteger("constitution"),
+        charisma: interaction.options.getInteger("charisma"),
         discord_username: interaction.user.username,
         discord_user_id: interaction.user.id
       });
@@ -161,59 +400,15 @@ client.on(Events.InteractionCreate, async (interaction) => {
       return;
     }
 
+    if (subcommand === "sheet") {
+      const character = await targetCharacter(interaction);
+      await interaction.reply({ embeds: [buildCharacterCardEmbed(character)], ephemeral: true });
+      return;
+    }
+
     if (group === "equipment") {
       const character = await targetCharacter(interaction);
-
-      if (subcommand === "add") {
-        const updated = await addEquipment(character.id, {
-          ...actor(interaction),
-          item_name: interaction.options.getString("item_name", true),
-          quantity: interaction.options.getInteger("quantity") ?? 1,
-          weight: interaction.options.getNumber("weight") ?? 0,
-          location: interaction.options.getString("location") ?? "carried",
-          notes: interaction.options.getString("notes")
-        });
-        await interaction.reply({ content: `Added equipment to ${updated.character_name}.`, ephemeral: true });
-        return;
-      }
-
-      if (subcommand === "remove") {
-        const updated = await removeEquipment(character.id, {
-          ...actor(interaction),
-          item_name: interaction.options.getString("item_name", true),
-          quantity: interaction.options.getInteger("quantity") ?? 1
-        });
-        await interaction.reply({ content: `Removed equipment from ${updated.character_name}.`, ephemeral: true });
-        return;
-      }
-
-      if (subcommand === "equip") {
-        const updated = await equipEquipment(character.id, {
-          ...actor(interaction),
-          item_name: interaction.options.getString("item_name", true)
-        });
-        await interaction.reply({ content: `Equipped item for ${updated.character_name}.`, ephemeral: true });
-        return;
-      }
-
-      if (subcommand === "unequip") {
-        const updated = await unequipEquipment(character.id, {
-          ...actor(interaction),
-          item_name: interaction.options.getString("item_name", true)
-        });
-        await interaction.reply({ content: `Unequipped item for ${updated.character_name}.`, ephemeral: true });
-        return;
-      }
-
-      if (subcommand === "list") {
-        await interaction.reply({
-          embeds: [
-            new EmbedBuilder()
-              .setTitle(`${character.character_name} Equipment`)
-              .setDescription(equipmentLines(character))
-          ],
-          ephemeral: true
-        });
+      if (await replyEquipment(interaction, character, subcommand)) {
         return;
       }
     }
