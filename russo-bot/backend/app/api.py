@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
+from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.db.models import AuditLog, Campaign, Character, Player
 from app.db.session import get_db
-from app.schemas import CharacterCreateRequest, CharacterResponse, HealthResponse
-from app.services.ledger import build_initial_ledger
+from app.schemas import CharacterCreateRequest, CharacterResponse, HealthResponse, LedgerPatchRequest
+from app.services.ledger import build_initial_ledger, merge_ledger
 
 router = APIRouter(prefix="/api")
 
@@ -77,4 +78,30 @@ def get_character_by_discord(discord_user_id: str, db: Session = Depends(get_db)
     )
     if character is None:
         raise HTTPException(status_code=404, detail="No active character found for this Discord user.")
+    return character
+
+
+@router.patch("/characters/{character_id}/ledger", response_model=CharacterResponse)
+def patch_character_ledger(
+    character_id: int,
+    data: LedgerPatchRequest,
+    db: Session = Depends(get_db),
+) -> Character:
+    character = db.get(Character, character_id)
+    if character is None:
+        raise HTTPException(status_code=404, detail="Character not found.")
+
+    character.ledger = merge_ledger(character.ledger or {}, data.patch)
+    flag_modified(character, "ledger")
+    db.add(
+        AuditLog(
+            actor_discord_user_id=data.actor_discord_user_id,
+            action=data.audit_action,
+            entity_type="character",
+            entity_id=character.id,
+            payload={"patch": data.patch},
+        )
+    )
+    db.commit()
+    db.refresh(character)
     return character

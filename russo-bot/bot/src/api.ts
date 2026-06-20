@@ -19,6 +19,12 @@ export interface CharacterResponse {
   ledger: Record<string, unknown>;
 }
 
+export interface LedgerPatchPayload {
+  patch: Record<string, unknown>;
+  actor_discord_user_id?: string;
+  audit_action?: string;
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${config.apiBaseUrl}${path}`, {
     ...init,
@@ -45,4 +51,14 @@ export function createCharacter(payload: CharacterCreatePayload): Promise<Charac
 
 export function getCharacterByDiscord(discordUserId: string): Promise<CharacterResponse> {
   return request<CharacterResponse>(`/characters/by-discord/${discordUserId}`);
+}
+
+export function patchCharacterLedger(
+  characterId: number,
+  payload: LedgerPatchPayload
+): Promise<CharacterResponse> {
+  return request<CharacterResponse>(`/characters/${characterId}/ledger`, {
+    method: "PATCH",
+    body: JSON.stringify(payload)
+  });
 }

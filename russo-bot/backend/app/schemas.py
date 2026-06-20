@@ -26,3 +26,9 @@ class CharacterResponse(BaseModel):
     ledger: dict[str, Any]
 
     model_config = {"from_attributes": True}
+
+
+class LedgerPatchRequest(BaseModel):
+    patch: dict[str, Any] = Field(default_factory=dict)
+    actor_discord_user_id: str | None = Field(default=None, max_length=32)
+    audit_action: str = Field(default="ledger.update", max_length=120)

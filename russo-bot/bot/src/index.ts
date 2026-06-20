@@ -1,6 +1,6 @@
 import { Client, Events, GatewayIntentBits } from "discord.js";
 
-import { createCharacter, getCharacterByDiscord } from "./api.js";
+import { createCharacter, getCharacterByDiscord, patchCharacterLedger } from "./api.js";
 import { config } from "./config.js";
 import { buildLedgerEmbed } from "./ledger-embed.js";
 
@@ -37,6 +37,107 @@ client.on(Events.InteractionCreate, async (interaction) => {
         ephemeral: true
       });
       return;
+    }
+
+    if (interaction.commandName === "character") {
+      const subcommand = interaction.options.getSubcommand();
+      const character = await getCharacterByDiscord(interaction.user.id);
+
+      if (subcommand === "hp") {
+        const currentHp = interaction.options.getInteger("current_hp", true);
+        const maxHp = interaction.options.getInteger("max_hp");
+        const combat: Record<string, number> = { hp_current: currentHp };
+        if (maxHp !== null) {
+          combat.hp_max = maxHp;
+        }
+        await patchCharacterLedger(character.id, {
+          actor_discord_user_id: interaction.user.id,
+          audit_action: "ledger.hp",
+          patch: { combat }
+        });
+        await interaction.reply({ content: "RUSSO ledger HP updated.", ephemeral: true });
+        return;
+      }
+
+      if (subcommand === "ac") {
+        const armorClass = interaction.options.getInteger("armor_class", true);
+        await patchCharacterLedger(character.id, {
+          actor_discord_user_id: interaction.user.id,
+          audit_action: "ledger.ac",
+          patch: { combat: { armor_class: armorClass } }
+        });
+        await interaction.reply({ content: "RUSSO ledger AC updated.", ephemeral: true });
+        return;
+      }
+
+      if (subcommand === "xp") {
+        const currentXp = interaction.options.getInteger("current_xp", true);
+        const xpNeeded = interaction.options.getInteger("xp_needed");
+        const basics: Record<string, number> = { xp_current: currentXp };
+        if (xpNeeded !== null) {
+          basics.xp_needed = xpNeeded;
+        }
+        await patchCharacterLedger(character.id, {
+          actor_discord_user_id: interaction.user.id,
+          audit_action: "ledger.xp",
+          patch: { basics }
+        });
+        await interaction.reply({ content: "RUSSO ledger XP updated.", ephemeral: true });
+        return;
+      }
+
+      if (subcommand === "coins") {
+        const wealth: Record<string, number> = {};
+        for (const coin of ["pp", "gp", "ep", "sp", "cp"]) {
+          const value = interaction.options.getInteger(coin);
+          if (value !== null) {
+            wealth[coin] = value;
+          }
+        }
+        if (Object.keys(wealth).length === 0) {
+          await interaction.reply({ content: "No coin fields supplied.", ephemeral: true });
+          return;
+        }
+        await patchCharacterLedger(character.id, {
+          actor_discord_user_id: interaction.user.id,
+          audit_action: "ledger.coins",
+          patch: { wealth }
+        });
+        await interaction.reply({ content: "RUSSO ledger coins updated.", ephemeral: true });
+        return;
+      }
+
+      if (subcommand === "abilities") {
+        const abilities: Record<string, number> = {};
+        for (const ability of ["str", "int", "wis", "dex", "con", "cha"]) {
+          const value = interaction.options.getInteger(ability);
+          if (value !== null) {
+            abilities[ability] = value;
+          }
+        }
+        if (Object.keys(abilities).length === 0) {
+          await interaction.reply({ content: "No ability scores supplied.", ephemeral: true });
+          return;
+        }
+        await patchCharacterLedger(character.id, {
+          actor_discord_user_id: interaction.user.id,
+          audit_action: "ledger.abilities",
+          patch: { abilities }
+        });
+        await interaction.reply({ content: "RUSSO ledger ability scores updated.", ephemeral: true });
+        return;
+      }
+
+      if (subcommand === "status") {
+        const status = interaction.options.getString("status", true);
+        await patchCharacterLedger(character.id, {
+          actor_discord_user_id: interaction.user.id,
+          audit_action: "ledger.status",
+          patch: { identity: { status }, Identity: { status } }
+        });
+        await interaction.reply({ content: `RUSSO ledger status updated to ${status}.`, ephemeral: true });
+        return;
+      }
     }
 
     if (interaction.commandName === "ledger") {
