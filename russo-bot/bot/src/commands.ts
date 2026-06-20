@@ -23,6 +23,23 @@ function addMode(command: any): any {
   );
 }
 
+function addTrackerScope(command: any): any {
+  return command;
+}
+
+function addMoveRate(option: any): any {
+  return option
+    .setName("move_rate")
+    .setDescription("Party movement rate")
+    .setRequired(false)
+    .addChoices(
+      { name: "120", value: 120 },
+      { name: "90", value: 90 },
+      { name: "60", value: 60 },
+      { name: "30", value: 30 }
+    );
+}
+
 export const commandData = [
   new SlashCommandBuilder()
     .setName("ping")
@@ -41,6 +58,108 @@ export const commandData = [
         .setName("screen")
         .setDescription("Show the referee quick-reference screen.")
     ),
+  new SlashCommandBuilder()
+    .setName("tracker")
+    .setDescription("Manage the dungeon expedition tracker.")
+    .addSubcommand((subcommand) =>
+      addTrackerScope(
+        subcommand
+          .setName("start")
+          .setDescription("Start an expedition tracker.")
+          .addIntegerOption(addMoveRate)
+          .addIntegerOption((option) => option.setName("rations").setDescription("Starting rations").setRequired(false).setMinValue(0))
+          .addIntegerOption((option) => option.setName("oil_pints").setDescription("Starting oil pints").setRequired(false).setMinValue(0))
+          .addStringOption((option) => option.setName("notes").setDescription("Tracker notes").setRequired(false))
+      )
+    )
+    .addSubcommand((subcommand) => subcommand.setName("status").setDescription("Show expedition tracker status."))
+    .addSubcommand((subcommand) => subcommand.setName("next").setDescription("Advance exploration by 1 turn."))
+    .addSubcommand((subcommand) => subcommand.setName("rest").setDescription("Rest for 1 exploration turn."))
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("combat")
+        .setDescription("Mark that combat occurred.")
+        .addBooleanOption((option) => option.setName("advance_turn").setDescription("Also advance one turn").setRequired(false))
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("move")
+        .setDescription("Set party movement rate.")
+        .addIntegerOption((option) =>
+          option
+            .setName("rate")
+            .setDescription("Movement rate")
+            .setRequired(true)
+            .addChoices(
+              { name: "120", value: 120 },
+              { name: "90", value: 90 },
+              { name: "60", value: 60 },
+              { name: "30", value: 30 }
+            )
+        )
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("torch")
+        .setDescription("Manage torches.")
+        .addStringOption((option) =>
+          option.setName("action").setDescription("Torch action").setRequired(true).addChoices(
+            { name: "light", value: "light" },
+            { name: "extinguish", value: "extinguish" },
+            { name: "status", value: "status" }
+          )
+        )
+        .addStringOption((option) => option.setName("holder").setDescription("Torch holder").setRequired(false))
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("lantern")
+        .setDescription("Manage lanterns.")
+        .addStringOption((option) =>
+          option.setName("action").setDescription("Lantern action").setRequired(true).addChoices(
+            { name: "light", value: "light" },
+            { name: "extinguish", value: "extinguish" },
+            { name: "status", value: "status" }
+          )
+        )
+        .addStringOption((option) => option.setName("holder").setDescription("Lantern holder").setRequired(false))
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("oil")
+        .setDescription("Manage oil pints.")
+        .addStringOption((option) => option.setName("action").setDescription("Oil action").setRequired(true).addChoices(
+          { name: "add", value: "add" },
+          { name: "subtract", value: "subtract" },
+          { name: "set", value: "set" }
+        ))
+        .addIntegerOption((option) => option.setName("amount").setDescription("Amount").setRequired(true).setMinValue(0))
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("ration")
+        .setDescription("Manage rations.")
+        .addStringOption((option) => option.setName("action").setDescription("Ration action").setRequired(true).addChoices(
+          { name: "add", value: "add" },
+          { name: "subtract", value: "subtract" },
+          { name: "set", value: "set" },
+          { name: "consume", value: "consume" }
+        ))
+        .addIntegerOption((option) => option.setName("amount").setDescription("Amount").setRequired(true).setMinValue(0))
+    )
+    .addSubcommand((subcommand) => subcommand.setName("stop").setDescription("Stop the expedition tracker.")),
+  new SlashCommandBuilder()
+    .setName("order")
+    .setDescription("Show or update exploration marching order.")
+    .addStringOption((option) => option.setName("pos1").setDescription("Position 1 front left").setRequired(false))
+    .addStringOption((option) => option.setName("pos2").setDescription("Position 2 front right").setRequired(false))
+    .addStringOption((option) => option.setName("pos3").setDescription("Position 3").setRequired(false))
+    .addStringOption((option) => option.setName("pos4").setDescription("Position 4").setRequired(false))
+    .addStringOption((option) => option.setName("pos5").setDescription("Position 5").setRequired(false))
+    .addStringOption((option) => option.setName("pos6").setDescription("Position 6").setRequired(false))
+    .addStringOption((option) => option.setName("pos7").setDescription("Position 7 rear left").setRequired(false))
+    .addStringOption((option) => option.setName("pos8").setDescription("Position 8 rear right").setRequired(false))
+    .addStringOption((option) => option.setName("notes").setDescription("Marching order notes").setRequired(false)),
   new SlashCommandBuilder()
     .setName("show")
     .setDescription("Show read-only RUSSO table references.")

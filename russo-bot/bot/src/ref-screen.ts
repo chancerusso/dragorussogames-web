@@ -5,7 +5,6 @@ import type {
   CharacterToHitGroup,
   DungeonMovementEntry,
   MonsterToHitEntry,
-  RefereeScreenRules,
   SavingThrowGroup
 } from "./rules/types.js";
 
@@ -13,58 +12,33 @@ const FOOTER = {
   text: "RUSSO™ Referee Utility System for Sessions & Operations\nReferee rulings override quick references."
 };
 
-function codeBlock(lines: string[]): string {
-  return ["```text", ...lines, "```"].join("\n");
-}
-
-function formatCharacterToHit(groups: CharacterToHitGroup[]): string {
-  return codeBlock(
-    groups.flatMap((group) => [
-      group.classes.join("/"),
-      `  ${group.bands.map((band) => `${band.label} ${band.thac0}`).join(" | ")}`
-    ])
-  );
+function formatCharacterToHitGroup(group: CharacterToHitGroup): string {
+  return group.bands.map((band) => `${band.label}: ${band.thac0}`).join("\n");
 }
 
 function formatMonsterToHit(entries: MonsterToHitEntry[]): string {
-  const split = Math.ceil(entries.length / 2);
-  const chunks = [entries.slice(0, split), entries.slice(split)];
-  return codeBlock(
-    chunks.flatMap((chunk, index) => [
-      ...(index > 0 ? [""] : []),
-      `HD:    ${chunk.map((entry) => entry.hitDice.padStart(3, " ")).join(" ")}`,
-      `THAC0: ${chunk.map((entry) => String(entry.thac0).padStart(3, " ")).join(" ")}`
-    ])
-  );
+  return entries.map((entry) => `${entry.hitDice} HD: ${entry.thac0}`).join("\n");
 }
 
 function formatSavingThrows(group: SavingThrowGroup): string {
-  return codeBlock([
-    "Lvl       D/P  W  P/P  B  S",
-    ...group.rows.map((row) =>
-      `${row.level.padEnd(9)}${String(row.deathPoison).padStart(3)}${String(row.wand).padStart(3)}${String(row.petrificationPolymorph).padStart(5)}${String(row.breathWeapon).padStart(3)}${String(row.spell).padStart(3)}`
+  return group.rows
+    .map((row) =>
+      [
+        `**${row.level}**`,
+        `Death ${row.deathPoison}`,
+        `Rod ${row.wand}`,
+        `Poly ${row.petrificationPolymorph}`,
+        `Breath ${row.breathWeapon}`,
+        `Spell ${row.spell}`
+      ].join("\n")
     )
-  ]);
-}
-
-function formatTurning(rules: RefereeScreenRules): string {
-  return codeBlock([
-    `Lvl | ${rules.turning.undeadTypes.join(" ")}`,
-    ...rules.turning.rows.map((row) => `${row.clericLevel.padStart(3)} | ${row.results.map((result) => result.padStart(4)).join(" ")}`)
-  ]);
-}
-
-function formatTimeScale(rules: RefereeScreenRules): string {
-  return codeBlock(rules.exploration.timeScale.map((entry) => `${entry.unit.padEnd(8)} ${entry.duration}`));
+    .join("\n\n");
 }
 
 function formatDungeonMovement(entries: DungeonMovementEntry[]): string {
-  return codeBlock([
-    "Move  Cautious/turn  Known route  Flee/turn",
-    ...entries.map((entry) =>
-      `${entry.movement.padStart(4)}  ${entry.cautiousPerTurn.padEnd(13)} ${entry.knownRoute.padEnd(11)} ${entry.fleePerTurn}`
-    )
-  ]);
+  return entries
+    .map((entry) => `Move ${entry.movement}: ${entry.cautiousPerTurn}/turn\nKnown: ${entry.knownRoute}; Flee: ${entry.fleePerTurn}`)
+    .join("\n\n");
 }
 
 export function buildRefereeScreenEmbeds(rulesetId = "osric"): EmbedBuilder[] {
@@ -73,24 +47,29 @@ export function buildRefereeScreenEmbeds(rulesetId = "osric"): EmbedBuilder[] {
   return [
     new EmbedBuilder()
       .setTitle("Combat")
-      .setDescription(`${rules.name}: ${rules.sourceNote}`)
+      .setDescription(`${rules.name} quick reference`)
       .addFields(
+        ...rules.characterToHit.map((group) => ({
+          name: group.classes.join(" / "),
+          value: formatCharacterToHitGroup(group),
+          inline: true
+        })),
         {
-          name: "Character To-Hit: Level Band -> THAC0",
-          value: formatCharacterToHit(rules.characterToHit),
-          inline: false
+          name: "Monster HD 1-10",
+          value: formatMonsterToHit(rules.monsterToHit.slice(0, 10)),
+          inline: true
         },
         {
-          name: "Monster To-Hit: HD -> THAC0",
-          value: formatMonsterToHit(rules.monsterToHit),
-          inline: false
+          name: "Monster HD 11+",
+          value: formatMonsterToHit(rules.monsterToHit.slice(10)),
+          inline: true
         }
       )
       .setFooter(FOOTER),
 
     new EmbedBuilder()
       .setTitle("Saving Throws")
-      .setDescription("Categories: D/P = Poison/Death, W = Rod/Staff/Wand, P/P = Petrification/Polymorph, B = Breath Weapon, S = Spell.")
+      .setDescription("Each range lists Death, Rod, Poly, Breath, and Spell vertically.")
       .addFields(
         ...rules.savingThrows.map((group) => ({
           name: group.classes.join(" / "),
@@ -103,20 +82,35 @@ export function buildRefereeScreenEmbeds(rulesetId = "osric"): EmbedBuilder[] {
     new EmbedBuilder()
       .setTitle("Turning Undead")
       .setDescription(rules.turning.legend)
-      .addFields({
-        name: "Cleric Level -> Undead Type",
-        value: formatTurning(rules)
-      })
+      .addFields(
+        ...rules.turning.undeadTypes.map((undeadType, typeIndex) => ({
+          name: undeadType,
+          value: rules.turning.rows
+            .map((row) => `Lvl ${row.clericLevel}: ${row.results[typeIndex]}`)
+            .join("\n"),
+          inline: true
+        }))
+      )
       .setFooter(FOOTER),
 
     new EmbedBuilder()
       .setTitle("Combat Procedure")
-      .setDescription("Reference sequence only. This does not roll, resolve, or automate combat.")
+      .setDescription("Reference only. No rolling or automation.")
       .addFields(
         {
-          name: "Round Flow",
-          value: rules.combatProcedure.roundFlow.map((step, index) => `${index + 1}. ${step}`).join("\n"),
-          inline: true
+          name: "Checklist",
+          value: [
+            "① Surprise",
+            "② Declare",
+            "③ Initiative",
+            "④ Movement",
+            "⑤ Missiles",
+            "⑥ Magic",
+            "⑦ Melee",
+            "⑧ Morale",
+            "⑨ End"
+          ].join("\n"),
+          inline: false
         },
         {
           name: "Surprise",
@@ -141,23 +135,28 @@ export function buildRefereeScreenEmbeds(rulesetId = "osric"): EmbedBuilder[] {
       .setDescription("Dungeon and timekeeping reference for table pacing.")
       .addFields(
         {
-          name: "Time Scale",
-          value: formatTimeScale(rules),
+          name: "Time",
+          value: rules.exploration.timeScale.map((entry) => `${entry.unit}: ${entry.duration}`).join("\n"),
           inline: true
         },
         {
-          name: "Dungeon Movement",
+          name: "Movement",
           value: formatDungeonMovement(rules.exploration.dungeonMovement),
           inline: false
         },
         {
-          name: "Wandering Monsters",
-          value: rules.exploration.wanderingMonsters.join("\n"),
+          name: "Turns",
+          value: "Dungeon turn: 10 minutes\nHour: 6 turns\nTrack light, spells, searches, and noise.",
           inline: true
         },
         {
           name: "Rest",
           value: rules.exploration.rest.join("\n"),
+          inline: true
+        },
+        {
+          name: "Wandering Monsters",
+          value: rules.exploration.wanderingMonsters.join("\n"),
           inline: true
         }
       )

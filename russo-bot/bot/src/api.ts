@@ -70,6 +70,53 @@ export interface EquipmentMovePayload extends CharacterActorPayload {
   item_name: string;
 }
 
+export interface TrackerScopePayload extends CharacterActorPayload {
+  guild_id: string;
+  channel_id: string;
+}
+
+export interface TrackerStartPayload extends TrackerScopePayload {
+  move_rate?: number;
+  rations?: number;
+  oil_pints?: number;
+  notes?: string | null;
+}
+
+export interface TrackerUpdatePayload extends TrackerScopePayload {
+  action: string;
+  amount?: number | null;
+  move_rate?: number | null;
+  holder?: string | null;
+  advance_turn?: boolean;
+}
+
+export interface TrackerResponse {
+  guild_id: string;
+  channel_id: string;
+  active: boolean;
+  day: number;
+  turn: number;
+  move_rate: number;
+  oil_pints: number;
+  rations: number;
+  active_lights: Record<string, unknown>[];
+  combat_rest_required: boolean;
+  notes?: string | null;
+  reminders: string[];
+}
+
+export interface MarchingOrderPayload extends TrackerScopePayload {
+  positions?: Record<string, string | null>;
+  notes?: string | null;
+}
+
+export interface MarchingOrderResponse {
+  guild_id: string;
+  channel_id: string;
+  positions: Record<string, string | null>;
+  notes?: string | null;
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${config.apiBaseUrl}${path}`, {
     ...init,
@@ -166,4 +213,20 @@ export function unequipEquipment(characterId: number, payload: EquipmentMovePayl
     method: "POST",
     body: JSON.stringify(payload)
   });
+}
+
+export function startTracker(payload: TrackerStartPayload): Promise<TrackerResponse> {
+  return request<TrackerResponse>("/tracker/start", { method: "POST", body: JSON.stringify(payload) });
+}
+
+export function trackerStatus(payload: TrackerScopePayload): Promise<TrackerResponse> {
+  return request<TrackerResponse>("/tracker/status", { method: "POST", body: JSON.stringify(payload) });
+}
+
+export function updateTracker(payload: TrackerUpdatePayload): Promise<TrackerResponse> {
+  return request<TrackerResponse>("/tracker/update", { method: "POST", body: JSON.stringify(payload) });
+}
+
+export function marchingOrder(payload: MarchingOrderPayload): Promise<MarchingOrderResponse> {
+  return request<MarchingOrderResponse>("/order", { method: "POST", body: JSON.stringify(payload) });
 }

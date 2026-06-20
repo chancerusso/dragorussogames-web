@@ -7,9 +7,15 @@ import {
   equipEquipment,
   listCharacters,
   lookupCharacter,
+  marchingOrder,
   patchCharacterLedger,
   removeEquipment,
+  startTracker,
+  trackerStatus,
   unequipEquipment,
+  updateTracker,
+  type MarchingOrderResponse,
+  type TrackerResponse,
   type CharacterResponse
 } from "./api.js";
 import { config } from "./config.js";
@@ -43,6 +49,15 @@ async function targetCharacter(interaction: ChatInputCommandInteraction): Promis
 
 function actor(interaction: ChatInputCommandInteraction) {
   return {
+    actor_discord_user_id: interaction.user.id,
+    actor_is_admin: isAdmin(interaction)
+  };
+}
+
+function scope(interaction: ChatInputCommandInteraction) {
+  return {
+    guild_id: interaction.guildId ?? "dm",
+    channel_id: interaction.channelId,
     actor_discord_user_id: interaction.user.id,
     actor_is_admin: isAdmin(interaction)
   };
@@ -354,6 +369,116 @@ function equipmentLines(character: CharacterResponse): string {
   ].join("\n");
 }
 
+function elapsed(turn: number): string {
+  const minutes = turn * 10;
+  const hours = Math.floor(minutes / 60);
+  const remainder = minutes % 60;
+  return hours > 0 ? `${hours}h ${remainder}m` : `${minutes}m`;
+}
+
+function marchingOrderLines(order?: MarchingOrderResponse | null): string {
+  const positions = order?.positions ?? {};
+  const value = (key: string) => positions[key] || "-";
+  return [
+    `[1] ${value("pos1")}    [2] ${value("pos2")}`,
+    `[3] ${value("pos3")}    [4] ${value("pos4")}`,
+    `[5] ${value("pos5")}    [6] ${value("pos6")}`,
+    `[7] ${value("pos7")}    [8] ${value("pos8")}`,
+    order?.notes ? `Notes: ${order.notes}` : ""
+  ].filter(Boolean).join("\n");
+}
+
+function lightLines(tracker: TrackerResponse): string {
+  if (tracker.active_lights.length === 0) {
+    return "No active lights.";
+  }
+  return tracker.active_lights
+    .map((light) => `${light.holder || "Unassigned"} ${light.type}: ${light.remaining_turns} turns`)
+    .join("\n");
+}
+
+function trackerEmbed(tracker: TrackerResponse, order?: MarchingOrderResponse | null, title = "Expedition Tracker"): EmbedBuilder {
+  const warnings = tracker.reminders.length > 0 ? tracker.reminders.join("\n") : "None";
+  return new EmbedBuilder()
+    .setTitle(title)
+    .addFields(
+      { name: "Time", value: `Day ${tracker.day}\nTurn ${tracker.turn}\nElapsed ${elapsed(tracker.turn)}`, inline: true },
+      { name: "Movement", value: `${tracker.move_rate} ft per turn`, inline: true },
+      { name: "Light", value: lightLines(tracker), inline: false },
+      { name: "Rest", value: tracker.combat_rest_required ? "Combat rest required" : tracker.turn % 6 === 0 && tracker.turn > 0 ? "1-in-6 rest due" : "OK", inline: true },
+      { name: "Wandering Monsters", value: tracker.turn > 0 && tracker.turn % 3 === 0 ? "Check due" : `Next check in ${3 - (tracker.turn % 3)} turn(s)`, inline: true },
+      { name: "Supplies", value: `Oil: ${tracker.oil_pints} pint(s)\nRations: ${tracker.rations}`, inline: true },
+      { name: "Marching Order", value: marchingOrderLines(order), inline: false },
+      { name: "Warnings", value: warnings, inline: false }
+    )
+    .setFooter({ text: "Referee rulings override tracker reminders." });
+}
+
+function orderEmbed(order: MarchingOrderResponse): EmbedBuilder {
+  return new EmbedBuilder()
+    .setTitle("Marching Order")
+    .setDescription(marchingOrderLines(order))
+    .setFooter({ text: "Front is positions 1-2. Rear is positions 7-8. Referee rulings override formation." });
+}
+
+async function currentOrder(interaction: ChatInputCommandInteraction): Promise<MarchingOrderResponse | null> {
+  try {
+    return await marchingOrder({ ...scope(interaction), positions: {} });
+  } catch {
+    return null;
+  }
+}
+
+async function handleTracker(interaction: ChatInputCommandInteraction): Promise<void> {
+  const subcommand = interaction.options.getSubcommand();
+  const base = scope(interaction);
+  let tracker: TrackerResponse;
+  if (subcommand === "start") {
+    tracker = await startTracker({
+      ...base,
+      move_rate: interaction.options.getInteger("move_rate") ?? 120,
+      rations: interaction.options.getInteger("rations") ?? 0,
+      oil_pints: interaction.options.getInteger("oil_pints") ?? 0,
+      notes: interaction.options.getString("notes")
+    });
+  } else if (subcommand === "status") {
+    tracker = await trackerStatus(base);
+  } else if (subcommand === "next" || subcommand === "rest" || subcommand === "stop") {
+    tracker = await updateTracker({ ...base, action: subcommand });
+  } else if (subcommand === "combat") {
+    tracker = await updateTracker({ ...base, action: "combat", advance_turn: interaction.options.getBoolean("advance_turn") ?? false });
+  } else if (subcommand === "move") {
+    tracker = await updateTracker({ ...base, action: "move", move_rate: interaction.options.getInteger("rate", true) });
+  } else if (subcommand === "torch") {
+    const action = interaction.options.getString("action", true);
+    tracker = await updateTracker({ ...base, action: `torch_${action}`, holder: interaction.options.getString("holder") });
+  } else if (subcommand === "lantern") {
+    const action = interaction.options.getString("action", true);
+    tracker = await updateTracker({ ...base, action: `lantern_${action}`, holder: interaction.options.getString("holder") });
+  } else if (subcommand === "oil") {
+    tracker = await updateTracker({ ...base, action: `oil_${interaction.options.getString("action", true)}`, amount: interaction.options.getInteger("amount", true) });
+  } else if (subcommand === "ration") {
+    tracker = await updateTracker({ ...base, action: `ration_${interaction.options.getString("action", true)}`, amount: interaction.options.getInteger("amount", true) });
+  } else {
+    await interaction.reply({ content: "Unknown tracker command.", ephemeral: true });
+    return;
+  }
+  await interaction.reply({ embeds: [trackerEmbed(tracker, await currentOrder(interaction), subcommand === "stop" ? "Expedition Final Summary" : "Expedition Tracker")], ephemeral: true });
+}
+
+async function handleOrder(interaction: ChatInputCommandInteraction): Promise<void> {
+  const positions: Record<string, string | null> = {};
+  for (let i = 1; i <= 8; i += 1) {
+    const value = interaction.options.getString(`pos${i}`);
+    if (value !== null) {
+      positions[`pos${i}`] = value;
+    }
+  }
+  const notes = interaction.options.getString("notes");
+  const order = await marchingOrder({ ...scope(interaction), positions, notes });
+  await interaction.reply({ embeds: [orderEmbed(order)], ephemeral: true });
+}
+
 client.once(Events.ClientReady, (readyClient) => {
   console.log(`RUSSO online as ${readyClient.user.tag}`);
 });
@@ -393,6 +518,16 @@ client.on(Events.InteractionCreate, async (interaction) => {
       if (subcommand === "screen") {
         await interaction.reply({ embeds: buildRefereeScreenEmbeds(config.rulesetId), ephemeral: true });
       }
+      return;
+    }
+
+    if (interaction.commandName === "tracker") {
+      await handleTracker(interaction);
+      return;
+    }
+
+    if (interaction.commandName === "order") {
+      await handleOrder(interaction);
       return;
     }
 

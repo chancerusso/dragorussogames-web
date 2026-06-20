@@ -14,6 +14,12 @@ from app.schemas import (
     EquipmentRemoveRequest,
     HealthResponse,
     LedgerPatchRequest,
+    MarchingOrderRequest,
+    MarchingOrderResponse,
+    TrackerScope,
+    TrackerResponse,
+    TrackerStartRequest,
+    TrackerUpdateRequest,
 )
 from app.services.characters import (
     activate_character,
@@ -28,6 +34,16 @@ from app.services.characters import (
     move_equipment,
 )
 from app.services.ledger import build_initial_ledger, sync_active_status
+from app.services.expedition import (
+    get_order,
+    get_tracker,
+    order_payload,
+    require_admin,
+    start_tracker,
+    tracker_payload,
+    update_tracker,
+    upsert_order,
+)
 
 router = APIRouter(prefix="/api")
 
@@ -184,3 +200,29 @@ def unequip_equipment_route(
 ) -> Character:
     character = get_character(db, character_id, data.actor_discord_user_id, data.actor_is_admin)
     return move_equipment(db, character, data.actor_discord_user_id, data.item_name, "inventory")
+
+
+@router.post("/tracker/start", response_model=TrackerResponse)
+def start_tracker_route(data: TrackerStartRequest, db: Session = Depends(get_db)) -> dict:
+    require_admin(data.actor_is_admin)
+    return start_tracker(db, data.guild_id, data.channel_id, data.actor_discord_user_id, data.move_rate, data.rations, data.oil_pints, data.notes)
+
+
+@router.post("/tracker/status", response_model=TrackerResponse)
+def tracker_status_route(data: TrackerScope, db: Session = Depends(get_db)) -> dict:
+    return tracker_payload(get_tracker(db, data.guild_id, data.channel_id))
+
+
+@router.post("/tracker/update", response_model=TrackerResponse)
+def tracker_update_route(data: TrackerUpdateRequest, db: Session = Depends(get_db)) -> dict:
+    require_admin(data.actor_is_admin)
+    tracker = get_tracker(db, data.guild_id, data.channel_id)
+    return update_tracker(db, tracker, data.action, data.amount, data.move_rate, data.holder, data.advance_turn)
+
+
+@router.post("/order", response_model=MarchingOrderResponse)
+def marching_order_route(data: MarchingOrderRequest, db: Session = Depends(get_db)) -> dict:
+    if data.positions or data.notes is not None:
+        require_admin(data.actor_is_admin)
+        return upsert_order(db, data.guild_id, data.channel_id, data.actor_discord_user_id, data.positions, data.notes)
+    return order_payload(get_order(db, data.guild_id, data.channel_id), data.guild_id, data.channel_id)

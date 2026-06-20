@@ -89,3 +89,52 @@ class EquipmentMoveRequest(BaseModel):
     actor_discord_user_id: str = Field(min_length=1, max_length=32)
     actor_is_admin: bool = False
     item_name: str = Field(min_length=1, max_length=120)
+
+
+class TrackerScope(BaseModel):
+    guild_id: str = Field(min_length=1, max_length=32)
+    channel_id: str = Field(min_length=1, max_length=32)
+    actor_discord_user_id: str = Field(min_length=1, max_length=32)
+    actor_is_admin: bool = False
+
+
+class TrackerStartRequest(TrackerScope):
+    move_rate: int = Field(default=120)
+    rations: int = Field(default=0, ge=0)
+    oil_pints: int = Field(default=0, ge=0)
+    notes: str | None = Field(default=None, max_length=1000)
+
+
+class TrackerUpdateRequest(TrackerScope):
+    action: str = Field(max_length=40)
+    amount: int | None = None
+    move_rate: int | None = None
+    holder: str | None = Field(default=None, max_length=120)
+    advance_turn: bool = False
+
+
+class TrackerResponse(BaseModel):
+    guild_id: str
+    channel_id: str
+    active: bool
+    day: int
+    turn: int
+    move_rate: int
+    oil_pints: int
+    rations: int
+    active_lights: list[dict[str, Any]]
+    combat_rest_required: bool
+    notes: str | None = None
+    reminders: list[str] = Field(default_factory=list)
+
+
+class MarchingOrderRequest(TrackerScope):
+    positions: dict[str, str | None] = Field(default_factory=dict)
+    notes: str | None = Field(default=None, max_length=1000)
+
+
+class MarchingOrderResponse(BaseModel):
+    guild_id: str
+    channel_id: str
+    positions: dict[str, str | None]
+    notes: str | None = None

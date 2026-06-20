@@ -119,6 +119,19 @@ Use `/character active character:<name>` to switch active characters. Only one c
 
 Players can view and update only their own characters. A DM/admin may view or update any character when needed.
 
+### Expedition Tracker
+
+The Referee may use `/tracker` to track exploration turns, light, oil, rations, rest pressure, wandering monster cadence, movement, and marching order.
+
+Players may view:
+
+```text
+/tracker status
+/order
+```
+
+Marching order is exploration posture, not tactical grid combat.
+
 ### Printed Sheets
 
 Your printed character sheet is welcome at the table. RUSSO is the campaign register that keeps your character record persistent between sessions.

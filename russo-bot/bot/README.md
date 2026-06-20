@@ -18,6 +18,18 @@ npm start
 - `/guide`
 - `/help` deprecated alias for `/guide`
 - `/ref screen`
+- `/tracker start`
+- `/tracker status`
+- `/tracker next`
+- `/tracker rest`
+- `/tracker combat`
+- `/tracker move`
+- `/tracker torch`
+- `/tracker lantern`
+- `/tracker oil`
+- `/tracker ration`
+- `/tracker stop`
+- `/order`
 - `/show card`
 - `/character create`
 - `/character list`

@@ -284,12 +284,60 @@ Checklist:
 - [ ] OSRIC ruleset loads by default
 - [ ] readable on desktop
 - [ ] readable on mobile
+- [ ] no wrapped tables
+- [ ] no giant code blocks
 - [ ] No encounter generator appears
 - [ ] No combat roller appears
 - [ ] No initiative tracker appears
 - [ ] No spell engine appears
 - [ ] No monster database appears
 - [ ] No VTT behavior appears
+
+## Phase 1.5 Expedition Tracker
+
+Discord validation flow:
+
+```text
+/tracker start move_rate:120 rations:12 oil_pints:2 notes:Entering level one
+/order pos1:Testus pos2:Aldric pos7:Hireling pos8:Dwarf notes:Torch in front rank
+/tracker status
+/tracker torch action:light holder:Testus
+/tracker lantern action:light holder:Aldric
+/tracker next
+/tracker next
+/tracker next
+/tracker rest
+/tracker combat
+/tracker move rate:90
+/tracker oil action:add amount:1
+/tracker ration action:consume amount:1
+/tracker stop
+```
+
+Checklist:
+
+- [ ] Slash command registration list includes `tracker`
+- [ ] Slash command registration list includes `order`
+- [ ] `/tracker start` creates persistent tracker state
+- [ ] `/tracker status` displays Day, Turn, elapsed time, movement, light, rest, wandering monsters, supplies, and marching order
+- [ ] `/tracker next` advances one turn
+- [ ] `/tracker next` reminds wandering monster check every 3rd turn
+- [ ] `/tracker next` reminds rest every 6th turn
+- [ ] Torch duration decreases and expires
+- [ ] Lantern requires oil and burns oil by turns
+- [ ] `/tracker rest` advances time and clears combat rest
+- [ ] `/tracker combat` marks combat rest required
+- [ ] `/tracker move` updates movement distance
+- [ ] `/tracker oil` updates oil pints
+- [ ] `/tracker ration` updates rations
+- [ ] `/tracker stop` shows final summary
+- [ ] `/order` saves marching order
+- [ ] `/order` displays empty positions as `-`
+- [ ] `/tracker status` shows marching order summary
+- [ ] Players can view `/tracker status` and `/order`
+- [ ] Non-admin update attempts are rejected
+- [ ] Service restart preserves tracker and order state
+- [ ] No combat tracker, initiative tracker, monster roller, encounter generator, automatic wandering monster roll, VTT map, grid combat, or spell duration engine appears
 
 ## Future: Pinned Character Cards
 
