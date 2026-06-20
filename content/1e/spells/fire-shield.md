@@ -25,3 +25,9 @@ Pale flames envelope the caster upon the completion of this spell, rendering him
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Fire Seeds](/1e/spells/fire-seeds/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Fire Storm →](/1e/spells/fire-storm/)**

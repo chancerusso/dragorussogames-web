@@ -25,3 +25,9 @@ A hold animal spell completely immobilises up to four animals (i.e. creatures li
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Heat Metal](/1e/spells/heat-metal/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Hold Monster →](/1e/spells/hold-monster/)**

@@ -25,3 +25,9 @@ By casting this spell upon a group of seeds, either acorns or holly berries, the
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Fire Charm](/1e/spells/fire-charm/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Fire Shield →](/1e/spells/fire-shield/)**

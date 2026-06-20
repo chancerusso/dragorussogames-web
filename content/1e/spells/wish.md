@@ -29,3 +29,9 @@ A wish spell is the true version of limited wish, an extraordinarily potent invo
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Wind Walk](/1e/spells/wind-walk/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Wizard Eye →](/1e/spells/wizard-eye/)**

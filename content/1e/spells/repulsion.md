@@ -25,3 +25,9 @@ All living creatures in the spell's path will move away from the caster at their
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Repel Insects](/1e/spells/repel-insects/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Resist Cold →](/1e/spells/resist-cold/)**

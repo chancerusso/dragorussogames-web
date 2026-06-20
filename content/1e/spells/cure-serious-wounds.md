@@ -48,3 +48,9 @@ Except as may be noted above, this spell is identical to the clerical spell of t
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Cure Light Wounds](/1e/spells/cure-light-wounds/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Dancing Lights →](/1e/spells/dancing-lights/)**

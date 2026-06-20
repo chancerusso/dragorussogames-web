@@ -25,3 +25,9 @@ By means of this spell, the caster sees any illusion for what it truly is. By to
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Detect Evil](/1e/spells/detect-evil/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Detect Invisibility →](/1e/spells/detect-invisibility/)**

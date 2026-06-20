@@ -25,3 +25,9 @@ Upon casting this spell, the druid is imbued with the ability mentally to locate
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Locate Object](/1e/spells/locate-object/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Lower Water →](/1e/spells/lower-water/)**

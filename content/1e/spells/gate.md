@@ -49,3 +49,9 @@ spell's casting might choose not to step through the gate into the material plan
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Fumble](/1e/spells/fumble/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Gaze Reflection →](/1e/spells/gaze-reflection/)**

@@ -30,3 +30,9 @@ This spell causes the subject to become blind, but causes no damage to the eyes 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Bless](/1e/spells/bless/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Blink →](/1e/spells/blink/)**

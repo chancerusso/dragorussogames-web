@@ -27,3 +27,9 @@ lbs, respectively). The illusionist's face, of course, may be changed as desired
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Call Woodland Beings](/1e/spells/call-woodland-beings/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Chant →](/1e/spells/chant/)**

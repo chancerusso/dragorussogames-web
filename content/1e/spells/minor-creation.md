@@ -25,3 +25,9 @@ With a small piece of material, the caster may use this spell to create an objec
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Mind Blank](/1e/spells/mind-blank/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Minor Globe of Invulnerability →](/1e/spells/minor-globe-of-invulnerability/)**

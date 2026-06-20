@@ -25,3 +25,9 @@ The permanency spell makes the temporary effects of other spells permanent. It i
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Passwall](/1e/spells/passwall/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Permanent Illusion →](/1e/spells/permanent-illusion/)**

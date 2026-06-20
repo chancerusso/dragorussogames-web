@@ -25,3 +25,9 @@ The fire storm invocation is a modified and enlarged version of wall of fire. It
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Fire Shield](/1e/spells/fire-shield/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Fire Trap →](/1e/spells/fire-trap/)**

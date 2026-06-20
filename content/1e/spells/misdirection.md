@@ -25,3 +25,9 @@ This spell is cast upon an object or creature to mislead any form of divination 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Mirror Image](/1e/spells/mirror-image/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Mnemonic Enhancement →](/1e/spells/mnemonic-enhancement/)**

@@ -25,3 +25,9 @@ This spell is identical in function (other than as may be noted above) to the cl
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: True Seeing](/1e/spells/true-seeing/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Turn Wood →](/1e/spells/turn-wood/)**

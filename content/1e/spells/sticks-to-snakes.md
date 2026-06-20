@@ -43,3 +43,9 @@ Except as may be noted above, this spell is identical to the clerical spell of t
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Statue](/1e/spells/statue/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Stinking Cloud →](/1e/spells/stinking-cloud/)**

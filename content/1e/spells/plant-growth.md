@@ -43,3 +43,9 @@ Except as noted above, this spell is identical to the druidic spell plant growth
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Plant Door](/1e/spells/plant-door/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Polymorph Object →](/1e/spells/polymorph-object/)**

@@ -31,3 +31,9 @@ the magic jar. The caster retains his or her own mind while possessing the other
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Magic Aura](/1e/spells/magic-aura/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Magic Missile →](/1e/spells/magic-missile/)**

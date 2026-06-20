@@ -27,3 +27,9 @@ By means of this spell, the druid steps into one tree and steps out from a dista
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Part Water](/1e/spells/part-water/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Pass Without Trace →](/1e/spells/pass-without-trace/)**

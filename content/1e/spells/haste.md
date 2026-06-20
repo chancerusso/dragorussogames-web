@@ -25,3 +25,9 @@ This spell imbues creatures in the targeted area with preternatural speed, allow
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Hallucinatory Terrain](/1e/spells/hallucinatory-terrain/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Heal →](/1e/spells/heal/)**

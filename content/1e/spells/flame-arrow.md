@@ -25,3 +25,9 @@ By means of this spell, the magic user may enchant one arrow per segment, causin
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Fireball](/1e/spells/fireball/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Flame Strike →](/1e/spells/flame-strike/)**

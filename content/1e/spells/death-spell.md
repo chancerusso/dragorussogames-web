@@ -29,3 +29,9 @@ Within its limit as to hit dice, this spell slays living creatures in the area o
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Deafness](/1e/spells/deafness/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Delayed Blast Fireball →](/1e/spells/delayed-blast-fireball/)**

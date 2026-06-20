@@ -25,3 +25,9 @@ This spell achieves the much sought-after goal of transmuting copper or brass in
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Fog Cloud](/1e/spells/fog-cloud/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Forceful Hand →](/1e/spells/forceful-hand/)**

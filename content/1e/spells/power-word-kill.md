@@ -29,3 +29,9 @@ Upon the casting of this spell, the magic user specifies whether the spell is to
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Power Word, Blind](/1e/spells/power-word-blind/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Power Word, Stun →](/1e/spells/power-word-stun/)**

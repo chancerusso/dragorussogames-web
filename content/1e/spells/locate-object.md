@@ -47,3 +47,9 @@ Other than as noted above, this spell is identical to the clerical spell locate 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Locate Animals](/1e/spells/locate-animals/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Locate Plants →](/1e/spells/locate-plants/)**

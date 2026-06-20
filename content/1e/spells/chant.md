@@ -25,3 +25,9 @@ Once the spell is cast, the cleric must maintain a sonorous chanting of holy wor
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Change Self](/1e/spells/change-self/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Chaos →](/1e/spells/chaos/)**

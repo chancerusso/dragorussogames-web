@@ -25,3 +25,9 @@ By means of this spell, the cleric "brings to life" an inanimate object, allowin
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Animate Dead](/1e/spells/animate-dead/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Animate Rock →](/1e/spells/animate-rock/)**

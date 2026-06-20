@@ -43,3 +43,9 @@ This spell allows the druid to speak with all animals of a particular type or sp
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Snare](/1e/spells/snare/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Speak with Dead →](/1e/spells/speak-with-dead/)**

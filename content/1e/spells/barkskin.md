@@ -25,3 +25,9 @@ The barkskin spell magically toughens a creature's skin, making it as strong as 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Augury](/1e/spells/augury/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Blade Barrier →](/1e/spells/blade-barrier/)**

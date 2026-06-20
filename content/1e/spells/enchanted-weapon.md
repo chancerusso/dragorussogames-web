@@ -25,3 +25,9 @@ With a touch of his or her hand, the magic user creates a weak and temporary enc
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Enchant an Item](/1e/spells/enchant-an-item/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Enlarge →](/1e/spells/enlarge/)**

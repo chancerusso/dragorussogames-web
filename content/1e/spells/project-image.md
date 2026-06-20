@@ -43,3 +43,9 @@ This spell creates an illusory duplicate of the magic user in another place with
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Programmed Illusion](/1e/spells/programmed-illusion/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Protection from Evil →](/1e/spells/protection-from-evil/)**

@@ -47,3 +47,9 @@ This spell creates small lights at a chosen distance, under the caster's control
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Cure Serious Wounds](/1e/spells/cure-serious-wounds/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Darkness →](/1e/spells/darkness/)**

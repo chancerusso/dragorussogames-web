@@ -25,3 +25,9 @@ This spell traps a victim's soul within a gem for eternity unless the prisoner i
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Transport via Plants](/1e/spells/transport-via-plants/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Tree →](/1e/spells/tree/)**

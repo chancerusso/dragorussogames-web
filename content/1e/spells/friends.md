@@ -25,3 +25,9 @@ This spell increases the magic user's charisma in the eyes of all creatures with
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Freezing Sphere](/1e/spells/freezing-sphere/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Fumble →](/1e/spells/fumble/)**

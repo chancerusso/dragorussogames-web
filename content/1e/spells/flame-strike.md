@@ -25,3 +25,9 @@ Upon the casting of this spell, a blazing column of fire descends from the air. 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Flame Arrow](/1e/spells/flame-arrow/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Floating Disk →](/1e/spells/floating-disk/)**

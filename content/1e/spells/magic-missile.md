@@ -25,3 +25,9 @@ When this spell is cast, missiles of magical energy dart forth from the caster's
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Magic Jar](/1e/spells/magic-jar/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Magic Mouth →](/1e/spells/magic-mouth/)**

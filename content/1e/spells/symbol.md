@@ -50,3 +50,9 @@ Symbol of Stunning: Creatures with a total of 160 or fewer hit points are stunne
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Summon Shadow](/1e/spells/summon-shadow/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Telekinesis →](/1e/spells/telekinesis/)**

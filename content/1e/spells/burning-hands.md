@@ -25,3 +25,9 @@ While casting this spell, the magic user touches his or her thumbs together, and
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Blur](/1e/spells/blur/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Cacodemon →](/1e/spells/cacodemon/)**

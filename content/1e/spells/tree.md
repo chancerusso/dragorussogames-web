@@ -25,3 +25,9 @@ Casting this spell causes the druid's shape to melt and twist into that of a tre
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Trap the Soul](/1e/spells/trap-the-soul/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Trip →](/1e/spells/trip/)**

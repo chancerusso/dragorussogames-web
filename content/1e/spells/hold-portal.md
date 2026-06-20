@@ -30,3 +30,9 @@ This quickly-shouted spell holds fast a door or similar aperture as if it were s
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Hold Plant](/1e/spells/hold-plant/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Holy Word →](/1e/spells/holy-word/)**

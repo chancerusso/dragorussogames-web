@@ -43,3 +43,9 @@ This spell enchants any item that can be opened or closed with a magical trap. W
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Fire Storm](/1e/spells/fire-storm/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Fireball →](/1e/spells/fireball/)**

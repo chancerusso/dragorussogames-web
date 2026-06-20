@@ -25,3 +25,9 @@ The caster momentarily reverses gravity in the area of effect, which is thirty b
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Resurrection](/1e/spells/resurrection/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Rope Trick →](/1e/spells/rope-trick/)**

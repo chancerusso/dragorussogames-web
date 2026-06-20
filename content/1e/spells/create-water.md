@@ -43,3 +43,9 @@ Other than as described above, this spell is similar to the clerical spell creat
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Create Food and Water](/1e/spells/create-food-and-water/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Creeping Doom →](/1e/spells/creeping-doom/)**

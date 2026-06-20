@@ -25,3 +25,9 @@ By the power of this spell, the druid can increase or decrease the force of the 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Control Weather](/1e/spells/control-weather/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Create Food and Water →](/1e/spells/create-food-and-water/)**

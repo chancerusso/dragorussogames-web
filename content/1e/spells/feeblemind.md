@@ -48,3 +48,9 @@ Except as may be noted above, this spell is identical to the druidic spell feebl
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Feather Fall](/1e/spells/feather-fall/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Feign Death →](/1e/spells/feign-death/)**

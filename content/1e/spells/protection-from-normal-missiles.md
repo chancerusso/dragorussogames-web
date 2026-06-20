@@ -25,3 +25,9 @@ The subject of this spell becomes completely invulnerable to the effects of proj
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Protection From Lightning](/1e/spells/protection-from-lightning/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Purify Food and Drink →](/1e/spells/purify-food-and-drink/)**

@@ -25,3 +25,9 @@ This spell transforms water or other non-magical liquids into a bubble of air in
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Affect Normal Fires](/1e/spells/affect-normal-fires/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Alter Reality →](/1e/spells/alter-reality/)**

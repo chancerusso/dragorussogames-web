@@ -31,3 +31,9 @@ Prismatic sphere creates a shimmering, multicoloured globe of light that protect
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Predict Weather](/1e/spells/predict-weather/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Prismatic Spray →](/1e/spells/prismatic-spray/)**

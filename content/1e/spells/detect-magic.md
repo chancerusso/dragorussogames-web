@@ -79,3 +79,9 @@ Other than as noted above, this spell functions in the same manner as the cleric
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Detect Lie](/1e/spells/detect-lie/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Detect Pits and Snares →](/1e/spells/detect-pits-and-snares/)**

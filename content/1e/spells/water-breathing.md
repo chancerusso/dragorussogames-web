@@ -43,3 +43,9 @@ Except as noted above, this spell is identical to the druidic spell water breath
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Warp Wood](/1e/spells/warp-wood/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Weather Summoning →](/1e/spells/weather-summoning/)**

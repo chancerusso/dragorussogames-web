@@ -25,3 +25,9 @@ When the magic user casts this spell, the recipient's bare hands and feet become
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Spell Immunity](/1e/spells/spell-immunity/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Spirit-Rack →](/1e/spells/spirit-rack/)**

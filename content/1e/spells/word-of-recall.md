@@ -25,3 +25,9 @@ By the utterance of a single word of power, the cleric transports himor herself 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Wizard Lock](/1e/spells/wizard-lock/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Write →](/1e/spells/write/)**

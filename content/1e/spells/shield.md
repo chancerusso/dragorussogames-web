@@ -25,3 +25,9 @@ By means of this spell, the caster creates an invisible barrier of magical force
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Shatter](/1e/spells/shatter/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Shillelagh →](/1e/spells/shillelagh/)**

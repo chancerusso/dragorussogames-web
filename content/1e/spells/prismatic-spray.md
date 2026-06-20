@@ -30,3 +30,9 @@ Holding out his or her hand, fingers fanned out, the caster evokes a spray of co
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Prismatic Sphere](/1e/spells/prismatic-sphere/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Prismatic Wall →](/1e/spells/prismatic-wall/)**

@@ -25,3 +25,9 @@ A delayed blast fireball is somewhat more powerful than a normal fireball (+1 da
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Death Spell](/1e/spells/death-spell/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Demi-Shadow Magic →](/1e/spells/demi-shadow-magic/)**

@@ -27,3 +27,9 @@ of -2; three creatures or 12 sq yards suffer a penalty of -1; and four creatures
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Hold Person](/1e/spells/hold-person/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Hold Portal →](/1e/spells/hold-portal/)**

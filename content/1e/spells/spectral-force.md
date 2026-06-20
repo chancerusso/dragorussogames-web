@@ -25,3 +25,9 @@ This spell functions in the same manner as improved phantasmal force, but it is 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Speak with Plants](/1e/spells/speak-with-plants/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Spell Immunity →](/1e/spells/spell-immunity/)**

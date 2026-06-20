@@ -25,3 +25,9 @@ The animal friendship spell enchants a normal animal of neutral alignment to bec
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Alter Reality](/1e/spells/alter-reality/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Animal Growth →](/1e/spells/animal-growth/)**

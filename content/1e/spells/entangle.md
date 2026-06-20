@@ -29,3 +29,9 @@ The druid casts this spell upon a particular spot, whereupon all plants in a 20 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Enlarge](/1e/spells/enlarge/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Erase →](/1e/spells/erase/)**

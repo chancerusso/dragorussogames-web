@@ -49,3 +49,9 @@ This spell allows the magic user to detect emanations of evil (or good, in the c
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Detect Charm](/1e/spells/detect-charm/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Detect Illusion →](/1e/spells/detect-illusion/)**

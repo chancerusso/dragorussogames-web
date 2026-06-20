@@ -31,3 +31,9 @@ them; he or she must be somewhere within the area to be warded to cast the spell
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Grasping Hand](/1e/spells/grasping-hand/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Gust of Wind →](/1e/spells/gust-of-wind/)**

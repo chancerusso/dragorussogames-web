@@ -25,3 +25,9 @@ This spell increases a person's strength (affecting the same sorts of creatures 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Stone to Flesh](/1e/spells/stone-to-flesh/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Suggestion →](/1e/spells/suggestion/)**

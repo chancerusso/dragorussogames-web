@@ -25,3 +25,9 @@ The creature targeted by a stunning power word hears the word as a thundering ro
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Power Word, Kill](/1e/spells/power-word-kill/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Prayer →](/1e/spells/prayer/)**

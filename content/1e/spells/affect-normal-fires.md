@@ -25,3 +25,9 @@ With arcane words and gestures, the magic user may command small fires, up to a 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Aerial Servant](/1e/spells/aerial-servant/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Airy Water →](/1e/spells/airy-water/)**

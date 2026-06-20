@@ -25,3 +25,9 @@ This spell permits the cleric to discern the existence of traps, both of magical
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Find the Path](/1e/spells/find-the-path/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Finger of Death →](/1e/spells/finger-of-death/)**

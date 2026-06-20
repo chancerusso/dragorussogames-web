@@ -45,3 +45,9 @@ Other than as noted above, this spell is identical to the clerical spell remove 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Reincarnation](/1e/spells/reincarnation/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Remove Fear →](/1e/spells/remove-fear/)**

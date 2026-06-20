@@ -49,3 +49,9 @@ determines the amount of time required to find the way out and emerge back into 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Massmorph](/1e/spells/massmorph/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Mending →](/1e/spells/mending/)**

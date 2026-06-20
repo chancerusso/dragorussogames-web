@@ -29,3 +29,9 @@ This spell causes a creature or object to grow in size and weight. The spell inc
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Enchanted Weapon](/1e/spells/enchanted-weapon/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Entangle →](/1e/spells/entangle/)**

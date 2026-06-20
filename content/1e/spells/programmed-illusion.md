@@ -25,3 +25,9 @@ This spell specifies a particular trigger event (in the same manner as the magic
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Produce Flame](/1e/spells/produce-flame/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Project Image →](/1e/spells/project-image/)**

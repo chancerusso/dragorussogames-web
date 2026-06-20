@@ -47,3 +47,9 @@ This spell allows the caster to see that which is invisible or hidden, and also 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Detect Illusion](/1e/spells/detect-illusion/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Detect Lie →](/1e/spells/detect-lie/)**

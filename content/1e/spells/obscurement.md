@@ -29,3 +29,9 @@ As this spell is completed, an enchanted mist billows from the area where the dr
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Non-Detection](/1e/spells/non-detection/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Paralysation →](/1e/spells/paralysation/)**

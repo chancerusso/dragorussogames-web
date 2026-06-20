@@ -29,3 +29,9 @@ This spell imbues the recipient with the ability to see things as they truly are
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Trip](/1e/spells/trip/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: True Sight →](/1e/spells/true-sight/)**

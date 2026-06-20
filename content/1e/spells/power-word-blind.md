@@ -25,3 +25,9 @@ The word of power to blind removes vision from creatures within the area of effe
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Polymorph Self](/1e/spells/polymorph-self/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Power Word, Kill →](/1e/spells/power-word-kill/)**

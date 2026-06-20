@@ -25,3 +25,9 @@ This spell affects an area or an object with a magical aura that repels or attra
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Anti-Plant Shell](/1e/spells/anti-plant-shell/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Astral Spell →](/1e/spells/astral-spell/)**

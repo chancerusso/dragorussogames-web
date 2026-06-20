@@ -25,3 +25,9 @@ This spell summons an invisible stalker (see the OSRIC creature lists). The stal
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Invisibility, 10 ft Radius](/1e/spells/invisibility-10-ft-radius/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Irresistible Dance →](/1e/spells/irresistible-dance/)**

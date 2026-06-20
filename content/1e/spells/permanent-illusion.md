@@ -25,3 +25,9 @@ Except as noted otherwise above, this spell functions as a spectral force spell 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Permanency](/1e/spells/permanency/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Phantasmal Force →](/1e/spells/phantasmal-force/)**

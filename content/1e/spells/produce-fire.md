@@ -25,3 +25,9 @@ This spell instantly creates a normal fire within its area of effect, a blazing 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Prismatic Wall](/1e/spells/prismatic-wall/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Produce Flame →](/1e/spells/produce-flame/)**

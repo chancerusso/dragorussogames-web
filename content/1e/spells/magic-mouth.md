@@ -43,3 +43,9 @@ This spell is cast upon an object, so that when a set of particular conditions a
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Magic Missile](/1e/spells/magic-missile/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Major Creation →](/1e/spells/major-creation/)**

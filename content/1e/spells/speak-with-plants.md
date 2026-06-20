@@ -43,3 +43,9 @@ Other than as noted above, this spell is identical to the clerical spell speak w
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Speak with Monsters](/1e/spells/speak-with-monsters/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Spectral Force →](/1e/spells/spectral-force/)**

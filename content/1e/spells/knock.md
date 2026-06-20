@@ -29,3 +29,9 @@ The powerful magic words of a knock spell open doors that are stuck, barred, loc
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Jump](/1e/spells/jump/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Know Alignment →](/1e/spells/know-alignment/)**

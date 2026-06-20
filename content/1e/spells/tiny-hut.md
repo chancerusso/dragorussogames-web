@@ -29,3 +29,9 @@ This spell causes a bubble of magical force to form around the caster. The field
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Time Stop](/1e/spells/time-stop/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Tongues →](/1e/spells/tongues/)**

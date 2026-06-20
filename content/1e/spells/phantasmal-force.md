@@ -43,3 +43,9 @@ This extremely flexible spell allows the magic user to craft a visual illusion o
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Permanent Illusion](/1e/spells/permanent-illusion/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Phantasmal Killer →](/1e/spells/phantasmal-killer/)**

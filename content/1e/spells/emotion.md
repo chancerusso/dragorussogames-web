@@ -25,3 +25,9 @@ By casting this spell, the illusionist is able to instil others with one of four
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Earthquake](/1e/spells/earthquake/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Enchant an Item →](/1e/spells/enchant-an-item/)**

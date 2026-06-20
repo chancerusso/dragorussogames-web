@@ -29,3 +29,9 @@ Except as may be noted above, this spell is identical to the magic user spell da
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Dancing Lights](/1e/spells/dancing-lights/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Darkness, 15 ft Radius →](/1e/spells/darkness-15-ft-radius/)**

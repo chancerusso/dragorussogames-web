@@ -31,3 +31,9 @@ itself is not affected by the caster's level, only the range at which the caster
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Light](/1e/spells/light/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Limited Wish →](/1e/spells/limited-wish/)**

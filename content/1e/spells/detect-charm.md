@@ -25,3 +25,9 @@ This spell reveals to the cleric whether a creature is subject to a charm spell.
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Demi-Shadow Monsters](/1e/spells/demi-shadow-monsters/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Detect Evil →](/1e/spells/detect-evil/)**

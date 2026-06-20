@@ -63,3 +63,9 @@ This spell affects a base number of 2-16 creatures, but is otherwise identical t
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Cone of Cold](/1e/spells/cone-of-cold/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Conjure Animals →](/1e/spells/conjure-animals/)**

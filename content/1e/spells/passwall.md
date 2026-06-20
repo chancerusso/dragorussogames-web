@@ -29,3 +29,9 @@ By means of a passwall spell, the magic user creates an inter-dimensional openin
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Pass Without Trace](/1e/spells/pass-without-trace/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Permanency →](/1e/spells/permanency/)**

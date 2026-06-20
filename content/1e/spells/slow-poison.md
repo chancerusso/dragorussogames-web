@@ -29,3 +29,9 @@ This spell is used to slow the progress of poison through the body. Even a perso
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Slow](/1e/spells/slow/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Snake Charm →](/1e/spells/snake-charm/)**

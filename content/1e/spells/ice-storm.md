@@ -25,3 +25,9 @@ The caster may evoke one of two different forms of ice storm with this spell: a 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Hypnotism](/1e/spells/hypnotism/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Identify →](/1e/spells/identify/)**

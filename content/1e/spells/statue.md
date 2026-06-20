@@ -29,3 +29,9 @@ The statue spell allows the caster or other recipient of the spell to turn, appa
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Spiritual Weapon](/1e/spells/spiritual-weapon/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Sticks to Snakes →](/1e/spells/sticks-to-snakes/)**

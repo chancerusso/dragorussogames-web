@@ -25,3 +25,9 @@ Within the spell's area of effect, the caster becomes capable of communicating w
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Speak with Dead](/1e/spells/speak-with-dead/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Speak with Plants →](/1e/spells/speak-with-plants/)**

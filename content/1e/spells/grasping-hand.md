@@ -25,3 +25,9 @@ This spell is a more powerful evocation of the forceful hand spell, acting in th
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Glyph of Warding](/1e/spells/glyph-of-warding/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Guards and Wards →](/1e/spells/guards-and-wards/)**

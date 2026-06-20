@@ -27,3 +27,9 @@ The caster creates a personal nightmare creature for the spell's victim, drawn f
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Phantasmal Force](/1e/spells/phantasmal-force/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Phase Door →](/1e/spells/phase-door/)**

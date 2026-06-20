@@ -25,3 +25,9 @@ When the druid finishes casting this spell, an invisible barrier forms in an 80 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Anti-Magic Shell](/1e/spells/anti-magic-shell/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Antipathy/Sympathy →](/1e/spells/antipathy-sympathy/)**

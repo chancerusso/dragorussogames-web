@@ -25,3 +25,9 @@ By means of this spell, the illusionist gazes beyond reality itself, seeking pat
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Ventriloquism](/1e/spells/ventriloquism/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Wall of Fire →](/1e/spells/wall-of-fire/)**

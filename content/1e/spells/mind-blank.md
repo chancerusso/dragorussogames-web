@@ -25,3 +25,9 @@ By means of this spell, the person upon whom it is cast becomes completely prote
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Meteor Swarm](/1e/spells/meteor-swarm/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Minor Creation →](/1e/spells/minor-creation/)**

@@ -25,3 +25,9 @@ This spell allows the caster to act between two moments of time, in a bubble whe
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Temporal Stasis](/1e/spells/temporal-stasis/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Tiny Hut →](/1e/spells/tiny-hut/)**

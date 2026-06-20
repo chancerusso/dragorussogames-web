@@ -25,3 +25,9 @@ The area of effect of this spell is d% square miles, but except as noted above, 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Water Breathing](/1e/spells/water-breathing/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Web →](/1e/spells/web/)**

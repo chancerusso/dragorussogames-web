@@ -29,3 +29,9 @@ The wizard eye is a scrying spell allowing the wizard to create a material (but 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Wish](/1e/spells/wish/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Wizard Lock →](/1e/spells/wizard-lock/)**

@@ -25,3 +25,9 @@ Casting this spell brings into being an area of complete and utter magical silen
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Shocking Grasp](/1e/spells/shocking-grasp/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Simulacrum →](/1e/spells/simulacrum/)**

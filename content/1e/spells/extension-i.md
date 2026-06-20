@@ -25,3 +25,9 @@ The arcane words of an extension I spell act to lengthen the duration of another
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Explosive Runes](/1e/spells/explosive-runes/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Extension II →](/1e/spells/extension-ii/)**

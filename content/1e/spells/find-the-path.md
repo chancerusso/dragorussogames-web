@@ -25,3 +25,9 @@ This spell imbues one creature with an uncanny sense for the shortest route into
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Find Familiar](/1e/spells/find-familiar/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Find Traps →](/1e/spells/find-traps/)**

@@ -29,3 +29,9 @@ This is the first spell an illusionist can learn that draws upon the power of sh
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Shadow Magic](/1e/spells/shadow-magic/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Shape Change →](/1e/spells/shape-change/)**

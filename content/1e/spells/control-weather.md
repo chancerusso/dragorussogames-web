@@ -68,3 +68,9 @@ Except as may be noted above, this spell is identical to the clerical spell cont
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Control Temperature 10 ft Radius](/1e/spells/control-temperature-10-ft-radius/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Control Winds →](/1e/spells/control-winds/)**

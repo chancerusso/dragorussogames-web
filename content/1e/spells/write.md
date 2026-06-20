@@ -31,3 +31,8 @@ Unlike clerical and druidic spells, illusionist spells (also known as Phantasmal
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Word of Recall](/1e/spells/word-of-recall/)**
+- **[All Spells](/1e/spells/all-spells/)**

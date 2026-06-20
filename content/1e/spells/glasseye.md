@@ -25,3 +25,9 @@ This spell causes opaque materials to become transparent, either to the caster a
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Glass-steel](/1e/spells/glass-steel/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Globe of Invulnerability →](/1e/spells/globe-of-invulnerability/)**

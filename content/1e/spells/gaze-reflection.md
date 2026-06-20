@@ -25,3 +25,9 @@ The air immediately in front of the caster takes on a mirror's ability to reflec
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Gate](/1e/spells/gate/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Geas →](/1e/spells/geas/)**

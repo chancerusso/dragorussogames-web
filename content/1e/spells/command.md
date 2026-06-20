@@ -25,3 +25,9 @@ By speaking a single word of command with the force of divine power behind it, t
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Colour Spray](/1e/spells/colour-spray/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Commune →](/1e/spells/commune/)**

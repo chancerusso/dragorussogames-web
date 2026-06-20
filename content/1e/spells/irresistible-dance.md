@@ -25,3 +25,9 @@ The creature touched (successful to hit roll) flies into an uncontrollable, twit
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Invisible Stalker](/1e/spells/invisible-stalker/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Jump →](/1e/spells/jump/)**

@@ -25,3 +25,9 @@ With a mystical gesture, the illusionist creates an illusory door (either in a w
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Shades](/1e/spells/shades/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Shadow Magic →](/1e/spells/shadow-magic/)**

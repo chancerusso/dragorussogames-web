@@ -25,3 +25,9 @@ This spell transforms stone into flesh, or vice versa if the caster has elected 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Stone Tell](/1e/spells/stone-tell/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Strength →](/1e/spells/strength/)**

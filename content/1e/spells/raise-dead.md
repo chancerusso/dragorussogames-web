@@ -30,3 +30,9 @@ The eerie, keening incantation of this spell calls a soul back from the afterlif
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Quest](/1e/spells/quest/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Ray of Enfeeblement →](/1e/spells/ray-of-enfeeblement/)**

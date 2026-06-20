@@ -25,3 +25,9 @@ An invisible barrier forms around the spell's recipient as the caster completes 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Remove Fear](/1e/spells/remove-fear/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Repulsion →](/1e/spells/repulsion/)**

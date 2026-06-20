@@ -48,3 +48,9 @@ This spell, with the exception of any distinctions noted above, is identical to 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Cure Critical Wounds](/1e/spells/cure-critical-wounds/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Cure Light Wounds →](/1e/spells/cure-light-wounds/)**

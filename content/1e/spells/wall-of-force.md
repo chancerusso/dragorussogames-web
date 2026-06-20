@@ -25,3 +25,9 @@ A wall of force is a barrier of magical power, invisible but virtually imperviou
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Wall of Fog](/1e/spells/wall-of-fog/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Wall of Ice →](/1e/spells/wall-of-ice/)**

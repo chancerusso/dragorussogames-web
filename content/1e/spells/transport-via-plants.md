@@ -25,3 +25,9 @@ The mystic oneness of all nature is a principal tenet of many druidic sects, and
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Transmute Rock to Mud](/1e/spells/transmute-rock-to-mud/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Trap the Soul →](/1e/spells/trap-the-soul/)**

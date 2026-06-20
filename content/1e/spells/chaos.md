@@ -25,3 +25,9 @@ This spell causes a number of creatures in the spell's area of effect to behave 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Chant](/1e/spells/chant/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Chariot of Fire →](/1e/spells/chariot-of-fire/)**

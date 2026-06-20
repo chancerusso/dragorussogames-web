@@ -27,3 +27,9 @@ suffocating per turn. Creatures with a strength of less than 13 that fail the sa
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Weather Summoning](/1e/spells/weather-summoning/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Wind Walk →](/1e/spells/wind-walk/)**

@@ -29,3 +29,9 @@ Upon casting this spell, the magic user becomes able to change shape almost at w
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Shadow Monsters](/1e/spells/shadow-monsters/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Shatter →](/1e/spells/shatter/)**

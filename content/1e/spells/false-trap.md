@@ -25,3 +25,9 @@ By means of this spell, the mage weaves an illusion around an object, making it 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Faerie Fire](/1e/spells/faerie-fire/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Fear →](/1e/spells/fear/)**

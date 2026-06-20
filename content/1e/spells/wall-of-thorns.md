@@ -29,3 +29,9 @@ When the druid casts this spell, a tangled wall of briar vines erupts from the g
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Wall of Stone](/1e/spells/wall-of-stone/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Warp Wood →](/1e/spells/warp-wood/)**

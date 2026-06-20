@@ -29,3 +29,9 @@ A hold monster spell completely immobilises up to four creatures of any kind for
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Hold Animal](/1e/spells/hold-animal/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Hold Person →](/1e/spells/hold-person/)**

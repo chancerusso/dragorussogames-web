@@ -47,3 +47,9 @@ Other than as noted above, this spell is identical to the clerical spell protect
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Project Image](/1e/spells/project-image/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Protection from Evil, 10 ft Radius →](/1e/spells/protection-from-evil-10-ft-radius/)**

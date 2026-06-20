@@ -67,3 +67,9 @@ Other than as noted above, this spell is identical to the clerical spell light.
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Levitate](/1e/spells/levitate/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Lightning Bolt →](/1e/spells/lightning-bolt/)**

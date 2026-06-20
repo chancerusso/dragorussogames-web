@@ -29,3 +29,9 @@ Except as noted above (particularly the area of effect), this spell is identical
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Contact Other Plane](/1e/spells/contact-other-plane/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Continual Light →](/1e/spells/continual-light/)**

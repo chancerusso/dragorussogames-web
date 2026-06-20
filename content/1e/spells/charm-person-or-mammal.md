@@ -29,3 +29,9 @@ The powerful enchantment woven by this spell will affect any "person," meaning c
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Charm Person](/1e/spells/charm-person/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Charm Plants →](/1e/spells/charm-plants/)**

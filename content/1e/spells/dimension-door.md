@@ -29,3 +29,9 @@ Dimension door is a weak form of teleportation, more controllable than blink, bu
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Dig](/1e/spells/dig/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Disintegrate →](/1e/spells/disintegrate/)**

@@ -25,3 +25,9 @@ Exorcism is a powerful abjuration that casts out demons, devils, or any supernat
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: ESP](/1e/spells/esp/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Explosive Runes →](/1e/spells/explosive-runes/)**

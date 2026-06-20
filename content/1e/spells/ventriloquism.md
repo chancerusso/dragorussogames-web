@@ -43,3 +43,9 @@ The caster makes his or her voice (or any sound he or she can vocalize) seem to 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Veil](/1e/spells/veil/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Vision →](/1e/spells/vision/)**

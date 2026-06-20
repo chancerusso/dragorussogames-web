@@ -25,3 +25,9 @@ The gestures of this spell weave a hypnotic power into the illusionist's words, 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Hypnotic Pattern](/1e/spells/hypnotic-pattern/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Ice Storm →](/1e/spells/ice-storm/)**

@@ -25,3 +25,9 @@ This spell disintegrates matter of any kind: animal, vegetable, or mineral. Matt
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Dimension Door](/1e/spells/dimension-door/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Dispel Evil →](/1e/spells/dispel-evil/)**

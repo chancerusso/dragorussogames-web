@@ -30,3 +30,9 @@ By casting this spell, the cleric restores one lost level of experience to the s
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Resist Fire](/1e/spells/resist-fire/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Resurrection →](/1e/spells/resurrection/)**

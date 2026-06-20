@@ -25,3 +25,9 @@ As with the other hand spells, clenched fist evokes a magical hand, but in this 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Clairvoyance](/1e/spells/clairvoyance/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Clone →](/1e/spells/clone/)**

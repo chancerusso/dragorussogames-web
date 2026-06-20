@@ -29,3 +29,9 @@ This spell is a weak and rather unreliable form of one of the true mage's most p
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Blindness](/1e/spells/blindness/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Blur →](/1e/spells/blur/)**

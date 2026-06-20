@@ -25,3 +25,9 @@ A wizard lock spell functions similarly to a powerful hold portal spell, except 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Wizard Eye](/1e/spells/wizard-eye/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Word of Recall →](/1e/spells/word-of-recall/)**

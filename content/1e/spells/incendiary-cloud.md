@@ -25,3 +25,9 @@ The incendiary cloud begins as a choking cloud of thick smoke, with the attribut
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Improved Phantasmal Force](/1e/spells/improved-phantasmal-force/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Infravision →](/1e/spells/infravision/)**

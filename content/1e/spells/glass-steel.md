@@ -25,3 +25,9 @@ This spell grants a glass object the strength of steel, while retaining its tran
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Geas](/1e/spells/geas/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Glasseye →](/1e/spells/glasseye/)**

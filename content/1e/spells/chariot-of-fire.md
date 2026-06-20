@@ -29,3 +29,9 @@ A chariot of fire, drawn by two flaming steeds, appears with an echoing thunderc
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Chaos](/1e/spells/chaos/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Charm Monster →](/1e/spells/charm-monster/)**

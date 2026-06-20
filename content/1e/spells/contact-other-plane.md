@@ -32,3 +32,9 @@ Number of fundamental metaphysical contradictions (selected by the caster) Likel
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Conjure Fire Elemental](/1e/spells/conjure-fire-elemental/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Continual Darkness →](/1e/spells/continual-darkness/)**

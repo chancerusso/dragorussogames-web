@@ -29,3 +29,9 @@ This spell summons a demon or other fiend (such as a devil) from the lower plane
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Burning Hands](/1e/spells/burning-hands/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Call Lightning →](/1e/spells/call-lightning/)**

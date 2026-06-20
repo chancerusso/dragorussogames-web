@@ -47,3 +47,9 @@ With any exceptions noted above, this spell is identical to the druidic spell py
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Push](/1e/spells/push/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Quest →](/1e/spells/quest/)**

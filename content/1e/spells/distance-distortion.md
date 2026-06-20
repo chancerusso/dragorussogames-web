@@ -29,3 +29,9 @@ This spell is cast with a summoned earth elemental as its focus. The casting of 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Dispel Magic](/1e/spells/dispel-magic/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Divination →](/1e/spells/divination/)**

@@ -25,3 +25,9 @@ By casting this spell, the magic user gains the ability to move earth, sand, and
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Monster Summoning VII](/1e/spells/monster-summoning-vii/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Neutralise Poison →](/1e/spells/neutralise-poison/)**

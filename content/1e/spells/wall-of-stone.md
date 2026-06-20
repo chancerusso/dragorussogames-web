@@ -25,3 +25,9 @@ When the spell is completed, a wall of stone is called into being, sprouting fro
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Wall of Iron](/1e/spells/wall-of-iron/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Wall of Thorns →](/1e/spells/wall-of-thorns/)**

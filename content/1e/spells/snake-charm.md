@@ -25,3 +25,9 @@ A pattern of gestures made by the cleric in the course of casting this spell cre
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Slow Poison](/1e/spells/slow-poison/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Snare →](/1e/spells/snare/)**

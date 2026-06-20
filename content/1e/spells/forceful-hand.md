@@ -25,3 +25,9 @@ This spell creates a powerful, magical hand similar to that of the magic user sp
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Fool's Gold](/1e/spells/fools-gold/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Forget →](/1e/spells/forget/)**

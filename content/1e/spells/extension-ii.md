@@ -25,3 +25,9 @@ Except as noted, this spell is identical to the spell extension I, but may be us
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Extension I](/1e/spells/extension-i/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Extension III →](/1e/spells/extension-iii/)**

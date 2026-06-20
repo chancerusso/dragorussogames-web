@@ -30,3 +30,8 @@ By casting this spell, the cleric summons an aerial servant to do his or her bid
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Affect Normal Fires →](/1e/spells/affect-normal-fires/)**

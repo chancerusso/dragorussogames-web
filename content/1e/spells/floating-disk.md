@@ -25,3 +25,9 @@ This evocation produces an invisible disk about three ft across, shaped like a s
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Flame Strike](/1e/spells/flame-strike/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Fly →](/1e/spells/fly/)**

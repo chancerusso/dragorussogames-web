@@ -25,3 +25,9 @@ This spell functions in the same manner as monster summoning I, but calls 1d6 cr
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Monster Summoning I](/1e/spells/monster-summoning-i/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Monster Summoning III →](/1e/spells/monster-summoning-iii/)**

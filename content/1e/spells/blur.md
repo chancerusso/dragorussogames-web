@@ -25,3 +25,9 @@ The illusionist's outline becomes blurred, as if seen through shimmering waves o
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Blink](/1e/spells/blink/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Burning Hands →](/1e/spells/burning-hands/)**

@@ -66,3 +66,9 @@ This spell brings into being a bright, magical illumination almost sufficient to
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Continual Darkness](/1e/spells/continual-darkness/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Control Temperature 10 ft Radius →](/1e/spells/control-temperature-10-ft-radius/)**

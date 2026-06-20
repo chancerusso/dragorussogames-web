@@ -29,3 +29,9 @@ When the druid completes the intonations and gestures of this spell, a swarm of 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Suggestion](/1e/spells/suggestion/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Summon Shadow →](/1e/spells/summon-shadow/)**

@@ -25,3 +25,9 @@ This spell is a divine warding against fear, and it can also banish magical terr
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Remove Curse](/1e/spells/remove-curse/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Repel Insects →](/1e/spells/repel-insects/)**

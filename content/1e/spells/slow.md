@@ -29,3 +29,9 @@ This spell acts upon its targets to slow down their movements, or can be used to
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Sleep](/1e/spells/sleep/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Slow Poison →](/1e/spells/slow-poison/)**

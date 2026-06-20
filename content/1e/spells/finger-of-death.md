@@ -29,3 +29,9 @@ The casting of this spell culminates when the druid points a finger at his or he
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Find Traps](/1e/spells/find-traps/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Fire Charm →](/1e/spells/fire-charm/)**

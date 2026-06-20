@@ -25,3 +25,9 @@ This spell is simply a more powerful version of minor creation, allowing the cas
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Magic Mouth](/1e/spells/magic-mouth/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Mass Charm →](/1e/spells/mass-charm/)**

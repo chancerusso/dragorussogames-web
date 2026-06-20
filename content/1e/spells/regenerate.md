@@ -29,3 +29,9 @@ The powerful regeneration spell causes severed body parts to reattach themselves
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Read Magic](/1e/spells/read-magic/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Reincarnate →](/1e/spells/reincarnate/)**

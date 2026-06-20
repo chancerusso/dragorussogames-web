@@ -31,3 +31,9 @@ approximately thirty-three 10 x 10 ft squares. Thus, if a fireball explodes in t
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Fire Trap](/1e/spells/fire-trap/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Flame Arrow →](/1e/spells/flame-arrow/)**

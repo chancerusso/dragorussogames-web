@@ -25,3 +25,9 @@ This spell may be employed in one of three different forms, based on the words a
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Forget](/1e/spells/forget/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Friends →](/1e/spells/friends/)**

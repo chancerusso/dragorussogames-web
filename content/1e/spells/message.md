@@ -25,3 +25,9 @@ Once this spell is cast, the magic user may point to any creature in range and w
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Mending](/1e/spells/mending/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Meteor Swarm →](/1e/spells/meteor-swarm/)**

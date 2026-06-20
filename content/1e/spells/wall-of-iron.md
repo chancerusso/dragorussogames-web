@@ -25,3 +25,9 @@ By casting wall of iron, the magic user creates a sheet of solid iron, one quart
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Wall of Ice](/1e/spells/wall-of-ice/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Wall of Stone →](/1e/spells/wall-of-stone/)**

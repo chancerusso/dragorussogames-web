@@ -25,3 +25,9 @@ This enchantment causes intense clumsiness in the affected creature. Attempting 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Friends](/1e/spells/friends/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Gate →](/1e/spells/gate/)**

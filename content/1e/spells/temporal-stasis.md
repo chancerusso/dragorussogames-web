@@ -25,3 +25,9 @@ This spell places the victim into a magical sleep so deep that it is akin to sus
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Teleport](/1e/spells/teleport/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Time Stop →](/1e/spells/time-stop/)**

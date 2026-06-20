@@ -29,3 +29,9 @@ The glyph of warding is a magically charged sigil or rune, scribed and enchanted
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Globe of Invulnerability](/1e/spells/globe-of-invulnerability/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Grasping Hand →](/1e/spells/grasping-hand/)**

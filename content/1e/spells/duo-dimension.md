@@ -25,3 +25,9 @@ By means of this spell, the caster reduces himor herself to a two-dimensional sh
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Divination](/1e/spells/divination/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Earthquake →](/1e/spells/earthquake/)**

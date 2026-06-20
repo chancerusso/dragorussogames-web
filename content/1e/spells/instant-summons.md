@@ -29,3 +29,9 @@ This spell calls a specific, desired object into the caster's hand from wherever
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Insect Plague](/1e/spells/insect-plague/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Interposing Hand →](/1e/spells/interposing-hand/)**

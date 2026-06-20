@@ -29,3 +29,9 @@ Provided that a body has been dead for no more than one day per caster level, a 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Reincarnate](/1e/spells/reincarnate/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Remove Curse →](/1e/spells/remove-curse/)**

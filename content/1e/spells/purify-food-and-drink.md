@@ -29,3 +29,9 @@ This spell removes poison, rot, and other contaminants from all food and water w
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Protection From Normal Missiles](/1e/spells/protection-from-normal-missiles/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Purify Water →](/1e/spells/purify-water/)**

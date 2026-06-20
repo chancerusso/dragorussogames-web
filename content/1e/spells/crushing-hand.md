@@ -25,3 +25,9 @@ This spell calls into existence a large, floating hand much like that summoned b
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Creeping Doom](/1e/spells/creeping-doom/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Cure Blindness →](/1e/spells/cure-blindness/)**

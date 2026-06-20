@@ -25,3 +25,9 @@ This spell causes stone to hear and speak. Rock and stones in the area of effect
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Stone Shape](/1e/spells/stone-shape/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Stone to Flesh →](/1e/spells/stone-to-flesh/)**

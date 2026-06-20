@@ -25,3 +25,9 @@ This spell functions in the same manner as the invisibility spell, but is not te
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Imprisonment](/1e/spells/imprisonment/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Improved Phantasmal Force →](/1e/spells/improved-phantasmal-force/)**

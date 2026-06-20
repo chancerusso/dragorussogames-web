@@ -25,3 +25,9 @@ This spell automatically dispels phantasmal forces cast by non-illusionists. All
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Dispel Exhaustion](/1e/spells/dispel-exhaustion/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Dispel Magic →](/1e/spells/dispel-magic/)**

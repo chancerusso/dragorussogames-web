@@ -25,3 +25,9 @@ This spell enhances the magic user's precision of memory, allowing him or her to
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Misdirection](/1e/spells/misdirection/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Monster Summoning I →](/1e/spells/monster-summoning-i/)**

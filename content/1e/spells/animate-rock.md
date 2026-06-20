@@ -25,3 +25,9 @@ This spell allows the druid to animate and command a stone object in the same wa
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Animate Object](/1e/spells/animate-object/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Anti-Animal Shell →](/1e/spells/anti-animal-shell/)**

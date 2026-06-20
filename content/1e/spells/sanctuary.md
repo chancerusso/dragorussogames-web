@@ -25,3 +25,9 @@ A sanctuary spell makes the cleric seem an irrelevant, nonhostile target, one th
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Rope Trick](/1e/spells/rope-trick/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Scare →](/1e/spells/scare/)**

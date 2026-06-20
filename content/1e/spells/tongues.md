@@ -43,3 +43,9 @@ Within the radius established by this spell, the caster, and the caster alone, w
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Tiny Hut](/1e/spells/tiny-hut/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Transformation →](/1e/spells/transformation/)**

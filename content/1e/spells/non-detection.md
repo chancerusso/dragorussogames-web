@@ -25,3 +25,9 @@ This spell shields the caster from the prying eyes of scrying magics, making him
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Neutralise Poison](/1e/spells/neutralise-poison/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Obscurement →](/1e/spells/obscurement/)**

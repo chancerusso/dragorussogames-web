@@ -29,3 +29,9 @@ This extremely potent spell causes the victims to forget events of the immediate
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Forceful Hand](/1e/spells/forceful-hand/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Freezing Sphere →](/1e/spells/freezing-sphere/)**

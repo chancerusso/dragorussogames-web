@@ -25,3 +25,9 @@ This spell allows the druid to travel effortlessly through vegetation of any kin
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Plane Shift](/1e/spells/plane-shift/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Plant Growth →](/1e/spells/plant-growth/)**

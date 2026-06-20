@@ -25,3 +25,9 @@ This spell creates partially-real illusory monsters in the same manner as the sp
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Demi-Shadow Magic](/1e/spells/demi-shadow-magic/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Detect Charm →](/1e/spells/detect-charm/)**

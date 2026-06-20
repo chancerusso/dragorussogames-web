@@ -25,3 +25,9 @@ A wall of ice spell creates a huge wall of ice, with a front face of up to 100 s
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Wall of Force](/1e/spells/wall-of-force/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Wall of Iron →](/1e/spells/wall-of-iron/)**

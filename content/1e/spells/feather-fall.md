@@ -29,3 +29,9 @@ This spell causes creatures or objects in the area of effect to fall as slowly a
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Fear](/1e/spells/fear/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Feeblemind →](/1e/spells/feeblemind/)**

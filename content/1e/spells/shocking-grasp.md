@@ -31,3 +31,9 @@ direct touch (requiring a successful attack roll) or through a conductive materi
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Shillelagh](/1e/spells/shillelagh/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Silence, 15 ft Radius →](/1e/spells/silence-15-ft-radius/)**

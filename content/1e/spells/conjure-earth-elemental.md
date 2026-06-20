@@ -29,3 +29,9 @@ By means of this spell, the druid summons a 16 HD elemental from the plane of ea
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Conjure Animals](/1e/spells/conjure-animals/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Conjure Elemental →](/1e/spells/conjure-elemental/)**

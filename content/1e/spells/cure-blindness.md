@@ -29,3 +29,9 @@ This powerful spell allows the cleric permanently to remove virtually all forms 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Crushing Hand](/1e/spells/crushing-hand/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Cure Critical Wounds →](/1e/spells/cure-critical-wounds/)**

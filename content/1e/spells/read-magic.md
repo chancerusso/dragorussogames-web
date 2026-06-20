@@ -25,3 +25,9 @@ Read magic is normally the first spell in every magic user's spell book, and its
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Ray of Enfeeblement](/1e/spells/ray-of-enfeeblement/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Regenerate →](/1e/spells/regenerate/)**

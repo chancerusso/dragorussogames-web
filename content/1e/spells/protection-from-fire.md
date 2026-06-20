@@ -25,3 +25,9 @@ The druid may use this spell to confer considerable protection from fire upon an
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Protection from Evil, 10 ft Radius](/1e/spells/protection-from-evil-10-ft-radius/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Protection From Lightning →](/1e/spells/protection-from-lightning/)**

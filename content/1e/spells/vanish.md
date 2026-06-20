@@ -29,3 +29,9 @@ The caster's magic words cause an object to vanish, either being teleported away
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Unseen Servant](/1e/spells/unseen-servant/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Veil →](/1e/spells/veil/)**

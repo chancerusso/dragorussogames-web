@@ -25,3 +25,9 @@ Upon completing the wording of this spell, the caster's body becomes insubstanti
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Web](/1e/spells/web/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Wish →](/1e/spells/wish/)**

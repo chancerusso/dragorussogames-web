@@ -25,3 +25,9 @@ This is an enchantment placed upon a piece of writing to guard its true contents
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Identify](/1e/spells/identify/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Imprisonment →](/1e/spells/imprisonment/)**

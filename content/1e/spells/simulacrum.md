@@ -29,3 +29,9 @@ This eerie spell permits the magic user to make a living duplicate of another cr
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Silence, 15 ft Radius](/1e/spells/silence-15-ft-radius/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Sleep →](/1e/spells/sleep/)**

@@ -27,3 +27,9 @@ If there is an evil character in the druid's party, the summoned creatures gain 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Call Lightning](/1e/spells/call-lightning/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Change Self →](/1e/spells/change-self/)**

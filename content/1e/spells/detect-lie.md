@@ -25,3 +25,9 @@ The subject of this spell (not necessarily the caster) gains the ability to disc
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Detect Invisibility](/1e/spells/detect-invisibility/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Detect Magic →](/1e/spells/detect-magic/)**

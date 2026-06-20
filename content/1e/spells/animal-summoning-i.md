@@ -25,3 +25,9 @@ A druid may use this spell to summon normal or giant animals of a specified type
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Animal Growth](/1e/spells/animal-growth/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Animal Summoning II →](/1e/spells/animal-summoning-ii/)**

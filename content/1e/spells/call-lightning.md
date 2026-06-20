@@ -29,3 +29,9 @@ Provided that there is already significant cloud cover in the area, the druid ma
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Cacodemon](/1e/spells/cacodemon/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Call Woodland Beings →](/1e/spells/call-woodland-beings/)**

@@ -25,3 +25,9 @@ To cast this spell, the druid enters into a trance that brings him or her into a
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Commune](/1e/spells/commune/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Comprehend Languages →](/1e/spells/comprehend-languages/)**

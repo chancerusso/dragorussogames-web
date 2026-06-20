@@ -25,3 +25,9 @@ This spell allows the magic user to transform one thing, living or not, into ano
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Plant Growth](/1e/spells/plant-growth/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Polymorph Other →](/1e/spells/polymorph-other/)**

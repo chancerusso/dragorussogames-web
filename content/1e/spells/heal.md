@@ -32,3 +32,9 @@ This spell affects the same general variety of creatures as the cure light wound
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Haste](/1e/spells/haste/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Heat Metal →](/1e/spells/heat-metal/)**

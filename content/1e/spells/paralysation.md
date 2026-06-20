@@ -25,3 +25,9 @@ A certain number of creatures within the spell's area of effect are frozen in pl
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Obscurement](/1e/spells/obscurement/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Part Water →](/1e/spells/part-water/)**

@@ -29,3 +29,9 @@ This spell lends the recipient the same protection against lightning and electri
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Protection From Fire](/1e/spells/protection-from-fire/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Protection From Normal Missiles →](/1e/spells/protection-from-normal-missiles/)**

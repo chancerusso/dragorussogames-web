@@ -25,3 +25,9 @@ As this spell is cast, a ray of unpleasant and indescribable colour arcs from th
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Raise Dead](/1e/spells/raise-dead/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Read Magic →](/1e/spells/read-magic/)**

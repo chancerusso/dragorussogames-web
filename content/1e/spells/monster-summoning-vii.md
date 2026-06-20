@@ -27,3 +27,9 @@ d20 Monster Summoned 13 Gorgon 14 Hydra, ten-headed 15 Lizard, fire 16 Mummy 17 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Monster Summoning VI](/1e/spells/monster-summoning-vi/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Move Earth →](/1e/spells/move-earth/)**

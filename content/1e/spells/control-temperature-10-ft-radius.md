@@ -29,3 +29,9 @@ By casting this spell, the druid magically controls the temperature of his or he
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Continual Light](/1e/spells/continual-light/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Control Weather →](/1e/spells/control-weather/)**

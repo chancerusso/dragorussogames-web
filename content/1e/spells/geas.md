@@ -29,3 +29,9 @@ A geas is a magical compulsion placed upon an intelligent creature to perform, o
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Gaze Reflection](/1e/spells/gaze-reflection/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Glass-steel →](/1e/spells/glass-steel/)**

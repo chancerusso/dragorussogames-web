@@ -25,3 +25,9 @@ The power of this spell hurls the victim deep beneath the earth, placing it into
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Illusory Script](/1e/spells/illusory-script/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Improved Invisibility →](/1e/spells/improved-invisibility/)**

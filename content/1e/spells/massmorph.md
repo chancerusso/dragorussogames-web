@@ -43,3 +43,9 @@ This spell causes creatures of man size or smaller to appear like an innocent gr
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Mass Suggestion](/1e/spells/mass-suggestion/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Maze →](/1e/spells/maze/)**

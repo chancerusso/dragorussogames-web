@@ -48,3 +48,9 @@ The mirror image spell creates 1d4 phantasmal images of the magic user, all mirr
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Minor Globe of Invulnerability](/1e/spells/minor-globe-of-invulnerability/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Misdirection →](/1e/spells/misdirection/)**

@@ -29,3 +29,9 @@ Any creature upon which this spell is cast can move through any sort of terrain 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Pass Plant](/1e/spells/pass-plant/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Passwall →](/1e/spells/passwall/)**

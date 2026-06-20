@@ -27,3 +27,9 @@ reverse makes a particular creature or piece of writing indecipherable, or may b
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Commune With Nature](/1e/spells/commune-with-nature/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Cone of Cold →](/1e/spells/cone-of-cold/)**

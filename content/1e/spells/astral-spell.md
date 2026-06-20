@@ -65,3 +65,9 @@ Other than as described above, this spell is identical to the clerical spell of 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Antipathy/Sympathy](/1e/spells/antipathy-sympathy/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Atonement →](/1e/spells/atonement/)**

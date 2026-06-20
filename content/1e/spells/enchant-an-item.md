@@ -25,3 +25,9 @@ This spell is the culminating moment involved in the creation of a true magic it
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Emotion](/1e/spells/emotion/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Enchanted Weapon →](/1e/spells/enchanted-weapon/)**

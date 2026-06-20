@@ -43,3 +43,9 @@ This spell causes utter panic in the creatures exposed to the cone-shaped emanat
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: False Trap](/1e/spells/false-trap/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Feather Fall →](/1e/spells/feather-fall/)**

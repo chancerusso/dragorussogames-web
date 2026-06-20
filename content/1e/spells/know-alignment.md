@@ -29,3 +29,9 @@ All creatures are surrounded by an aura that can indicate their alignment, and t
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Knock](/1e/spells/knock/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Legend Lore →](/1e/spells/legend-lore/)**

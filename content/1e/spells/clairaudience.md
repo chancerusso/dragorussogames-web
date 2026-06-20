@@ -29,3 +29,9 @@ Clairaudience allows the caster to eavesdrop magically upon a particular locatio
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Charm Plants](/1e/spells/charm-plants/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Clairvoyance →](/1e/spells/clairvoyance/)**

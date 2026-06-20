@@ -25,3 +25,9 @@ This spell may be used to erase normal or magical writing from an area about two
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Entangle](/1e/spells/entangle/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: ESP →](/1e/spells/esp/)**

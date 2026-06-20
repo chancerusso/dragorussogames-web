@@ -25,3 +25,9 @@ This spell acts in the same manner as an invisibility spell, but has an effectiv
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Mass Charm](/1e/spells/mass-charm/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Mass Suggestion →](/1e/spells/mass-suggestion/)**

@@ -25,3 +25,9 @@ On casting this spell, the druid's hand ignites with an eldritch fire that cause
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Produce Fire](/1e/spells/produce-fire/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Programmed Illusion →](/1e/spells/programmed-illusion/)**

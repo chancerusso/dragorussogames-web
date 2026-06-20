@@ -29,3 +29,9 @@ The atonement spell is a form of spiritual cleansing, removing the stain of acti
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Astral Spell](/1e/spells/astral-spell/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Audible Glamour →](/1e/spells/audible-glamour/)**

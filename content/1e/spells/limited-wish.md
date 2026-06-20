@@ -29,3 +29,9 @@ Limited wish is a powerful spell, allowing the caster to reshape reality in acco
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Lightning Bolt](/1e/spells/lightning-bolt/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Locate Animals →](/1e/spells/locate-animals/)**

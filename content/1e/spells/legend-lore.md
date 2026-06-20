@@ -25,3 +25,9 @@ This spell, when cast, gathers mystical echoes of legend and rumour about a spec
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Know Alignment](/1e/spells/know-alignment/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Levitate →](/1e/spells/levitate/)**

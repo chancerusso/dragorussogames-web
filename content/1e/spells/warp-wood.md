@@ -25,3 +25,9 @@ This spell permanently warps wood and may be used to destroy arrows, spears, doo
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Wall of Thorns](/1e/spells/wall-of-thorns/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Water Breathing →](/1e/spells/water-breathing/)**

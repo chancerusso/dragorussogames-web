@@ -25,3 +25,9 @@ This spell confers tremendous protection against magical attacks that affect the
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Spectral Force](/1e/spells/spectral-force/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Spider Climb →](/1e/spells/spider-climb/)**

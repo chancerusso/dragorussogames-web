@@ -47,3 +47,9 @@ This spell operates as does the invisibility spell, but affects all creatures wi
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Invisibility to Animals](/1e/spells/invisibility-to-animals/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Invisible Stalker →](/1e/spells/invisible-stalker/)**

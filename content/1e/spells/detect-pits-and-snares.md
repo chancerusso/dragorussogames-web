@@ -25,3 +25,9 @@ The druid may cast this spell upon herself, imbuing her eyes with divinatory pow
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Detect Magic](/1e/spells/detect-magic/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Dig →](/1e/spells/dig/)**

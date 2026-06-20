@@ -25,3 +25,9 @@ This spell transforms an existing fire into a powerful mental snare. Any creatur
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Finger of Death](/1e/spells/finger-of-death/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Fire Seeds →](/1e/spells/fire-seeds/)**

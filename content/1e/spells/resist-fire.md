@@ -25,3 +25,9 @@ When this spell is cast, the recipient gains resistance to fire and heat, being 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Resist Cold](/1e/spells/resist-cold/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Restoration →](/1e/spells/restoration/)**

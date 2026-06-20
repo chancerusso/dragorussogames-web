@@ -29,3 +29,9 @@ Hand outstretched in the final somatic gesture of this spell, the magic user sum
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Guards and Wards](/1e/spells/guards-and-wards/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Hallucinatory Forest →](/1e/spells/hallucinatory-forest/)**

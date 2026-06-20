@@ -25,3 +25,9 @@ The caster becomes able to divine the presence of a particular kind of animal in
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Limited Wish](/1e/spells/limited-wish/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Locate Object →](/1e/spells/locate-object/)**

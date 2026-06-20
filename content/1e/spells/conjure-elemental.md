@@ -29,3 +29,9 @@ By means of this spell, the magic user calls an elemental being from the plane o
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Conjure Earth Elemental](/1e/spells/conjure-earth-elemental/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Conjure Fire Elemental →](/1e/spells/conjure-fire-elemental/)**

@@ -25,3 +25,9 @@ This spell functions in the same manner as extension I, but it doubles the durat
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Extension II](/1e/spells/extension-ii/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Faerie Fire →](/1e/spells/faerie-fire/)**

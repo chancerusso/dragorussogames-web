@@ -30,3 +30,9 @@ The teleport spell permits the caster to transport himor herself, and any additi
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Telekinesis](/1e/spells/telekinesis/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Temporal Stasis →](/1e/spells/temporal-stasis/)**

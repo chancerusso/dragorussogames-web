@@ -25,3 +25,9 @@ This spell repairs small breaks or tears in an object. It can weld together brok
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Maze](/1e/spells/maze/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Message →](/1e/spells/message/)**

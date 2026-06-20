@@ -43,3 +43,9 @@ This spell enchants a rope to become a portal into an extradimensional pocket of
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Reverse Gravity](/1e/spells/reverse-gravity/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Sanctuary →](/1e/spells/sanctuary/)**

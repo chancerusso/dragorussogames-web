@@ -25,3 +25,9 @@ With a gesture, the druid or other recipient of the spell fades from the sight, 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Invisibility](/1e/spells/invisibility/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Invisibility, 10 ft Radius →](/1e/spells/invisibility-10-ft-radius/)**

@@ -30,3 +30,9 @@ The terrifying creeping doom spell causes a massive swarm of insects, spiders, a
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Create Water](/1e/spells/create-water/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Crushing Hand →](/1e/spells/crushing-hand/)**

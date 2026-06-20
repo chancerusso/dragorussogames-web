@@ -25,3 +25,9 @@ This spell functions in the same manner as suggestion, but influences multiple c
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Mass Invisibility](/1e/spells/mass-invisibility/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Massmorph →](/1e/spells/massmorph/)**

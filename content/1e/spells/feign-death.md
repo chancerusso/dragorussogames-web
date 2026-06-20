@@ -66,3 +66,9 @@ This spell magically slows the recipient's metabolism into a state so close to d
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Feeblemind](/1e/spells/feeblemind/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Find Familiar →](/1e/spells/find-familiar/)**

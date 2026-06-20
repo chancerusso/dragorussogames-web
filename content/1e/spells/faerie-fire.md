@@ -29,3 +29,9 @@ The druid uses this spell to ignite a fiery-looking aura of bright light around 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Extension III](/1e/spells/extension-iii/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: False Trap →](/1e/spells/false-trap/)**

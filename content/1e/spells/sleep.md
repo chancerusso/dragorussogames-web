@@ -25,3 +25,9 @@ This spell affects a circular area with a 15 ft radius. A number of creatures wi
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Simulacrum](/1e/spells/simulacrum/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Slow →](/1e/spells/slow/)**

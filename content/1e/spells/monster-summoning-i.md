@@ -25,3 +25,9 @@ By casting this spell, the magic user conjures up 2-8 monsters to serve him or h
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Mnemonic Enhancement](/1e/spells/mnemonic-enhancement/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Monster Summoning II →](/1e/spells/monster-summoning-ii/)**

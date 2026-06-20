@@ -29,3 +29,9 @@ This spell banishes summoned creatures of evil, or those summoned for evil purpo
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Disintegrate](/1e/spells/disintegrate/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Dispel Exhaustion →](/1e/spells/dispel-exhaustion/)**

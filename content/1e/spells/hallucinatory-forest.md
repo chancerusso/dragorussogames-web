@@ -25,3 +25,9 @@ By casting this spell, the druid creates the illusion of a forest in the spell's
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Gust of Wind](/1e/spells/gust-of-wind/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Hallucinatory Terrain →](/1e/spells/hallucinatory-terrain/)**

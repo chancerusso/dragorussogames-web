@@ -29,3 +29,9 @@ This spell summons an invisible watchdog to guard an area. The hound is invisibl
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Lower Water](/1e/spells/lower-water/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Mage's Sword →](/1e/spells/mages-sword/)**

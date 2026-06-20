@@ -43,3 +43,9 @@ This spell is, as its name suggests, the creation of illusory sounds. The caster
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Atonement](/1e/spells/atonement/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Augury →](/1e/spells/augury/)**

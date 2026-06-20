@@ -48,3 +48,9 @@ Except as may be noted above, this spell is identical to the clerical spell lowe
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Locate Plants](/1e/spells/locate-plants/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Mage's Faithful Hound →](/1e/spells/mages-faithful-hound/)**

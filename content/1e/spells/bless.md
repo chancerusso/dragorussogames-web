@@ -29,3 +29,9 @@ This minor benison raises the morale and attack rolls of any creatures allied wi
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Blade Barrier](/1e/spells/blade-barrier/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Blindness →](/1e/spells/blindness/)**

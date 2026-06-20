@@ -25,3 +25,9 @@ This spell creates a roiling mass of gas and vapour, similar in appearance to a 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Fly](/1e/spells/fly/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Fool's Gold →](/1e/spells/fools-gold/)**

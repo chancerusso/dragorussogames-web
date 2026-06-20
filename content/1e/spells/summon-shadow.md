@@ -30,3 +30,9 @@ This spell summons 1 undead shadow per caster level from the shadow planes. The 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Summon Insects](/1e/spells/summon-insects/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Symbol →](/1e/spells/symbol/)**

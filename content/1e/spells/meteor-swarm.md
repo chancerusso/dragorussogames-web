@@ -25,3 +25,9 @@ Meteor-like chunks of magical fire streak from the magic user's outstretched han
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Message](/1e/spells/message/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Mind Blank →](/1e/spells/mind-blank/)**

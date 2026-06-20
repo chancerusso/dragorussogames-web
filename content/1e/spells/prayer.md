@@ -25,3 +25,9 @@ Casting prayer is a matter of intoning an invocation to the cleric's god(s), fol
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Power Word, Stun](/1e/spells/power-word-stun/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Predict Weather →](/1e/spells/predict-weather/)**

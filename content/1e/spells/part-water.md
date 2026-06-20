@@ -43,3 +43,9 @@ Except as may be noted above, this spell is identical to the clerical spell part
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Paralysation](/1e/spells/paralysation/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Pass Plant →](/1e/spells/pass-plant/)**

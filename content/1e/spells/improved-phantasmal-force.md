@@ -25,3 +25,9 @@ This spell produces a phantasm as described in the phantasmal force spell descri
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Improved Invisibility](/1e/spells/improved-invisibility/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Incendiary Cloud →](/1e/spells/incendiary-cloud/)**

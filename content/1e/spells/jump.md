@@ -25,3 +25,9 @@ This spell allows the subject to make one or more prodigious leaps, one addition
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Irresistible Dance](/1e/spells/irresistible-dance/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Knock →](/1e/spells/knock/)**

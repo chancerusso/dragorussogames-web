@@ -25,3 +25,9 @@ By means of a quest spell, the cleric enslaves the subject into fulfilling a tas
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Pyrotechnics](/1e/spells/pyrotechnics/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Raise Dead →](/1e/spells/raise-dead/)**

@@ -29,3 +29,9 @@ This spell calls into being a poisonous cloud of roiling vapour, heavier than ai
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Clone](/1e/spells/clone/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Colour Spray →](/1e/spells/colour-spray/)**

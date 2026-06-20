@@ -25,3 +25,9 @@ The illusionist creates a curtain of obscuring fog in the area of effect. Vision
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Wall of Fire](/1e/spells/wall-of-fire/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Wall of Force →](/1e/spells/wall-of-force/)**

@@ -29,3 +29,9 @@ Holy word is a spell of intrinsically good alignment. The intonation of a holy w
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Hold Portal](/1e/spells/hold-portal/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Hypnotic Pattern →](/1e/spells/hypnotic-pattern/)**

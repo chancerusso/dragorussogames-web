@@ -25,3 +25,9 @@ This spell creates a false magical aura around a single object of not more than 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Mage's Sword](/1e/spells/mages-sword/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Magic Jar →](/1e/spells/magic-jar/)**

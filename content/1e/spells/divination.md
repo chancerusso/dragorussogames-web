@@ -27,3 +27,9 @@ The spell reveals the relative power of the creatures in the area, the treasure 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Distance Distortion](/1e/spells/distance-distortion/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Duo-Dimension →](/1e/spells/duo-dimension/)**

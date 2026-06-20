@@ -25,3 +25,9 @@ At the completion of this spell, the druid holds his or her palm outstretched, a
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: True Sight](/1e/spells/true-sight/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Unseen Servant →](/1e/spells/unseen-servant/)**

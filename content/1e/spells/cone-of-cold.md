@@ -25,3 +25,9 @@ A cone of cold is a blast of magical cold originating from the caster's outstret
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Comprehend Languages](/1e/spells/comprehend-languages/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Confusion →](/1e/spells/confusion/)**

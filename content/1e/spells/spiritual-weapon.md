@@ -25,3 +25,9 @@ To cast this spell, the cleric throws a real war hammer into the air, invoking t
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Spirit-Rack](/1e/spells/spirit-rack/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Statue →](/1e/spells/statue/)**

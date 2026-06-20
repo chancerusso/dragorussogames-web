@@ -47,3 +47,9 @@ This spell empowers the caster to suggest facts or courses of action with an alm
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Strength](/1e/spells/strength/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Summon Insects →](/1e/spells/summon-insects/)**

@@ -25,3 +25,9 @@ This spell causes an item to shatter into pieces. It can affect objects of up to
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Shape Change](/1e/spells/shape-change/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Shield →](/1e/spells/shield/)**

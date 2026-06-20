@@ -25,3 +25,9 @@ This spell allows the caster to overhear the surface thoughts of any thinking be
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Erase](/1e/spells/erase/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Exorcise →](/1e/spells/exorcise/)**

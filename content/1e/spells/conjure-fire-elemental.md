@@ -29,3 +29,9 @@ It is within the power of a high-level druid to summon forth an elemental being 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Conjure Elemental](/1e/spells/conjure-elemental/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Contact Other Plane →](/1e/spells/contact-other-plane/)**

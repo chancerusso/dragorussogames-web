@@ -43,3 +43,9 @@ Except as may be noted above, this spell is identical to the druidic spell of th
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Transmute Metal to Wood](/1e/spells/transmute-metal-to-wood/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Transport via Plants →](/1e/spells/transport-via-plants/)**

@@ -29,3 +29,9 @@ This extremely powerful spell causes metal to heat up to searing temperatures, a
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Heal](/1e/spells/heal/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Hold Animal →](/1e/spells/hold-animal/)**

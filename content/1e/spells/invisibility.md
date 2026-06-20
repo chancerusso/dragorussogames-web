@@ -43,3 +43,9 @@ When the words of this spell are completed, the recipient and all he or she carr
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Interposing Hand](/1e/spells/interposing-hand/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Invisibility to Animals →](/1e/spells/invisibility-to-animals/)**

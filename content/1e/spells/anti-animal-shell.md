@@ -30,3 +30,9 @@ This spell creates an immobile field of force that hedges out all animal matter.
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Animate Rock](/1e/spells/animate-rock/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Anti-Magic Shell →](/1e/spells/anti-magic-shell/)**

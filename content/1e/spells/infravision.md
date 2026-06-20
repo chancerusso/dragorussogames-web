@@ -29,3 +29,9 @@ This spell allows the magic user to confer the ability to see in the dark, perce
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Incendiary Cloud](/1e/spells/incendiary-cloud/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Insect Plague →](/1e/spells/insect-plague/)**

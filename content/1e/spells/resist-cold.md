@@ -25,3 +25,9 @@ By touching the spell's intended recipient and casting the spell, the cleric ins
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Repulsion](/1e/spells/repulsion/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Resist Fire →](/1e/spells/resist-fire/)**

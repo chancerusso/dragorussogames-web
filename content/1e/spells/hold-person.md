@@ -49,3 +49,9 @@ This spell has the same effect as the clerical spell hold person: to immobilise 
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Hold Monster](/1e/spells/hold-monster/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Hold Plant →](/1e/spells/hold-plant/)**

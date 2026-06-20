@@ -43,3 +43,9 @@ Other than as noted above, this spell is identical to the druidic spell animal g
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Animal Friendship](/1e/spells/animal-friendship/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Animal Summoning I →](/1e/spells/animal-summoning-i/)**

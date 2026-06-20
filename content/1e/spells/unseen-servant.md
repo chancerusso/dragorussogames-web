@@ -25,3 +25,9 @@ By means of this spell, the caster summons a mindless magical force to perform s
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Turn Wood](/1e/spells/turn-wood/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Vanish →](/1e/spells/vanish/)**

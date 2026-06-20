@@ -25,3 +25,9 @@ Upon the completion of this spell, the caster's form and mind alter as he or she
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Tongues](/1e/spells/tongues/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Transmute Metal to Wood →](/1e/spells/transmute-metal-to-wood/)**

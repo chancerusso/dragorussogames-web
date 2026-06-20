@@ -25,3 +25,9 @@ This spell creates a nauseating cloud of vapours to billow forth in a location c
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Sticks to Snakes](/1e/spells/sticks-to-snakes/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Stone Shape →](/1e/spells/stone-shape/)**

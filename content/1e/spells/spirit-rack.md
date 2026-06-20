@@ -29,3 +29,9 @@ This spell is used to utterly banish a particular demon, devil, or the like to i
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Spider Climb](/1e/spells/spider-climb/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Spiritual Weapon →](/1e/spells/spiritual-weapon/)**

@@ -43,3 +43,9 @@ This spell, except as noted above, is similar to the clerical spell protection f
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Protection from Evil](/1e/spells/protection-from-evil/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Protection From Fire →](/1e/spells/protection-from-fire/)**

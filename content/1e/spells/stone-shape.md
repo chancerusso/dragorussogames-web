@@ -43,3 +43,9 @@ The magic user moulds stone by the power of his or her will, shaping it into wha
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Stinking Cloud](/1e/spells/stinking-cloud/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Stone Tell →](/1e/spells/stone-tell/)**

@@ -27,3 +27,9 @@ are detected as only quasi-real, they inflict 60% of normal damage and are AC 6.
 ## OSRIC Source
 
 Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+
+## Spell Navigation
+
+- **[← Previous Spell: Secret Chest](/1e/spells/secret-chest/)**
+- **[All Spells](/1e/spells/all-spells/)**
+- **[Next Spell: Shadow Door →](/1e/spells/shadow-door/)**
