@@ -1,0 +1,27 @@
+# Deafness
+
+Deafness is an OSRIC Chapter II spell available as: Illusionist 2.
+
+## Spell Entries
+
+### Illusionist 2
+
+**School:** Phantasmal Illusion
+
+| Field | OSRIC Value |
+| --- | --- |
+| Class/List | Illusionist 2 |
+| Range | 60 ft |
+| Duration | Permanent |
+| Area of Effect | Caster |
+| Components | V,S,M |
+| Casting Time | 2 segments |
+| Saving Throw | Negates |
+
+### Spell Description
+
+This spell is similar to the illusionist's blindness spell, but causes deafness. The effect is permanent until removed by dispel magic, though it can be removed by the caster at any time.
+
+## OSRIC Source
+
+Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.

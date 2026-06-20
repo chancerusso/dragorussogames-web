@@ -6,6 +6,8 @@ const navItems = [
   { title: "Character Creation", href: "/1e/character-creation/" },
   { title: "Character Sheet", href: "/1e/character-sheet/" },
   { title: "Rules", href: "/1e/how-to-play/" },
+  { title: "Equipment", href: "/1e/equipment/" },
+  { title: "Spells", href: "/1e/spells/" },
   { title: "Races", href: "/1e/races/" },
   { title: "Classes", href: "/1e/classes/" },
   { title: "House Rules", href: "/1e/house-rules/" }
@@ -15,6 +17,8 @@ const sectionItems = {
   index: [
     ["Character Creation", "/1e/character-creation/", "Build a character step by step with rules, tables, and write-this-down guidance."],
     ["Rules", "/1e/how-to-play/", "Read the procedures for exploration, encounters, combat, magic, and advancement."],
+    ["Equipment", "/1e/equipment/", "Use OSRIC costs, weights, weapons, armor, and adventuring gear."],
+    ["Spells", "/1e/spells/", "Reference spell lists, spell scrolls, and class spell rules."],
     ["Races", "/1e/races/", "Use race references after reading the Race step."],
     ["Classes", "/1e/classes/", "Use class references after reading the Class step."],
     ["Character Sheet", "/1e/character-sheet/", "Download blank and fillable Drago Russo First Edition sheets."],
@@ -33,6 +37,7 @@ const sectionItems = {
     ["Alignment", "/1e/character-creation/004-alignment/", "Choose the moral and cosmic direction of the character."],
     ["Starting Wealth", "/1e/character-creation/005-starting-wealth/", "Roll starting money before buying equipment."],
     ["Equipment", "/1e/character-creation/006-equipment/", "Buy armor, weapons, gear, and expedition supplies."],
+    ["Equipment Reference", "/1e/equipment/", "Use the complete OSRIC equipment tables."],
     ["Hit Points", "/1e/character-creation/007-hit-points/", "Determine starting durability and record hit points."],
     ["Languages", "/1e/character-creation/008-languages/", "Record starting languages and any Intelligence-based choices."]
   ],
@@ -70,7 +75,35 @@ const sectionItems = {
     ["Combat", "/1e/how-to-play/combat/", "Attacks, Armor Class, damage, morale, missiles, retreat, and saving throws."],
     ["Magic", "/1e/how-to-play/magic/", "Spell preparation, casting, interruption, saves, devices, and recovery."],
     ["Death", "/1e/how-to-play/death/", "Death, unconsciousness, healing magic, natural recovery, and rest."],
-    ["Experience", "/1e/how-to-play/experience/", "Treasure XP, monster XP, awards, training, and level advancement."]
+    ["Experience", "/1e/how-to-play/experience/", "Treasure XP, monster XP, awards, training, and level advancement."],
+    ["Equipment & Encumbrance", "/1e/how-to-play/equipment-encumbrance/", "Carried weight, armour bulk, movement categories, and surprise effects."],
+    ["Light, Vision & Infravision", "/1e/how-to-play/light-vision/", "Torchlight, lanterns, magic light, infravision, and darkness."],
+    ["Falling", "/1e/how-to-play/falling/", "Falling damage, fragile bodies, and common adjudication notes."],
+    ["Turning the Undead", "/1e/how-to-play/turning-undead/", "Cleric and paladin turning, results, duration, and undead types."],
+    ["Morale", "/1e/how-to-play/morale/", "When monsters, henchmen, and hirelings stand, flee, or surrender."],
+    ["Poison, Disease & Insanity", "/1e/how-to-play/poison-disease-insanity/", "Poison, disease, insanity, saves, and recovery."],
+    ["Hirelings & Henchmen", "/1e/how-to-play/hirelings-henchmen/", "Paid help, followers, loyalty, morale, and upkeep."],
+    ["Dungeon Exploration", "/1e/how-to-play/dungeon-exploration/", "Full dungeon turn sequence, actions, mapping, doors, traps, and rest."],
+    ["Wilderness Exploration", "/1e/how-to-play/wilderness-exploration/", "Daily wilderness sequence, navigation, encounters, camping, and exhaustion."],
+    ["Aerial Agility", "/1e/how-to-play/aerial-agility/", "Flying movement, turning, climbing, diving, hovering, and mounted flight."],
+    ["Adventures in Town", "/1e/how-to-play/adventures-in-town/", "Town activity, abstract downtime, hiring, shopping, and dangerous districts."],
+    ["Exploring the Planes", "/1e/how-to-play/exploring-the-planes/", "High-level planar play and what OSRIC leaves to the campaign."]
+  ],
+  equipment: [
+    ["Equipment", "/1e/equipment/", "Complete OSRIC player equipment reference."],
+    ["Character Equipment Step", "/1e/character-creation/006-equipment/", "Use during character creation."],
+    ["Equipment & Encumbrance", "/1e/how-to-play/equipment-encumbrance/", "Use carried weight at the table."],
+    ["Light, Vision & Infravision", "/1e/how-to-play/light-vision/", "Track torches, lanterns, and vision."]
+  ],
+  spells: [
+    ["Spells", "/1e/spells/", "Spell reference index."],
+    ["All Spells", "/1e/spells/all-spells/", "Alphabetical spell descriptions with OSRIC metadata."],
+    ["Spell Lists By Level", "/1e/spells/spell-lists-by-level/", "All class spell lists by spell level."],
+    ["Spell Scrolls", "/1e/spells/spell-scrolls/", "Casting and copying scrolls."],
+    ["Cleric Spells", "/1e/spells/cleric-spells/", "Cleric spell list and spell use notes."],
+    ["Druid Spells", "/1e/spells/druid-spells/", "Druid spell list and spell use notes."],
+    ["Magic-User Spells", "/1e/spells/magic-user-spells/", "Magic-user spell list and spell use notes."],
+    ["Illusionist Spells", "/1e/spells/illusionist-spells/", "Illusionist spell list and spell use notes."]
   ],
   "house-rules": [
     ["Character Rules", "/1e/house-rules/001-character-rules/"],
