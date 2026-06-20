@@ -1,13 +1,33 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
-from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.db.models import AuditLog, Campaign, Character, Player
 from app.db.session import get_db
-from app.schemas import CharacterCreateRequest, CharacterResponse, HealthResponse, LedgerPatchRequest
-from app.services.ledger import build_initial_ledger, merge_ledger
+from app.schemas import (
+    ActivateCharacterRequest,
+    CharacterCreateRequest,
+    CharacterResponse,
+    EquipmentAddRequest,
+    EquipmentMoveRequest,
+    EquipmentRemoveRequest,
+    HealthResponse,
+    LedgerPatchRequest,
+)
+from app.services.characters import (
+    activate_character,
+    add_equipment,
+    find_character_by_name,
+    get_character,
+    get_active_character_by_discord,
+    list_owned_characters,
+    player_character_count,
+    remove_equipment,
+    update_ledger_section,
+    move_equipment,
+)
+from app.services.ledger import build_initial_ledger, sync_active_status
 
 router = APIRouter(prefix="/api")
 
@@ -38,10 +58,9 @@ def create_character(data: CharacterCreateRequest, db: Session = Depends(get_db)
         player.player_name = data.player_name
         player.discord_username = data.discord_username
 
-    db.query(Character).filter(
-        Character.discord_user_id == data.discord_user_id,
-        Character.is_active.is_(True),
-    ).update({"is_active": False})
+    is_first_character = player_character_count(db, data.discord_user_id) == 0
+    status = "Active" if is_first_character else "Inactive"
+    ledger = sync_active_status(build_initial_ledger(data), status)
 
     character = Character(
         campaign_id=campaign.id,
@@ -50,8 +69,9 @@ def create_character(data: CharacterCreateRequest, db: Session = Depends(get_db)
         player_name=data.player_name,
         discord_username=data.discord_username,
         discord_user_id=data.discord_user_id,
-        ledger=build_initial_ledger(data),
-        is_active=True,
+        ledger=ledger,
+        is_active=is_first_character,
+        status=status,
     )
     db.add(character)
     db.flush()
@@ -61,7 +81,7 @@ def create_character(data: CharacterCreateRequest, db: Session = Depends(get_db)
             action="character.create",
             entity_type="character",
             entity_id=character.id,
-            payload={"character_name": data.character_name},
+            payload={"character_name": data.character_name, "status": character.status},
         )
     )
     db.commit()
@@ -71,14 +91,34 @@ def create_character(data: CharacterCreateRequest, db: Session = Depends(get_db)
 
 @router.get("/characters/by-discord/{discord_user_id}", response_model=CharacterResponse)
 def get_character_by_discord(discord_user_id: str, db: Session = Depends(get_db)) -> Character:
-    character = db.scalar(
-        select(Character)
-        .where(Character.discord_user_id == discord_user_id, Character.is_active.is_(True))
-        .order_by(Character.created_at.desc())
-    )
-    if character is None:
-        raise HTTPException(status_code=404, detail="No active character found for this Discord user.")
-    return character
+    return get_active_character_by_discord(db, discord_user_id)
+
+
+@router.get("/characters", response_model=list[CharacterResponse])
+def list_characters(discord_user_id: str, db: Session = Depends(get_db)) -> list[Character]:
+    return list_owned_characters(db, discord_user_id)
+
+
+@router.get("/characters/lookup", response_model=CharacterResponse)
+def lookup_character(
+    actor_discord_user_id: str,
+    actor_is_admin: bool = False,
+    character_name: str | None = None,
+    db: Session = Depends(get_db),
+) -> Character:
+    if character_name:
+        return find_character_by_name(db, character_name, actor_discord_user_id, actor_is_admin)
+    return get_active_character_by_discord(db, actor_discord_user_id)
+
+
+@router.post("/characters/{character_id}/activate", response_model=CharacterResponse)
+def activate_character_route(
+    character_id: int,
+    data: ActivateCharacterRequest,
+    db: Session = Depends(get_db),
+) -> Character:
+    character = get_character(db, character_id, data.actor_discord_user_id, data.actor_is_admin)
+    return activate_character(db, character, data.actor_discord_user_id, data.actor_is_admin)
 
 
 @router.patch("/characters/{character_id}/ledger", response_model=CharacterResponse)
@@ -87,21 +127,57 @@ def patch_character_ledger(
     data: LedgerPatchRequest,
     db: Session = Depends(get_db),
 ) -> Character:
-    character = db.get(Character, character_id)
-    if character is None:
-        raise HTTPException(status_code=404, detail="Character not found.")
+    actor_discord_user_id = data.actor_discord_user_id
+    if actor_discord_user_id is None:
+        raise HTTPException(status_code=422, detail="actor_discord_user_id is required.")
+    character = get_character(db, character_id, actor_discord_user_id, data.actor_is_admin)
+    return update_ledger_section(db, character, data.patch, actor_discord_user_id, data.audit_action)
 
-    character.ledger = merge_ledger(character.ledger or {}, data.patch)
-    flag_modified(character, "ledger")
-    db.add(
-        AuditLog(
-            actor_discord_user_id=data.actor_discord_user_id,
-            action=data.audit_action,
-            entity_type="character",
-            entity_id=character.id,
-            payload={"patch": data.patch},
-        )
+
+@router.post("/characters/{character_id}/equipment/add", response_model=CharacterResponse)
+def add_equipment_route(
+    character_id: int,
+    data: EquipmentAddRequest,
+    db: Session = Depends(get_db),
+) -> Character:
+    character = get_character(db, character_id, data.actor_discord_user_id, data.actor_is_admin)
+    return add_equipment(
+        db,
+        character,
+        data.actor_discord_user_id,
+        data.item_name,
+        data.quantity,
+        data.weight,
+        data.location,
+        data.notes,
     )
-    db.commit()
-    db.refresh(character)
-    return character
+
+
+@router.post("/characters/{character_id}/equipment/remove", response_model=CharacterResponse)
+def remove_equipment_route(
+    character_id: int,
+    data: EquipmentRemoveRequest,
+    db: Session = Depends(get_db),
+) -> Character:
+    character = get_character(db, character_id, data.actor_discord_user_id, data.actor_is_admin)
+    return remove_equipment(db, character, data.actor_discord_user_id, data.item_name, data.quantity)
+
+
+@router.post("/characters/{character_id}/equipment/equip", response_model=CharacterResponse)
+def equip_equipment_route(
+    character_id: int,
+    data: EquipmentMoveRequest,
+    db: Session = Depends(get_db),
+) -> Character:
+    character = get_character(db, character_id, data.actor_discord_user_id, data.actor_is_admin)
+    return move_equipment(db, character, data.actor_discord_user_id, data.item_name, "equipped")
+
+
+@router.post("/characters/{character_id}/equipment/unequip", response_model=CharacterResponse)
+def unequip_equipment_route(
+    character_id: int,
+    data: EquipmentMoveRequest,
+    db: Session = Depends(get_db),
+) -> Character:
+    character = get_character(db, character_id, data.actor_discord_user_id, data.actor_is_admin)
+    return move_equipment(db, character, data.actor_discord_user_id, data.item_name, "inventory")

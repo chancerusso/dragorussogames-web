@@ -7,7 +7,7 @@ Phase 1 scope:
 - PostgreSQL persistence
 - Campaign, player, party, character, and audit log tables
 - Character ledger stored as JSON
-- Discord slash commands for ping, character creation, and ledger display
+- Discord slash commands for ping, character creation, ledger display, and table-use ledger updates
 
 Phase 1 intentionally does not include combat, exploration, XP awards, treasure, rules lookup, downtime, or a web UI.
 

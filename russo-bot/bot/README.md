@@ -16,4 +16,20 @@ npm start
 
 - `/ping`
 - `/character create`
+- `/character list`
+- `/character active`
+- `/character abilities`
+- `/character hp`
+- `/character ac`
+- `/character xp`
+- `/character coins`
+- `/character status`
+- `/character equipment add`
+- `/character equipment remove`
+- `/character equipment list`
+- `/character equipment equip`
+- `/character equipment unequip`
+- `/character resources`
+- `/character saves`
+- `/character movement`
 - `/ledger`

@@ -63,7 +63,8 @@ class Character(TimestampMixin, Base):
     discord_username: Mapped[str] = mapped_column(String(120), nullable=False)
     discord_user_id: Mapped[str] = mapped_column(String(32), index=True, nullable=False)
     ledger: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true", nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
+    status: Mapped[str] = mapped_column(String(40), default="Inactive", server_default="Inactive", nullable=False)
 
     campaign: Mapped[Campaign | None] = relationship(back_populates="characters")
     party: Mapped[Party | None] = relationship(back_populates="characters")

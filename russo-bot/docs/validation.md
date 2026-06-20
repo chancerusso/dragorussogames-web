@@ -92,3 +92,59 @@ Confirm `/ledger` shows:
 - Status as `Active`
 
 Restart the bot and backend services, then run `/ledger` again. The same values should still render from PostgreSQL.
+
+## Phase 1.2 Character Ledger Management
+
+Run migrations and re-register commands:
+
+```bash
+cd /opt/russo-bot/source/russo-bot/backend
+alembic upgrade head
+cd /opt/russo-bot/source/russo-bot/bot
+npm run build
+npm run register
+sudo systemctl restart russo-backend.service
+sudo systemctl restart russo-bot.service
+```
+
+Optional DM/admin targeting uses `RUSSO_ADMIN_USER_IDS` as a comma-separated list of Discord user IDs. Discord server Administrator permission is also treated as admin.
+
+Discord validation flow:
+
+```text
+/character create character_name:Testus player_name:Chance race:Human class_name:Fighter level:1 alignment:Neutral hp_max:10 hp_current:10 armor_class:5
+/character create character_name:Aldric player_name:Chance race:Elf class_name:Magic-User level:1 alignment:Chaotic Good hp_max:4 hp_current:4 armor_class:9
+/character list
+/ledger
+/character active character:Aldric
+/ledger
+/character abilities str:12 int:17 wis:10 dex:15 con:9 cha:11
+/character hp current_hp:3 max_hp:4
+/character ac armor_class:8
+/character xp current_xp:1250 xp_needed:2500
+/character coins gp:25 sp:12
+/character coins gp:5 mode:add
+/character resources torches:6 rations:7 water:3 arrows:20
+/character saves death:13 wands:14 paralysis_petrify:13 breath:16 spells:15
+/character movement movement:90 encumbrance_category:Light
+/character equipment add item_name:longsword quantity:1 weight:6 location:carried
+/character equipment add item_name:shield quantity:1 weight:10 location:carried
+/character equipment add item_name:backpack quantity:1 weight:2 location:carried
+/character equipment add item_name:torches quantity:6 weight:1 location:carried
+/character equipment equip item_name:longsword
+/character equipment equip item_name:shield
+/character equipment remove item_name:torches quantity:1
+/character equipment list
+/ledger
+```
+
+Confirm:
+
+- `Testus` is created Active and `Aldric` is created Inactive.
+- `/character list` shows both characters with status and active state.
+- `/ledger` initially shows `Testus`, then shows `Aldric` after activation.
+- Updates affect only supplied fields.
+- Coin `add` and `subtract` modes preserve omitted coin fields.
+- Equipment list shows longsword and shield equipped, backpack carried, and five torches remaining.
+- `/ledger` shows updated HP, AC, XP, abilities, coins, movement, encumbrance, status, and active state.
+- Restart backend and bot, then run `/ledger`; the same values should persist from PostgreSQL.

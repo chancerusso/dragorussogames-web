@@ -44,6 +44,7 @@ Stores active and historical character ledgers.
 - `discord_user_id`
 - `ledger` JSONB
 - `is_active`
+- `status`
 - `created_at`
 - `updated_at`
 
@@ -58,6 +59,8 @@ The `ledger` JSON stores:
 - Magic
 - Conditions
 - Recovery
+
+Only one character per Discord user should have `is_active = true` and `status = Active`.
 
 ## audit_logs
 

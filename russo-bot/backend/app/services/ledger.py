@@ -10,12 +10,13 @@ def build_initial_ledger(data: CharacterCreateRequest) -> dict[str, Any]:
             "player_name": data.player_name,
             "discord_username": data.discord_username,
             "discord_user_id": data.discord_user_id,
-            "status": "Active",
+            "status": "Inactive",
         },
         "basics": {
             "race": data.race,
             "class_name": data.class_name,
             "level": data.level,
+            "alignment": data.alignment,
             "xp_current": 0,
             "xp_needed": None,
         },
@@ -28,10 +29,24 @@ def build_initial_ledger(data: CharacterCreateRequest) -> dict[str, Any]:
             "cha": None,
         },
         "combat": {
-            "hp_current": None,
-            "hp_max": None,
-            "armor_class": None,
+            "hp_current": data.hp_current,
+            "hp_max": data.hp_max,
+            "armor_class": data.armor_class,
             "movement": None,
+            "saving_throws": {
+                "death": None,
+                "wands": None,
+                "paralysis_petrify": None,
+                "breath": None,
+                "spells": None,
+            },
+        },
+        "equipment": {
+            "inventory": [],
+            "equipped": [],
+            "stored": [],
+            "encumbrance_total": 0,
+            "encumbrance_category": None,
         },
         "wealth": {
             "pp": 0,
@@ -40,18 +55,27 @@ def build_initial_ledger(data: CharacterCreateRequest) -> dict[str, Any]:
             "sp": 0,
             "cp": 0,
         },
+        "resources": {
+            "torches": 0,
+            "lantern_oil": 0,
+            "rations": 0,
+            "water": 0,
+            "arrows": 0,
+            "bolts": 0,
+            "sling_stones": 0,
+        },
         "Identity": {
             "character_name": data.character_name,
             "player_name": data.player_name,
             "discord_username": data.discord_username,
             "discord_user_id": data.discord_user_id,
-            "status": "Active",
+            "status": "Inactive",
         },
         "Character Basics": {
             "race": data.race,
             "class_name": data.class_name,
             "level": data.level,
-            "alignment": None,
+            "alignment": data.alignment,
             "languages": [],
             "xp": 0,
         },
@@ -64,9 +88,9 @@ def build_initial_ledger(data: CharacterCreateRequest) -> dict[str, Any]:
             "charisma": None,
         },
         "Combat": {
-            "hp": None,
-            "max_hp": None,
-            "ac": None,
+            "hp": data.hp_current,
+            "max_hp": data.hp_max,
+            "ac": data.armor_class,
             "movement": None,
             "saving_throws": {},
             "attacks": [],
@@ -85,7 +109,13 @@ def build_initial_ledger(data: CharacterCreateRequest) -> dict[str, Any]:
             "cp": 0,
         },
         "Resources": {
-            "rations": None,
+            "torches": 0,
+            "lantern_oil": 0,
+            "rations": 0,
+            "water": 0,
+            "arrows": 0,
+            "bolts": 0,
+            "sling_stones": 0,
             "light": [],
             "ammunition": [],
             "class_resources": {},
@@ -114,3 +144,14 @@ def merge_ledger(base: dict[str, Any], patch: dict[str, Any]) -> dict[str, Any]:
         else:
             merged[key] = value
     return merged
+
+
+def sync_active_status(ledger: dict[str, Any], status: str) -> dict[str, Any]:
+    active = status == "Active"
+    return merge_ledger(
+        ledger,
+        {
+            "identity": {"status": status, "active": active},
+            "Identity": {"status": status, "active": active},
+        },
+    )

@@ -13,6 +13,10 @@ class CharacterCreateRequest(BaseModel):
     race: str = Field(min_length=1, max_length=80)
     class_name: str = Field(min_length=1, max_length=80)
     level: int = Field(ge=1)
+    alignment: str | None = Field(default=None, max_length=80)
+    hp_max: int | None = Field(default=None)
+    hp_current: int | None = Field(default=None)
+    armor_class: int | None = Field(default=None)
     discord_username: str = Field(min_length=1, max_length=120)
     discord_user_id: str = Field(min_length=1, max_length=32)
 
@@ -23,6 +27,8 @@ class CharacterResponse(BaseModel):
     player_name: str
     discord_username: str
     discord_user_id: str
+    is_active: bool
+    status: str
     ledger: dict[str, Any]
 
     model_config = {"from_attributes": True}
@@ -31,4 +37,39 @@ class CharacterResponse(BaseModel):
 class LedgerPatchRequest(BaseModel):
     patch: dict[str, Any] = Field(default_factory=dict)
     actor_discord_user_id: str | None = Field(default=None, max_length=32)
+    actor_is_admin: bool = False
     audit_action: str = Field(default="ledger.update", max_length=120)
+
+
+class CharacterQuery(BaseModel):
+    actor_discord_user_id: str = Field(min_length=1, max_length=32)
+    actor_is_admin: bool = False
+    character_name: str | None = Field(default=None, min_length=1, max_length=120)
+
+
+class ActivateCharacterRequest(BaseModel):
+    actor_discord_user_id: str = Field(min_length=1, max_length=32)
+    actor_is_admin: bool = False
+
+
+class EquipmentAddRequest(BaseModel):
+    actor_discord_user_id: str = Field(min_length=1, max_length=32)
+    actor_is_admin: bool = False
+    item_name: str = Field(min_length=1, max_length=120)
+    quantity: int = Field(default=1, ge=1)
+    weight: float = Field(default=0, ge=0)
+    location: str = Field(default="carried", max_length=40)
+    notes: str | None = Field(default=None, max_length=500)
+
+
+class EquipmentRemoveRequest(BaseModel):
+    actor_discord_user_id: str = Field(min_length=1, max_length=32)
+    actor_is_admin: bool = False
+    item_name: str = Field(min_length=1, max_length=120)
+    quantity: int = Field(default=1, ge=1)
+
+
+class EquipmentMoveRequest(BaseModel):
+    actor_discord_user_id: str = Field(min_length=1, max_length=32)
+    actor_is_admin: bool = False
+    item_name: str = Field(min_length=1, max_length=120)
