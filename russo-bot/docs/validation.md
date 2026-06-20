@@ -263,6 +263,34 @@ Checklist:
 - [ ] Restart preserves data
 - [ ] No VTT, attack rolling, damage rolling, initiative, spell automation, rest automation, encounter system, or referee dashboard behavior appears
 
+## Phase 1.4 Referee Screen
+
+Discord validation flow:
+
+```text
+/ref screen
+```
+
+Checklist:
+
+- [ ] `/ref screen` loads
+- [ ] Non-admin user cannot load `/ref screen`
+- [ ] combat table visible
+- [ ] save table visible
+- [ ] turning visible
+- [ ] morale visible
+- [ ] movement visible
+- [ ] referee screen consumes structured rules data
+- [ ] OSRIC ruleset loads by default
+- [ ] readable on desktop
+- [ ] readable on mobile
+- [ ] No encounter generator appears
+- [ ] No combat roller appears
+- [ ] No initiative tracker appears
+- [ ] No spell engine appears
+- [ ] No monster database appears
+- [ ] No VTT behavior appears
+
 ## Future: Pinned Character Cards
 
 Future RUSSO may support a `#pc-roster` channel where each active character has a pinned or refreshable compact character card.

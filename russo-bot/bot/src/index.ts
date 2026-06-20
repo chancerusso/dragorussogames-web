@@ -17,6 +17,7 @@ import { buildCharacterCardEmbed } from "./card-embed.js";
 import { buildHelpEmbed } from "./help-embed.js";
 import { buildCharacterSheetEmbed } from "./sheet-embed.js";
 import { buildLedgerEmbed } from "./ledger-embed.js";
+import { buildRefereeScreenEmbeds } from "./ref-screen.js";
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
@@ -379,6 +380,19 @@ client.on(Events.InteractionCreate, async (interaction) => {
         embeds: [buildHelpEmbed()],
         ephemeral: true
       });
+      return;
+    }
+
+    if (interaction.commandName === "ref") {
+      if (!isAdmin(interaction)) {
+        await interaction.reply({ content: "RUSSO referee references are limited to the Referee/admin.", ephemeral: true });
+        return;
+      }
+
+      const subcommand = interaction.options.getSubcommand();
+      if (subcommand === "screen") {
+        await interaction.reply({ embeds: buildRefereeScreenEmbeds(config.rulesetId), ephemeral: true });
+      }
       return;
     }
 

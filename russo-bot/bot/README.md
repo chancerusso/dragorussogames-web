@@ -17,6 +17,7 @@ npm start
 - `/ping`
 - `/guide`
 - `/help` deprecated alias for `/guide`
+- `/ref screen`
 - `/show card`
 - `/character create`
 - `/character list`

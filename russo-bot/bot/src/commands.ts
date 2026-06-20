@@ -34,6 +34,14 @@ export const commandData = [
     .setName("help")
     .setDescription("Deprecated alias. Use /guide."),
   new SlashCommandBuilder()
+    .setName("ref")
+    .setDescription("Referee-only DRG1e quick references.")
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("screen")
+        .setDescription("Show the referee quick-reference screen.")
+    ),
+  new SlashCommandBuilder()
     .setName("show")
     .setDescription("Show read-only RUSSO table references.")
     .addSubcommand((subcommand) =>
