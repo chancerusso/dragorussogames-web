@@ -1,4 +1,7 @@
-const API = "/api/1e";
+const VAULT_API_BASE =
+  window.DRG1E_VAULT_API_BASE ||
+  "https://russo.dragorussogames.com/api";
+const API = `${VAULT_API_BASE}/1e`;
 const abilities = ["strength", "intelligence", "wisdom", "dexterity", "constitution", "charisma"];
 const coins = ["platinum", "gold", "electrum", "silver", "copper"];
 const state = { characters: [], equipment: [], spells: [], campaigns: [], players: [], campaign: null, rules: null, character: null, currentPlayer: null, step: 0, draft: null, inventoryFilter: "equipped", dmOverride: false };
