@@ -20,10 +20,12 @@ def upgrade() -> None:
         "characters",
         sa.Column("status", sa.String(length=40), server_default="Inactive", nullable=False),
     )
-    op.alter_column("characters", "is_active", server_default=sa.false())
+    if op.get_bind().dialect.name != "sqlite":
+        op.alter_column("characters", "is_active", server_default=sa.false())
     op.execute("UPDATE characters SET status = CASE WHEN is_active THEN 'Active' ELSE 'Inactive' END")
 
 
 def downgrade() -> None:
-    op.alter_column("characters", "is_active", server_default=sa.true())
+    if op.get_bind().dialect.name != "sqlite":
+        op.alter_column("characters", "is_active", server_default=sa.true())
     op.drop_column("characters", "status")

@@ -16,6 +16,10 @@ branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 
+def json_type():
+    return sa.JSON().with_variant(postgresql.JSONB(astext_type=sa.Text()), "postgresql")
+
+
 def upgrade() -> None:
     op.create_table(
         "group_stores",
@@ -23,8 +27,8 @@ def upgrade() -> None:
         sa.Column("guild_id", sa.String(length=32), nullable=False),
         sa.Column("channel_id", sa.String(length=32), nullable=False),
         sa.Column("channel_name_snapshot", sa.String(length=120), nullable=True),
-        sa.Column("items", postgresql.JSONB(astext_type=sa.Text()), nullable=False),
-        sa.Column("coins", postgresql.JSONB(astext_type=sa.Text()), nullable=False),
+        sa.Column("items", json_type(), nullable=False),
+        sa.Column("coins", json_type(), nullable=False),
         sa.Column("xp_bank", sa.Integer(), server_default="0", nullable=False),
         sa.Column("notes", sa.String(length=1000), nullable=True),
         sa.Column("updated_by_discord_id", sa.String(length=32), nullable=False),

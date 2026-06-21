@@ -1,6 +1,40 @@
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 
 from app.api import router
 
 app = FastAPI(title="RUSSO Backend", version="0.1.0")
 app.include_router(router)
+
+SITE_ROOT = Path(__file__).resolve().parents[3]
+
+
+@app.get("/1e/characters/")
+def characters_index_route() -> FileResponse:
+    return FileResponse(SITE_ROOT / "1e" / "characters" / "index.html")
+
+
+@app.get("/1e/characters/new/")
+def character_new_route() -> FileResponse:
+    return FileResponse(SITE_ROOT / "1e" / "characters" / "new" / "index.html")
+
+
+@app.get("/1e/characters/{character_id}/")
+def character_sheet_route(character_id: int) -> FileResponse:
+    return FileResponse(SITE_ROOT / "1e" / "characters" / "1" / "index.html")
+
+
+@app.get("/1e/characters/{character_id}/edit/")
+def character_edit_route(character_id: int) -> FileResponse:
+    return FileResponse(SITE_ROOT / "1e" / "characters" / "1" / "edit" / "index.html")
+
+
+@app.get("/1e/dm/campaigns/{campaign_id}/")
+def campaign_route(campaign_id: int) -> FileResponse:
+    return FileResponse(SITE_ROOT / "1e" / "dm" / "campaigns" / "1" / "index.html")
+
+
+if SITE_ROOT.exists():
+    app.mount("/", StaticFiles(directory=SITE_ROOT, html=True), name="site")

@@ -4,6 +4,7 @@ const CONTENT_BASE = "/content/1e";
 const navItems = [
   { title: "Home", href: "/1e/" },
   { title: "Character Creation", href: "/1e/character-creation/" },
+  { title: "Character Vault", href: "/1e/characters/" },
   { title: "Character Sheet", href: "/1e/character-sheet/" },
   { title: "Rules", href: "/1e/how-to-play/" },
   { title: "Equipment", href: "/1e/equipment/" },
@@ -25,12 +26,14 @@ const sectionItems = {
     ["House Rules", "/1e/house-rules/", "Read Drago Russo campaign changes separately from the baseline rules."]
   ],
   "character-sheet": [
+    ["Character Vault", "/1e/characters/", "Create and manage persistent website characters."],
     ["Character Sheet", "/1e/character-sheet/", "Download official Drago Russo Games First Edition sheets."],
     ["Character Creation", "/1e/character-creation/", "Use the rules flow before recording the sheet."],
     ["Languages", "/1e/character-creation/008-languages/", "Finish the character creation flow."],
     ["Start Here", "/1e/start-here/", "Read the First Edition orientation."]
   ],
   "character-creation": [
+    ["Character Vault", "/1e/characters/new/", "Use the online builder and save a permanent character."],
     ["Ability Scores", "/1e/character-creation/001-ability-scores/", "Roll six scores, assign them, and record your ability line."],
     ["Race", "/1e/character-creation/002-race/", "Choose ancestry, movement, vision, languages, restrictions, and race notes."],
     ["Class", "/1e/character-creation/003-class/", "Choose your adventuring role, hit die, advancement path, and class abilities."],

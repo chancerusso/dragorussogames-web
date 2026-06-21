@@ -16,6 +16,10 @@ branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 
+def json_type():
+    return sa.JSON().with_variant(postgresql.JSONB(astext_type=sa.Text()), "postgresql")
+
+
 def upgrade() -> None:
     op.create_table(
         "campaigns",
@@ -28,8 +32,8 @@ def upgrade() -> None:
         "players",
         sa.Column("id", sa.Integer(), primary_key=True),
         sa.Column("player_name", sa.String(length=120), nullable=False),
-        sa.Column("discord_username", sa.String(length=120), nullable=False),
-        sa.Column("discord_user_id", sa.String(length=32), nullable=False, unique=True),
+        sa.Column("discord_username", sa.String(length=120), nullable=True),
+        sa.Column("discord_user_id", sa.String(length=32), nullable=True, unique=True),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
     )
@@ -52,7 +56,7 @@ def upgrade() -> None:
         sa.Column("player_name", sa.String(length=120), nullable=False),
         sa.Column("discord_username", sa.String(length=120), nullable=False),
         sa.Column("discord_user_id", sa.String(length=32), nullable=False, index=True),
-        sa.Column("ledger", postgresql.JSONB(astext_type=sa.Text()), nullable=False),
+        sa.Column("ledger", json_type(), nullable=False),
         sa.Column("is_active", sa.Boolean(), server_default=sa.true(), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
@@ -65,7 +69,7 @@ def upgrade() -> None:
         sa.Column("action", sa.String(length=120), nullable=False),
         sa.Column("entity_type", sa.String(length=80), nullable=False),
         sa.Column("entity_id", sa.Integer(), nullable=True),
-        sa.Column("payload", postgresql.JSONB(astext_type=sa.Text()), nullable=False),
+        sa.Column("payload", json_type(), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
     )
 

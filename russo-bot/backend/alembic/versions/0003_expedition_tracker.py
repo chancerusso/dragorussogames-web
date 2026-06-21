@@ -16,6 +16,10 @@ branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 
+def json_type():
+    return sa.JSON().with_variant(postgresql.JSONB(astext_type=sa.Text()), "postgresql")
+
+
 def upgrade() -> None:
     op.create_table(
         "expedition_trackers",
@@ -28,7 +32,7 @@ def upgrade() -> None:
         sa.Column("move_rate", sa.Integer(), server_default="120", nullable=False),
         sa.Column("oil_pints", sa.Integer(), server_default="0", nullable=False),
         sa.Column("rations", sa.Integer(), server_default="0", nullable=False),
-        sa.Column("active_lights", postgresql.JSONB(astext_type=sa.Text()), nullable=False),
+        sa.Column("active_lights", json_type(), nullable=False),
         sa.Column("combat_rest_required", sa.Boolean(), server_default=sa.false(), nullable=False),
         sa.Column("notes", sa.String(length=1000), nullable=True),
         sa.Column("created_by_discord_id", sa.String(length=32), nullable=False),
@@ -41,7 +45,7 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), primary_key=True),
         sa.Column("guild_id", sa.String(length=32), nullable=False),
         sa.Column("channel_id", sa.String(length=32), nullable=False),
-        sa.Column("positions", postgresql.JSONB(astext_type=sa.Text()), nullable=False),
+        sa.Column("positions", json_type(), nullable=False),
         sa.Column("notes", sa.String(length=1000), nullable=True),
         sa.Column("updated_by_discord_id", sa.String(length=32), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
