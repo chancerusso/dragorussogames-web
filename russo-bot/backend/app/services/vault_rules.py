@@ -241,7 +241,21 @@ SAVING_THROW_TABLES = {
 }
 
 
-def saving_throws(class_name: str, level: int) -> dict:
+def constitution_save_bonus(constitution: int) -> int:
+    if constitution <= 3:
+        return 0
+    if constitution <= 6:
+        return 1
+    if constitution <= 10:
+        return 2
+    if constitution <= 13:
+        return 3
+    if constitution <= 17:
+        return 4
+    return 5
+
+
+def saving_throws(class_name: str, level: int, race: str = "Human", constitution: int = 10) -> dict:
     table = SAVING_THROW_TABLES.get(class_name)
     if not table:
         return {"status": "Manual DM Review", "reason": "No verified single-class saving throw table is encoded for this class yet."}
@@ -252,11 +266,18 @@ def saving_throws(class_name: str, level: int) -> dict:
             values = row
             band = f"{low}-{high}" if high < 99 else f"{low}+"
             break
+    categories = {category: value for category, value in zip(SAVE_CATEGORIES, values)}
+    notes = ["Druid +2 bonus vs fire/lightning is situational and not applied to the base table."] if class_name == "Druid" else []
+    if race == "Dwarf":
+        bonus = constitution_save_bonus(constitution)
+        for category in ("aimed_magic_items", "death_paralysis_poison", "spells"):
+            categories[category] = max(2, categories[category] - bonus)
+        notes.append(f"Dwarf Constitution save adjustment applied: +{bonus} against magic and poison.")
     return {
         "level_band": band,
-        "categories": {category: value for category, value in zip(SAVE_CATEGORIES, values)},
+        "categories": categories,
         "labels": SAVE_LABELS,
-        "notes": ["Druid +2 bonus vs fire/lightning is situational and not applied to the base table."] if class_name == "Druid" else [],
+        "notes": notes,
     }
 
 
@@ -446,7 +467,7 @@ def derived_stats(abilities: dict[str, int], inventory: list[dict], coins: dict[
         "encumbrance_band": band,
         "surprise_adjustment": f"{surprise:+d}",
         "initiative_adjustment": "Manual DM Review: OSRIC Dexterity does not modify melee initiative, but may modify missile initiative.",
-        "saving_throws": saving_throws(class_name, level),
+        "saving_throws": saving_throws(class_name, level, race, int(abilities.get("constitution", 10))),
         "ability_modifiers": ability_modifiers(abilities, class_name),
         "coin_weight": round(coin_weight(coins), 2),
         "coin_count": sum(max(0, int(coins.get(coin, 0) or 0)) for coin in ("platinum", "gold", "electrum", "silver", "copper")),

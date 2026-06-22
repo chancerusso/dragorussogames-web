@@ -25,6 +25,8 @@ function pageKind() {
   if (path.endsWith("/new")) return "new";
   if (path.endsWith("/edit")) return "edit";
   if (path.includes("/dm/campaigns")) return "campaign";
+  if (path.includes("/dm/players")) return "dmPlayers";
+  if (path.includes("/dm/characters")) return "dmCharacters";
   const match = path.match(/\/1e\/characters\/(\d+)$/);
   return match ? "show" : "index";
 }
@@ -61,6 +63,8 @@ async function boot() {
       state.campaign = await api(`/campaigns/${campaignId()}`);
       state.characters = await api("/characters?include_archived=true");
     }
+    if (kind === "dmPlayers") state.characters = await api("/characters?include_archived=true");
+    if (kind === "dmCharacters") state.characters = await api("/characters?include_archived=true");
     if (kind === "index") state.characters = await api(`/characters${state.currentPlayer?.id ? `?user_id=${state.currentPlayer.id}` : ""}`);
     render();
   } catch (error) {
@@ -76,6 +80,7 @@ function hydrateCurrentPlayer() {
 }
 
 function renderShell() {
+  const dmPage = pageKind().startsWith("dm") || pageKind() === "campaign";
   document.querySelector("[data-vault-app]").innerHTML = `
     <section class="vault-hero">
       <div>
@@ -86,8 +91,9 @@ function renderShell() {
       </div>
       <div class="vault-actions">
         <a class="vault-button secondary" href="/1e/">Rules Home</a>
-        <a class="vault-button secondary" href="/1e/dm/campaigns/">DM Campaigns</a>
+        <a class="vault-button secondary" href="/1e/characters/">Characters</a>
         <a class="vault-button" href="/1e/characters/new/">New Character</a>
+        ${dmPage ? `<a class="vault-button secondary" href="/1e/dm/campaigns/">DM Campaigns</a><a class="vault-button secondary" href="/1e/dm/players/">DM Players</a><a class="vault-button secondary" href="/1e/dm/characters/">DM Characters</a>` : ""}
       </div>
     </section>
     <section data-vault-view></section>`;
@@ -98,6 +104,8 @@ function pageTitle() {
   if (pageKind() === "edit") return "Edit Character";
   if (pageKind() === "show") return "Character Sheet";
   if (pageKind() === "campaign") return "Campaigns";
+  if (pageKind() === "dmPlayers") return "DM Players";
+  if (pageKind() === "dmCharacters") return "DM Characters";
   return "Your Characters";
 }
 
@@ -107,6 +115,8 @@ function render() {
   if (kind === "show") renderSheet();
   if (kind === "index") renderIndex();
   if (kind === "campaign") renderCampaigns();
+  if (kind === "dmPlayers") renderDmPlayers();
+  if (kind === "dmCharacters") renderDmCharacters();
 }
 
 function initialDraft() {
@@ -182,14 +192,14 @@ function builderStep() {
   if (state.step === 0) return `
     ${field("Character Name", "name", d.name)}
     ${selectField("Owner / Player", "user_id", String(d.user_id || state.currentPlayer?.id || ""), ["", ...state.players.map((player) => String(player.id))])}
-    ${field("New/Updated Player Name", "owner_name", d.owner_name || state.currentPlayer?.display_name || "Website Player")}
+    ${field("Player Name", "owner_name", d.owner_name || state.currentPlayer?.display_name || "Website Player")}
     ${field("Email", "email", d.email || state.currentPlayer?.email || "", "email")}
     ${field("Discord User ID", "discord_user_id", d.discord_user_id || state.currentPlayer?.discord_user_id || "")}
-    ${selectField("Role", "role", d.role || state.currentPlayer?.role || "player", ["player", "dm", "admin"])}
-    ${selectField("Campaign", "campaign_id", d.campaign_id || "", ["", ...state.campaigns.map((c) => String(c.id))])}
+    ${campaignSelectHtml(d)}
     ${field("Campaign Day", "campaign_day", d.campaign_day, "number")}
     ${field("Current Location", "current_location", d.current_location)}
-    ${field("Safe Storage", "safe_storage_location", d.safe_storage_location || "", "text", "wide")}
+    ${field("Personal Storage Location", "safe_storage_location", d.safe_storage_location || "", "text", "wide")}
+    <p class="vault-muted vault-full">Use this for items, coins, or gear not carried by the character.</p>
     <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/">Character Creation</a></p>
     ${navButtons()}`;
   if (state.step === 1) return `
@@ -205,7 +215,7 @@ function builderStep() {
     ${navButtons()}`;
   if (state.step === 3) return `
     ${selectField("Class", "class_name", d.class_name, classes)}
-    <div class="vault-card vault-wide"><h3>Class Notes</h3>${raceClassWarnings(d)}<p>${h((state.rules.classes[d.class_name] || {}).armor)}</p><p><strong>Weapons:</strong> ${h((state.rules.classes[d.class_name] || {}).weapons)}</p><p>Hit die: ${h((state.rules.classes[d.class_name] || {}).hit_die_text || `d${(state.rules.classes[d.class_name] || {}).hit_die}`)}. Starting wealth: ${h((state.rules.classes[d.class_name] || {}).wealth)}.</p><p>Proficiencies: ${h(proficiencyCount(d.class_name, d.level) ?? "Manual DM Review")} at this level. Non-proficiency penalty: ${h((state.rules.classes[d.class_name] || {}).non_proficiency_penalty ?? "Manual DM Review")}.</p></div>
+    <div class="vault-card vault-wide"><h3>Class Notes</h3>${raceClassWarnings(d)}<p>${h((state.rules.classes[d.class_name] || {}).armor)}</p><p><strong>Weapons:</strong> ${h((state.rules.classes[d.class_name] || {}).weapons)}</p><p>Hit Dice: ${h(hitDiceText(d))}. Starting wealth: ${h((state.rules.classes[d.class_name] || {}).wealth)}.</p><p>Proficiencies: ${h(proficiencyCount(d.class_name, d.level) ?? "Manual DM Review")} at this level. Non-proficiency penalty: ${h((state.rules.classes[d.class_name] || {}).non_proficiency_penalty ?? "Manual DM Review")}.</p></div>
     <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/003-class/">Class</a></p>
     ${navButtons()}`;
   if (state.step === 4) return `${selectField("Alignment", "alignment", d.alignment, state.rules.alignments)}<div class="vault-card vault-wide">${raceClassWarnings(d)}<p><strong>${h(d.class_name)}:</strong> ${h((state.rules.classes[d.class_name] || {}).alignment || "Any alignment")}</p></div><p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/004-alignment/">Alignment</a>.</p>${navButtons()}`;
@@ -221,8 +231,13 @@ function navButtons(save = false) {
   return `<div class="vault-actions vault-full">
     <button class="vault-button secondary" type="button" data-prev ${state.step === 0 ? "disabled" : ""}>Previous</button>
     <button class="vault-button secondary" type="button" data-next ${state.step === 10 ? "disabled" : ""}>Next</button>
-    <button class="vault-button" type="button" data-save>${save ? "Save Character" : "Save Draft"}</button>
+    <button class="vault-button" type="button" data-save>${save ? "Save Character" : "Save"}</button>
   </div>`;
+}
+
+function campaignSelectHtml(d) {
+  if (!state.campaigns.length) return `<div class="vault-full vault-muted">No campaigns available. Your DM can assign this character later.</div>`;
+  return selectField("Campaign", "campaign_id", d.campaign_id || "", ["", ...state.campaigns.map((c) => String(c.id))]);
 }
 
 function equipmentManager() {
@@ -353,8 +368,14 @@ async function saveDraft(navigate = true) {
     localStorage.setItem("drg1e_player_id", String(state.currentPlayer.id));
   }
   state.draft = { ...state.draft, id: state.character.id };
-  toast("Character saved permanently.");
-  if (navigate && pageKind() === "new") location.href = `/1e/characters/${state.character.id}/`;
+  toast("Saved.");
+  if (navigate && pageKind() === "new") {
+    location.href = `/1e/characters/${state.character.id}/`;
+  } else if (pageKind() === "edit") {
+    state.character = await api(`/characters/${state.character.id}`);
+    state.draft = initialDraft();
+    toast("Saved.");
+  }
   return state.character;
 }
 
@@ -444,7 +465,7 @@ function previewCharacter() {
 }
 
 function renderIndex() {
-  document.querySelector("[data-vault-view]").innerHTML = `${playerPanelHtml()}<div class="vault-grid">${state.characters.length ? state.characters.map((character) => `<article class="vault-card"><div class="vault-kicker">${h(character.status)} / ${h(character.life_status)}</div><h2>${h(character.name)}</h2><p>${h(character.race)} ${h(character.class_name)} ${h(character.level)}</p><p class="vault-muted">Owner: ${h(character.player?.display_name || character.user_id)}${character.campaign_id ? ` / Campaign ${h(character.campaign_id)}` : ""}</p><div class="vault-statline"><div class="vault-stat"><strong>${character.combat.armor_class}</strong><span>AC</span></div><div class="vault-stat"><strong>${character.combat.current_hp}/${character.combat.max_hp}</strong><span>HP</span></div><div class="vault-stat"><strong>${character.combat.movement_rate}</strong><span>Move</span></div></div><div class="vault-actions"><a class="vault-button secondary" href="/1e/characters/${character.id}/">View</a><a class="vault-button secondary" href="/1e/characters/${character.id}/edit/">Edit</a><button class="vault-button secondary" data-delete="${character.id}">Archive</button></div></article>`).join("") : `<article class="vault-panel"><h2>No characters yet</h2><p>Create your first vault character, then assign them to a campaign when the DM is ready.</p><div class="vault-actions"><a class="vault-button" href="/1e/characters/new/">Create Character</a></div></article>`}</div>`;
+  document.querySelector("[data-vault-view]").innerHTML = `${playerPanelHtml()}<div class="vault-grid">${state.characters.length ? state.characters.map((character) => `<article class="vault-card"><div class="vault-kicker">${h(labelize(character.status))} / ${h(labelize(character.life_status))}</div><h2>${h(character.name)}</h2><p>${h(character.race)} ${h(character.class_name)} ${h(character.level)}</p><p class="vault-muted">Owner: ${h(character.player?.display_name || character.user_id)}${character.campaign_id ? ` / ${h(campaignName(character.campaign_id))}` : ""}</p><div class="vault-statline"><div class="vault-stat"><strong>${character.combat.armor_class}</strong><span>AC</span></div><div class="vault-stat"><strong>${character.combat.current_hp}/${character.combat.max_hp}</strong><span>HP</span></div><div class="vault-stat"><strong>${character.combat.movement_rate}</strong><span>Move</span></div></div><div class="vault-actions"><a class="vault-button secondary" href="/1e/characters/${character.id}/">View</a><a class="vault-button secondary" href="/1e/characters/${character.id}/edit/">Edit</a><button class="vault-button secondary" type="button" data-delete="${character.id}">Archive</button></div></article>`).join("") : `<article class="vault-panel"><h2>No characters yet</h2><p>Create your first vault character, then assign them to a campaign when the DM is ready.</p><div class="vault-actions"><a class="vault-button" href="/1e/characters/new/">Create Character</a></div></article>`}</div>`;
   document.querySelector("[data-player-form]")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.target));
@@ -463,7 +484,7 @@ function renderIndex() {
   });
   document.querySelectorAll("[data-delete]").forEach((button) => button.addEventListener("click", async () => {
     await api(`/characters/${button.dataset.delete}`, { method: "DELETE" });
-    state.characters = await api("/characters");
+    state.characters = await api(`/characters${state.currentPlayer?.id ? `?user_id=${state.currentPlayer.id}` : ""}`);
     renderIndex();
   }));
 }
@@ -471,11 +492,10 @@ function renderIndex() {
 function playerPanelHtml() {
   return `<section class="vault-panel"><div class="vault-kicker">Player Identity</div><form class="vault-form" data-player-form>
     ${selectField("Current Player", "current_player_id", String(state.currentPlayer?.id || ""), ["", ...state.players.map((player) => String(player.id))])}
-    ${field("Display Name", "display_name", state.currentPlayer?.display_name || "Website Player")}
+    ${field("Player Name", "display_name", state.currentPlayer?.display_name || "Website Player")}
     ${field("Email", "email", state.currentPlayer?.email || "", "email")}
     ${field("Discord User ID", "discord_user_id", state.currentPlayer?.discord_user_id || "")}
-    ${selectField("Role", "role", state.currentPlayer?.role || "player", ["player", "dm", "admin"])}
-    <div class="vault-actions vault-full"><button class="vault-button" type="submit">Save Player</button><a class="vault-button secondary" href="/1e/characters/new/">Create Character</a>${isDm() ? `<a class="vault-button secondary" href="/1e/dm/campaigns/">DM Tools</a>` : ""}</div>
+    <div class="vault-actions vault-full"><button class="vault-button" type="submit">Save Player</button><a class="vault-button secondary" href="/1e/characters/new/">Create Character</a></div>
   </form></section>`;
 }
 
@@ -485,13 +505,16 @@ function isDm() {
 
 function renderSheet() {
   document.querySelector("[data-vault-view]").innerHTML = `<div class="vault-sheet">${sheetHtml(state.character)}${quickEditHtml(state.character)}</div>`;
-  document.querySelectorAll("[data-inventory-action]").forEach((button) => button.addEventListener("click", async () => {
+  document.querySelectorAll("[data-inventory-action]").forEach((button) => button.addEventListener("click", async (event) => {
+    event.preventDefault();
     const [id, status] = button.dataset.inventoryAction.split(":");
     if (status === "delete") {
       state.character = await api(`/characters/${state.character.id}/inventory/${id}`, { method: "DELETE" });
     } else {
-      state.character = await api(`/characters/${state.character.id}/inventory/${id}`, { method: "PUT", body: JSON.stringify({ status, storage_location: status === "stored" ? state.character.safe_storage_location || "Safe storage" : null }) });
+      state.character = await api(`/characters/${state.character.id}/inventory/${id}`, { method: "PUT", body: JSON.stringify({ status, storage_location: status === "stored" ? state.character.safe_storage_location || "Personal Storage Location" : null }) });
     }
+    state.character = await api(`/characters/${state.character.id}`);
+    toast("Saved.");
     renderSheet();
   }));
   document.querySelectorAll("[data-rules-link]").forEach((button) => button.addEventListener("click", () => openRulesModal(button.dataset.rulesTitle, button.dataset.rulesLink)));
@@ -511,15 +534,19 @@ function renderSheet() {
         combat: { current_hp: Number(data.current_hp || 0), max_hp: Number(data.max_hp || 0) },
       }),
     });
+    state.character = await api(`/characters/${state.character.id}`);
     toast("Quick edits saved.");
     renderSheet();
   });
-  document.querySelectorAll("[data-spell-action]").forEach((button) => button.addEventListener("click", async () => {
+  document.querySelectorAll("[data-spell-action]").forEach((button) => button.addEventListener("click", async (event) => {
+    event.preventDefault();
     const [id, action] = button.dataset.spellAction.split(":");
     const spell = state.character.spells.find((entry) => String(entry.id) === id);
     const next = action === "prepare" ? { prepared: true, memorized_count: Math.max(1, Number(spell.memorized_count || 0)) } : { prepared: false, memorized_count: 0 };
     try {
       state.character = await api(`/characters/${state.character.id}/spells/${id}`, { method: "PUT", body: JSON.stringify(next) });
+      state.character = await api(`/characters/${state.character.id}`);
+      toast("Saved.");
       renderSheet();
     } catch (error) {
       toast("Spell slot limit reached or spell is not eligible.");
@@ -534,7 +561,8 @@ function quickEditHtml(c) {
     ${field("XP", "xp", c.xp ?? 0, "number")}
     ${field("Campaign Day", "campaign_day", c.campaign_day ?? 1, "number")}
     ${field("Current Location", "current_location", c.current_location || "Town", "text", "wide")}
-    ${field("Personal Safe Storage", "safe_storage_location", c.safe_storage_location || "", "text", "wide")}
+    ${field("Personal Storage Location", "safe_storage_location", c.safe_storage_location || "", "text", "wide")}
+    <p class="vault-muted vault-full">Use this for items, coins, or gear not carried by the character.</p>
     ${coins.map((coin) => field(title(coin), `coin_${coin}`, c.coins?.[coin] ?? 0, "number")).join("")}
     <label class="vault-field full">Notes<textarea name="notes">${h(c.notes || "")}</textarea></label>
     <div class="vault-actions vault-full"><button class="vault-button" type="submit">Save Quick Edits</button><a class="vault-button secondary" href="/1e/characters/${c.id}/edit/">Full Edit</a></div>
@@ -545,12 +573,12 @@ function sheetHtml(c) {
   return `${sheetHeaderHtml(c)}<div class="vault-grid">
     <section class="vault-card">${sectionTitle("Saving Throws", "/1e/character-creation/003-class/")}${savingThrowsHtml(c)}</section>
     <section class="vault-card">${sectionTitle("Movement & Encumbrance", "/1e/how-to-play/equipment-encumbrance/")}<div class="vault-compact-list"><span><strong>Move</strong>${h(c.combat?.movement_rate ?? 120)}</span><span><strong>Carried</strong>${h(c.combat?.carried_weight ?? 0)} lb</span><span><strong>Coins</strong>${coinWeight(c.coins)} lb</span><span><strong>Band</strong>${h(c.combat?.encumbrance_band ?? "Unencumbered")}</span></div></section>
-    <section class="vault-card">${sectionTitle("Race/Class Details", "/1e/character-creation/003-class/")}<p><strong>Hit die:</strong> ${h(c.class_details?.hit_die_text || "")}</p><p><strong>Armor:</strong> ${h(c.class_details?.armor || "")}</p><p><strong>Weapons:</strong> ${h(c.class_details?.weapons || "")}</p><p><strong>Vision:</strong> ${h(c.race_details?.vision || "")}</p><p><strong>Languages:</strong> ${h((c.race_details?.languages || []).join(", "))}</p></section>
+    <section class="vault-card">${sectionTitle("Race/Class Details", "/1e/character-creation/003-class/")}<p><strong>Hit Dice:</strong> ${h(hitDiceText(c))}</p><p><strong>Armor:</strong> ${h(c.class_details?.armor || "")}</p><p><strong>Weapons:</strong> ${h(c.class_details?.weapons || "")}</p><p><strong>Vision:</strong> ${h(c.race_details?.vision || "")}</p><p><strong>Languages:</strong> ${h((c.race_details?.languages || []).join(", "))}</p></section>
     <section class="vault-panel">${sectionTitle("Weapons", "/1e/equipment/")}${weaponsHtml(c)}</section>
     <section class="vault-panel">${sectionTitle("Armor", "/1e/equipment/")}${armorHtml(c)}</section>
     <section class="vault-panel">${sectionTitle("Equipment", "/1e/equipment/")}${inventoryHtml(c)}</section>
     <section class="vault-panel">${sectionTitle("Spells", "/1e/how-to-play/magic/")}${spellsHtml(c)}</section>
-    <section class="vault-card"><div class="vault-kicker">Campaign State</div><p>Day ${h(c.campaign_day)} at ${h(c.current_location)}.</p><p>Storage: ${h(c.safe_storage_location || "No safe storage set")}</p></section>
+    <section class="vault-card"><div class="vault-kicker">Campaign State</div><p>Day ${h(c.campaign_day)} at ${h(c.current_location)}.</p><p>Storage: ${h(c.safe_storage_location || "No storage location set")}</p></section>
     <section class="vault-panel"><div class="vault-kicker">Notes</div><p>${h(c.notes || "No notes.")}</p><div class="vault-actions"><a class="vault-button secondary" href="#vault-quick-edit">Quick Edit</a><a class="vault-button secondary" href="/1e/characters/${c.id || ""}/edit/">Full Edit</a></div></section>
   </div>`;
 }
@@ -559,7 +587,7 @@ function sheetHeaderHtml(c) {
   return `<section class="vault-sheet-header">
     <div class="vault-sheet-title">
       <h2>${h(c.name || "Unnamed")}</h2>
-      <p>${h(c.race)} ${h(c.class_name)} ${h(c.level)} / ${h(c.alignment)} / ${h(c.status)} ${c.life_status !== "alive" ? `(${h(c.life_status)})` : ""}</p>
+      <p>${h(c.race)} ${h(c.class_name)} ${h(c.level)} / ${h(c.alignment)} / ${h(labelize(c.status))} / ${h(labelize(c.life_status))}</p>
     </div>
     <div class="vault-topline">
       <span><strong>AC</strong>${h(c.combat?.armor_class ?? 10)}</span>
@@ -624,14 +652,13 @@ function inventoryRow(item, proficiencies = []) {
   const isEquipped = item.status === "equipped";
   const damage = equipment.type === "weapon" ? [equipment.damage_small_medium, equipment.damage_large].filter(Boolean).join(" / ") : "";
   const proficiency = equipment.type === "weapon" ? weaponProficiencyLabel(equipment.id, proficiencies) : "";
-  return `<tr><td>${h(item.quantity)} x <strong>${h(equipment.name)}</strong><br><span class="vault-mini">${h(labelize(item.status))}${item.status === "stored" && item.storage_location ? ` at ${h(item.storage_location)}` : ""}${damage ? ` / Damage ${h(damage)}` : ""}${proficiency ? ` / ${h(proficiency)}` : ""}</span></td><td>${h(labelize(equipment.type))}</td><td>${h(((equipment.weight || 0) * item.quantity).toFixed(2))}</td><td>${isEquipped ? `<button class="vault-button secondary" data-inventory-action="${item.id}:carried">Unequip</button>` : `<button class="vault-button secondary" data-inventory-action="${item.id}:equipped">Equip</button>`} <button class="vault-button secondary" data-inventory-action="${item.id}:stored">Store</button> <button class="vault-button secondary" data-inventory-action="${item.id}:delete">Delete</button></td></tr>`;
+  return `<tr><td>${h(item.quantity)} x <strong>${h(equipment.name)}</strong><br><span class="vault-mini">${h(labelize(item.status))}${item.status === "stored" && item.storage_location ? ` at ${h(item.storage_location)}` : ""}${damage ? ` / Damage ${h(damage)}` : ""}${proficiency ? ` / ${h(proficiency)}` : ""}</span></td><td>${h(labelize(equipment.type))}</td><td>${h(((equipment.weight || 0) * item.quantity).toFixed(2))}</td><td>${isEquipped ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Unequip</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:equipped">Equip</button>`} <button type="button" class="vault-button secondary" data-inventory-action="${item.id}:stored">Store</button> <button type="button" class="vault-button secondary" data-inventory-action="${item.id}:delete">Delete</button></td></tr>`;
 }
 
 function savingThrowsHtml(c) {
   const saves = c.combat?.saving_throws;
   if (!saves?.categories) return `<p>Manual DM Review: ${h(saves?.reason || "saving table not encoded")}</p>`;
-  const dwarfNote = c.race === "Dwarf" ? `<div class="vault-warning"><p>Manual DM Review: dwarf Constitution-based saving throw adjustments are not yet automated. Apply dwarf save bonuses before treating these as final table values.</p></div>` : "";
-  return `${dwarfNote}<p class="vault-muted">Level band ${h(saves.level_band)}. Roll this number or higher on d20.</p><table class="vault-table"><tbody>${Object.entries(saves.categories).map(([key, value]) => `<tr><th>${h(saves.labels?.[key] || title(key))}</th><td>${h(value)}</td></tr>`).join("")}</tbody></table>${(saves.notes || []).map((note) => `<p class="vault-muted">${h(note)}</p>`).join("")}`;
+  return `<p class="vault-muted">Level band ${h(saves.level_band)}. Roll this number or higher on d20.</p><table class="vault-table"><tbody>${Object.entries(saves.categories).map(([key, value]) => `<tr><th>${h(saves.labels?.[key] || title(key))}</th><td>${h(value)}</td></tr>`).join("")}</tbody></table>${(saves.notes || []).map((note) => `<p class="vault-muted">${h(note)}</p>`).join("")}`;
 }
 
 function warningsHtml(c) {
@@ -655,7 +682,7 @@ function spellsHtml(c) {
   if (!spells.length) return `${slots}<p>No spells recorded.</p>`;
   const prepared = spells.filter((spell) => spell.prepared || spell.memorized_count > 0);
   const known = spells.filter((spell) => !spell.prepared && spell.memorized_count <= 0);
-  const row = (s, preparedRow = false) => `<tr><td><strong>${h(s.spell.name)}</strong><br>${spellBadges(s)}<br><a class="vault-mini" href="${h(s.spell.rules_reference)}">Rules</a></td><td>${h(s.spell.spell_level)}<br><span class="vault-mini">${h((s.spell.class_list || []).join(", "))}</span></td><td>${h(s.spell.range || "")}</td><td>${h(s.spell.duration || "")}</td><td>${h(s.spell.area_of_effect || "")}</td><td>${h(s.spell.components || "")}</td><td>${h((s.spell.description || "").slice(0, 180))}</td><td>${h(s.memorized_count)}</td><td><button class="vault-button secondary" data-spell-action="${s.id}:${preparedRow ? "unprepare" : "prepare"}">${preparedRow ? "Unprepare" : "Prepare"}</button></td></tr>`;
+  const row = (s, preparedRow = false) => `<tr><td><strong>${h(s.spell.name)}</strong><br>${spellBadges(s)}<br><a class="vault-mini" href="${h(s.spell.rules_reference)}">Rules</a></td><td>${h(s.spell.spell_level)}<br><span class="vault-mini">${h((s.spell.class_list || []).join(", "))}</span></td><td>${h(s.spell.range || "")}</td><td>${h(s.spell.duration || "")}</td><td>${h(s.spell.area_of_effect || "")}</td><td>${h(s.spell.components || "")}</td><td>${h((s.spell.description || "").slice(0, 180))}</td><td>${h(s.memorized_count)}</td><td><button class="vault-button secondary" type="button" data-spell-action="${s.id}:${preparedRow ? "unprepare" : "prepare"}">${preparedRow ? "Unprepare" : "Prepare"}</button></td></tr>`;
   return `${slots}<h3>Prepared / Memorized</h3>${prepared.length ? `<table class="vault-table"><thead><tr><th>Spell</th><th>Lvl</th><th>Range</th><th>Duration</th><th>Area</th><th>Comp</th><th>Detail</th><th>Count</th><th></th></tr></thead><tbody>${prepared.map((spell) => row(spell, true)).join("")}</tbody></table>` : "<p>None prepared.</p>"}<h3>Known / Spellbook</h3>${known.length ? `<table class="vault-table"><tbody>${known.map((spell) => row(spell, false)).join("")}</tbody></table>` : "<p>None separate from prepared spells.</p>"}`;
 }
 
@@ -690,9 +717,9 @@ function renderCampaigns() {
   if (state.campaign) {
     const c = state.campaign;
     document.querySelector("[data-vault-view]").innerHTML = `<section class="vault-panel"><h2>${h(c.name)}</h2><form class="vault-form" data-campaign-update>${field("Campaign Day", "current_campaign_day", c.current_campaign_day, "number")}${field("Default / Current Location", "default_location", c.default_location || "Town", "text", "wide")}${selectField("Status", "status", c.status || "active", ["active", "inactive", "archived"])}<label class="vault-field full">Description<textarea name="description">${h(c.description || "")}</textarea></label><div class="vault-actions vault-full"><button class="vault-button" type="submit">Update Campaign</button><button class="vault-button secondary" type="button" data-archive-campaign="${c.id}">Archive Campaign</button></div></form></section>
-    <section class="vault-panel"><div class="vault-kicker">Campaign Players</div><form class="vault-form" data-campaign-player>${selectField("Existing Player", "user_id", "", ["", ...state.players.map((player) => String(player.id))])}${field("Or New Display Name", "display_name", "")}${field("Email", "email", "", "email")}${field("Discord User ID", "discord_user_id", "")}${selectField("Campaign Role", "campaign_role", "player", ["player", "dm", "observer"])}<div class="vault-actions vault-full"><button class="vault-button" type="submit">Add Player</button></div></form>${campaignPlayersTable(c.players || [])}</section>
+    <section class="vault-panel"><div class="vault-kicker">Campaign Players</div><form class="vault-form" data-campaign-player>${selectField("Existing Player", "user_id", "", ["", ...state.players.map((player) => String(player.id))])}${field("Or New Player Name", "display_name", "")}${field("Email", "email", "", "email")}${field("Discord User ID", "discord_user_id", "")}${selectField("Campaign Role", "campaign_role", "player", ["player", "dm", "observer"])}<div class="vault-actions vault-full"><button class="vault-button" type="submit">Add Player</button></div></form>${campaignPlayersTable(c.players || [])}</section>
     <section class="vault-panel"><div class="vault-kicker">Assigned Characters</div><form class="vault-form" data-assign-character>${selectField("Assign Character", "character_id", "", ["", ...state.characters.filter((character) => !character.campaign_id || character.campaign_id === c.id).map((character) => String(character.id))])}<div class="vault-actions vault-full"><button class="vault-button" type="submit">Assign</button></div></form>${campaignCharactersTable(c.characters || [])}</section>
-    <section class="vault-panel"><div class="vault-kicker">Safe Storage</div><form class="vault-form" data-safe-storage>${field("Location Name", "name", "Party Camp")}${field("Description", "description", "", "text", "wide")}<div class="vault-actions vault-full"><button class="vault-button" type="submit">Create / Update Location</button></div></form>${safeStorageHtml(c)}</section>
+    <section class="vault-panel"><div class="vault-kicker">Storage Locations</div><form class="vault-form" data-safe-storage>${field("Location Name", "name", "Party Camp")}${field("Description", "description", "", "text", "wide")}<p class="vault-muted vault-full">Use this for items, coins, or gear not carried by the character.</p><div class="vault-actions vault-full"><button class="vault-button" type="submit">Create / Update Location</button></div></form>${safeStorageHtml(c)}</section>
     ${isDm() ? dmCatalogHtml(c) : ""}`;
     document.querySelector("[data-campaign-update]").addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -768,7 +795,7 @@ function renderCampaigns() {
     }));
     return;
   }
-  document.querySelector("[data-vault-view]").innerHTML = `${playerPanelHtml()}<section class="vault-panel"><h2>DM Campaign Foundation</h2><form class="vault-form" data-campaign-form>${field("Name", "name", "")}${field("Default Location", "default_location", "Town")}${field("Current Day", "current_campaign_day", 1, "number")}<label class="vault-field full">Description<textarea name="description"></textarea></label><button class="vault-button" type="submit">Create Campaign</button></form><table class="vault-table"><thead><tr><th>Name</th><th>Day</th><th>Status</th></tr></thead><tbody>${state.campaigns.map((c) => `<tr><td><a href="/1e/dm/campaigns/${c.id}/">${h(c.name)}</a></td><td>${c.current_campaign_day}</td><td>${h(c.status)}</td></tr>`).join("")}</tbody></table></section>`;
+  document.querySelector("[data-vault-view]").innerHTML = `${playerPanelHtml()}<section class="vault-panel"><h2>DM Campaign Foundation</h2><form class="vault-form" data-campaign-form>${field("Name", "name", "")}${field("Default Location", "default_location", "Town")}${field("Current Day", "current_campaign_day", 1, "number")}<label class="vault-field full">Description<textarea name="description"></textarea></label><button class="vault-button" type="submit">Create Campaign</button></form><table class="vault-table"><thead><tr><th>Name</th><th>Day</th><th>Status</th></tr></thead><tbody>${state.campaigns.map((c) => `<tr><td><a href="/1e/dm/campaigns/${c.id}/">${h(c.name)}</a></td><td>${c.current_campaign_day}</td><td>${h(labelize(c.status))}</td></tr>`).join("")}</tbody></table></section>`;
   document.querySelector("[data-campaign-form]").addEventListener("submit", async (event) => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.target));
@@ -786,18 +813,44 @@ function renderCampaigns() {
   });
 }
 
+function renderDmPlayers() {
+  document.querySelector("[data-vault-view]").innerHTML = `<section class="vault-panel"><h2>DM Players</h2><form class="vault-form" data-dm-player-form>
+    ${field("Player Name", "display_name", "")}
+    ${field("Email", "email", "", "email")}
+    ${field("Discord User ID", "discord_user_id", "")}
+    ${selectField("Role", "role", "player", ["player", "dm", "admin"])}
+    <div class="vault-actions vault-full"><button class="vault-button" type="submit">Save Player</button></div>
+  </form><table class="vault-table"><thead><tr><th>Player</th><th>Role</th><th>Email</th><th>Characters</th></tr></thead><tbody>${state.players.length ? state.players.map((player) => `<tr><td>${h(player.display_name || player.player_name)}</td><td>${h(labelize(player.role))}</td><td>${h(player.email || "")}</td><td>${state.characters.filter((character) => character.user_id === player.id).length}</td></tr>`).join("") : `<tr><td colspan="4">No players created yet.</td></tr>`}</tbody></table></section>`;
+  document.querySelector("[data-dm-player-form]")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    await api("/players", { method: "POST", body: JSON.stringify(Object.fromEntries(new FormData(event.target))) });
+    state.players = await api("/players");
+    state.characters = await api("/characters?include_archived=true");
+    renderDmPlayers();
+  });
+}
+
+function renderDmCharacters() {
+  document.querySelector("[data-vault-view]").innerHTML = `<section class="vault-panel"><h2>DM Characters</h2><table class="vault-table"><thead><tr><th>Character</th><th>Player</th><th>Campaign</th><th>Status</th><th>Location</th><th>Actions</th></tr></thead><tbody>${state.characters.length ? state.characters.map((character) => `<tr><td><a href="/1e/characters/${character.id}/">${h(character.name)}</a><br><span class="vault-mini">${h(character.race)} ${h(character.class_name)} ${h(character.level)}</span></td><td>${h(character.player?.display_name || character.user_id)}</td><td>${h(campaignName(character.campaign_id))}</td><td>${h(labelize(character.status))} / ${h(labelize(character.life_status))}</td><td>${h(character.current_location)}</td><td><a class="vault-button secondary" href="/1e/characters/${character.id}/edit/">Edit</a></td></tr>`).join("") : `<tr><td colspan="6">No characters created yet.</td></tr>`}</tbody></table></section>`;
+}
+
+function campaignName(id) {
+  if (!id) return "Unassigned";
+  return state.campaigns.find((campaign) => campaign.id === id)?.name || `Campaign ${id}`;
+}
+
 function campaignPlayersTable(players) {
-  return `<table class="vault-table"><thead><tr><th>Player</th><th>Role</th><th>Email</th><th></th></tr></thead><tbody>${players.length ? players.map((entry) => `<tr><td>${h(entry.player?.display_name || entry.user_id)}</td><td>${h(entry.role)}</td><td>${h(entry.player?.email || "")}</td><td><button class="vault-button secondary" data-remove-player="${entry.user_id}">Remove</button></td></tr>`).join("") : `<tr><td colspan="4">No players assigned yet.</td></tr>`}</tbody></table>`;
+  return `<table class="vault-table"><thead><tr><th>Player</th><th>Role</th><th>Email</th><th></th></tr></thead><tbody>${players.length ? players.map((entry) => `<tr><td>${h(entry.player?.display_name || entry.user_id)}</td><td>${h(labelize(entry.role))}</td><td>${h(entry.player?.email || "")}</td><td><button class="vault-button secondary" type="button" data-remove-player="${entry.user_id}">Remove</button></td></tr>`).join("") : `<tr><td colspan="4">No players assigned yet.</td></tr>`}</tbody></table>`;
 }
 
 function campaignCharactersTable(characters) {
-  return `<table class="vault-table"><thead><tr><th>Character</th><th>Status</th><th>Life</th><th>Coins</th><th>Location</th><th>Actions</th></tr></thead><tbody>${characters.length ? characters.map((character) => `<tr><td><a href="/1e/characters/${character.id}/">${h(character.name)}</a><br><span class="vault-mini">${h(character.player?.display_name || "Unknown Player")} / ${h(character.race)} ${h(character.class_name)} ${h(character.level)}</span></td><td>${h(character.status)}</td><td>${h(character.life_status)}</td><td>${coinCount(character.coins)} coins<br>${coinWeight(character.coins)} lb</td><td>${h(character.current_location)}</td><td><button class="vault-button secondary" data-char-status="${character.id}:active">Active</button> <button class="vault-button secondary" data-char-status="${character.id}:inactive">Inactive</button> <button class="vault-button secondary" data-char-status="${character.id}:retired">Retired</button> <button class="vault-button secondary" data-char-status="${character.id}:dead">Dead</button> <button class="vault-button secondary" data-char-status="${character.id}:archived">Archive</button> <button class="vault-button secondary" data-char-status="${character.id}:unassign">Unassign</button></td></tr>`).join("") : `<tr><td colspan="6">No characters assigned yet.</td></tr>`}</tbody></table>`;
+  return `<table class="vault-table"><thead><tr><th>Character</th><th>Status</th><th>Life</th><th>Coins</th><th>Location</th><th>Actions</th></tr></thead><tbody>${characters.length ? characters.map((character) => `<tr><td><a href="/1e/characters/${character.id}/">${h(character.name)}</a><br><span class="vault-mini">${h(character.player?.display_name || "Unknown Player")} / ${h(character.race)} ${h(character.class_name)} ${h(character.level)}</span></td><td>${h(labelize(character.status))}</td><td>${h(labelize(character.life_status))}</td><td>${coinCount(character.coins)} coins<br>${coinWeight(character.coins)} lb</td><td>${h(character.current_location)}</td><td><button class="vault-button secondary" type="button" data-char-status="${character.id}:active">Active</button> <button class="vault-button secondary" type="button" data-char-status="${character.id}:inactive">Inactive</button> <button class="vault-button secondary" type="button" data-char-status="${character.id}:retired">Retired</button> <button class="vault-button secondary" type="button" data-char-status="${character.id}:dead">Dead</button> <button class="vault-button secondary" type="button" data-char-status="${character.id}:archived">Archive</button> <button class="vault-button secondary" type="button" data-char-status="${character.id}:unassign">Unassign</button></td></tr>`).join("") : `<tr><td colspan="6">No characters assigned yet.</td></tr>`}</tbody></table>`;
 }
 
 function safeStorageHtml(c) {
   const locations = c.safe_storage_locations || [];
   const stored = c.stored_items || [];
-  return `${locations.length ? locations.map((location) => `<article class="vault-row"><div><strong>${h(location.name)}</strong><p>${h(location.description || "No description.")}</p><p class="vault-muted">${(location.stored_items || []).length} stored item rows.</p></div><button class="vault-button secondary" data-archive-storage="${location.id}">Archive</button></article>`).join("") : `<p>No campaign safe storage yet. Common options: Inn Room, Temple Vault, Hireling Pack Mule, Townhouse, Party Camp, Hidden Cache.</p>`}<h3>Stored Items</h3>${stored.length ? `<table class="vault-table"><thead><tr><th>Item</th><th>Character</th><th>Location</th><th>Notes</th></tr></thead><tbody>${stored.map((item) => `<tr><td>${h(item.quantity)} x ${h(item.equipment.name)}</td><td><a href="/1e/characters/${item.character_id}/">${h(item.character_name)}</a></td><td>${h(item.storage_location)}</td><td>${h(item.notes || "")}</td></tr>`).join("")}</tbody></table>` : `<p class="vault-muted">No stored items in this campaign.</p>`}`;
+  return `${locations.length ? locations.map((location) => `<article class="vault-row"><div><strong>${h(location.name)}</strong><p>${h(location.description || "No description.")}</p><p class="vault-muted">${(location.stored_items || []).length} stored item rows.</p></div><button class="vault-button secondary" type="button" data-archive-storage="${location.id}">Archive</button></article>`).join("") : `<p>No campaign storage locations yet. Common options: Inn Room, Temple Vault, Hireling Pack Mule, Townhouse, Party Camp, Hidden Cache.</p>`}<h3>Stored Items</h3>${stored.length ? `<table class="vault-table"><thead><tr><th>Item</th><th>Character</th><th>Location</th><th>Notes</th></tr></thead><tbody>${stored.map((item) => `<tr><td>${h(item.quantity)} x ${h(item.equipment.name)}</td><td><a href="/1e/characters/${item.character_id}/">${h(item.character_name)}</a></td><td>${h(item.storage_location)}</td><td>${h(item.notes || "")}</td></tr>`).join("")}</tbody></table>` : `<p class="vault-muted">No stored items in this campaign.</p>`}`;
 }
 
 function dmCatalogHtml(c) {
@@ -813,10 +866,10 @@ function dmCatalogHtml(c) {
     ${field("Damage L", "damage_large", "")}
     ${field("Armor AC", "armor_class_value", "", "number")}
     ${field("AC Adjustment", "armor_class_adjustment", "", "number")}
-    ${field("Rules Reference", "rules_reference", "/1e/equipment/", "text", "wide")}
+    ${field("Rules Reference", "rules_reference", "", "text", "wide")}
     <label class="vault-field full">Notes<textarea name="notes"></textarea></label>
     <div class="vault-actions vault-full"><button class="vault-button" type="submit">Create Campaign Item</button></div>
-  </form><table class="vault-table"><thead><tr><th>Item</th><th>Type</th><th>Wt</th><th>Campaign</th><th></th></tr></thead><tbody>${campaignItems.length ? campaignItems.map((item) => `<tr><td>${h(item.name)}<br><span class="vault-mini">${h(item.notes || "")}</span></td><td>${h(labelize(item.type))}</td><td>${h(item.weight)}</td><td>${h(item.campaign_id || "Global")}</td><td><button class="vault-button secondary" data-archive-item="${item.id}">Archive</button></td></tr>`).join("") : `<tr><td colspan="5">No custom items yet.</td></tr>`}</tbody></table></section>`;
+  </form><table class="vault-table"><thead><tr><th>Item</th><th>Type</th><th>Wt</th><th>Campaign</th><th></th></tr></thead><tbody>${campaignItems.length ? campaignItems.map((item) => `<tr><td>${h(item.name)}<br><span class="vault-mini">${h(item.notes || "")}</span></td><td>${h(labelize(item.type))}</td><td>${h(item.weight)}</td><td>${h(item.campaign_id || "Global")}</td><td><button class="vault-button secondary" type="button" data-archive-item="${item.id}">Archive</button></td></tr>`).join("") : `<tr><td colspan="5">No custom items yet.</td></tr>`}</tbody></table></section>`;
 }
 
 function title(value) {
@@ -825,6 +878,18 @@ function title(value) {
 
 function labelize(value) {
   const labels = {
+    active: "Active",
+    inactive: "Inactive",
+    retired: "Retired",
+    dead: "Dead",
+    archived: "Archived",
+    alive: "Alive",
+    missing: "Missing",
+    petrified: "Petrified",
+    player: "Player",
+    dm: "DM",
+    admin: "Admin",
+    observer: "Observer",
     adventuring_gear: "Adventuring Gear",
     magic_item: "Magic Item",
     carried: "Carried",
@@ -846,6 +911,15 @@ function labelize(value) {
     other: "Other",
   };
   return labels[value] || title(String(value || ""));
+}
+
+function hitDiceText(c) {
+  const level = Number(c.level || 1);
+  const className = c.class_name;
+  if (className === "Ranger" && level === 1) return "2d8";
+  const hitDie = c.class_details?.hit_die || state.rules?.classes?.[className]?.hit_die;
+  if (hitDie && level === 1) return `1d${hitDie}`;
+  return c.class_details?.hit_die_text || state.rules?.classes?.[className]?.hit_die_text || (hitDie ? `d${hitDie}` : "Manual DM Review");
 }
 
 function displayReference(value) {

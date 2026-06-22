@@ -48,5 +48,15 @@ def campaign_route(campaign_id: int) -> FileResponse:
     return FileResponse(SITE_ROOT / "1e" / "dm" / "campaigns" / "1" / "index.html")
 
 
+@app.get("/1e/dm/players/")
+def dm_players_route() -> FileResponse:
+    return FileResponse(SITE_ROOT / "1e" / "dm" / "players" / "index.html")
+
+
+@app.get("/1e/dm/characters/")
+def dm_characters_route() -> FileResponse:
+    return FileResponse(SITE_ROOT / "1e" / "dm" / "characters" / "index.html")
+
+
 if SITE_ROOT.exists():
     app.mount("/", StaticFiles(directory=SITE_ROOT, html=True), name="site")

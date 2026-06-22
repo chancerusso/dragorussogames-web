@@ -215,10 +215,11 @@
 }
 
 .vault-abilities em{
-  color:#7a211b;
+  color:#4b392f;
   font-size:.72rem;
   font-style:normal;
   margin-left:4px;
+  opacity:.72;
 }
 
 .vault-section-title{
