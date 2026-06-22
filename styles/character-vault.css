@@ -25,6 +25,20 @@
   align-items:end;
 }
 
+.vault-hero-compact{
+  align-items:center;
+  grid-template-columns:minmax(360px,1fr) minmax(320px,auto);
+  padding:16px 18px;
+}
+
+.vault-hero-compact h1{
+  font-size:clamp(1.85rem,3vw,2.5rem);
+}
+
+.vault-hero-compact p{
+  max-width:760px;
+}
+
 .vault-eyebrow,
 .vault-kicker,
 .vault-rules{
@@ -63,6 +77,7 @@
   display:flex;
   flex-wrap:wrap;
   gap:8px;
+  min-width:0;
 }
 
 .vault-button,
@@ -101,6 +116,13 @@
   gap:14px;
 }
 
+.vault-dashboard-strip{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(280px,420px);
+  gap:14px;
+  margin-bottom:14px;
+}
+
 .vault-card,
 .vault-panel{
   padding:16px;
@@ -112,6 +134,37 @@
 
 .vault-panel{
   grid-column:span 12;
+}
+
+.vault-dashboard-strip .vault-panel{
+  grid-column:auto;
+}
+
+.vault-dashboard-stats{
+  align-content:center;
+  display:grid;
+}
+
+.vault-campaign-header{
+  margin-bottom:12px;
+}
+
+.vault-section-heading{
+  align-items:flex-start;
+  display:flex;
+  gap:12px;
+  justify-content:space-between;
+}
+
+.vault-section-heading p{
+  max-width:760px;
+}
+
+.vault-tabs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:0 0 12px;
 }
 
 .vault-sheet .vault-card{
@@ -353,6 +406,10 @@
   gap:12px;
 }
 
+.vault-form-compact{
+  align-items:end;
+}
+
 .vault-field{
   grid-column:span 4;
   display:flex;
@@ -424,6 +481,12 @@
   grid-template-columns:minmax(0,1fr) auto;
   gap:10px;
   align-items:center;
+}
+
+.vault-storage-grid{
+  display:grid;
+  gap:10px;
+  margin-bottom:12px;
 }
 
 .vault-toast{
@@ -523,7 +586,9 @@
 }
 
 @media (max-width: 820px){
-  .vault-hero{
+  .vault-hero,
+  .vault-hero-compact,
+  .vault-dashboard-strip{
     grid-template-columns:1fr;
   }
   .vault-card,

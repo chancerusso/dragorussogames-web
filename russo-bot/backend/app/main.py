@@ -49,6 +49,11 @@ def campaign_route(campaign_id: int) -> FileResponse:
 
 
 # TODO: Enforce server-side authentication/authorization for all /1e/dm routes before real DM login ships.
+@app.get("/1e/dm/")
+def dm_dashboard_route() -> FileResponse:
+    return FileResponse(SITE_ROOT / "1e" / "dm" / "index.html")
+
+
 @app.get("/1e/dm/campaigns/")
 def dm_campaigns_route() -> FileResponse:
     return FileResponse(SITE_ROOT / "1e" / "dm" / "campaigns" / "index.html")

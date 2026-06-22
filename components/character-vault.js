@@ -5,7 +5,7 @@ const API = `${VAULT_API_BASE}/1e`;
 const abilities = ["strength", "intelligence", "wisdom", "dexterity", "constitution", "charisma"];
 const abilityLabels = { strength: "STR", intelligence: "INT", wisdom: "WIS", dexterity: "DEX", constitution: "CON", charisma: "CHA" };
 const coins = ["platinum", "gold", "electrum", "silver", "copper"];
-const state = { characters: [], equipment: [], spells: [], campaigns: [], players: [], campaign: null, rules: null, character: null, currentPlayer: null, step: 0, draft: null, inventoryFilter: "equipped", dmOverride: false, dmCharacterFilters: { campaign_id: "", user_id: "", status: "" }, equipmentFilters: { q: "", type: "" }, editEquipmentId: null };
+const state = { characters: [], equipment: [], spells: [], campaigns: [], players: [], campaign: null, rules: null, character: null, currentPlayer: null, step: 0, draft: null, inventoryFilter: "equipped", dmOverride: false, dmCharacterFilters: { campaign_id: "", user_id: "", status: "" }, equipmentFilters: { q: "", type: "" }, editEquipmentId: null, dmCampaignTab: "overview" };
 
 function h(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
@@ -24,6 +24,7 @@ function pageKind() {
   const path = location.pathname.replace(/\/$/, "");
   if (path.endsWith("/new")) return "new";
   if (path.endsWith("/edit")) return "edit";
+  if (path.endsWith("/1e/dm")) return "dmDashboard";
   if (path.includes("/dm/campaigns")) return "campaign";
   if (path.includes("/dm/players")) return "dmPlayers";
   if (path.includes("/dm/characters")) return "dmCharacters";
@@ -85,39 +86,55 @@ function hydrateCurrentPlayer() {
 function renderShell() {
   const dmPage = isDmMode();
   const sheetId = characterId();
+  const heroCopy = dmPage
+    ? "Campaigns, characters, storage, and equipment for DRG 1e play."
+    : "Persistent OSRIC character building with DRG 1e table-rule ability rolls, catalog-only equipment, coins, spells, and campaign state.";
   document.querySelector("[data-vault-app]").innerHTML = `
-    <section class="vault-hero">
+    <section class="vault-hero ${dmPage ? "vault-hero-compact" : ""}">
       <div>
         <div class="vault-eyebrow">${dmPage ? "DM Tools" : "DRG 1e Character Vault"}</div>
         <h1>${pageTitle()}</h1>
-        <p>Persistent OSRIC character building with DRG 1e table-rule ability rolls, catalog-only equipment, coins, spells, and campaign state.</p>
+        <p>${heroCopy}</p>
         ${dmPage ? `<p class="vault-warning-text">DM tools are currently unprotected until login is enabled.</p>` : ""}
         <div class="vault-toast" data-vault-toast></div>
       </div>
       <div class="vault-actions">
-        <a class="vault-button secondary" href="/1e/characters/">Characters</a>
-        <a class="vault-button" href="/1e/characters/new/">New Character</a>
-        ${sheetId ? `<a class="vault-button secondary" href="/1e/characters/${sheetId}/">Character Sheet</a>` : ""}
-        <a class="vault-button secondary" href="/1e/">Rules</a>
-        <a class="vault-button secondary" href="/1e/equipment/">Equipment</a>
-        <a class="vault-button secondary" href="/1e/spells/">Spells</a>
-        <a class="vault-button secondary" href="/1e/races/">Races</a>
-        <a class="vault-button secondary" href="/1e/classes/">Classes</a>
-        ${dmPage ? `<a class="vault-button secondary" href="/1e/dm/campaigns/">DM Campaigns</a><a class="vault-button secondary" href="/1e/dm/players/">DM Players</a><a class="vault-button secondary" href="/1e/dm/characters/">DM Characters</a><a class="vault-button secondary" href="/1e/dm/equipment/">DM Equipment</a>` : ""}
+        ${dmPage ? dmNavHtml() : playerNavHtml(sheetId)}
       </div>
     </section>
     <section data-vault-view></section>`;
 }
 
 function pageTitle() {
+  if (pageKind() === "dmDashboard") return "DM Dashboard";
   if (pageKind() === "new") return "Build a Character";
   if (pageKind() === "edit") return "Edit Character";
   if (pageKind() === "show") return "Character Sheet";
-  if (pageKind() === "campaign") return "Campaigns";
+  if (pageKind() === "campaign") return campaignId() ? "Campaign Workspace" : "Campaigns";
   if (pageKind() === "dmPlayers") return "DM Players";
   if (pageKind() === "dmCharacters") return "DM Characters";
   if (pageKind() === "dmEquipment") return "DM Equipment";
   return "Your Characters";
+}
+
+function playerNavHtml(sheetId) {
+  return `
+    <a class="vault-button secondary" href="/1e/characters/">Characters</a>
+    <a class="vault-button" href="/1e/characters/new/">New Character</a>
+    ${sheetId ? `<a class="vault-button secondary" href="/1e/characters/${sheetId}/">Character Sheet</a>` : ""}
+    <a class="vault-button secondary" href="/1e/">Rules</a>
+    <a class="vault-button secondary" href="/1e/equipment/">Equipment</a>
+    <a class="vault-button secondary" href="/1e/spells/">Spells</a>
+    <a class="vault-button secondary" href="/1e/races/">Races</a>
+    <a class="vault-button secondary" href="/1e/classes/">Classes</a>`;
+}
+
+function dmNavHtml() {
+  return `
+    <a class="vault-button" href="/1e/dm/">DM Dashboard</a>
+    <a class="vault-button secondary" href="/1e/dm/campaigns/">Campaigns</a>
+    <a class="vault-button secondary" href="/1e/characters/">Character Vault</a>
+    <a class="vault-button secondary" href="/1e/dm/equipment/">Equipment Catalog</a>`;
 }
 
 function render() {
@@ -125,6 +142,7 @@ function render() {
   if (kind === "new" || kind === "edit") renderBuilder();
   if (kind === "show") renderSheet();
   if (kind === "index") renderIndex();
+  if (kind === "dmDashboard") renderDmDashboard();
   if (kind === "campaign") renderCampaigns();
   if (kind === "dmPlayers") renderDmPlayers();
   if (kind === "dmCharacters") renderDmCharacters();
@@ -782,15 +800,73 @@ function spellSlotTable(slots, used, remaining) {
   }).join("")}</tbody></table>`;
 }
 
+function renderDmDashboard() {
+  const activeCampaigns = state.campaigns.filter((campaign) => campaign.status !== "archived");
+  const archivedCampaigns = state.campaigns.length - activeCampaigns.length;
+  document.querySelector("[data-vault-view]").innerHTML = `
+    <section class="vault-dashboard-strip">
+      <article class="vault-panel">
+        <div class="vault-kicker">Campaign Control</div>
+        <h2>DM Dashboard</h2>
+        <p>Campaigns, characters, storage, and equipment for DRG 1e play.</p>
+        <div class="vault-actions">
+          <a class="vault-button" href="/1e/dm/campaigns/#new-campaign">New Campaign</a>
+          <a class="vault-button secondary" href="/1e/dm/campaigns/">Campaigns</a>
+          <a class="vault-button secondary" href="/1e/characters/">Character Vault</a>
+          <a class="vault-button secondary" href="/1e/dm/equipment/">Equipment Catalog</a>
+        </div>
+      </article>
+      <article class="vault-panel vault-dashboard-stats">
+        ${summaryStat("Campaigns", state.campaigns.length)}
+        ${summaryStat("Active", activeCampaigns.length)}
+        ${summaryStat("Archived", archivedCampaigns)}
+        ${summaryStat("Catalog Items", state.equipment.length)}
+      </article>
+    </section>
+    <section class="vault-panel">
+      <div class="vault-section-heading">
+        <div>
+          <div class="vault-kicker">Recent Campaigns</div>
+          <h2>Campaigns</h2>
+        </div>
+        <a class="vault-button secondary" href="/1e/dm/campaigns/">Open Campaigns</a>
+      </div>
+      ${campaignCardsHtml(state.campaigns.slice(0, 6))}
+    </section>`;
+}
+
 function renderCampaigns() {
   if (state.campaign) {
     const c = state.campaign;
-    document.querySelector("[data-vault-view]").innerHTML = `<section class="vault-panel"><h2>${h(c.name)}</h2><form class="vault-form" data-campaign-update>${field("Campaign Day", "current_campaign_day", c.current_campaign_day, "number")}${field("Default / Current Location", "default_location", c.default_location || "Town", "text", "wide")}${selectField("Status", "status", c.status || "active", ["active", "inactive", "archived"])}<label class="vault-field full">Description<textarea name="description">${h(c.description || "")}</textarea></label><div class="vault-actions vault-full"><button class="vault-button" type="submit">Update Campaign</button><button class="vault-button secondary" type="button" data-archive-campaign="${c.id}">Archive Campaign</button></div></form></section>
-    <section class="vault-panel"><div class="vault-kicker">Campaign Players</div><form class="vault-form" data-campaign-player>${selectField("Existing Player", "user_id", "", ["", ...state.players.map((player) => String(player.id))])}${field("Or New Player Name", "display_name", "")}${field("Email", "email", "", "email")}${field("Discord User ID", "discord_user_id", "")}${selectField("Campaign Role", "campaign_role", "player", ["player", "dm", "observer"])}<div class="vault-actions vault-full"><button class="vault-button" type="submit">Add Player</button></div></form>${campaignPlayersTable(c.players || [])}</section>
-    <section class="vault-panel"><div class="vault-kicker">Assigned Characters</div><form class="vault-form" data-assign-character>${selectField("Assign Character", "character_id", "", ["", ...state.characters.filter((character) => !character.campaign_id || character.campaign_id === c.id).map((character) => String(character.id))])}<div class="vault-actions vault-full"><button class="vault-button" type="submit">Assign</button></div></form>${campaignCharactersTable(c.characters || [])}</section>
-    <section class="vault-panel"><div class="vault-kicker">Storage Locations</div><form class="vault-form" data-safe-storage>${field("Location Name", "name", "Party Camp")}${field("Description", "description", "", "text", "wide")}<p class="vault-muted vault-full">Use this for items, coins, or gear not carried by the character.</p><div class="vault-actions vault-full"><button class="vault-button" type="submit">Create / Update Location</button></div></form>${safeStorageHtml(c)}</section>
-    ${isDmMode() || currentUserIsDm() ? dmCatalogHtml(c) : ""}`;
-    document.querySelector("[data-campaign-update]").addEventListener("submit", async (event) => {
+    document.querySelector("[data-vault-view]").innerHTML = `
+      <section class="vault-campaign-header">
+        <article class="vault-panel">
+          <div class="vault-kicker">Campaign Workspace</div>
+          <div class="vault-section-heading">
+            <div>
+              <h2>${h(c.name)}</h2>
+              <p>${h(c.description || "No campaign notes yet.")}</p>
+            </div>
+            <div class="vault-actions">
+              <a class="vault-button secondary" href="/1e/dm/campaigns/">All Campaigns</a>
+              <a class="vault-button secondary" href="/1e/characters/new/">Create Character</a>
+            </div>
+          </div>
+          <div class="vault-statline">
+            ${summaryStat("Day", c.current_campaign_day)}
+            ${summaryStat("Location", c.default_location || "Town")}
+            ${summaryStat("Status", labelize(c.status || "active"))}
+            ${summaryStat("Characters", (c.characters || []).length)}
+          </div>
+        </article>
+      </section>
+      <div class="vault-tabs">${["overview", "characters", "storage", "equipment", "journal", "settings"].map((tab) => `<button class="vault-tab" type="button" aria-selected="${state.dmCampaignTab === tab}" data-campaign-tab="${tab}">${labelize(tab)}</button>`).join("")}</div>
+      ${campaignTabHtml(c)}`;
+    document.querySelectorAll("[data-campaign-tab]").forEach((button) => button.addEventListener("click", () => {
+      state.dmCampaignTab = button.dataset.campaignTab;
+      renderCampaigns();
+    }));
+    document.querySelector("[data-campaign-update]")?.addEventListener("submit", async (event) => {
       event.preventDefault();
       const data = Object.fromEntries(new FormData(event.target));
       data.current_campaign_day = Number(data.current_campaign_day || 1);
@@ -864,7 +940,25 @@ function renderCampaigns() {
     }));
     return;
   }
-  document.querySelector("[data-vault-view]").innerHTML = `<section class="vault-panel"><h2>DM Campaign Dashboard</h2><form class="vault-form" data-campaign-form>${field("Name", "name", "")}${field("Default Location", "default_location", "Town")}${field("Current Day", "current_campaign_day", 1, "number")}<label class="vault-field full">Description<textarea name="description"></textarea></label><button class="vault-button" type="submit">Create Campaign</button></form><table class="vault-table"><thead><tr><th>Name</th><th>Day</th><th>Location</th><th>Status</th><th>Players</th><th>Characters</th></tr></thead><tbody>${state.campaigns.map((c) => `<tr><td><a href="/1e/dm/campaigns/${c.id}/">${h(c.name)}</a></td><td>${c.current_campaign_day}</td><td>${h(c.default_location || "")}</td><td>${h(labelize(c.status))}</td><td>${h(c.players?.length || 0)}</td><td>${h(c.characters?.length || 0)}</td></tr>`).join("")}</tbody></table></section>`;
+  document.querySelector("[data-vault-view]").innerHTML = `
+    <section class="vault-panel" id="new-campaign">
+      <div class="vault-section-heading">
+        <div>
+          <div class="vault-kicker">New Campaign</div>
+          <h2>Create Campaign</h2>
+        </div>
+      </div>
+      <form class="vault-form vault-form-compact" data-campaign-form>${field("Name", "name", "")}${field("Default Location", "default_location", "Town")}${field("Current Day", "current_campaign_day", 1, "number")}<label class="vault-field full">Description<textarea name="description"></textarea></label><div class="vault-actions vault-full"><button class="vault-button" type="submit">Create Campaign</button></div></form>
+    </section>
+    <section class="vault-panel">
+      <div class="vault-section-heading">
+        <div>
+          <div class="vault-kicker">DM Tools</div>
+          <h2>Campaigns</h2>
+        </div>
+      </div>
+      ${campaignsTableHtml(state.campaigns)}
+    </section>`;
   document.querySelector("[data-campaign-form]").addEventListener("submit", async (event) => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.target));
@@ -873,6 +967,48 @@ function renderCampaigns() {
     state.campaigns = await api("/campaigns");
     renderCampaigns();
   });
+  document.querySelectorAll("[data-archive-campaign-list]").forEach((button) => button.addEventListener("click", async () => {
+    await api(`/campaigns/${button.dataset.archiveCampaignList}`, { method: "DELETE" });
+    state.campaigns = await api("/campaigns");
+    toast("Saved.");
+    renderCampaigns();
+  }));
+}
+
+function campaignTabHtml(c) {
+  const tab = state.dmCampaignTab;
+  if (tab === "characters") {
+    return `<section class="vault-panel"><div class="vault-section-heading"><div><div class="vault-kicker">Characters</div><h2>Campaign Characters</h2></div><a class="vault-button" href="/1e/characters/new/">Create Character</a></div><form class="vault-form vault-form-compact" data-assign-character>${selectField("Assign Existing Character", "character_id", "", ["", ...state.characters.filter((character) => !character.campaign_id || character.campaign_id === c.id).map((character) => String(character.id))])}<div class="vault-actions"><button class="vault-button" type="submit">Assign</button></div></form>${campaignCharactersTable(c.characters || [])}</section>`;
+  }
+  if (tab === "storage") {
+    return `<section class="vault-panel"><div class="vault-section-heading"><div><div class="vault-kicker">Storage</div><h2>Campaign Storage</h2></div></div><form class="vault-form vault-form-compact" data-safe-storage>${field("Location Name", "name", "Party Camp")}${field("Description", "description", "", "text", "wide")}<p class="vault-muted vault-full">Use this for items, coins, or gear not carried by the character.</p><div class="vault-actions vault-full"><button class="vault-button" type="submit">Add Storage Location</button></div></form>${safeStorageHtml(c)}</section>`;
+  }
+  if (tab === "equipment") {
+    return `<section class="vault-panel"><div class="vault-section-heading"><div><div class="vault-kicker">Equipment</div><h2>Campaign Equipment</h2></div><a class="vault-button secondary" href="/1e/dm/equipment/">Equipment Catalog</a></div>${campaignEquipmentTable(c)}</section>`;
+  }
+  if (tab === "journal") {
+    return `<section class="vault-panel"><div class="vault-kicker">Journal</div><h2>Campaign Journal</h2><p class="vault-muted">Campaign notes, session notes, and major events will live here. This is a placeholder until the journal model ships.</p><label class="vault-field full">Campaign Notes<textarea readonly>${h(c.description || "")}</textarea></label></section>`;
+  }
+  if (tab === "settings") {
+    return `<section class="vault-panel"><div class="vault-kicker">Settings</div><h2>Campaign Settings</h2>${campaignSettingsForm(c)}</section>`;
+  }
+  return `<section class="vault-grid"><article class="vault-card"><div class="vault-kicker">Overview</div><h2>Status</h2><div class="vault-statline">${summaryStat("Day", c.current_campaign_day)}${summaryStat("Location", c.default_location || "Town")}${summaryStat("Status", labelize(c.status || "active"))}</div></article><article class="vault-card"><div class="vault-kicker">Characters</div><h2>${(c.characters || []).length} Assigned</h2><p>${(c.characters || []).filter((character) => character.status === "active").length} active characters.</p></article><article class="vault-card"><div class="vault-kicker">Storage</div><h2>${(c.safe_storage_locations || []).length} Locations</h2><p>${(c.stored_items || []).length} stored item rows.</p></article><article class="vault-panel"><div class="vault-kicker">Notes</div><p>${h(c.description || "No campaign notes yet.")}</p></article></section>`;
+}
+
+function campaignSettingsForm(c) {
+  return `<form class="vault-form vault-form-compact" data-campaign-update>${field("Campaign Name", "name", c.name || "")}${field("Campaign Day", "current_campaign_day", c.current_campaign_day, "number")}${field("Default / Current Location", "default_location", c.default_location || "Town", "text", "wide")}${selectField("Status", "status", c.status || "active", ["active", "inactive", "archived"])}<label class="vault-field full">Notes<textarea name="description">${h(c.description || "")}</textarea></label><div class="vault-actions vault-full"><button class="vault-button" type="submit">Save Settings</button><button class="vault-button secondary" type="button" data-archive-campaign="${c.id}">Archive Campaign</button></div></form>`;
+}
+
+function campaignsTableHtml(campaigns) {
+  return `<table class="vault-table"><thead><tr><th>Campaign</th><th>Day</th><th>Location</th><th>Characters</th><th>Status</th><th>Actions</th></tr></thead><tbody>${campaigns.length ? campaigns.map((c) => `<tr><td><strong>${h(c.name)}</strong><br><span class="vault-mini">${h(c.description || "")}</span></td><td>${h(c.current_campaign_day)}</td><td>${h(c.default_location || "")}</td><td>${h(c.characters?.length || 0)}</td><td>${h(labelize(c.status))}</td><td><a class="vault-button secondary" href="/1e/dm/campaigns/${c.id}/">Open</a> <a class="vault-button secondary" href="/1e/dm/campaigns/${c.id}/#settings">Edit</a> <button class="vault-button secondary" type="button" data-archive-campaign-list="${c.id}">Archive</button></td></tr>`).join("") : `<tr><td colspan="6">No campaigns yet. Create one above.</td></tr>`}</tbody></table>`;
+}
+
+function campaignCardsHtml(campaigns) {
+  return campaigns.length ? `<div class="vault-grid">${campaigns.map((campaign) => `<article class="vault-card"><div class="vault-kicker">${h(labelize(campaign.status))}</div><h2>${h(campaign.name)}</h2><p>Day ${h(campaign.current_campaign_day)} at ${h(campaign.default_location || "Town")}.</p><div class="vault-actions"><a class="vault-button secondary" href="/1e/dm/campaigns/${campaign.id}/">Open</a></div></article>`).join("")}</div>` : `<p class="vault-muted">No campaigns yet. Start one from the Campaigns page.</p>`;
+}
+
+function summaryStat(label, value) {
+  return `<span class="vault-stat"><span>${h(label)}</span><strong>${h(value)}</strong></span>`;
 }
 
 function renderDmPlayers() {
@@ -1024,13 +1160,30 @@ function campaignPlayersTable(players) {
 }
 
 function campaignCharactersTable(characters) {
-  return `<table class="vault-table"><thead><tr><th>Character</th><th>Status</th><th>Life</th><th>Coins</th><th>Location</th><th>Actions</th></tr></thead><tbody>${characters.length ? characters.map((character) => `<tr><td><a href="/1e/characters/${character.id}/">${h(character.name)}</a><br><span class="vault-mini">${h(character.player?.display_name || "Unknown Player")} / ${h(character.race)} ${h(character.class_name)} ${h(character.level)}</span></td><td>${h(labelize(character.status))}</td><td>${h(labelize(character.life_status))}</td><td>${coinCount(character.coins)} coins<br>${coinWeight(character.coins)} lb</td><td>${h(character.current_location)}</td><td><button class="vault-button secondary" type="button" data-char-status="${character.id}:active">Active</button> <button class="vault-button secondary" type="button" data-char-status="${character.id}:inactive">Inactive</button> <button class="vault-button secondary" type="button" data-char-status="${character.id}:retired">Retired</button> <button class="vault-button secondary" type="button" data-char-status="${character.id}:dead">Dead</button> <button class="vault-button secondary" type="button" data-char-status="${character.id}:archived">Archive</button> <button class="vault-button secondary" type="button" data-char-status="${character.id}:unassign">Unassign</button></td></tr>`).join("") : `<tr><td colspan="6">No characters assigned yet.</td></tr>`}</tbody></table>`;
+  return `<table class="vault-table"><thead><tr><th>Character</th><th>Player/Owner</th><th>Race</th><th>Class</th><th>Level</th><th>Status</th><th>Location</th><th>Actions</th></tr></thead><tbody>${characters.length ? characters.map((character) => `<tr><td><a href="/1e/characters/${character.id}/">${h(character.name)}</a></td><td>${h(character.player?.display_name || "Unknown Player")}</td><td>${h(character.race)}</td><td>${h(character.class_name)}</td><td>${h(character.level)}</td><td>${h(labelize(character.status))}</td><td>${h(character.current_location)}</td><td><a class="vault-button secondary" href="/1e/characters/${character.id}/">View</a> <a class="vault-button secondary" href="/1e/characters/${character.id}/edit/">Edit</a> <button class="vault-button secondary" type="button" data-char-status="${character.id}:unassign">Remove</button></td></tr>`).join("") : `<tr><td colspan="8">No characters assigned yet.</td></tr>`}</tbody></table>`;
 }
 
 function safeStorageHtml(c) {
   const locations = c.safe_storage_locations || [];
   const stored = c.stored_items || [];
-  return `${locations.length ? locations.map((location) => `<article class="vault-row"><div><strong>${h(location.name)}</strong><p>${h(location.description || "No description.")}</p><p class="vault-muted">${(location.stored_items || []).length} stored item rows.</p></div><button class="vault-button secondary" type="button" data-archive-storage="${location.id}">Archive</button></article>`).join("") : `<p>No campaign storage locations yet. Common options: Inn Room, Temple Vault, Hireling Pack Mule, Townhouse, Party Camp, Hidden Cache.</p>`}<h3>Stored Items</h3>${stored.length ? `<table class="vault-table"><thead><tr><th>Item</th><th>Character</th><th>Location</th><th>Notes</th></tr></thead><tbody>${stored.map((item) => `<tr><td>${h(item.quantity)} x ${h(item.equipment.name)}</td><td><a href="/1e/characters/${item.character_id}/">${h(item.character_name)}</a></td><td>${h(item.storage_location)}</td><td>${h(item.notes || "")}</td></tr>`).join("")}</tbody></table>` : `<p class="vault-muted">No stored items in this campaign.</p>`}`;
+  return `${locations.length ? `<div class="vault-storage-grid">${locations.map((location) => {
+    const items = stored.filter((item) => item.storage_location === location.name || (location.stored_items || []).some((storedItem) => storedItem.id === item.id));
+    const weight = items.reduce((total, item) => total + Number(item.quantity || 1) * Number(item.equipment?.weight || 0), 0);
+    return `<article class="vault-row"><div><strong>${h(location.name)}</strong><p>${h(location.description || "No description.")}</p><p class="vault-muted">${items.length} item rows. ${weight} lb stored.</p></div><div class="vault-actions"><button class="vault-button secondary" type="button" data-archive-storage="${location.id}">Archive</button></div></article>`;
+  }).join("")}</div>` : `<p>No campaign storage locations yet. Common options: Inn Room, Temple Vault, Hireling Pack Mule, Townhouse, Party Camp, Hidden Cache.</p>`}<h3>Stored Items</h3>${stored.length ? `<table class="vault-table"><thead><tr><th>Item</th><th>Character</th><th>Location</th><th>Notes</th></tr></thead><tbody>${stored.map((item) => `<tr><td>${h(item.quantity)} x ${h(item.equipment.name)}</td><td><a href="/1e/characters/${item.character_id}/">${h(item.character_name)}</a></td><td>${h(item.storage_location)}</td><td>${h(item.notes || "")}</td></tr>`).join("")}</tbody></table>` : `<p class="vault-muted">No stored items in this campaign.</p>`}`;
+}
+
+function campaignEquipmentTable(c) {
+  const campaignItems = state.equipment.filter((item) => item.campaign_id === c.id);
+  return `<table class="vault-table"><thead><tr><th>Item</th><th>Type</th><th>Weight</th><th>Damage / AC</th><th>Campaign</th><th>Actions</th></tr></thead><tbody>${campaignItems.length ? campaignItems.map((item) => `<tr><td><strong>${h(item.name)}</strong><br><span class="vault-mini">${h(item.notes || item.rules_reference || "")}</span></td><td>${h(labelize(item.type))}${item.subtype ? `<br><span class="vault-mini">${h(labelize(item.subtype))}</span>` : ""}</td><td>${h(item.weight ?? 0)}</td><td>${equipmentCombatText(item)}</td><td>${h(c.name)}</td><td><a class="vault-button secondary" href="/1e/dm/equipment/">Edit Catalog</a></td></tr>`).join("") : `<tr><td colspan="6">No campaign-specific equipment yet. Use the DM Equipment Catalog to create or assign items.</td></tr>`}</tbody></table>`;
+}
+
+function equipmentCombatText(item) {
+  const parts = [];
+  if (item.damage_small_medium) parts.push(`Dmg ${item.damage_small_medium}`);
+  if (item.armor_class_value) parts.push(`AC ${item.armor_class_value}`);
+  if (item.armor_class_adjustment) parts.push(`Adj ${item.armor_class_adjustment}`);
+  return parts.length ? h(parts.join(" / ")) : `<span class="vault-muted">-</span>`;
 }
 
 function dmCatalogHtml(c) {
