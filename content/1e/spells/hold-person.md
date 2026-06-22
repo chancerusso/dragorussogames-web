@@ -48,7 +48,7 @@ This spell has the same effect as the clerical spell hold person: to immobilise 
 
 ## OSRIC Source
 
-Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+Verified against OSRIC core rules, Chapter II, Spells. No DRG 1e table rule is added here.
 
 ## Spell Navigation
 

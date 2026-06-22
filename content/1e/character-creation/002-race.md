@@ -1380,6 +1380,6 @@ Choose Half-Orc if you want physical power, danger, and a harsher class path.
 
 If you are stuck, choose the race that best supports the class you want next.
 
-## House Rules
+## Table Rules
 
-No approved house rule yet.
+No approved table rule yet.

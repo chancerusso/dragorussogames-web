@@ -24,7 +24,7 @@ An anti-magic shell is a bubble of space around the magic user that completely p
 
 ## OSRIC Source
 
-Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+Verified against OSRIC core rules, Chapter II, Spells. No DRG 1e table rule is added here.
 
 ## Spell Navigation
 

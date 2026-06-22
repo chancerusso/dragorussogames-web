@@ -24,7 +24,7 @@ This spell transforms stone into flesh, or vice versa if the caster has elected 
 
 ## OSRIC Source
 
-Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+Verified against OSRIC core rules, Chapter II, Spells. No DRG 1e table rule is added here.
 
 ## Spell Navigation
 

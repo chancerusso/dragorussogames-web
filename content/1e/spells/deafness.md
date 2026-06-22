@@ -24,7 +24,7 @@ This spell is similar to the illusionist's blindness spell, but causes deafness.
 
 ## OSRIC Source
 
-Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+Verified against OSRIC core rules, Chapter II, Spells. No DRG 1e table rule is added here.
 
 ## Spell Navigation
 

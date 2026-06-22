@@ -28,7 +28,7 @@ This spell removes all impurities from water, making it clear and drinkable. The
 
 ## OSRIC Source
 
-Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+Verified against OSRIC core rules, Chapter II, Spells. No DRG 1e table rule is added here.
 
 ## Spell Navigation
 

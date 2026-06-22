@@ -26,7 +26,7 @@ d10 Monster Summoned 8 Spider, huge 9 Spider, large 10 Weasel, giant
 
 ## OSRIC Source
 
-Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+Verified against OSRIC core rules, Chapter II, Spells. No DRG 1e table rule is added here.
 
 ## Spell Navigation
 

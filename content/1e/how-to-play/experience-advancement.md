@@ -52,7 +52,7 @@ The party returns to town with 1,200 gp in coin, a jeweled idol worth 500 gp, an
 
 ## Notes
 
-Verified against OSRIC core rules, Chapter III, Gaining Levels and Experience. No DRG1e advancement house rule is added here.
+Verified against OSRIC core rules, Chapter III, Gaining Levels and Experience. No DRG 1e advancement table rule is added here.
 
 ## Continue
 

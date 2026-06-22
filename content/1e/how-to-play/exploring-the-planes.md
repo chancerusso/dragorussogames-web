@@ -29,4 +29,4 @@ Before entering a plane, write down:
 
 ## Notes
 
-Verified against OSRIC core exploration rules for planar travel. No DRG1e planar house rule is added here.
+Verified against OSRIC core exploration rules for planar travel. No DRG 1e planar table rule is added here.

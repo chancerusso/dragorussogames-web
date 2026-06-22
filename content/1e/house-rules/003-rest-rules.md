@@ -1,7 +1,7 @@
 # Rest Rules
 
 ## Purpose
-This chapter will cover rest house rules.
+This chapter will cover rest table rules.
 
 ## Rule Source
 House Rule.
@@ -21,7 +21,7 @@ Pending.
 ## Quick Reference
 Pending.
 
-## House Rules
+## Table Rules
 Pending.
 
 

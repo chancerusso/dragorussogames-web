@@ -48,6 +48,12 @@ def campaign_route(campaign_id: int) -> FileResponse:
     return FileResponse(SITE_ROOT / "1e" / "dm" / "campaigns" / "1" / "index.html")
 
 
+# TODO: Enforce server-side authentication/authorization for all /1e/dm routes before real DM login ships.
+@app.get("/1e/dm/campaigns/")
+def dm_campaigns_route() -> FileResponse:
+    return FileResponse(SITE_ROOT / "1e" / "dm" / "campaigns" / "index.html")
+
+
 @app.get("/1e/dm/players/")
 def dm_players_route() -> FileResponse:
     return FileResponse(SITE_ROOT / "1e" / "dm" / "players" / "index.html")
@@ -56,6 +62,11 @@ def dm_players_route() -> FileResponse:
 @app.get("/1e/dm/characters/")
 def dm_characters_route() -> FileResponse:
     return FileResponse(SITE_ROOT / "1e" / "dm" / "characters" / "index.html")
+
+
+@app.get("/1e/dm/equipment/")
+def dm_equipment_route() -> FileResponse:
+    return FileResponse(SITE_ROOT / "1e" / "dm" / "equipment" / "index.html")
 
 
 if SITE_ROOT.exists():

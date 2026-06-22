@@ -57,7 +57,7 @@ A party with a slowest movement rate of 60 ft moves 60 ft per turn while mapping
 
 ## Notes
 
-Verified against OSRIC core rules, Chapter III, Movement and Encumbrance and Base Movement Rate. DRG1e encumbrance changes belong in **[House Rules](/1e/house-rules/004-encumbrance/)**.
+Verified against OSRIC core rules, Chapter III, Movement and Encumbrance and Base Movement Rate. DRG 1e encumbrance changes belong in **[Table Rules](/1e/house-rules/004-encumbrance/)**.
 
 ## Continue
 

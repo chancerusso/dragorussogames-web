@@ -51,7 +51,7 @@ The magic-user declares magic missile before initiative. The caster begins on th
 
 ## Notes
 
-Verified against OSRIC core rules, Chapter III, Combat spell declaration and casting-time rules, plus spell descriptions in Chapter II. No DRG1e magic house rule is added here.
+Verified against OSRIC core rules, Chapter III, Combat spell declaration and casting-time rules, plus spell descriptions in Chapter II. No DRG 1e magic table rule is added here.
 
 ## Continue
 

@@ -26,7 +26,7 @@ are detected as only quasi-real, they inflict 60% of normal damage and are AC 6.
 
 ## OSRIC Source
 
-Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+Verified against OSRIC core rules, Chapter II, Spells. No DRG 1e table rule is added here.
 
 ## Spell Navigation
 

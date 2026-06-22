@@ -38,4 +38,4 @@ Scrolls are best treated as single-use spell resources. Record:
 
 ## Notes
 
-Verified against OSRIC core rules, Chapter II, spell and scroll handling. No DRG1e scroll house rule is added here.
+Verified against OSRIC core rules, Chapter II, spell and scroll handling. No DRG 1e scroll table rule is added here.

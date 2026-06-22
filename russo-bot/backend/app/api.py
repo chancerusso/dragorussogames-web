@@ -84,6 +84,8 @@ from app.services.expedition import (
 
 router = APIRouter(prefix="/api")
 
+# TODO: Add server-side auth/role enforcement before exposing DM campaign, player, and equipment management as secure tools.
+
 
 def ensure_vault_seeded(db: Session) -> None:
     seed_vault_catalogs(db)

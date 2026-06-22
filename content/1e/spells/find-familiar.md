@@ -26,7 +26,7 @@ Caster Level Familiar1-2 3-5 6-8 9-11 12-14 15+ 01-05 01-05 01-06 01-06 01-07 01
 
 ## OSRIC Source
 
-Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+Verified against OSRIC core rules, Chapter II, Spells. No DRG 1e table rule is added here.
 
 ## Spell Navigation
 

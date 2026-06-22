@@ -1445,8 +1445,8 @@ Choose Paladin or Ranger if you want a demanding heroic class with strict requir
 
 Choose Druid, Illusionist, or Assassin if you want a more specialized character with sharper rules.
 
-## House Rules
+## Table Rules
 
-No class house rules are approved yet.
+No class table rules are approved yet.
 
-Use the class rules on this page unless a house rule says otherwise.
+Use the class rules on this page unless a table rule says otherwise.

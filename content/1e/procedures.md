@@ -27,10 +27,10 @@ Pending.
 ## Quick Reference
 Pending.
 
-## House Rules
+## Table Rules
 Pending.
 
 
 ## Related Pages
 - [How To Play](/1e/how-to-play/)
-- [House Rules](/1e/house-rules/)
+- [Table Rules](/1e/house-rules/)

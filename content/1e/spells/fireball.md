@@ -30,7 +30,7 @@ approximately thirty-three 10 x 10 ft squares. Thus, if a fireball explodes in t
 
 ## OSRIC Source
 
-Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+Verified against OSRIC core rules, Chapter II, Spells. No DRG 1e table rule is added here.
 
 ## Spell Navigation
 

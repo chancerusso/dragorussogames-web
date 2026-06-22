@@ -5,7 +5,7 @@ const API = `${VAULT_API_BASE}/1e`;
 const abilities = ["strength", "intelligence", "wisdom", "dexterity", "constitution", "charisma"];
 const abilityLabels = { strength: "STR", intelligence: "INT", wisdom: "WIS", dexterity: "DEX", constitution: "CON", charisma: "CHA" };
 const coins = ["platinum", "gold", "electrum", "silver", "copper"];
-const state = { characters: [], equipment: [], spells: [], campaigns: [], players: [], campaign: null, rules: null, character: null, currentPlayer: null, step: 0, draft: null, inventoryFilter: "equipped", dmOverride: false };
+const state = { characters: [], equipment: [], spells: [], campaigns: [], players: [], campaign: null, rules: null, character: null, currentPlayer: null, step: 0, draft: null, inventoryFilter: "equipped", dmOverride: false, dmCharacterFilters: { campaign_id: "", user_id: "", status: "" }, equipmentFilters: { q: "", type: "" }, editEquipmentId: null };
 
 function h(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
@@ -27,6 +27,7 @@ function pageKind() {
   if (path.includes("/dm/campaigns")) return "campaign";
   if (path.includes("/dm/players")) return "dmPlayers";
   if (path.includes("/dm/characters")) return "dmCharacters";
+  if (path.includes("/dm/equipment")) return "dmEquipment";
   const match = path.match(/\/1e\/characters\/(\d+)$/);
   return match ? "show" : "index";
 }
@@ -82,20 +83,27 @@ function hydrateCurrentPlayer() {
 }
 
 function renderShell() {
-  const dmPage = pageKind().startsWith("dm") || pageKind() === "campaign";
+  const dmPage = isDmMode();
+  const sheetId = characterId();
   document.querySelector("[data-vault-app]").innerHTML = `
     <section class="vault-hero">
       <div>
-        <div class="vault-eyebrow">DRG1e Character Vault</div>
+        <div class="vault-eyebrow">${dmPage ? "DM Tools" : "DRG 1e Character Vault"}</div>
         <h1>${pageTitle()}</h1>
-        <p>Persistent OSRIC character building with DRG1e house-rule ability rolls, catalog-only equipment, coins, spells, and campaign state.</p>
+        <p>Persistent OSRIC character building with DRG 1e table-rule ability rolls, catalog-only equipment, coins, spells, and campaign state.</p>
+        ${dmPage ? `<p class="vault-warning-text">DM tools are currently unprotected until login is enabled.</p>` : ""}
         <div class="vault-toast" data-vault-toast></div>
       </div>
       <div class="vault-actions">
-        <a class="vault-button secondary" href="/1e/">Rules Home</a>
         <a class="vault-button secondary" href="/1e/characters/">Characters</a>
         <a class="vault-button" href="/1e/characters/new/">New Character</a>
-        ${dmPage ? `<a class="vault-button secondary" href="/1e/dm/campaigns/">DM Campaigns</a><a class="vault-button secondary" href="/1e/dm/players/">DM Players</a><a class="vault-button secondary" href="/1e/dm/characters/">DM Characters</a>` : ""}
+        ${sheetId ? `<a class="vault-button secondary" href="/1e/characters/${sheetId}/">Character Sheet</a>` : ""}
+        <a class="vault-button secondary" href="/1e/">Rules</a>
+        <a class="vault-button secondary" href="/1e/equipment/">Equipment</a>
+        <a class="vault-button secondary" href="/1e/spells/">Spells</a>
+        <a class="vault-button secondary" href="/1e/races/">Races</a>
+        <a class="vault-button secondary" href="/1e/classes/">Classes</a>
+        ${dmPage ? `<a class="vault-button secondary" href="/1e/dm/campaigns/">DM Campaigns</a><a class="vault-button secondary" href="/1e/dm/players/">DM Players</a><a class="vault-button secondary" href="/1e/dm/characters/">DM Characters</a><a class="vault-button secondary" href="/1e/dm/equipment/">DM Equipment</a>` : ""}
       </div>
     </section>
     <section data-vault-view></section>`;
@@ -108,6 +116,7 @@ function pageTitle() {
   if (pageKind() === "campaign") return "Campaigns";
   if (pageKind() === "dmPlayers") return "DM Players";
   if (pageKind() === "dmCharacters") return "DM Characters";
+  if (pageKind() === "dmEquipment") return "DM Equipment";
   return "Your Characters";
 }
 
@@ -119,6 +128,7 @@ function render() {
   if (kind === "campaign") renderCampaigns();
   if (kind === "dmPlayers") renderDmPlayers();
   if (kind === "dmCharacters") renderDmCharacters();
+  if (kind === "dmEquipment") renderDmEquipment();
 }
 
 function initialDraft() {
@@ -207,7 +217,7 @@ function builderStep() {
   if (state.step === 1) return `
     <div class="vault-full vault-actions"><button class="vault-button" type="button" data-roll>Roll 4d6 Drop Lowest</button><span class="vault-muted">Assign each rolled score once, or use manual DM override.</span></div>
     ${abilityAssignmentHtml(d)}
-    <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/001-ability-scores/">4d6 drop lowest DRG1e house rule</a></p>
+    <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/001-ability-scores/">4d6 drop lowest DRG 1e table rule</a></p>
     ${navButtons()}`;
   if (state.step === 2) return `
     ${selectField("Race", "race", d.race, races, "compact")}
@@ -510,34 +520,19 @@ function playerPanelHtml() {
   </form></section>`;
 }
 
-function isDm() {
+function isDmMode() {
+  return pageKind().startsWith("dm") || pageKind() === "campaign";
+}
+
+function currentUserIsDm() {
   return ["dm", "admin"].includes(state.currentPlayer?.role);
 }
 
 function renderSheet() {
-  document.querySelector("[data-vault-view]").innerHTML = `<div class="vault-sheet">${sheetHtml(state.character)}${quickEditHtml(state.character)}</div>`;
+  document.querySelector("[data-vault-view]").innerHTML = `<div class="vault-sheet">${sheetHtml(state.character)}</div>`;
   bindInventoryActions(() => renderSheet());
   document.querySelectorAll("[data-rules-link]").forEach((button) => button.addEventListener("click", () => openRulesModal(button.dataset.rulesTitle, button.dataset.rulesLink)));
-  document.querySelector("[data-quick-edit]")?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const data = Object.fromEntries(new FormData(event.target));
-    const coinsPatch = Object.fromEntries(coins.map((coin) => [coin, Number(data[`coin_${coin}`] || 0)]));
-    state.character = await api(`/characters/${state.character.id}`, {
-      method: "PUT",
-      body: JSON.stringify({
-        xp: Number(data.xp || 0),
-        campaign_day: Number(data.campaign_day || 1),
-        current_location: data.current_location,
-        notes: data.notes,
-        safe_storage_location: data.safe_storage_location,
-        coins: coinsPatch,
-        combat: { current_hp: Number(data.current_hp || 0), max_hp: Number(data.max_hp || 0) },
-      }),
-    });
-    state.character = await api(`/characters/${state.character.id}`);
-    toast("Saved.");
-    renderSheet();
-  });
+  document.querySelector("[data-quick-edit-open]")?.addEventListener("click", () => openQuickEditModal(state.character));
   document.querySelectorAll("[data-spell-action]").forEach((button) => button.addEventListener("click", async (event) => {
     event.preventDefault();
     const [id, action] = button.dataset.spellAction.split(":");
@@ -600,8 +595,11 @@ function readableError(error) {
   }
 }
 
-function quickEditHtml(c) {
-  return `<details class="vault-panel vault-quick-edit" id="vault-quick-edit"><summary>Quick Edit Sheet</summary><form class="vault-form" data-quick-edit>
+function openQuickEditModal(c) {
+  document.querySelector(".vault-quick-modal")?.remove();
+  const modal = document.createElement("div");
+  modal.className = "vault-rules-modal vault-quick-modal";
+  modal.innerHTML = `<div class="vault-rules-popout vault-quick-popout"><button class="vault-modal-close" type="button" aria-label="Close">x</button><div class="vault-kicker">Quick Edit</div><form class="vault-form" data-quick-edit>
     ${field("Current HP", "current_hp", c.combat?.current_hp ?? 1, "number")}
     ${field("Max HP", "max_hp", c.combat?.max_hp ?? 1, "number")}
     ${field("XP", "xp", c.xp ?? 0, "number")}
@@ -611,8 +609,33 @@ function quickEditHtml(c) {
     <p class="vault-muted vault-full">Use this for items, coins, or gear not carried by the character.</p>
     ${coins.map((coin) => field(title(coin), `coin_${coin}`, c.coins?.[coin] ?? 0, "number")).join("")}
     <label class="vault-field full">Notes<textarea name="notes">${h(c.notes || "")}</textarea></label>
-    <div class="vault-actions vault-full"><button class="vault-button" type="submit">Save Quick Edits</button><a class="vault-button secondary" href="/1e/characters/${c.id}/edit/">Full Edit</a></div>
-  </form></details>`;
+    <div class="vault-panel-toast vault-full" data-panel-toast></div>
+    <div class="vault-actions vault-full"><button class="vault-button" type="submit">Save</button><a class="vault-button secondary" href="/1e/characters/${c.id}/edit/">Full Edit</a></div>
+  </form></div>`;
+  modal.querySelector(".vault-modal-close").addEventListener("click", () => modal.remove());
+  modal.addEventListener("click", (event) => { if (event.target === modal) modal.remove(); });
+  modal.querySelector("[data-quick-edit]").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const data = Object.fromEntries(new FormData(event.target));
+    const coinsPatch = Object.fromEntries(coins.map((coin) => [coin, Number(data[`coin_${coin}`] || 0)]));
+    state.character = await api(`/characters/${state.character.id}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        xp: Number(data.xp || 0),
+        campaign_day: Number(data.campaign_day || 1),
+        current_location: data.current_location,
+        notes: data.notes,
+        safe_storage_location: data.safe_storage_location,
+        coins: coinsPatch,
+        combat: { current_hp: Number(data.current_hp || 0), max_hp: Number(data.max_hp || 0) },
+      }),
+    });
+    state.character = await api(`/characters/${state.character.id}`);
+    toast("Saved.");
+    modal.remove();
+    renderSheet();
+  });
+  document.body.appendChild(modal);
 }
 
 function sheetHtml(c) {
@@ -625,7 +648,7 @@ function sheetHtml(c) {
     <section class="vault-panel">${sectionTitle("Equipment", "/1e/equipment/")}${inventoryHtml(c)}</section>
     <section class="vault-panel">${sectionTitle("Spells", "/1e/how-to-play/magic/")}${spellsHtml(c)}</section>
     <section class="vault-card"><div class="vault-kicker">Campaign State</div><p>Day ${h(c.campaign_day)} at ${h(c.current_location)}.</p><p>Storage: ${h(c.safe_storage_location || "No storage location set")}</p></section>
-    <section class="vault-panel"><div class="vault-kicker">Notes</div><p>${h(c.notes || "No notes.")}</p><div class="vault-actions"><a class="vault-button secondary" href="#vault-quick-edit">Quick Edit</a><a class="vault-button secondary" href="/1e/characters/${c.id || ""}/edit/">Full Edit</a></div></section>
+    <section class="vault-panel"><div class="vault-kicker">Notes</div><p>${h(c.notes || "No notes.")}</p><div class="vault-actions"><a class="vault-button secondary" href="/1e/characters/${c.id || ""}/edit/">Full Edit</a></div></section>
   </div>`;
 }
 
@@ -645,7 +668,7 @@ function sheetHeaderHtml(c) {
     </div>
     ${abilityStripHtml(c)}
     ${warningsHtml(c)}
-    <div class="vault-actions"><a class="vault-button secondary" href="#vault-quick-edit">Quick Edit</a><a class="vault-button secondary" href="/1e/characters/${c.id || ""}/edit/">Full Edit</a></div>
+    <div class="vault-actions"><button class="vault-button secondary" type="button" data-quick-edit-open>Quick Edit</button><a class="vault-button secondary" href="/1e/characters/${c.id || ""}/edit/">Full Edit</a></div>
   </section>`;
 }
 
@@ -766,7 +789,7 @@ function renderCampaigns() {
     <section class="vault-panel"><div class="vault-kicker">Campaign Players</div><form class="vault-form" data-campaign-player>${selectField("Existing Player", "user_id", "", ["", ...state.players.map((player) => String(player.id))])}${field("Or New Player Name", "display_name", "")}${field("Email", "email", "", "email")}${field("Discord User ID", "discord_user_id", "")}${selectField("Campaign Role", "campaign_role", "player", ["player", "dm", "observer"])}<div class="vault-actions vault-full"><button class="vault-button" type="submit">Add Player</button></div></form>${campaignPlayersTable(c.players || [])}</section>
     <section class="vault-panel"><div class="vault-kicker">Assigned Characters</div><form class="vault-form" data-assign-character>${selectField("Assign Character", "character_id", "", ["", ...state.characters.filter((character) => !character.campaign_id || character.campaign_id === c.id).map((character) => String(character.id))])}<div class="vault-actions vault-full"><button class="vault-button" type="submit">Assign</button></div></form>${campaignCharactersTable(c.characters || [])}</section>
     <section class="vault-panel"><div class="vault-kicker">Storage Locations</div><form class="vault-form" data-safe-storage>${field("Location Name", "name", "Party Camp")}${field("Description", "description", "", "text", "wide")}<p class="vault-muted vault-full">Use this for items, coins, or gear not carried by the character.</p><div class="vault-actions vault-full"><button class="vault-button" type="submit">Create / Update Location</button></div></form>${safeStorageHtml(c)}</section>
-    ${isDm() ? dmCatalogHtml(c) : ""}`;
+    ${isDmMode() || currentUserIsDm() ? dmCatalogHtml(c) : ""}`;
     document.querySelector("[data-campaign-update]").addEventListener("submit", async (event) => {
       event.preventDefault();
       const data = Object.fromEntries(new FormData(event.target));
@@ -841,20 +864,13 @@ function renderCampaigns() {
     }));
     return;
   }
-  document.querySelector("[data-vault-view]").innerHTML = `${playerPanelHtml()}<section class="vault-panel"><h2>DM Campaign Foundation</h2><form class="vault-form" data-campaign-form>${field("Name", "name", "")}${field("Default Location", "default_location", "Town")}${field("Current Day", "current_campaign_day", 1, "number")}<label class="vault-field full">Description<textarea name="description"></textarea></label><button class="vault-button" type="submit">Create Campaign</button></form><table class="vault-table"><thead><tr><th>Name</th><th>Day</th><th>Status</th></tr></thead><tbody>${state.campaigns.map((c) => `<tr><td><a href="/1e/dm/campaigns/${c.id}/">${h(c.name)}</a></td><td>${c.current_campaign_day}</td><td>${h(labelize(c.status))}</td></tr>`).join("")}</tbody></table></section>`;
+  document.querySelector("[data-vault-view]").innerHTML = `<section class="vault-panel"><h2>DM Campaign Dashboard</h2><form class="vault-form" data-campaign-form>${field("Name", "name", "")}${field("Default Location", "default_location", "Town")}${field("Current Day", "current_campaign_day", 1, "number")}<label class="vault-field full">Description<textarea name="description"></textarea></label><button class="vault-button" type="submit">Create Campaign</button></form><table class="vault-table"><thead><tr><th>Name</th><th>Day</th><th>Location</th><th>Status</th><th>Players</th><th>Characters</th></tr></thead><tbody>${state.campaigns.map((c) => `<tr><td><a href="/1e/dm/campaigns/${c.id}/">${h(c.name)}</a></td><td>${c.current_campaign_day}</td><td>${h(c.default_location || "")}</td><td>${h(labelize(c.status))}</td><td>${h(c.players?.length || 0)}</td><td>${h(c.characters?.length || 0)}</td></tr>`).join("")}</tbody></table></section>`;
   document.querySelector("[data-campaign-form]").addEventListener("submit", async (event) => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.target));
     data.current_campaign_day = Number(data.current_campaign_day || 1);
     await api("/campaigns", { method: "POST", body: JSON.stringify(data) });
     state.campaigns = await api("/campaigns");
-    renderCampaigns();
-  });
-  document.querySelector("[data-player-form]")?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    state.currentPlayer = await api("/players", { method: "POST", body: JSON.stringify(Object.fromEntries(new FormData(event.target))) });
-    localStorage.setItem("drg1e_player_id", String(state.currentPlayer.id));
-    state.players = await api("/players");
     renderCampaigns();
   });
 }
@@ -866,7 +882,7 @@ function renderDmPlayers() {
     ${field("Discord User ID", "discord_user_id", "")}
     ${selectField("Role", "role", "player", ["player", "dm", "admin"])}
     <div class="vault-actions vault-full"><button class="vault-button" type="submit">Save Player</button></div>
-  </form><table class="vault-table"><thead><tr><th>Player</th><th>Role</th><th>Email</th><th>Characters</th></tr></thead><tbody>${state.players.length ? state.players.map((player) => `<tr><td>${h(player.display_name || player.player_name)}</td><td>${h(labelize(player.role))}</td><td>${h(player.email || "")}</td><td>${state.characters.filter((character) => character.user_id === player.id).length}</td></tr>`).join("") : `<tr><td colspan="4">No players created yet.</td></tr>`}</tbody></table></section>`;
+  </form><table class="vault-table"><thead><tr><th>Player</th><th>Role</th><th>Email</th><th>Characters</th><th>Assign to Campaign</th></tr></thead><tbody>${state.players.length ? state.players.map((player) => `<tr><td>${h(player.display_name || player.player_name)}</td><td>${h(labelize(player.role))}</td><td>${h(player.email || "")}</td><td>${playerCharacterLinks(player.id)}</td><td>${state.campaigns.length ? `${selectField("", `player_campaign_${player.id}`, "", ["", ...state.campaigns.map((campaign) => String(campaign.id))])}<button class="vault-button secondary" type="button" data-assign-player="${player.id}">Assign</button>` : `<span class="vault-muted">No campaigns.</span>`}</td></tr>`).join("") : `<tr><td colspan="5">No players created yet.</td></tr>`}</tbody></table></section>`;
   document.querySelector("[data-dm-player-form]")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     await api("/players", { method: "POST", body: JSON.stringify(Object.fromEntries(new FormData(event.target))) });
@@ -874,15 +890,133 @@ function renderDmPlayers() {
     state.characters = await api("/characters?include_archived=true");
     renderDmPlayers();
   });
+  document.querySelectorAll("[data-assign-player]").forEach((button) => button.addEventListener("click", async () => {
+    const campaignIdValue = document.querySelector(`[name='player_campaign_${button.dataset.assignPlayer}']`)?.value;
+    if (!campaignIdValue) return toast("Choose a campaign.");
+    await api(`/campaigns/${campaignIdValue}/players`, { method: "POST", body: JSON.stringify({ user_id: Number(button.dataset.assignPlayer), campaign_role: "player" }) });
+    toast("Saved.");
+  }));
 }
 
 function renderDmCharacters() {
-  document.querySelector("[data-vault-view]").innerHTML = `<section class="vault-panel"><h2>DM Characters</h2><table class="vault-table"><thead><tr><th>Character</th><th>Player</th><th>Campaign</th><th>Status</th><th>Location</th><th>Actions</th></tr></thead><tbody>${state.characters.length ? state.characters.map((character) => `<tr><td><a href="/1e/characters/${character.id}/">${h(character.name)}</a><br><span class="vault-mini">${h(character.race)} ${h(character.class_name)} ${h(character.level)}</span></td><td>${h(character.player?.display_name || character.user_id)}</td><td>${h(campaignName(character.campaign_id))}</td><td>${h(labelize(character.status))} / ${h(labelize(character.life_status))}</td><td>${h(character.current_location)}</td><td><a class="vault-button secondary" href="/1e/characters/${character.id}/edit/">Edit</a></td></tr>`).join("") : `<tr><td colspan="6">No characters created yet.</td></tr>`}</tbody></table></section>`;
+  const characters = filteredDmCharacters();
+  document.querySelector("[data-vault-view]").innerHTML = `<section class="vault-panel"><h2>DM Characters</h2><div class="vault-actions">${selectField("Campaign", "dm_filter_campaign", state.dmCharacterFilters.campaign_id, ["", ...state.campaigns.map((campaign) => String(campaign.id))])}${selectField("Player", "dm_filter_player", state.dmCharacterFilters.user_id, ["", ...state.players.map((player) => String(player.id))])}${selectField("Status", "dm_filter_status", state.dmCharacterFilters.status, ["", "active", "inactive", "dead", "retired", "archived"])}</div><table class="vault-table"><thead><tr><th>Character</th><th>Player</th><th>Campaign</th><th>Status</th><th>Location</th><th>Assign</th><th>Actions</th></tr></thead><tbody>${characters.length ? characters.map((character) => `<tr><td><a href="/1e/characters/${character.id}/">${h(character.name)}</a><br><span class="vault-mini">${h(character.race)} ${h(character.class_name)} ${h(character.level)}</span></td><td>${h(character.player?.display_name || character.user_id)}</td><td>${h(campaignName(character.campaign_id))}</td><td>${h(labelize(character.status))} / ${h(labelize(character.life_status))}</td><td>${h(character.current_location)}</td><td>${selectField("", `character_campaign_${character.id}`, character.campaign_id ? String(character.campaign_id) : "", ["", ...state.campaigns.map((campaign) => String(campaign.id))])}<button class="vault-button secondary" type="button" data-assign-character-dm="${character.id}">Save</button></td><td><a class="vault-button secondary" href="/1e/characters/${character.id}/edit/">Edit</a></td></tr>`).join("") : `<tr><td colspan="7">No characters match these filters.</td></tr>`}</tbody></table></section>`;
+  ["campaign", "player", "status"].forEach((name) => {
+    document.querySelector(`[name='dm_filter_${name}']`)?.addEventListener("change", (event) => {
+      const key = name === "player" ? "user_id" : name === "campaign" ? "campaign_id" : "status";
+      state.dmCharacterFilters[key] = event.target.value;
+      renderDmCharacters();
+    });
+  });
+  document.querySelectorAll("[data-assign-character-dm]").forEach((button) => button.addEventListener("click", async () => {
+    const id = button.dataset.assignCharacterDm;
+    const campaignIdValue = document.querySelector(`[name='character_campaign_${id}']`)?.value;
+    await api(`/characters/${id}`, { method: "PUT", body: JSON.stringify({ campaign_id: campaignIdValue ? Number(campaignIdValue) : null }) });
+    state.characters = await api("/characters?include_archived=true");
+    toast("Saved.");
+    renderDmCharacters();
+  }));
 }
 
 function campaignName(id) {
   if (!id) return "Unassigned";
   return state.campaigns.find((campaign) => campaign.id === id)?.name || `Campaign ${id}`;
+}
+
+function playerCharacterLinks(playerId) {
+  const characters = state.characters.filter((character) => character.user_id === playerId);
+  return characters.length ? characters.map((character) => `<a href="/1e/characters/${character.id}/">${h(character.name)}</a> <a class="vault-mini" href="/1e/characters/${character.id}/edit/">Edit</a>`).join("<br>") : `<span class="vault-muted">No characters.</span>`;
+}
+
+function filteredDmCharacters() {
+  return state.characters.filter((character) => {
+    const filters = state.dmCharacterFilters;
+    return (!filters.campaign_id || String(character.campaign_id || "") === filters.campaign_id)
+      && (!filters.user_id || String(character.user_id || "") === filters.user_id)
+      && (!filters.status || character.status === filters.status);
+  });
+}
+
+function renderDmEquipment() {
+  const editItem = state.equipment.find((item) => item.id === state.editEquipmentId) || null;
+  const items = filteredDmEquipment();
+  document.querySelector("[data-vault-view]").innerHTML = `<section class="vault-panel"><h2>DM Equipment Catalog</h2><div class="vault-actions">${field("Search", "dm_equipment_search", state.equipmentFilters.q)}${selectField("Type", "dm_equipment_type", state.equipmentFilters.type, ["", ...equipmentTypeOptions()])}</div><form class="vault-form" data-dm-equipment-form>${equipmentEditorFields(editItem)}<div class="vault-actions vault-full"><button class="vault-button" type="submit">${editItem ? "Save Item" : "Create Item"}</button>${editItem ? `<button class="vault-button secondary" type="button" data-cancel-equipment-edit>Cancel Edit</button>` : ""}</div></form><table class="vault-table"><thead><tr><th>Item</th><th>Type</th><th>Cost</th><th>Wt</th><th>Campaign</th><th>Actions</th></tr></thead><tbody>${items.length ? items.map((item) => `<tr><td><strong>${h(item.name)}</strong><br><span class="vault-mini">${h(item.notes || item.rules_reference || "")}</span></td><td>${h(labelize(item.type))}${item.subtype ? `<br><span class="vault-mini">${h(labelize(item.subtype))}</span>` : ""}</td><td>${h(item.cost_amount ?? "")} ${h(item.cost_coin ?? "")}</td><td>${h(item.weight ?? 0)}</td><td>${h(campaignName(item.campaign_id))}</td><td>${item.is_dm_created ? `<button class="vault-button secondary" type="button" data-edit-equipment="${item.id}">Edit</button> <button class="vault-button secondary" type="button" data-archive-equipment="${item.id}">Archive</button>` : `<span class="vault-muted">Core OSRIC</span>`}</td></tr>`).join("") : `<tr><td colspan="6">No equipment matches these filters.</td></tr>`}</tbody></table></section>`;
+  document.querySelector("[name='dm_equipment_search']")?.addEventListener("input", (event) => { state.equipmentFilters.q = event.target.value; renderDmEquipment(); });
+  document.querySelector("[name='dm_equipment_type']")?.addEventListener("change", (event) => { state.equipmentFilters.type = event.target.value; renderDmEquipment(); });
+  document.querySelector("[data-cancel-equipment-edit]")?.addEventListener("click", () => { state.editEquipmentId = null; renderDmEquipment(); });
+  document.querySelectorAll("[data-edit-equipment]").forEach((button) => button.addEventListener("click", () => {
+    state.editEquipmentId = Number(button.dataset.editEquipment);
+    renderDmEquipment();
+  }));
+  document.querySelectorAll("[data-archive-equipment]").forEach((button) => button.addEventListener("click", async () => {
+    await api(`/equipment/${button.dataset.archiveEquipment}`, { method: "DELETE" });
+    state.equipment = await api("/equipment");
+    toast("Saved.");
+    renderDmEquipment();
+  }));
+  document.querySelector("[data-dm-equipment-form]")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const data = equipmentFormPayload(new FormData(event.target));
+    const path = editItem ? `/equipment/${editItem.id}` : "/equipment";
+    const method = editItem ? "PUT" : "POST";
+    await api(path, { method, body: JSON.stringify(data) });
+    state.equipment = await api("/equipment");
+    state.editEquipmentId = null;
+    toast("Saved.");
+    renderDmEquipment();
+  });
+}
+
+function filteredDmEquipment() {
+  return state.equipment.filter((item) => {
+    const filters = state.equipmentFilters;
+    return (!filters.q || item.name.toLowerCase().includes(filters.q.toLowerCase()))
+      && (!filters.type || item.type === filters.type);
+  }).slice(0, 120);
+}
+
+function equipmentTypeOptions() {
+  return ["weapon", "armor", "shield", "adventuring_gear", "container", "mount", "transport", "tool", "clothing", "service", "treasure", "magic_item", "other"];
+}
+
+function equipmentEditorFields(item = {}) {
+  return `
+    ${field("Name", "name", item.name || "")}
+    ${selectField("Type", "type", item.type || "adventuring_gear", equipmentTypeOptions())}
+    ${field("Subtype", "subtype", item.subtype || "")}
+    ${field("Cost Amount", "cost_amount", item.cost_amount ?? "", "number")}
+    ${selectField("Cost Coin", "cost_coin", item.cost_coin || "gp", ["pp", "gp", "ep", "sp", "cp"])}
+    ${field("Weight", "weight", item.weight ?? 0, "number")}
+    ${field("Damage Small/Medium", "damage_small_medium", item.damage_small_medium || "")}
+    ${field("Damage Large", "damage_large", item.damage_large || "")}
+    ${field("Armor/Shield AC", "armor_class_value", item.armor_class_value ?? "", "number")}
+    ${field("AC Adjustment", "armor_class_adjustment", item.armor_class_adjustment ?? "", "number")}
+    ${selectField("Campaign", "campaign_id", item.campaign_id ? String(item.campaign_id) : "", ["", ...state.campaigns.map((campaign) => String(campaign.id))])}
+    ${field("Rules Reference", "rules_reference", item.rules_reference || "")}
+    <label class="vault-check vault-full"><input type="checkbox" name="is_dm_created" ${item.is_dm_created !== false ? "checked" : ""}> Adventure-specific / DM-created item</label>
+    <label class="vault-field full">Properties JSON<textarea name="properties_json">${h(JSON.stringify(item.properties || {}, null, 2))}</textarea></label>
+    <label class="vault-field full">Notes<textarea name="notes">${h(item.notes || "")}</textarea></label>
+  `;
+}
+
+function equipmentFormPayload(formData) {
+  const data = Object.fromEntries(formData);
+  let properties = {};
+  try {
+    properties = data.properties_json ? JSON.parse(data.properties_json) : {};
+  } catch {
+    properties = { note: data.properties_json };
+  }
+  return {
+    ...data,
+    cost_amount: data.cost_amount ? Number(data.cost_amount) : null,
+    weight: Number(data.weight || 0),
+    armor_class_value: data.armor_class_value ? Number(data.armor_class_value) : null,
+    armor_class_adjustment: data.armor_class_adjustment ? Number(data.armor_class_adjustment) : null,
+    campaign_id: data.campaign_id ? Number(data.campaign_id) : null,
+    is_dm_created: data.is_dm_created === "on",
+    properties,
+  };
 }
 
 function campaignPlayersTable(players) {

@@ -1,7 +1,7 @@
 # Combat Rules
 
 ## Purpose
-This chapter will cover combat house rules.
+This chapter will cover combat table rules.
 
 ## Rule Source
 House Rule.
@@ -21,7 +21,7 @@ Pending.
 ## Quick Reference
 Pending.
 
-## House Rules
+## Table Rules
 Pending.
 
 

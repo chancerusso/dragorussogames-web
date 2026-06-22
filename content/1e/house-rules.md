@@ -1,4 +1,4 @@
-# House Rules
+# Table Rules
 
 ## Overview
 This section collects Drago Russo table changes separately from the baseline rules.

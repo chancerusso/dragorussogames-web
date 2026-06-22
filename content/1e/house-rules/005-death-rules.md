@@ -1,7 +1,7 @@
 # Death Rules
 
 ## Purpose
-This chapter will cover death house rules.
+This chapter will cover death table rules.
 
 ## Rule Source
 House Rule.
@@ -21,7 +21,7 @@ Pending.
 ## Quick Reference
 Pending.
 
-## House Rules
+## Table Rules
 Pending.
 
 

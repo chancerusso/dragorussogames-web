@@ -30,7 +30,7 @@ Humanoid Table Die Roll New Incarnation 01-02 Bugbear 03-05 Dwarf 06-16 Elf 17-1
 
 ## OSRIC Source
 
-Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+Verified against OSRIC core rules, Chapter II, Spells. No DRG 1e table rule is added here.
 
 ## Spell Navigation
 

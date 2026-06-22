@@ -48,7 +48,7 @@ The party spends one turn moving cautiously, one turn listening and forcing a st
 
 ## Notes
 
-Verified against OSRIC core rules, Chapter III, Time Measurement, plus the dungeon exploration order of play. No DRG1e time house rule is added here.
+Verified against OSRIC core rules, Chapter III, Time Measurement, plus the dungeon exploration order of play. No DRG 1e time table rule is added here.
 
 ## Continue
 

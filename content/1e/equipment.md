@@ -1,6 +1,6 @@
 # Equipment
 
-This is the player equipment reference for DRG1e. Costs, weights, weapon damage, armour, and coin rules are taken from OSRIC Chapter I.
+This is the player equipment reference for DRG 1e. Costs, weights, weapon damage, armour, and coin rules are taken from OSRIC Chapter I.
 
 Use this page when buying starting gear, replacing lost gear, checking encumbrance, or reading weapon and armour entries at the table.
 
@@ -234,4 +234,4 @@ After buying equipment, total carried weight and compare it to **[Equipment & En
 
 ## Notes
 
-Verified against OSRIC core rules, Chapter I, Money, Equipment, Master Weapon Table, Missile Weapon Table, and Armour. DRG1e's ability-score generation house rule does not modify these equipment tables.
+Verified against OSRIC core rules, Chapter I, Money, Equipment, Master Weapon Table, Missile Weapon Table, and Armour. DRG 1e's ability-score generation table rule does not modify these equipment tables.

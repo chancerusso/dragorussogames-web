@@ -2,7 +2,7 @@
 
 OSRIC damage and death are explicit. Hit point loss can knock a character unconscious, cause bleeding, and lead to death if aid does not arrive quickly.
 
-Use these baseline rules unless a DRG1e house rule clearly says otherwise.
+Use these baseline rules unless a DRG 1e table rule clearly says otherwise.
 
 ## Damage And Death
 
@@ -65,7 +65,7 @@ A fighter is reduced to 0 hit points. The fighter falls unconscious and will los
 
 ## Notes
 
-Verified against OSRIC core rules, Chapter III, Damage and Death, Natural Healing, and Subdual Damage. DRG1e death changes belong in **[House Rules](/1e/house-rules/005-death-rules/)**.
+Verified against OSRIC core rules, Chapter III, Damage and Death, Natural Healing, and Subdual Damage. DRG 1e death changes belong in **[Table Rules](/1e/house-rules/005-death-rules/)**.
 
 ## Continue
 

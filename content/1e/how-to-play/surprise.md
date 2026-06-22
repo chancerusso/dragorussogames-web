@@ -52,7 +52,7 @@ The party rolls a 2 for surprise. The monsters roll a 5. The monsters are not su
 
 ## Notes
 
-Verified against OSRIC core rules, Chapter III, Combat, Determine Surprise. No DRG1e surprise house rule is added here.
+Verified against OSRIC core rules, Chapter III, Combat, Determine Surprise. No DRG 1e surprise table rule is added here.
 
 ## Continue
 

@@ -28,7 +28,7 @@ Pending.
 - Chronicler
 - Scout
 
-## House Rules
+## Table Rules
 Pending.
 
 

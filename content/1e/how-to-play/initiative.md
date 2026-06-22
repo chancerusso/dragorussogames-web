@@ -47,7 +47,7 @@ The magic-user declares a spell with casting time 2 segments. The party rolls 5 
 
 ## Notes
 
-Verified against OSRIC core rules, Chapter III, Combat, Declare Spells and General Actions and Determine Initiative. No DRG1e initiative house rule is added here.
+Verified against OSRIC core rules, Chapter III, Combat, Declare Spells and General Actions and Determine Initiative. No DRG 1e initiative table rule is added here.
 
 ## Continue
 

@@ -1,6 +1,6 @@
 # Spells
 
-This is the DRG1e player-facing OSRIC Chapter II spell reference.
+This is the DRG 1e player-facing OSRIC Chapter II spell reference.
 
 Use it to browse spell lists, open individual spell writeups, and check scroll rules at the table.
 
@@ -27,4 +27,4 @@ Use it to browse spell lists, open individual spell writeups, and check scroll r
 
 ## OSRIC Source
 
-Verified against OSRIC core rules, Chapter II, Spells. No DRG1e spellcasting house rule is added here.
+Verified against OSRIC core rules, Chapter II, Spells. No DRG 1e spellcasting table rule is added here.

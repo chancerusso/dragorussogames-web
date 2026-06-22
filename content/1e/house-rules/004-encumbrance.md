@@ -1,7 +1,7 @@
 # Encumbrance
 
 ## Purpose
-This chapter will cover encumbrance house rules.
+This chapter will cover encumbrance table rules.
 
 ## Rule Source
 House Rule.
@@ -21,7 +21,7 @@ Pending.
 ## Quick Reference
 Pending.
 
-## House Rules
+## Table Rules
 Pending.
 
 

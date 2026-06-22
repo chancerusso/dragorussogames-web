@@ -32,6 +32,6 @@ Read the rules, make decisions at the table, and write only the needed results o
 - **[Adventures in Town](/1e/how-to-play/adventures-in-town/)**
 - **[Exploring the Planes](/1e/how-to-play/exploring-the-planes/)**
 
-## House Rules
+## Table Rules
 
-Baseline rules come first. Drago Russo Games changes appear only where a rule is actually modified, and broader house rules remain collected in **[House Rules](/1e/house-rules/)**.
+Baseline rules come first. Drago Russo Games changes appear only where a rule is actually modified, and broader table rules remain collected in **[Table Rules](/1e/house-rules/)**.

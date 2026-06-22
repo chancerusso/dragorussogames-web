@@ -11,7 +11,7 @@ const navItems = [
   { title: "Spells", href: "/1e/spells/" },
   { title: "Races", href: "/1e/races/" },
   { title: "Classes", href: "/1e/classes/" },
-  { title: "House Rules", href: "/1e/house-rules/" }
+  { title: "Table Rules", href: "/1e/house-rules/" }
 ];
 
 const sectionItems = {
@@ -23,7 +23,7 @@ const sectionItems = {
     ["Races", "/1e/races/", "Use race references after reading the Race step."],
     ["Classes", "/1e/classes/", "Use class references after reading the Class step."],
     ["Character Sheet", "/1e/character-sheet/", "Download blank and fillable Drago Russo First Edition sheets."],
-    ["House Rules", "/1e/house-rules/", "Read Drago Russo campaign changes separately from the baseline rules."]
+    ["Table Rules", "/1e/house-rules/", "Read Drago Russo campaign changes separately from the baseline rules."]
   ],
   "character-sheet": [
     ["Character Vault", "/1e/characters/", "Create and manage persistent website characters."],

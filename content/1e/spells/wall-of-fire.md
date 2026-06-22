@@ -48,7 +48,7 @@ A magic user's wall of fire does base damage of 2d6 hit points plus 1 hp/level. 
 
 ## OSRIC Source
 
-Verified against OSRIC core rules, Chapter II, Spells. No DRG1e house rule is added here.
+Verified against OSRIC core rules, Chapter II, Spells. No DRG 1e table rule is added here.
 
 ## Spell Navigation
 

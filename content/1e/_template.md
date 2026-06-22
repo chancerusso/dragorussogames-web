@@ -21,7 +21,7 @@ Original examples go here.
 ## Quick Reference
 Short bullets for print and table use go here.
 
-## House Rules
+## Table Rules
 Local changes go here.
 
 

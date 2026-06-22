@@ -66,7 +66,7 @@ The party wins initiative. The fighter attacks in the monsters' initiative segme
 
 ## Notes
 
-Verified against OSRIC core rules, Chapter III, Combat, Combat Actions, Combat Modifiers, Damage and Death, and Morale. DRG1e combat changes belong in **[House Rules](/1e/house-rules/002-combat-rules/)**.
+Verified against OSRIC core rules, Chapter III, Combat, Combat Actions, Combat Modifiers, Damage and Death, and Morale. DRG 1e combat changes belong in **[Table Rules](/1e/house-rules/002-combat-rules/)**.
 
 ## Continue
 
