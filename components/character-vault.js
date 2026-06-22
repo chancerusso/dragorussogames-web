@@ -44,6 +44,8 @@ function campaignId() {
 function toast(message) {
   const node = document.querySelector("[data-vault-toast]");
   if (node) node.textContent = message;
+  const panelNode = document.querySelector("[data-panel-toast]");
+  if (panelNode) panelNode.textContent = message;
 }
 
 async function boot() {
@@ -156,7 +158,7 @@ function renderBuilder() {
   const steps = ["Start", "Abilities", "Race", "Class", "Alignment", "Hit Points", "Money", "Equipment", "Proficiencies", "Spells", "Review"];
   document.querySelector("[data-vault-view]").innerHTML = `
     <div class="vault-builder-nav">${steps.map((label, index) => `<button class="vault-tab" aria-selected="${state.step === index}" data-step="${index}">${index + 1}. ${label}</button>`).join("")}</div>
-    <form class="vault-panel vault-form" data-builder-form>${builderStep()}</form>`;
+    <form class="vault-panel vault-form" data-builder-form><div class="vault-panel-toast vault-full" data-panel-toast></div>${builderStep()}</form>`;
   document.querySelectorAll("[data-step]").forEach((button) => button.addEventListener("click", () => { syncDraft(); state.step = Number(button.dataset.step); renderBuilder(); }));
   document.querySelector("[data-builder-form]").addEventListener("input", syncDraft);
   document.querySelector("[data-builder-form]").addEventListener("change", syncDraft);
@@ -208,8 +210,8 @@ function builderStep() {
     <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/001-ability-scores/">4d6 drop lowest DRG1e house rule</a></p>
     ${navButtons()}`;
   if (state.step === 2) return `
-    ${selectField("Race", "race", d.race, races)}
-    <div class="vault-card vault-wide"><h3>Adjusted Scores</h3><div class="vault-statline">${adjustedStats(d).map(([name, value]) => `<div class="vault-stat"><strong>${value}</strong><span>${title(name)}</span></div>`).join("")}</div></div>
+    ${selectField("Race", "race", d.race, races, "compact")}
+    <div class="vault-card vault-wide vault-adjusted-scores"><h3>Adjusted Scores</h3><div class="vault-statline">${adjustedStats(d).map(([name, value]) => `<div class="vault-stat"><strong>${value}</strong><span>${abilityLabels[name]}</span></div>`).join("")}</div></div>
     <div class="vault-card vault-full"><h3>Race Details</h3>${raceClassWarnings(d)}<p><strong>Eligible classes:</strong> ${h((state.rules.races[d.race]?.classes || []).join(", "))}</p><p><strong>Vision:</strong> ${h(state.rules.races[d.race]?.vision || "Manual DM Review")}</p><p><strong>Languages:</strong> ${h((state.rules.races[d.race]?.languages || []).join(", "))}</p><p><strong>Level limits:</strong> ${h(state.rules.races[d.race]?.level_limits || "Manual DM Review")}</p></div>
     <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/002-race/">Race</a> and race reference pages</p>
     ${navButtons()}`;
@@ -232,6 +234,7 @@ function navButtons(save = false) {
     <button class="vault-button secondary" type="button" data-prev ${state.step === 0 ? "disabled" : ""}>Previous</button>
     <button class="vault-button secondary" type="button" data-next ${state.step === 10 ? "disabled" : ""}>Next</button>
     <button class="vault-button" type="button" data-save>${save ? "Save Character" : "Save"}</button>
+    ${state.character?.id ? `<a class="vault-button secondary" href="/1e/characters/${state.character.id}/">View</a>` : ""}
   </div>`;
 }
 
@@ -249,6 +252,7 @@ function equipmentManager() {
       <label class="vault-check"><input type="checkbox" name="dm_override"> DM override equip restrictions</label>
     </div>
     <table class="vault-table"><thead><tr><th>Item</th><th>Type</th><th>Wt</th><th>Cost</th><th>Use</th><th></th></tr></thead><tbody data-equipment-results>${equipmentRows(classAwareEquipment().slice(0, 40))}</tbody></table>
+    ${state.character?.inventory?.length ? `<h3>Character Inventory</h3>${inventoryTable(state.character.inventory, state.character.weapon_proficiencies || [])}` : ""}
     <p class="vault-rules">Rules: <a href="/1e/equipment/">OSRIC equipment catalog</a>. Free-typed player equipment is intentionally blocked.</p>
   </div>`;
 }
@@ -264,7 +268,7 @@ function equipmentRows(items) {
 }
 
 function proficiencyManager() {
-  const weapons = state.equipment.filter((item) => item.type === "weapon").slice(0, 80);
+  const weapons = state.equipment.filter((item) => item.type === "weapon" && !isAmmunition(item)).slice(0, 80);
   return `<div class="vault-full"><table class="vault-table"><thead><tr><th>Weapon</th><th>Damage</th><th>Proficient</th></tr></thead><tbody>${weapons.map((weapon) => `<tr><td>${h(weapon.name)}</td><td>${h(weapon.damage_small_medium || "")}</td><td><button class="vault-button secondary" type="button" data-prof="${weapon.id}">Mark</button></td></tr>`).join("")}</tbody></table><p class="vault-rules">Rules: class proficiency counts and penalties are Manual DM Review.</p></div>`;
 }
 
@@ -292,26 +296,33 @@ function bindBuilderActions() {
   document.querySelector("[data-prev]")?.addEventListener("click", () => { syncDraft(); state.step = Math.max(0, state.step - 1); renderBuilder(); });
   document.querySelector("[data-next]")?.addEventListener("click", () => { syncDraft(); state.step = Math.min(10, state.step + 1); renderBuilder(); });
   document.querySelector("[data-save]")?.addEventListener("click", saveDraft);
+  document.querySelector("[name='race']")?.addEventListener("change", () => { syncDraft(); renderBuilder(); });
+  document.querySelector("[name='class_name']")?.addEventListener("change", () => { syncDraft(); renderBuilder(); });
   document.querySelector("[data-roll]")?.addEventListener("click", () => {
     state.draft.original_rolls = Array.from({ length: 6 }, roll4d6DropLowest);
     state.draft.assigned_rolls = {};
     renderBuilder();
   });
-  document.querySelectorAll("[data-add-equipment]").forEach((button) => button.addEventListener("click", async () => {
+  document.querySelectorAll("[data-add-equipment]").forEach((button) => button.addEventListener("click", async (event) => {
+    event.preventDefault();
     const character = await ensureSaved();
     state.character = await api(`/characters/${character.id}/inventory`, { method: "POST", body: JSON.stringify({ equipment_id: Number(button.dataset.addEquipment), quantity: 1, status: button.dataset.status || "carried", dm_override: state.dmOverride }) });
-    toast("Equipment added and weight recalculated.");
+    state.character = await api(`/characters/${state.character.id}`);
+    state.draft = initialDraft();
+    toast(button.dataset.status === "equipped" ? "Equipped." : "Added.");
+    renderBuilder();
   }));
   document.querySelectorAll("[data-add-spell]").forEach((button) => button.addEventListener("click", async () => {
     const character = await ensureSaved();
     state.character = await api(`/characters/${character.id}/spells`, { method: "POST", body: JSON.stringify({ spell_id: Number(button.dataset.addSpell), known: true, prepared: true, memorized_count: 1, in_spellbook: state.draft.class_name === "Magic-User" }) });
-    toast("Spell saved.");
+    toast("Saved.");
   }));
   document.querySelectorAll("[data-prof]").forEach((button) => button.addEventListener("click", async () => {
     const character = await ensureSaved();
     state.character = await api(`/characters/${character.id}/weapon-proficiencies`, { method: "POST", body: JSON.stringify({ equipment_id: Number(button.dataset.prof), proficient: true }) });
-    toast("Proficiency saved.");
+    toast("Saved.");
   }));
+  bindInventoryActions(() => renderBuilder());
   document.querySelector("[name='equipment_search']")?.addEventListener("input", () => filterEquipment());
   document.querySelector("[name='equipment_type']")?.addEventListener("change", () => filterEquipment());
   document.querySelector("[name='allowed_only']")?.addEventListener("change", () => filterEquipment());
@@ -505,18 +516,7 @@ function isDm() {
 
 function renderSheet() {
   document.querySelector("[data-vault-view]").innerHTML = `<div class="vault-sheet">${sheetHtml(state.character)}${quickEditHtml(state.character)}</div>`;
-  document.querySelectorAll("[data-inventory-action]").forEach((button) => button.addEventListener("click", async (event) => {
-    event.preventDefault();
-    const [id, status] = button.dataset.inventoryAction.split(":");
-    if (status === "delete") {
-      state.character = await api(`/characters/${state.character.id}/inventory/${id}`, { method: "DELETE" });
-    } else {
-      state.character = await api(`/characters/${state.character.id}/inventory/${id}`, { method: "PUT", body: JSON.stringify({ status, storage_location: status === "stored" ? state.character.safe_storage_location || "Personal Storage Location" : null }) });
-    }
-    state.character = await api(`/characters/${state.character.id}`);
-    toast("Saved.");
-    renderSheet();
-  }));
+  bindInventoryActions(() => renderSheet());
   document.querySelectorAll("[data-rules-link]").forEach((button) => button.addEventListener("click", () => openRulesModal(button.dataset.rulesTitle, button.dataset.rulesLink)));
   document.querySelector("[data-quick-edit]")?.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -535,7 +535,7 @@ function renderSheet() {
       }),
     });
     state.character = await api(`/characters/${state.character.id}`);
-    toast("Quick edits saved.");
+    toast("Saved.");
     renderSheet();
   });
   document.querySelectorAll("[data-spell-action]").forEach((button) => button.addEventListener("click", async (event) => {
@@ -552,6 +552,52 @@ function renderSheet() {
       toast("Spell slot limit reached or spell is not eligible.");
     }
   }));
+}
+
+function bindInventoryActions(afterAction) {
+  document.querySelectorAll("[data-inventory-action]").forEach((button) => button.addEventListener("click", async (event) => {
+    event.preventDefault();
+    if (!state.character?.id) return;
+    const [id, status] = button.dataset.inventoryAction.split(":");
+    try {
+      if (status === "delete") {
+        state.character = await api(`/characters/${state.character.id}/inventory/${id}`, { method: "DELETE" });
+      } else {
+        state.character = await api(`/characters/${state.character.id}/inventory/${id}`, {
+          method: "PUT",
+          body: JSON.stringify({
+            status,
+            storage_location: status === "stored" ? state.character.safe_storage_location || "Personal Storage Location" : null,
+          }),
+        });
+      }
+      state.character = await api(`/characters/${state.character.id}`);
+      state.draft = initialDraft();
+      toast(inventoryActionMessage(status));
+      afterAction();
+    } catch (error) {
+      toast(readableError(error));
+    }
+  }));
+}
+
+function inventoryActionMessage(status) {
+  const messages = {
+    equipped: "Equipped.",
+    carried: "Unequipped.",
+    stored: "Stored.",
+    delete: "Deleted.",
+  };
+  return messages[status] || "Saved.";
+}
+
+function readableError(error) {
+  try {
+    const parsed = JSON.parse(error.message);
+    return parsed.detail || error.message;
+  } catch {
+    return error.message || "Action failed.";
+  }
 }
 
 function quickEditHtml(c) {
@@ -572,7 +618,7 @@ function quickEditHtml(c) {
 function sheetHtml(c) {
   return `${sheetHeaderHtml(c)}<div class="vault-grid">
     <section class="vault-card">${sectionTitle("Saving Throws", "/1e/character-creation/003-class/")}${savingThrowsHtml(c)}</section>
-    <section class="vault-card">${sectionTitle("Movement & Encumbrance", "/1e/how-to-play/equipment-encumbrance/")}<div class="vault-compact-list"><span><strong>Move</strong>${h(c.combat?.movement_rate ?? 120)}</span><span><strong>Carried</strong>${h(c.combat?.carried_weight ?? 0)} lb</span><span><strong>Coins</strong>${coinWeight(c.coins)} lb</span><span><strong>Band</strong>${h(c.combat?.encumbrance_band ?? "Unencumbered")}</span></div></section>
+    <section class="vault-card">${sectionTitle("Movement & Encumbrance", "/1e/how-to-play/equipment-encumbrance/")}<div class="vault-compact-list"><span><strong>Move</strong>${h(c.combat?.movement_rate ?? 120)}</span><span><strong>Carried</strong>${h(c.combat?.carried_weight ?? 0)} lb</span><span><strong>Coins</strong>${coinWeight(c.coins)} lb</span><span><strong>Load</strong>${h(c.combat?.encumbrance_band ?? "Unencumbered")}</span></div></section>
     <section class="vault-card">${sectionTitle("Race/Class Details", "/1e/character-creation/003-class/")}<p><strong>Hit Dice:</strong> ${h(hitDiceText(c))}</p><p><strong>Armor:</strong> ${h(c.class_details?.armor || "")}</p><p><strong>Weapons:</strong> ${h(c.class_details?.weapons || "")}</p><p><strong>Vision:</strong> ${h(c.race_details?.vision || "")}</p><p><strong>Languages:</strong> ${h((c.race_details?.languages || []).join(", "))}</p></section>
     <section class="vault-panel">${sectionTitle("Weapons", "/1e/equipment/")}${weaponsHtml(c)}</section>
     <section class="vault-panel">${sectionTitle("Armor", "/1e/equipment/")}${armorHtml(c)}</section>
@@ -938,6 +984,24 @@ function weaponProficiencyLabel(equipmentId, proficiencies = []) {
   const proficiency = proficiencies.find((entry) => entry.equipment_id === equipmentId);
   if (!proficiency) return "Non-proficient";
   return proficiency.proficient ? "Proficient" : "Non-proficient";
+}
+
+function isAmmunition(item = {}) {
+  const name = String(item.name || "").toLowerCase();
+  const subtype = String(item.subtype || "").toLowerCase();
+  if (subtype.includes("ammunition")) return true;
+  return [
+    "arrow",
+    "arrows",
+    "bolt",
+    "bolts",
+    "sling stone",
+    "sling stones",
+    "sling bullet",
+    "sling bullets",
+    "bullet, dozen",
+    "stone, dozen",
+  ].some((term) => name.includes(term));
 }
 
 function roll4d6DropLowest() {
