@@ -3,6 +3,7 @@ const VAULT_API_BASE =
   "https://russo.dragorussogames.com/api";
 const API = `${VAULT_API_BASE}/1e`;
 const abilities = ["strength", "intelligence", "wisdom", "dexterity", "constitution", "charisma"];
+const abilityLabels = { strength: "STR", intelligence: "INT", wisdom: "WIS", dexterity: "DEX", constitution: "CON", charisma: "CHA" };
 const coins = ["platinum", "gold", "electrum", "silver", "copper"];
 const state = { characters: [], equipment: [], spells: [], campaigns: [], players: [], campaign: null, rules: null, character: null, currentPlayer: null, step: 0, draft: null, inventoryFilter: "equipped", dmOverride: false };
 
@@ -132,6 +133,7 @@ function initialDraft() {
     current_location: "Town",
     safe_storage_location: "",
     original_rolls: [],
+    assigned_rolls: {},
     abilities: Object.fromEntries(abilities.map((ability) => [ability, 10])),
     coins: Object.fromEntries(coins.map((coin) => [coin, 0])),
     combat: { max_hp: 1, current_hp: 1 },
@@ -159,6 +161,20 @@ function selectField(label, name, value, options, extra = "") {
   return `<label class="vault-field ${extra}">${label}<select name="${name}">${options.map((option) => `<option ${option === value ? "selected" : ""}>${h(option)}</option>`).join("")}</select></label>`;
 }
 
+function abilityAssignmentHtml(d) {
+  const rolls = d.original_rolls || [];
+  const assigned = d.assigned_rolls || {};
+  const used = new Set(Object.values(assigned).filter((value) => value !== "" && value != null).map(String));
+  return `<div class="vault-full">
+    <div class="vault-roll-bank">${rolls.length ? rolls.map((roll, index) => `<span class="vault-roll-chip ${used.has(String(index)) ? "used" : ""}">${h(roll)}</span>`).join("") : `<span class="vault-muted">No rolls yet.</span>`}</div>
+    <div class="vault-ability-assignments">${abilities.map((ability) => {
+      const selected = assigned[ability] ?? "";
+      return `<label class="vault-assign"><span>${abilityLabels[ability]}</span><select name="assigned_rolls.${ability}"><option value="">Manual</option>${rolls.map((roll, index) => `<option value="${index}" ${String(selected) === String(index) ? "selected" : ""} ${used.has(String(index)) && String(selected) !== String(index) ? "disabled" : ""}>${h(roll)}</option>`).join("")}</select><input name="abilities.${ability}" type="number" min="3" max="18" value="${h(d.abilities[ability])}"></label>`;
+    }).join("")}</div>
+    <p class="vault-muted">Manual values remain available for DM-approved overrides. Race adjustments apply after assignment.</p>
+  </div>`;
+}
+
 function builderStep() {
   const d = state.draft;
   const races = Object.keys(state.rules?.races || {});
@@ -177,8 +193,8 @@ function builderStep() {
     <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/">Character Creation</a></p>
     ${navButtons()}`;
   if (state.step === 1) return `
-    <div class="vault-full vault-actions"><button class="vault-button" type="button" data-roll>Roll 4d6 Drop Lowest</button><span class="vault-muted">Rolls: ${(d.original_rolls || []).join(", ") || "none yet"}</span></div>
-    ${abilities.map((a) => field(title(a), `abilities.${a}`, d.abilities[a], "number")).join("")}
+    <div class="vault-full vault-actions"><button class="vault-button" type="button" data-roll>Roll 4d6 Drop Lowest</button><span class="vault-muted">Assign each rolled score once, or use manual DM override.</span></div>
+    ${abilityAssignmentHtml(d)}
     <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/001-ability-scores/">4d6 drop lowest DRG1e house rule</a></p>
     ${navButtons()}`;
   if (state.step === 2) return `
@@ -213,7 +229,7 @@ function equipmentManager() {
   return `<div class="vault-full">
     <div class="vault-actions">
       <input name="equipment_search" placeholder="Search equipment catalog" value="">
-      <select name="equipment_type"><option value="">All types</option><option>weapon</option><option>armor</option><option>shield</option><option>adventuring_gear</option><option>mount</option><option>transport</option></select>
+      <select name="equipment_type"><option value="">All types</option><option value="weapon">Weapon</option><option value="armor">Armor</option><option value="shield">Shield</option><option value="adventuring_gear">Adventuring Gear</option><option value="mount">Mount</option><option value="transport">Transport</option></select>
       <label class="vault-check"><input type="checkbox" name="allowed_only"> Class allowed only</label>
       <label class="vault-check"><input type="checkbox" name="dm_override"> DM override equip restrictions</label>
     </div>
@@ -228,7 +244,7 @@ function equipmentRows(items) {
       : item.type === "armor" || item.type === "shield" ? `AC ${item.armor_class_value ?? ""}, adjustment ${item.armor_class_adjustment ?? ""}`
       : item.rules_reference || "";
     const allowed = classAllowsEquipment(state.draft?.class_name, item);
-    return `<tr class="${allowed.allowed ? "" : "vault-warn-row"}"><td><strong>${h(item.name)}</strong><br><span class="vault-mini">${h(detail)}</span></td><td>${h(item.type)}</td><td>${h(item.weight)}</td><td>${h(item.cost_amount ?? "")} ${h(item.cost_coin ?? "")}</td><td>${allowed.allowed ? "Allowed" : "Blocked"}<br><span class="vault-mini">${h(allowed.reason)}</span></td><td><button class="vault-button secondary" type="button" data-add-equipment="${item.id}" data-status="carried">Add</button> <button class="vault-button secondary" type="button" data-add-equipment="${item.id}" data-status="equipped" ${!allowed.allowed && !state.dmOverride ? "disabled" : ""}>Equip</button></td></tr>`;
+    return `<tr class="${allowed.allowed ? "" : "vault-warn-row"}"><td><strong>${h(item.name)}</strong><br><span class="vault-mini">${h(displayReference(detail))}</span></td><td>${h(labelize(item.type))}</td><td>${h(item.weight)}</td><td>${h(item.cost_amount ?? "")} ${h(item.cost_coin ?? "")}</td><td>${allowed.allowed ? "Allowed" : "Blocked"}<br><span class="vault-mini">${h(allowed.reason)}</span></td><td><button class="vault-button secondary" type="button" data-add-equipment="${item.id}" data-status="carried">Add</button> <button class="vault-button secondary" type="button" data-add-equipment="${item.id}" data-status="equipped" ${!allowed.allowed && !state.dmOverride ? "disabled" : ""}>Equip</button></td></tr>`;
   }).join("");
 }
 
@@ -263,7 +279,7 @@ function bindBuilderActions() {
   document.querySelector("[data-save]")?.addEventListener("click", saveDraft);
   document.querySelector("[data-roll]")?.addEventListener("click", () => {
     state.draft.original_rolls = Array.from({ length: 6 }, roll4d6DropLowest);
-    abilities.forEach((ability, index) => state.draft.abilities[ability] = state.draft.original_rolls[index]);
+    state.draft.assigned_rolls = {};
     renderBuilder();
   });
   document.querySelectorAll("[data-add-equipment]").forEach((button) => button.addEventListener("click", async () => {
@@ -294,6 +310,16 @@ function syncDraft() {
   document.querySelectorAll("[data-builder-form] [name]").forEach((input) => {
     const value = input.type === "number" ? Number(input.value || 0) : input.value;
     setPath(state.draft, input.name, value);
+  });
+  applyAssignedRolls();
+}
+
+function applyAssignedRolls() {
+  const rolls = state.draft?.original_rolls || [];
+  const assigned = state.draft?.assigned_rolls || {};
+  abilities.forEach((ability) => {
+    const index = assigned[ability];
+    if (index !== "" && index != null && rolls[Number(index)] != null) state.draft.abilities[ability] = Number(rolls[Number(index)]);
   });
 }
 
@@ -458,12 +484,17 @@ function isDm() {
 }
 
 function renderSheet() {
-  document.querySelector("[data-vault-view]").innerHTML = `<div class="vault-sheet">${quickEditHtml(state.character)}${sheetHtml(state.character)}</div>`;
+  document.querySelector("[data-vault-view]").innerHTML = `<div class="vault-sheet">${sheetHtml(state.character)}${quickEditHtml(state.character)}</div>`;
   document.querySelectorAll("[data-inventory-action]").forEach((button) => button.addEventListener("click", async () => {
     const [id, status] = button.dataset.inventoryAction.split(":");
-    state.character = await api(`/characters/${state.character.id}/inventory/${id}`, { method: "PUT", body: JSON.stringify({ status, storage_location: status === "stored" ? state.character.safe_storage_location || "Safe storage" : null }) });
+    if (status === "delete") {
+      state.character = await api(`/characters/${state.character.id}/inventory/${id}`, { method: "DELETE" });
+    } else {
+      state.character = await api(`/characters/${state.character.id}/inventory/${id}`, { method: "PUT", body: JSON.stringify({ status, storage_location: status === "stored" ? state.character.safe_storage_location || "Safe storage" : null }) });
+    }
     renderSheet();
   }));
+  document.querySelectorAll("[data-rules-link]").forEach((button) => button.addEventListener("click", () => openRulesModal(button.dataset.rulesTitle, button.dataset.rulesLink)));
   document.querySelector("[data-quick-edit]")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.target));
@@ -497,7 +528,7 @@ function renderSheet() {
 }
 
 function quickEditHtml(c) {
-  return `<section class="vault-panel"><div class="vault-kicker">Quick Edit</div><form class="vault-form" data-quick-edit>
+  return `<details class="vault-panel vault-quick-edit" id="vault-quick-edit"><summary>Quick Edit Sheet</summary><form class="vault-form" data-quick-edit>
     ${field("Current HP", "current_hp", c.combat?.current_hp ?? 1, "number")}
     ${field("Max HP", "max_hp", c.combat?.max_hp ?? 1, "number")}
     ${field("XP", "xp", c.xp ?? 0, "number")}
@@ -507,25 +538,64 @@ function quickEditHtml(c) {
     ${coins.map((coin) => field(title(coin), `coin_${coin}`, c.coins?.[coin] ?? 0, "number")).join("")}
     <label class="vault-field full">Notes<textarea name="notes">${h(c.notes || "")}</textarea></label>
     <div class="vault-actions vault-full"><button class="vault-button" type="submit">Save Quick Edits</button><a class="vault-button secondary" href="/1e/characters/${c.id}/edit/">Full Edit</a></div>
-  </form></section>`;
+  </form></details>`;
 }
 
 function sheetHtml(c) {
-  return `<div class="vault-grid">
-    <section class="vault-card"><div class="vault-kicker">Identity <a class="vault-rules" href="/1e/character-creation/">Rules</a></div><h2>${h(c.name || "Unnamed")}</h2><p>${h(c.race)} ${h(c.class_name)} ${h(c.level)} / ${h(c.alignment)}</p><p>${h(c.status)} / ${h(c.life_status)}</p>${warningsHtml(c)}<div class="vault-actions"><a class="vault-button secondary" href="/1e/characters/${c.id || ""}/edit/">Edit</a></div></section>
-    <section class="vault-card vault-critical"><div class="vault-kicker">Combat <a class="vault-rules" href="/1e/how-to-play/combat/">Rules</a></div><div class="vault-statline"><div class="vault-stat"><strong>${h(c.combat?.armor_class ?? 10)}</strong><span>AC</span></div><div class="vault-stat"><strong>${h(c.combat?.current_hp ?? 1)}/${h(c.combat?.max_hp ?? 1)}</strong><span>HP</span></div><div class="vault-stat"><strong>${h(c.combat?.movement_rate ?? 120)}</strong><span>Move</span></div><div class="vault-stat"><strong>${h(c.combat?.encumbrance_band ?? "Unencumbered")}</strong><span>Load</span></div></div><p>Dex AC ${h(c.combat?.dex_adjustment ?? 0)}. Carried ${h(c.combat?.carried_weight ?? 0)} lb.</p><div class="vault-actions"><a class="vault-button secondary" href="/1e/characters/${c.id || ""}/edit/">Edit</a></div></section>
-    <section class="vault-card"><div class="vault-kicker">Saving Throws <a class="vault-rules" href="/1e/character-creation/003-class/">Rules</a></div>${savingThrowsHtml(c)}<div class="vault-actions"><a class="vault-button secondary" href="/1e/characters/${c.id || ""}/edit/">Edit</a></div></section>
-    <section class="vault-card"><div class="vault-kicker">Ability Scores <a class="vault-rules" href="/1e/character-creation/001-ability-scores/">Rules</a></div><div class="vault-statline">${abilities.map((a) => `<div class="vault-stat"><strong>${h(c.adjusted_abilities?.[a] ?? c.abilities?.[a] ?? 10)}</strong><span>${title(a)}</span></div>`).join("")}</div><div class="vault-actions"><a class="vault-button secondary" href="/1e/characters/${c.id || ""}/edit/">Edit</a></div></section>
-    <section class="vault-card"><div class="vault-kicker">Race/Class Details <a class="vault-rules" href="/1e/character-creation/003-class/">Rules</a></div><p><strong>Hit die:</strong> ${h(c.class_details?.hit_die_text || "")}</p><p><strong>Armor:</strong> ${h(c.class_details?.armor || "")}</p><p><strong>Weapons:</strong> ${h(c.class_details?.weapons || "")}</p><p><strong>Vision:</strong> ${h(c.race_details?.vision || "")}</p><p><strong>Languages:</strong> ${h((c.race_details?.languages || []).join(", "))}</p><div class="vault-actions"><a class="vault-button secondary" href="/1e/characters/${c.id || ""}/edit/">Edit</a></div></section>
-    <section class="vault-card"><div class="vault-kicker">Movement & Encumbrance <a class="vault-rules" href="/1e/how-to-play/equipment-encumbrance/">Rules</a></div><p>${h(c.combat?.carried_weight ?? 0)} lb carried including coins. Band: <strong>${h(c.combat?.encumbrance_band ?? "Unencumbered")}</strong>.</p><p>Coin load: ${coinCount(c.coins)} coins / ${coinWeight(c.coins)} lb.</p><p>Initiative: ${h(c.combat?.initiative_adjustment)}</p><div class="vault-actions"><a class="vault-button secondary" href="/1e/characters/${c.id || ""}/edit/">Edit</a></div></section>
-    <section class="vault-panel"><div class="vault-kicker">Weapons</div>${weaponsHtml(c)}<div class="vault-actions"><a class="vault-button secondary" href="/1e/characters/${c.id || ""}/edit/">Edit</a></div></section>
-    <section class="vault-panel"><div class="vault-kicker">Armor</div>${armorHtml(c)}<div class="vault-actions"><a class="vault-button secondary" href="/1e/characters/${c.id || ""}/edit/">Edit</a></div></section>
-    <section class="vault-card"><div class="vault-kicker">Coins <a class="vault-rules" href="/1e/equipment/">Rules</a></div><div class="vault-statline">${coins.map((coin) => `<div class="vault-stat"><strong>${h(c.coins?.[coin] ?? 0)}</strong><span>${title(coin)}</span></div>`).join("")}</div><p>${coinCount(c.coins)} coins / ${coinWeight(c.coins)} lb.</p><div class="vault-actions"><a class="vault-button secondary" href="/1e/characters/${c.id || ""}/edit/">Edit</a></div></section>
-    <section class="vault-panel"><div class="vault-kicker">Equipment <a class="vault-rules" href="/1e/equipment/">Rules</a></div>${inventoryHtml(c)}<div class="vault-actions"><a class="vault-button secondary" href="/1e/characters/${c.id || ""}/edit/">Edit</a></div></section>
-    <section class="vault-panel"><div class="vault-kicker">Spells <a class="vault-rules" href="/1e/how-to-play/magic/">Rules</a></div>${spellsHtml(c)}<div class="vault-actions"><a class="vault-button secondary" href="/1e/characters/${c.id || ""}/edit/">Edit</a></div></section>
-    <section class="vault-card"><div class="vault-kicker">Campaign State</div><p>Day ${h(c.campaign_day)} at ${h(c.current_location)}.</p><p>Storage: ${h(c.safe_storage_location || "No safe storage set")}</p><div class="vault-actions"><a class="vault-button secondary" href="/1e/characters/${c.id || ""}/edit/">Edit</a></div></section>
-    <section class="vault-panel"><div class="vault-kicker">Notes</div><p>${h(c.notes || "No notes.")}</p><div class="vault-actions"><a class="vault-button secondary" href="/1e/characters/${c.id || ""}/edit/">Edit</a></div></section>
+  return `${sheetHeaderHtml(c)}<div class="vault-grid">
+    <section class="vault-card">${sectionTitle("Saving Throws", "/1e/character-creation/003-class/")}${savingThrowsHtml(c)}</section>
+    <section class="vault-card">${sectionTitle("Movement & Encumbrance", "/1e/how-to-play/equipment-encumbrance/")}<div class="vault-compact-list"><span><strong>Move</strong>${h(c.combat?.movement_rate ?? 120)}</span><span><strong>Carried</strong>${h(c.combat?.carried_weight ?? 0)} lb</span><span><strong>Coins</strong>${coinWeight(c.coins)} lb</span><span><strong>Band</strong>${h(c.combat?.encumbrance_band ?? "Unencumbered")}</span></div></section>
+    <section class="vault-card">${sectionTitle("Race/Class Details", "/1e/character-creation/003-class/")}<p><strong>Hit die:</strong> ${h(c.class_details?.hit_die_text || "")}</p><p><strong>Armor:</strong> ${h(c.class_details?.armor || "")}</p><p><strong>Weapons:</strong> ${h(c.class_details?.weapons || "")}</p><p><strong>Vision:</strong> ${h(c.race_details?.vision || "")}</p><p><strong>Languages:</strong> ${h((c.race_details?.languages || []).join(", "))}</p></section>
+    <section class="vault-panel">${sectionTitle("Weapons", "/1e/equipment/")}${weaponsHtml(c)}</section>
+    <section class="vault-panel">${sectionTitle("Armor", "/1e/equipment/")}${armorHtml(c)}</section>
+    <section class="vault-panel">${sectionTitle("Equipment", "/1e/equipment/")}${inventoryHtml(c)}</section>
+    <section class="vault-panel">${sectionTitle("Spells", "/1e/how-to-play/magic/")}${spellsHtml(c)}</section>
+    <section class="vault-card"><div class="vault-kicker">Campaign State</div><p>Day ${h(c.campaign_day)} at ${h(c.current_location)}.</p><p>Storage: ${h(c.safe_storage_location || "No safe storage set")}</p></section>
+    <section class="vault-panel"><div class="vault-kicker">Notes</div><p>${h(c.notes || "No notes.")}</p><div class="vault-actions"><a class="vault-button secondary" href="#vault-quick-edit">Quick Edit</a><a class="vault-button secondary" href="/1e/characters/${c.id || ""}/edit/">Full Edit</a></div></section>
   </div>`;
+}
+
+function sheetHeaderHtml(c) {
+  return `<section class="vault-sheet-header">
+    <div class="vault-sheet-title">
+      <h2>${h(c.name || "Unnamed")}</h2>
+      <p>${h(c.race)} ${h(c.class_name)} ${h(c.level)} / ${h(c.alignment)} / ${h(c.status)} ${c.life_status !== "alive" ? `(${h(c.life_status)})` : ""}</p>
+    </div>
+    <div class="vault-topline">
+      <span><strong>AC</strong>${h(c.combat?.armor_class ?? 10)}</span>
+      <span><strong>HP</strong>${h(c.combat?.current_hp ?? 1)}/${h(c.combat?.max_hp ?? 1)}</span>
+      <span><strong>Move</strong>${h(c.combat?.movement_rate ?? 120)}</span>
+      <span><strong>Load</strong>${h(c.combat?.encumbrance_band ?? "Unencumbered")}</span>
+      <span><strong>XP</strong>${h(c.xp ?? 0)}</span>
+      <span><strong>Coins</strong>${coinCount(c.coins)} / ${coinWeight(c.coins)} lb</span>
+    </div>
+    ${abilityStripHtml(c)}
+    ${warningsHtml(c)}
+    <div class="vault-actions"><a class="vault-button secondary" href="#vault-quick-edit">Quick Edit</a><a class="vault-button secondary" href="/1e/characters/${c.id || ""}/edit/">Full Edit</a></div>
+  </section>`;
+}
+
+function abilityStripHtml(c) {
+  return `<div class="vault-abilities">${abilities.map((ability) => {
+    const base = c.abilities?.[ability] ?? 10;
+    const adjusted = c.adjusted_abilities?.[ability] ?? base;
+    const changed = Number(base) !== Number(adjusted);
+    return `<span><strong>${abilityLabels[ability]}</strong>${h(adjusted)}${changed ? `<em>${h(base)}</em>` : ""}</span>`;
+  }).join("")}</div>`;
+}
+
+function sectionTitle(label, reference) {
+  return `<button class="vault-section-title" type="button" data-rules-title="${h(label)}" data-rules-link="${h(reference)}">${h(label)}</button>`;
+}
+
+function openRulesModal(titleText, reference) {
+  document.querySelector(".vault-rules-modal")?.remove();
+  const modal = document.createElement("div");
+  modal.className = "vault-rules-modal";
+  modal.innerHTML = `<div class="vault-rules-popout"><button class="vault-modal-close" type="button" aria-label="Close">x</button><div class="vault-kicker">Rules Reference</div><h2>${h(titleText)}</h2><p>${h(displayReference(reference))}</p><div class="vault-actions"><a class="vault-button" href="${h(reference)}" target="_blank" rel="noreferrer">Open Reference</a></div></div>`;
+  modal.querySelector(".vault-modal-close").addEventListener("click", () => modal.remove());
+  modal.addEventListener("click", (event) => { if (event.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
 }
 
 function inventoryHtml(c) {
@@ -546,13 +616,22 @@ function inventoryHtml(c) {
 }
 
 function inventoryTable(items) {
-  return `<table class="vault-table"><thead><tr><th>Item</th><th>Status</th><th>Wt</th><th>Actions</th></tr></thead><tbody>${items.map((item) => `<tr><td>${h(item.quantity)} x <strong>${h(item.equipment.name)}</strong><br>${h(item.storage_location || "")}</td><td>${h(item.status)}</td><td>${h((item.equipment.weight * item.quantity).toFixed(2))}</td><td><button class="vault-button secondary" data-inventory-action="${item.id}:equipped">Equip</button> <button class="vault-button secondary" data-inventory-action="${item.id}:carried">Carry</button> <button class="vault-button secondary" data-inventory-action="${item.id}:stored">Store</button> <button class="vault-button secondary" data-inventory-action="${item.id}:sold">Not Carried</button></td></tr>`).join("")}</tbody></table>`;
+  return `<table class="vault-table"><thead><tr><th>Item</th><th>Type</th><th>Wt</th><th>Actions</th></tr></thead><tbody>${items.map((item) => inventoryRow(item)).join("")}</tbody></table>`;
+}
+
+function inventoryRow(item, proficiencies = []) {
+  const equipment = item.equipment || {};
+  const isEquipped = item.status === "equipped";
+  const damage = equipment.type === "weapon" ? [equipment.damage_small_medium, equipment.damage_large].filter(Boolean).join(" / ") : "";
+  const proficiency = equipment.type === "weapon" ? weaponProficiencyLabel(equipment.id, proficiencies) : "";
+  return `<tr><td>${h(item.quantity)} x <strong>${h(equipment.name)}</strong><br><span class="vault-mini">${h(labelize(item.status))}${item.status === "stored" && item.storage_location ? ` at ${h(item.storage_location)}` : ""}${damage ? ` / Damage ${h(damage)}` : ""}${proficiency ? ` / ${h(proficiency)}` : ""}</span></td><td>${h(labelize(equipment.type))}</td><td>${h(((equipment.weight || 0) * item.quantity).toFixed(2))}</td><td>${isEquipped ? `<button class="vault-button secondary" data-inventory-action="${item.id}:carried">Unequip</button>` : `<button class="vault-button secondary" data-inventory-action="${item.id}:equipped">Equip</button>`} <button class="vault-button secondary" data-inventory-action="${item.id}:stored">Store</button> <button class="vault-button secondary" data-inventory-action="${item.id}:delete">Delete</button></td></tr>`;
 }
 
 function savingThrowsHtml(c) {
   const saves = c.combat?.saving_throws;
   if (!saves?.categories) return `<p>Manual DM Review: ${h(saves?.reason || "saving table not encoded")}</p>`;
-  return `<p class="vault-muted">Level band ${h(saves.level_band)}. Roll this number or higher on d20.</p><table class="vault-table"><tbody>${Object.entries(saves.categories).map(([key, value]) => `<tr><th>${h(saves.labels?.[key] || title(key))}</th><td>${h(value)}</td></tr>`).join("")}</tbody></table>${(saves.notes || []).map((note) => `<p class="vault-muted">${h(note)}</p>`).join("")}`;
+  const dwarfNote = c.race === "Dwarf" ? `<div class="vault-warning"><p>Manual DM Review: dwarf Constitution-based saving throw adjustments are not yet automated. Apply dwarf save bonuses before treating these as final table values.</p></div>` : "";
+  return `${dwarfNote}<p class="vault-muted">Level band ${h(saves.level_band)}. Roll this number or higher on d20.</p><table class="vault-table"><tbody>${Object.entries(saves.categories).map(([key, value]) => `<tr><th>${h(saves.labels?.[key] || title(key))}</th><td>${h(value)}</td></tr>`).join("")}</tbody></table>${(saves.notes || []).map((note) => `<p class="vault-muted">${h(note)}</p>`).join("")}`;
 }
 
 function warningsHtml(c) {
@@ -562,7 +641,7 @@ function warningsHtml(c) {
 function weaponsHtml(c) {
   const weapons = (c.inventory || []).filter((item) => item.equipment.type === "weapon");
   const profs = c.weapon_proficiencies || [];
-  return `${weapons.length ? inventoryTable(weapons) : "<p>No weapons carried.</p>"}<h3>Proficiencies</h3><p>Allowed proficiencies at this level: ${h(c.class_details?.proficiency_count ?? "Manual DM Review")}. Non-proficiency penalty: ${h(c.class_details?.non_proficiency_penalty ?? "Manual DM Review")}.</p>${profs.map((p) => `<p><strong>${h(p.equipment.name)}</strong>: ${p.proficient ? "proficient" : "non-proficient"} ${h(p.notes || "")}</p>`).join("") || "<p>No proficiencies recorded.</p>"}`;
+  return `${weapons.length ? `<table class="vault-table"><thead><tr><th>Weapon</th><th>Type</th><th>Wt</th><th>Actions</th></tr></thead><tbody>${weapons.map((item) => inventoryRow(item, profs)).join("")}</tbody></table>` : "<p>No weapons carried.</p>"}<p class="vault-muted">Allowed proficiencies at this level: ${h(c.class_details?.proficiency_count ?? "Manual DM Review")}. Non-proficiency penalty: ${h(c.class_details?.non_proficiency_penalty ?? "Manual DM Review")}.</p>`;
 }
 
 function armorHtml(c) {
@@ -725,7 +804,7 @@ function dmCatalogHtml(c) {
   const campaignItems = state.equipment.filter((item) => item.campaign_id === c.id || item.is_dm_created).slice(0, 30);
   return `<section class="vault-panel"><div class="vault-kicker">DM Item Catalog</div><form class="vault-form" data-catalog-form>
     ${field("Name", "name", "")}
-    ${selectField("Type", "type", "adventuring_gear", ["weapon", "armor", "shield", "adventuring_gear", "container", "mount", "transport", "tool", "clothing", "service", "treasure", "magic_item", "other"])}
+    <label class="vault-field">Type<select name="type"><option value="weapon">Weapon</option><option value="armor">Armor</option><option value="shield">Shield</option><option value="adventuring_gear" selected>Adventuring Gear</option><option value="container">Container</option><option value="mount">Mount</option><option value="transport">Transport</option><option value="tool">Tool</option><option value="clothing">Clothing</option><option value="service">Service</option><option value="treasure">Treasure</option><option value="magic_item">Magic Item</option><option value="other">Other</option></select></label>
     ${field("Subtype", "subtype", "")}
     ${field("Cost", "cost_amount", "", "number")}
     ${selectField("Coin", "cost_coin", "gp", ["pp", "gp", "ep", "sp", "cp"])}
@@ -737,11 +816,54 @@ function dmCatalogHtml(c) {
     ${field("Rules Reference", "rules_reference", "/1e/equipment/", "text", "wide")}
     <label class="vault-field full">Notes<textarea name="notes"></textarea></label>
     <div class="vault-actions vault-full"><button class="vault-button" type="submit">Create Campaign Item</button></div>
-  </form><table class="vault-table"><thead><tr><th>Item</th><th>Type</th><th>Wt</th><th>Campaign</th><th></th></tr></thead><tbody>${campaignItems.length ? campaignItems.map((item) => `<tr><td>${h(item.name)}<br><span class="vault-mini">${h(item.notes || "")}</span></td><td>${h(item.type)}</td><td>${h(item.weight)}</td><td>${h(item.campaign_id || "global")}</td><td><button class="vault-button secondary" data-archive-item="${item.id}">Archive</button></td></tr>`).join("") : `<tr><td colspan="5">No custom items yet.</td></tr>`}</tbody></table></section>`;
+  </form><table class="vault-table"><thead><tr><th>Item</th><th>Type</th><th>Wt</th><th>Campaign</th><th></th></tr></thead><tbody>${campaignItems.length ? campaignItems.map((item) => `<tr><td>${h(item.name)}<br><span class="vault-mini">${h(item.notes || "")}</span></td><td>${h(labelize(item.type))}</td><td>${h(item.weight)}</td><td>${h(item.campaign_id || "Global")}</td><td><button class="vault-button secondary" data-archive-item="${item.id}">Archive</button></td></tr>`).join("") : `<tr><td colspan="5">No custom items yet.</td></tr>`}</tbody></table></section>`;
 }
 
 function title(value) {
   return value.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function labelize(value) {
+  const labels = {
+    adventuring_gear: "Adventuring Gear",
+    magic_item: "Magic Item",
+    carried: "Carried",
+    equipped: "Equipped",
+    stored: "Stored",
+    sold: "Not Carried",
+    lost: "Lost",
+    destroyed: "Destroyed",
+    weapon: "Weapon",
+    armor: "Armor",
+    shield: "Shield",
+    container: "Container",
+    mount: "Mount",
+    transport: "Transport",
+    tool: "Tool",
+    clothing: "Clothing",
+    service: "Service",
+    treasure: "Treasure",
+    other: "Other",
+  };
+  return labels[value] || title(String(value || ""));
+}
+
+function displayReference(value) {
+  const labels = {
+    "/1e/equipment/": "Equipment",
+    "/1e/how-to-play/magic/": "Magic",
+    "/1e/how-to-play/equipment-encumbrance/": "Movement & Encumbrance",
+    "/1e/character-creation/": "Character Creation",
+    "/1e/character-creation/001-ability-scores/": "Ability Scores",
+    "/1e/character-creation/003-class/": "Class",
+  };
+  return labels[value] || value || "";
+}
+
+function weaponProficiencyLabel(equipmentId, proficiencies = []) {
+  const proficiency = proficiencies.find((entry) => entry.equipment_id === equipmentId);
+  if (!proficiency) return "Non-proficient";
+  return proficiency.proficient ? "Proficient" : "Non-proficient";
 }
 
 function roll4d6DropLowest() {
