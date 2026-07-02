@@ -183,6 +183,16 @@ button:disabled {
   margin-bottom: 20px;
 }
 
+.dashboard-header {
+  align-items: stretch;
+}
+
+.lede {
+  color: var(--muted);
+  margin: 10px 0 0;
+  max-width: 760px;
+}
+
 .panel,
 .campaign-card,
 .table-wrap,
@@ -202,6 +212,27 @@ button:disabled {
 
 .form-grid.compact {
   grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.form-grid.single-column {
+  align-content: start;
+  grid-template-columns: 1fr;
+}
+
+.dashboard-create {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.danger-button {
+  background: transparent;
+  border-color: var(--red);
+  color: #f2c2b7;
 }
 
 label {
@@ -236,13 +267,39 @@ textarea {
 .card-grid {
   display: grid;
   gap: 16px;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
 }
 
 .campaign-card {
   display: grid;
   gap: 12px;
   padding: 18px;
+}
+
+.campaign-card.is-archived {
+  opacity: 0.72;
+}
+
+.card-topline {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  font-size: 0.78rem;
+  font-weight: 900;
+  justify-content: space-between;
+  text-transform: uppercase;
+}
+
+.status-pill {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--green);
+  padding: 4px 8px;
+}
+
+.status-pill.archived,
+.status-pill.paused {
+  color: var(--gold);
 }
 
 .campaign-card span {
@@ -267,6 +324,17 @@ dl,
   display: grid;
   gap: 12px;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.campaign-facts {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.summary-strip {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(150px, 1fr));
+  min-width: min(560px, 100%);
 }
 
 dt,
@@ -311,6 +379,25 @@ dd,
   padding: 14px;
 }
 
+.two-column {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 22px;
+}
+
+.panel-title,
+.section-title {
+  color: var(--text);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.35rem;
+  margin: 0 0 8px;
+}
+
+.section-title {
+  margin-top: 26px;
+}
+
 .table-wrap {
   overflow-x: auto;
 }
@@ -335,6 +422,59 @@ th {
   text-transform: uppercase;
 }
 
+.row-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.table-link {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--text);
+  display: inline-flex;
+  font-size: 0.86rem;
+  font-weight: 800;
+  min-height: 34px;
+  padding: 7px 10px;
+}
+
+.status-toggle,
+.inline-edit {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--text);
+  min-height: 34px;
+}
+
+.status-toggle.inactive {
+  color: var(--gold);
+}
+
+.inline-form {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.inline-form input {
+  min-width: 180px;
+}
+
+.inline-select {
+  min-height: 34px;
+}
+
+.notes-placeholder {
+  padding: 24px;
+}
+
+.notes-placeholder h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  margin: 0 0 8px;
+}
+
 .muted {
   color: var(--muted);
 }
@@ -355,6 +495,9 @@ th {
 
   .form-grid,
   .form-grid.compact,
+  .dashboard-create,
+  .two-column,
+  .summary-strip,
   .stats-row,
   dl {
     grid-template-columns: 1fr;

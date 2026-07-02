@@ -29,6 +29,10 @@ class Campaign(TimestampMixin, Base):
     name: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     dm_user_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    setting: Mapped[str] = mapped_column(String(40), default="greyhawk", server_default="greyhawk", nullable=False)
+    schedule: Mapped[Optional[str]] = mapped_column(String(160), nullable=True)
+    next_session_date: Mapped[Optional[str]] = mapped_column(String(40), nullable=True)
+    session_number: Mapped[int] = mapped_column(Integer, default=1, server_default="1", nullable=False)
     current_campaign_day: Mapped[int] = mapped_column(Integer, default=1, server_default="1", nullable=False)
     default_location: Mapped[str] = mapped_column(String(160), default="Town", server_default="Town", nullable=False)
     status: Mapped[str] = mapped_column(String(40), default="active", server_default="active", nullable=False)
@@ -48,6 +52,7 @@ class Player(TimestampMixin, Base):
     discord_user_id: Mapped[Optional[str]] = mapped_column(String(32), unique=True, nullable=True)
     email: Mapped[Optional[str]] = mapped_column(String(180), nullable=True)
     role: Mapped[str] = mapped_column(String(40), default="player", server_default="player", nullable=False)
+    status: Mapped[str] = mapped_column(String(40), default="active", server_default="active", nullable=False)
 
     characters: Mapped[list["Character"]] = relationship(back_populates="player")
 

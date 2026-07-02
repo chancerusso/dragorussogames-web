@@ -3,9 +3,21 @@ import { Link, Navigate, NavLink, Outlet, Route, Routes, useNavigate, useParams 
 import { api, getToken, login, logout } from "./api.js";
 
 const AuthContext = createContext(null);
+const SETTINGS = ["greyhawk", "dragonlance"];
 
 function useAuth() {
   return useContext(AuthContext);
+}
+
+function titleCase(value) {
+  return String(value || "")
+    .replace(/[-_]/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function displayDate(value) {
+  if (!value) return "Not scheduled";
+  return value;
 }
 
 function AuthProvider({ children }) {
@@ -32,10 +44,12 @@ function Protected({ children }) {
 function Shell() {
   const auth = useAuth();
   const navigate = useNavigate();
+
   async function signOut() {
     await auth.signOut();
     navigate("/login");
   }
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -43,7 +57,7 @@ function Shell() {
           <span className="brand-mark">DRG</span>
           <span>
             <strong>DM Portal</strong>
-            <small>First Edition</small>
+            <small>Campaign Command</small>
           </span>
         </Link>
         <nav>
@@ -100,6 +114,7 @@ function useLoad(loader, deps = []) {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+
   async function reload() {
     setLoading(true);
     setError("");
@@ -111,9 +126,11 @@ function useLoad(loader, deps = []) {
       setLoading(false);
     }
   }
+
   useEffect(() => {
     reload();
   }, deps);
+
   return { data, error, loading, reload };
 }
 
@@ -125,48 +142,104 @@ function PageState({ loading, error }) {
 
 function CampaignsPage() {
   const { data, error, loading, reload } = useLoad(() => api("/1e/campaigns?include_archived=true"));
-  const [form, setForm] = useState({ name: "", default_location: "Town", description: "" });
+  const [form, setForm] = useState({
+    name: "",
+    setting: "greyhawk",
+    schedule: "",
+    next_session_date: "",
+    session_number: 1,
+    current_campaign_day: 1,
+    description: "",
+  });
   const [saving, setSaving] = useState(false);
+  const campaigns = data || [];
+  const activeCampaigns = campaigns.filter((campaign) => campaign.status !== "archived");
+  const archivedCampaigns = campaigns.filter((campaign) => campaign.status === "archived");
 
   async function createCampaign(event) {
     event.preventDefault();
     setSaving(true);
-    await api("/1e/campaigns", { method: "POST", body: JSON.stringify(form) });
-    setForm({ name: "", default_location: "Town", description: "" });
-    setSaving(false);
-    reload();
+    try {
+      await api("/1e/campaigns", { method: "POST", body: JSON.stringify(form) });
+      setForm({
+        name: "",
+        setting: "greyhawk",
+        schedule: "",
+        next_session_date: "",
+        session_number: 1,
+        current_campaign_day: 1,
+        description: "",
+      });
+      await reload();
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
     <section>
-      <header className="page-header">
+      <header className="page-header dashboard-header">
         <div>
           <p className="eyebrow">Campaign Command</p>
-          <h1>Campaigns</h1>
+          <h1>DM Dashboard</h1>
+          <p className="lede">Create campaigns, assign players, and keep the table roster ready for play.</p>
+        </div>
+        <div className="summary-strip">
+          <Stat label="Active Campaigns" value={activeCampaigns.length} />
+          <Stat label="Archived" value={archivedCampaigns.length} />
+          <Stat label="Characters" value={campaigns.reduce((total, campaign) => total + Number(campaign.character_count || 0), 0)} />
         </div>
       </header>
-      <form className="panel form-grid" onSubmit={createCampaign}>
-        <label>Name<input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></label>
-        <label>Default Location<input value={form.default_location} onChange={(e) => setForm({ ...form, default_location: e.target.value })} /></label>
-        <label className="wide">Notes<textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></label>
+
+      <form className="panel form-grid dashboard-create" onSubmit={createCampaign}>
+        <label>Name<input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} required /></label>
+        <label>Setting
+          <select value={form.setting} onChange={(event) => setForm({ ...form, setting: event.target.value })}>
+            {SETTINGS.map((setting) => <option key={setting} value={setting}>{titleCase(setting)}</option>)}
+          </select>
+        </label>
+        <label>Schedule<input placeholder="Weekly Sundays, 7 PM" value={form.schedule} onChange={(event) => setForm({ ...form, schedule: event.target.value })} /></label>
+        <label>Next Session<input type="date" value={form.next_session_date} onChange={(event) => setForm({ ...form, next_session_date: event.target.value })} /></label>
+        <label>Session #<input type="number" min="1" value={form.session_number} onChange={(event) => setForm({ ...form, session_number: event.target.value })} /></label>
+        <label>Campaign Day<input type="number" min="1" value={form.current_campaign_day} onChange={(event) => setForm({ ...form, current_campaign_day: event.target.value })} /></label>
+        <label className="wide">Notes<textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} /></label>
         <button disabled={saving}>{saving ? "Creating..." : "Create Campaign"}</button>
       </form>
+
       <PageState loading={loading} error={error} />
-      <div className="card-grid">
-        {(data || []).map((campaign) => (
-          <Link className="campaign-card" key={campaign.id} to={`/campaigns/${campaign.id}`}>
-            <span>{campaign.status}</span>
-            <h2>{campaign.name}</h2>
-            <p>{campaign.description || "No campaign notes yet."}</p>
-            <dl>
-              <div><dt>Day</dt><dd>{campaign.current_campaign_day}</dd></div>
-              <div><dt>Base</dt><dd>{campaign.default_location}</dd></div>
-              <div><dt>Characters</dt><dd>{campaign.character_count}</dd></div>
-            </dl>
-          </Link>
-        ))}
-      </div>
+      <CampaignCardGrid campaigns={activeCampaigns} />
+      {archivedCampaigns.length ? (
+        <>
+          <h2 className="section-title">Archived</h2>
+          <CampaignCardGrid campaigns={archivedCampaigns} />
+        </>
+      ) : null}
     </section>
+  );
+}
+
+function CampaignCardGrid({ campaigns }) {
+  return (
+    <div className="card-grid">
+      {campaigns.map((campaign) => (
+        <Link className={`campaign-card ${campaign.status === "archived" ? "is-archived" : ""}`} key={campaign.id} to={`/campaigns/${campaign.id}`}>
+          <div className="card-topline">
+            <span className={`status-pill ${campaign.status}`}>{campaign.status}</span>
+            <span>{titleCase(campaign.setting || "greyhawk")}</span>
+          </div>
+          <h2>{campaign.name}</h2>
+          <p>{campaign.description || "No campaign notes yet."}</p>
+          <dl className="campaign-facts">
+            <div><dt>Schedule</dt><dd>{campaign.schedule || "Unscheduled"}</dd></div>
+            <div><dt>Next</dt><dd>{displayDate(campaign.next_session_date)}</dd></div>
+            <div><dt>Session</dt><dd>#{campaign.session_number || 1}</dd></div>
+            <div><dt>Day</dt><dd>{campaign.current_campaign_day || 1}</dd></div>
+            <div><dt>Players</dt><dd>{campaign.player_count || 0}</dd></div>
+            <div><dt>Characters</dt><dd>{campaign.character_count || 0}</dd></div>
+          </dl>
+        </Link>
+      ))}
+    </div>
   );
 }
 
@@ -176,6 +249,7 @@ function CampaignTabs({ id }) {
       <NavLink end to={`/campaigns/${id}`}>Overview</NavLink>
       <NavLink to={`/campaigns/${id}/players`}>Players</NavLink>
       <NavLink to={`/campaigns/${id}/characters`}>Characters</NavLink>
+      <NavLink to={`/campaigns/${id}/notes`}>Notes</NavLink>
     </nav>
   );
 }
@@ -184,43 +258,69 @@ function CampaignPage() {
   const { id } = useParams();
   const { data: campaign, error, loading, reload } = useLoad(() => api(`/1e/campaigns/${id}`), [id]);
   const [saving, setSaving] = useState(false);
+  const [archiving, setArchiving] = useState(false);
 
   async function save(event) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     setSaving(true);
-    await api(`/1e/campaigns/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(Object.fromEntries(form.entries())),
-    });
-    setSaving(false);
-    reload();
+    try {
+      await api(`/1e/campaigns/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(Object.fromEntries(form.entries())),
+      });
+      await reload();
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function archiveCampaign() {
+    setArchiving(true);
+    try {
+      await api(`/1e/campaigns/${id}`, { method: "DELETE" });
+      await reload();
+    } finally {
+      setArchiving(false);
+    }
   }
 
   if (loading || error || !campaign) return <PageState loading={loading} error={error} />;
   return (
     <section>
-      <header className="page-header">
-        <div>
-          <p className="eyebrow">Campaign Workspace</p>
-          <h1>{campaign.name}</h1>
-        </div>
-        <Link className="secondary-button" to="/campaigns">All Campaigns</Link>
-      </header>
-      <CampaignTabs id={id} />
+      <CampaignHeader campaign={campaign} id={id} eyebrow="Campaign Workspace" />
       <div className="stats-row">
-        <Stat label="Players" value={campaign.players?.length || 0} />
-        <Stat label="Characters" value={campaign.characters?.length || 0} />
-        <Stat label="Active" value={campaign.active_characters?.length || 0} />
-        <Stat label="Storage" value={campaign.safe_storage_locations?.length || 0} />
+        <Stat label="Players" value={campaign.player_count || campaign.players?.length || 0} />
+        <Stat label="Characters" value={campaign.character_count || campaign.characters?.length || 0} />
+        <Stat label="Active PCs" value={campaign.active_characters?.length || 0} />
+        <Stat label="Next Session" value={displayDate(campaign.next_session_date)} />
       </div>
       <form className="panel form-grid" onSubmit={save}>
         <label>Name<input name="name" defaultValue={campaign.name} required /></label>
-        <label>Current Day<input name="current_campaign_day" type="number" min="1" defaultValue={campaign.current_campaign_day} /></label>
-        <label>Default Location<input name="default_location" defaultValue={campaign.default_location} /></label>
-        <label>Status<select name="status" defaultValue={campaign.status}><option>active</option><option>paused</option><option>archived</option></select></label>
-        <label className="wide">Notes<textarea name="description" defaultValue={campaign.description || ""} /></label>
-        <button disabled={saving}>{saving ? "Saving..." : "Save Campaign"}</button>
+        <label>Setting
+          <select name="setting" defaultValue={campaign.setting || "greyhawk"}>
+            {SETTINGS.map((setting) => <option key={setting} value={setting}>{titleCase(setting)}</option>)}
+          </select>
+        </label>
+        <label>Schedule<input name="schedule" defaultValue={campaign.schedule || ""} placeholder="Weekly Sundays, 7 PM" /></label>
+        <label>Next Session<input name="next_session_date" type="date" defaultValue={campaign.next_session_date || ""} /></label>
+        <label>Session #<input name="session_number" type="number" min="1" defaultValue={campaign.session_number || 1} /></label>
+        <label>Campaign Day<input name="current_campaign_day" type="number" min="1" defaultValue={campaign.current_campaign_day || 1} /></label>
+        <label>Default Location<input name="default_location" defaultValue={campaign.default_location || "Town"} /></label>
+        <label>Status
+          <select name="status" defaultValue={campaign.status}>
+            <option>active</option>
+            <option>paused</option>
+            <option>archived</option>
+          </select>
+        </label>
+        <label className="wide">Overview Notes<textarea name="description" defaultValue={campaign.description || ""} /></label>
+        <div className="form-actions wide">
+          <button disabled={saving}>{saving ? "Saving..." : "Save Campaign"}</button>
+          <button className="danger-button" type="button" disabled={archiving || campaign.status === "archived"} onClick={archiveCampaign}>
+            {campaign.status === "archived" ? "Archived" : archiving ? "Archiving..." : "Archive Campaign"}
+          </button>
+        </div>
       </form>
     </section>
   );
@@ -229,39 +329,102 @@ function CampaignPage() {
 function CampaignPlayersPage() {
   const { id } = useParams();
   const { data: campaign, error, loading, reload } = useLoad(() => api(`/1e/campaigns/${id}`), [id]);
-  const [form, setForm] = useState({ display_name: "", email: "", discord_user_id: "", role: "player" });
+  const { data: players, reload: reloadPlayers } = useLoad(() => api("/1e/players"), []);
+  const [createForm, setCreateForm] = useState({ display_name: "", email: "", discord_user_id: "", role: "player", status: "active" });
+  const [assignForm, setAssignForm] = useState({ user_id: "", role: "player" });
 
-  async function addPlayer(event) {
+  async function createPlayer(event) {
     event.preventDefault();
-    await api(`/1e/campaigns/${id}/players`, { method: "POST", body: JSON.stringify(form) });
-    setForm({ display_name: "", email: "", discord_user_id: "", role: "player" });
-    reload();
+    await api("/1e/players", { method: "POST", body: JSON.stringify(createForm) });
+    setCreateForm({ display_name: "", email: "", discord_user_id: "", role: "player", status: "active" });
+    await reloadPlayers();
+  }
+
+  async function updatePlayer(player, patch) {
+    await api(`/1e/players/${player.id}`, { method: "PUT", body: JSON.stringify({ ...player, ...patch }) });
+    await reloadPlayers();
+    await reload();
+  }
+
+  async function assignPlayer(event) {
+    event.preventDefault();
+    if (!assignForm.user_id) return;
+    await api(`/1e/campaigns/${id}/players`, {
+      method: "POST",
+      body: JSON.stringify({ user_id: Number(assignForm.user_id), role: assignForm.role }),
+    });
+    setAssignForm({ user_id: "", role: "player" });
+    await reload();
   }
 
   async function removePlayer(userId) {
     await api(`/1e/campaigns/${id}/players/${userId}`, { method: "DELETE" });
-    reload();
+    await reload();
   }
 
   if (loading || error || !campaign) return <PageState loading={loading} error={error} />;
+  const members = campaign.players || [];
+  const memberIds = new Set(members.map((entry) => entry.user_id));
+  const availablePlayers = (players || []).filter((player) => !memberIds.has(player.id));
+
   return (
     <section>
-      <PageTitle campaign={campaign} id={id} title="Players" />
-      <form className="panel form-grid" onSubmit={addPlayer}>
-        <label>Display Name<input value={form.display_name} onChange={(e) => setForm({ ...form, display_name: e.target.value })} required /></label>
-        <label>Email<input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></label>
-        <label>Discord User ID<input value={form.discord_user_id} onChange={(e) => setForm({ ...form, discord_user_id: e.target.value })} /></label>
-        <label>Role<select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}><option>player</option><option>dm</option><option>observer</option></select></label>
-        <button>Add Player</button>
-      </form>
+      <CampaignHeader campaign={campaign} id={id} eyebrow="Campaign Players" />
+
+      <div className="two-column">
+        <form className="panel form-grid single-column" onSubmit={createPlayer}>
+          <h2 className="panel-title wide">Create Player</h2>
+          <label>Display Name<input value={createForm.display_name} onChange={(event) => setCreateForm({ ...createForm, display_name: event.target.value })} required /></label>
+          <label>Email<input type="email" value={createForm.email} onChange={(event) => setCreateForm({ ...createForm, email: event.target.value })} /></label>
+          <label>Discord User ID<input value={createForm.discord_user_id} onChange={(event) => setCreateForm({ ...createForm, discord_user_id: event.target.value })} /></label>
+          <label>Role<select value={createForm.role} onChange={(event) => setCreateForm({ ...createForm, role: event.target.value })}><option>player</option><option>dm</option><option>admin</option></select></label>
+          <button>Create Player</button>
+        </form>
+
+        <form className="panel form-grid single-column" onSubmit={assignPlayer}>
+          <h2 className="panel-title wide">Assign Existing Player</h2>
+          <label>Player
+            <select value={assignForm.user_id} onChange={(event) => setAssignForm({ ...assignForm, user_id: event.target.value })}>
+              <option value="">Choose a player...</option>
+              {availablePlayers.map((player) => <option key={player.id} value={player.id}>{player.display_name || player.player_name}</option>)}
+            </select>
+          </label>
+          <label>Campaign Role
+            <select value={assignForm.role} onChange={(event) => setAssignForm({ ...assignForm, role: event.target.value })}>
+              <option>player</option>
+              <option>dm</option>
+              <option>observer</option>
+            </select>
+          </label>
+          <button>Assign Player</button>
+        </form>
+      </div>
+
+      <h2 className="section-title">Campaign Members</h2>
       <DataTable
-        columns={["Name", "Email", "Discord", "Role", ""]}
-        rows={(campaign.players || []).map((entry) => [
-          entry.player?.display_name || entry.player?.player_name || `Player ${entry.user_id}`,
-          entry.player?.email || "-",
-          entry.player?.discord_user_id || "-",
-          entry.role,
-          <button className="table-button" onClick={() => removePlayer(entry.user_id)}>Remove</button>,
+        columns={["Name", "Email", "Status", "Campaign Role", "Global Role", "Actions"]}
+        rows={members.map((entry) => {
+          const player = entry.player || {};
+          return [
+            player.display_name || player.player_name || `Player ${entry.user_id}`,
+            player.email || "-",
+            <button className={`status-toggle ${player.status || "active"}`} onClick={() => updatePlayer(player, { status: player.status === "inactive" ? "active" : "inactive" })}>{player.status || "active"}</button>,
+            entry.role,
+            player.role || "player",
+            <button className="table-button" onClick={() => removePlayer(entry.user_id)}>Unassign</button>,
+          ];
+        })}
+      />
+
+      <h2 className="section-title">All Players</h2>
+      <DataTable
+        columns={["Name", "Email", "Discord", "Role", "Status"]}
+        rows={(players || []).map((player) => [
+          <InlineText value={player.display_name || player.player_name} onSave={(value) => updatePlayer(player, { display_name: value, player_name: value })} />,
+          <InlineText value={player.email || ""} placeholder="No email" onSave={(value) => updatePlayer(player, { email: value })} />,
+          player.discord_user_id || "-",
+          <InlineSelect value={player.role || "player"} options={["player", "dm", "admin"]} onSave={(value) => updatePlayer(player, { role: value })} />,
+          <button className={`status-toggle ${player.status || "active"}`} onClick={() => updatePlayer(player, { status: player.status === "inactive" ? "active" : "inactive" })}>{player.status || "active"}</button>,
         ])}
       />
     </section>
@@ -279,23 +442,24 @@ function CampaignCharactersPage() {
     if (!characterId) return;
     await api(`/1e/campaigns/${id}/characters/${characterId}`, { method: "POST" });
     setCharacterId("");
-    reload();
+    await reload();
   }
 
   async function remove(characterIdToRemove) {
     await api(`/1e/campaigns/${id}/characters/${characterIdToRemove}`, { method: "DELETE" });
-    reload();
+    await reload();
   }
 
   if (loading || error || !campaign) return <PageState loading={loading} error={error} />;
   const assignedIds = new Set((campaign.characters || []).map((character) => character.id));
   const available = (allCharacters || []).filter((character) => !assignedIds.has(character.id));
+
   return (
     <section>
-      <PageTitle campaign={campaign} id={id} title="Characters" />
+      <CampaignHeader campaign={campaign} id={id} eyebrow="Campaign Characters" />
       <form className="panel form-grid compact" onSubmit={assign}>
         <label className="wide">Assign Existing Character
-          <select value={characterId} onChange={(e) => setCharacterId(e.target.value)}>
+          <select value={characterId} onChange={(event) => setCharacterId(event.target.value)}>
             <option value="">Choose a character...</option>
             {available.map((character) => <option key={character.id} value={character.id}>{character.name} ({character.race} {character.class_name})</option>)}
           </select>
@@ -303,33 +467,77 @@ function CampaignCharactersPage() {
         <button>Assign</button>
       </form>
       <DataTable
-        columns={["Name", "Player", "Race", "Class", "Level", "Status", "Location", ""]}
+        columns={["Name", "Owner", "Race", "Class", "Level", "Status", "Location", "Actions"]}
         rows={(campaign.characters || []).map((character) => [
           character.name,
-          character.owner_name || character.player?.display_name || "-",
+          character.player?.display_name || character.player?.player_name || "-",
           character.race,
           character.class_name,
           character.level,
           `${character.status} / ${character.life_status}`,
           character.current_location,
-          <button className="table-button" onClick={() => remove(character.id)}>Remove</button>,
+          <div className="row-actions">
+            <a className="table-link" href={`/1e/characters/${character.id}/`}>View</a>
+            <a className="table-link" href={`/1e/characters/${character.id}/edit/`}>Edit</a>
+            <button className="table-button" onClick={() => remove(character.id)}>Unassign</button>
+          </div>,
         ])}
       />
     </section>
   );
 }
 
-function PageTitle({ campaign, id, title }) {
+function CampaignNotesPage() {
+  const { id } = useParams();
+  const { data: campaign, error, loading } = useLoad(() => api(`/1e/campaigns/${id}`), [id]);
+  if (loading || error || !campaign) return <PageState loading={loading} error={error} />;
+  return (
+    <section>
+      <CampaignHeader campaign={campaign} id={id} eyebrow="Campaign Notes" />
+      <div className="panel notes-placeholder">
+        <p className="eyebrow">Placeholder</p>
+        <h2>Notes are coming next.</h2>
+        <p>Use the campaign overview notes for now. Session logs, secrets, factions, and treasure records will get dedicated tools later.</p>
+      </div>
+    </section>
+  );
+}
+
+function CampaignHeader({ campaign, id, eyebrow }) {
   return (
     <>
       <header className="page-header">
         <div>
-          <p className="eyebrow">{campaign.name}</p>
-          <h1>{title}</h1>
+          <p className="eyebrow">{eyebrow}</p>
+          <h1>{campaign.name}</h1>
+          <p className="lede">{titleCase(campaign.setting || "greyhawk")} | Session #{campaign.session_number || 1} | Day {campaign.current_campaign_day || 1}</p>
         </div>
+        <Link className="secondary-button" to="/campaigns">All Campaigns</Link>
       </header>
       <CampaignTabs id={id} />
     </>
+  );
+}
+
+function InlineText({ value, placeholder = "Empty", onSave }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value || "");
+  if (!editing) {
+    return <button className="inline-edit" onClick={() => setEditing(true)}>{value || placeholder}</button>;
+  }
+  return (
+    <form className="inline-form" onSubmit={(event) => { event.preventDefault(); setEditing(false); onSave(draft); }}>
+      <input value={draft} onChange={(event) => setDraft(event.target.value)} />
+      <button>Save</button>
+    </form>
+  );
+}
+
+function InlineSelect({ value, options, onSave }) {
+  return (
+    <select className="inline-select" value={value} onChange={(event) => onSave(event.target.value)}>
+      {options.map((option) => <option key={option}>{option}</option>)}
+    </select>
   );
 }
 
@@ -363,6 +571,7 @@ export default function App() {
           <Route path="/campaigns/:id" element={<CampaignPage />} />
           <Route path="/campaigns/:id/players" element={<CampaignPlayersPage />} />
           <Route path="/campaigns/:id/characters" element={<CampaignCharactersPage />} />
+          <Route path="/campaigns/:id/notes" element={<CampaignNotesPage />} />
         </Route>
       </Routes>
     </AuthProvider>

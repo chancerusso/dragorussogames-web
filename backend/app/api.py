@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Response
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.auth import create_admin_token, require_admin, validate_admin_password
@@ -137,6 +137,10 @@ def campaign_payload(campaign: Campaign) -> dict:
         "name": campaign.name,
         "description": campaign.description,
         "dm_user_id": campaign.dm_user_id,
+        "setting": campaign.setting,
+        "schedule": campaign.schedule,
+        "next_session_date": campaign.next_session_date,
+        "session_number": campaign.session_number,
         "current_campaign_day": campaign.current_campaign_day,
         "default_location": campaign.default_location,
         "status": campaign.status,
@@ -153,6 +157,7 @@ def player_payload(player: Player) -> dict:
         "discord_user_id": player.discord_user_id,
         "email": player.email,
         "role": player.role,
+        "status": player.status,
         "created_at": player.created_at,
         "updated_at": player.updated_at,
     }
@@ -323,6 +328,8 @@ def apply_player_fields(player: Player, data: dict) -> Player:
         player.discord_user_id = data.get("discord_user_id")
     if data.get("role"):
         player.role = validate_player_role(data["role"])
+    if data.get("status"):
+        player.status = validate_player_status(data["status"])
     return player
 
 
@@ -330,6 +337,18 @@ def validate_player_role(role: str) -> str:
     if role not in {"player", "dm", "admin"}:
         raise HTTPException(status_code=422, detail="role must be player, dm, or admin.")
     return role
+
+
+def validate_player_status(status: str) -> str:
+    if status not in {"active", "inactive"}:
+        raise HTTPException(status_code=422, detail="status must be active or inactive.")
+    return status
+
+
+def validate_campaign_setting(setting: str) -> str:
+    if setting not in {"greyhawk", "dragonlance"}:
+        raise HTTPException(status_code=422, detail="setting must be greyhawk or dragonlance.")
+    return setting
 
 
 def get_player_or_404(db: Session, user_id: int) -> Player:
@@ -344,6 +363,16 @@ def get_campaign_or_404(db: Session, campaign_id: int) -> Campaign:
     if campaign is None:
         raise HTTPException(status_code=404, detail="Campaign not found.")
     return campaign
+
+
+def campaign_counts(db: Session, campaign_id: int) -> dict[str, int]:
+    player_count = db.scalar(select(func.count()).select_from(CampaignPlayer).where(CampaignPlayer.campaign_id == campaign_id)) or 0
+    character_count = db.scalar(
+        select(func.count())
+        .select_from(VaultCharacter)
+        .where(VaultCharacter.campaign_id == campaign_id, VaultCharacter.status != "archived")
+    ) or 0
+    return {"player_count": player_count, "character_count": character_count}
 
 
 def stored_items_for_campaign(db: Session, campaign_id: int) -> list[dict]:
@@ -531,6 +560,7 @@ def list_vault_players(_: dict = Depends(require_admin), db: Session = Depends(g
 @router.post("/1e/players")
 def create_vault_player(data: dict, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
     role = validate_player_role(data.get("role") or "player")
+    status = validate_player_status(data.get("status") or "active")
     display_name = data.get("display_name") or data.get("player_name")
     if not display_name:
         raise HTTPException(status_code=422, detail="display_name is required.")
@@ -544,6 +574,7 @@ def create_vault_player(data: dict, _: dict = Depends(require_admin), db: Sessio
         existing.email = data.get("email")
         existing.discord_user_id = data.get("discord_user_id")
         existing.role = role
+        existing.status = status
         db.commit()
         db.refresh(existing)
         return player_payload(existing)
@@ -553,6 +584,7 @@ def create_vault_player(data: dict, _: dict = Depends(require_admin), db: Sessio
         email=data.get("email"),
         discord_user_id=data.get("discord_user_id"),
         role=role,
+        status=status,
     )
     db.add(player)
     db.commit()
@@ -573,6 +605,8 @@ def update_vault_player(user_id: int, data: dict, _: dict = Depends(require_admi
             setattr(player, field, data[field])
     if "role" in data:
         player.role = validate_player_role(data["role"])
+    if "status" in data:
+        player.status = validate_player_status(data["status"])
     if not player.player_name:
         player.player_name = player.display_name or f"Player {player.id}"
     db.commit()
@@ -718,7 +752,12 @@ def list_vault_campaigns(include_archived: bool = False, _: dict = Depends(requi
     if not include_archived:
         statement = statement.where(Campaign.status != "archived")
     campaigns = db.scalars(statement).all()
-    return [campaign_payload(campaign) for campaign in campaigns]
+    payloads = []
+    for campaign in campaigns:
+        payload = campaign_payload(campaign)
+        payload.update(campaign_counts(db, campaign.id))
+        payloads.append(payload)
+    return payloads
 
 
 @router.post("/1e/campaigns")
@@ -727,6 +766,10 @@ def create_vault_campaign(data: dict, _: dict = Depends(require_admin), db: Sess
         name=data["name"],
         description=data.get("description"),
         dm_user_id=data.get("dm_user_id"),
+        setting=validate_campaign_setting(data.get("setting") or "greyhawk"),
+        schedule=data.get("schedule"),
+        next_session_date=data.get("next_session_date"),
+        session_number=int(data.get("session_number") or 1),
         current_campaign_day=int(data.get("current_campaign_day") or 1),
         default_location=data.get("default_location") or "Town",
         status=data.get("status") or "active",
@@ -734,13 +777,16 @@ def create_vault_campaign(data: dict, _: dict = Depends(require_admin), db: Sess
     db.add(campaign)
     db.commit()
     db.refresh(campaign)
-    return campaign_payload(campaign)
+    payload = campaign_payload(campaign)
+    payload.update(campaign_counts(db, campaign.id))
+    return payload
 
 
 @router.get("/1e/campaigns/{campaign_id}")
 def get_vault_campaign(campaign_id: int, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
     campaign = get_campaign_or_404(db, campaign_id)
     payload = campaign_payload(campaign)
+    payload.update(campaign_counts(db, campaign.id))
     memberships = db.scalars(select(CampaignPlayer).where(CampaignPlayer.campaign_id == campaign.id)).all()
     players = {player.id: player for player in db.scalars(select(Player).where(Player.id.in_([m.user_id for m in memberships]))).all()} if memberships else {}
     characters = [character_payload(character) for character in db.scalars(select(VaultCharacter).where(VaultCharacter.campaign_id == campaign.id)).all()]
@@ -765,12 +811,20 @@ def update_vault_campaign(campaign_id: int, data: dict, _: dict = Depends(requir
     campaign = db.get(Campaign, campaign_id)
     if campaign is None:
         raise HTTPException(status_code=404, detail="Campaign not found.")
-    for field in ("name", "description", "dm_user_id", "current_campaign_day", "default_location", "status"):
+    for field in ("name", "description", "dm_user_id", "schedule", "next_session_date", "default_location", "status"):
         if field in data:
             setattr(campaign, field, data[field])
+    if "setting" in data:
+        campaign.setting = validate_campaign_setting(data["setting"] or "greyhawk")
+    if "current_campaign_day" in data:
+        campaign.current_campaign_day = int(data["current_campaign_day"] or 1)
+    if "session_number" in data:
+        campaign.session_number = int(data["session_number"] or 1)
     db.commit()
     db.refresh(campaign)
-    return campaign_payload(campaign)
+    payload = campaign_payload(campaign)
+    payload.update(campaign_counts(db, campaign.id))
+    return payload
 
 
 @router.delete("/1e/campaigns/{campaign_id}")
