@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="refresh" content="0; url=/portal/characters/new" />
   <title>New Character | Drago Russo Games</title>
   <link rel="icon" type="image/png" href="/assets/LogoDrago_Mesa_de_trabajo_1.png" />
   <link rel="stylesheet" href="/style.css" />
@@ -10,12 +11,18 @@
   <link rel="stylesheet" href="/styles/character-vault.css" />
 </head>
 <body>
-  <header class="one-e-header">
-    <a class="one-e-brand" href="/1e/">Drago Russo Games <span>First Edition</span></a>
-    <nav class="one-e-topnav" data-rules-nav aria-label="First Edition navigation"></nav>
-  </header>
-  <main class="vault-shell" data-vault-app></main>
-  <script src="/components/first-edition-app.js"></script>
-  <script src="/components/character-vault.js"></script>
+  <main class="vault-shell">
+    <section class="vault-hero">
+      <div>
+        <div class="vault-eyebrow">Dragonlance</div>
+        <h1>Opening Character Builder</h1>
+        <p>The player character builder now lives inside the Dragonlance Portal.</p>
+      </div>
+      <div class="vault-actions">
+        <a class="vault-button" href="/portal/characters/new">Open Builder</a>
+      </div>
+    </section>
+  </main>
+  <script>window.location.replace("/portal/characters/new");</script>
 </body>
 </html>

@@ -1,10 +1,37 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { Link, Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
+import dragonlanceRaceManifest from "../../content/settings/dragonlance/races/index.json";
+import gullyDwarfRace from "../../content/settings/dragonlance/races/gully-dwarf.json";
+import halfElfRace from "../../content/settings/dragonlance/races/half-elf.json";
+import hillDwarfRace from "../../content/settings/dragonlance/races/hill-dwarf.json";
+import humanRace from "../../content/settings/dragonlance/races/human.json";
+import irdaRace from "../../content/settings/dragonlance/races/irda.json";
+import kenderRace from "../../content/settings/dragonlance/races/kender.json";
+import minotaurRace from "../../content/settings/dragonlance/races/minotaur.json";
+import mountainDwarfRace from "../../content/settings/dragonlance/races/mountain-dwarf.json";
+import qualinestiElfRace from "../../content/settings/dragonlance/races/qualinesti-elf.json";
+import silvanestiElfRace from "../../content/settings/dragonlance/races/silvanesti-elf.json";
+import tinkerGnomeRace from "../../content/settings/dragonlance/races/tinker-gnome.json";
 import { api, getPlayerToken, getToken, login, logout, playerLogin, playerLogout } from "./api.js";
 
 const AuthContext = createContext(null);
 const PlayerPortalContext = createContext(null);
 const SETTINGS = ["dragonlance", "greyhawk"];
+const DRAGONLANCE_RACE_PATH = "/content/settings/dragonlance/races/";
+const BUNDLED_DRAGONLANCE_RACE_FILES = {
+  "gully-dwarf.json": gullyDwarfRace,
+  "half-elf.json": halfElfRace,
+  "hill-dwarf.json": hillDwarfRace,
+  "human.json": humanRace,
+  "irda.json": irdaRace,
+  "kender.json": kenderRace,
+  "minotaur.json": minotaurRace,
+  "mountain-dwarf.json": mountainDwarfRace,
+  "qualinesti-elf.json": qualinestiElfRace,
+  "silvanesti-elf.json": silvanestiElfRace,
+  "tinker-gnome.json": tinkerGnomeRace,
+};
+const BUNDLED_DRAGONLANCE_RACES = dragonlanceRaceManifest.map((file) => BUNDLED_DRAGONLANCE_RACE_FILES[file]).filter(Boolean);
 const PLAYER_TABS = [
   ["overview", "Overview"],
   ["character", "My Character"],
@@ -31,6 +58,28 @@ function titleCase(value) {
 function displayDate(value) {
   if (!value) return "Not scheduled";
   return value;
+}
+
+async function fetchJson(path) {
+  const response = await fetch(path);
+  if (!response.ok) throw new Error(`Unable to load ${path}`);
+  return response.json();
+}
+
+async function fetchDragonlanceRaces() {
+  try {
+    const files = await fetchJson(`${DRAGONLANCE_RACE_PATH}index.json`);
+    return Promise.all(files.map((file) => fetchJson(`${DRAGONLANCE_RACE_PATH}${file}`)));
+  } catch {
+    return BUNDLED_DRAGONLANCE_RACES;
+  }
+}
+
+function formatAbilityAdjustments(adjustments = {}) {
+  const entries = Object.entries(adjustments);
+  if (!entries.length) return "None";
+  const labels = { strength: "STR", intelligence: "INT", wisdom: "WIS", dexterity: "DEX", constitution: "CON", charisma: "CHA" };
+  return entries.map(([ability, value]) => `${labels[ability] || titleCase(ability)} ${Number(value) > 0 ? "+" : ""}${value}`).join(", ");
 }
 
 function AuthProvider({ children }) {
@@ -172,7 +221,7 @@ function PlayerShell() {
         navItems={[
             { label: "My Campaigns", to: "/portal", end: true },
             { label: "Dragonlance Rules", href: "/1e/" },
-            { label: "Create Character", href: "/1e/characters/new/" },
+            { label: "Create Character", to: "/portal/characters/new" },
           ]}
           account={
             <div className="account-card">
@@ -261,7 +310,8 @@ function PlayerLoginPage() {
       <form className="login-panel" onSubmit={submit}>
         <div className="dragonlance-mark">DL</div>
         <p className="eyebrow">Dragonlance</p>
-        <h1>Dragonlance Portal</h1>
+        <h1>Dragonlance</h1>
+        <p className="login-subtitle">Welcome to Krynn</p>
         <label>
           Username
           <input autoFocus value={username} onChange={(event) => setUsername(event.target.value)} />
@@ -271,7 +321,7 @@ function PlayerLoginPage() {
           <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
         </label>
         {error ? <p className="error">{error}</p> : null}
-        <button disabled={busy}>{busy ? "Opening..." : "Enter Dragonlance"}</button>
+        <button disabled={busy}>{busy ? "Opening..." : "Begin Your Journey"}</button>
       </form>
     </div>
   );
@@ -893,7 +943,7 @@ function PlayerCampaignHome() {
     <section className="player-portal-page">
       <CampaignHeader campaign={campaign} eyebrow="Campaign Home" />
       <PlayerTabs activeTab={activeTab} onChange={setActiveTab} />
-      {activeTab === "overview" ? <PlayerOverviewTab campaign={campaign} /> : null}
+      {activeTab === "overview" ? <PlayerOverviewTab campaign={campaign} character={character} /> : null}
       {activeTab === "character" ? <PlayerCharacterTab character={character} /> : null}
       {activeTab === "players" ? <PlayerRosterTab campaign={campaign} /> : null}
       {activeTab === "journal" ? <ReadOnlyPlaceholder title="Journal" copy="Read-only session summaries will appear here once the journal backend exists." /> : null}
@@ -907,7 +957,7 @@ function PlayerTabs({ activeTab, onChange }) {
   return <Tabs tabs={PLAYER_TABS} activeTab={activeTab} onChange={onChange} className="player-tabs" />;
 }
 
-function PlayerOverviewTab({ campaign }) {
+function PlayerOverviewTab({ campaign, character }) {
   return (
     <div className="workspace-grid">
       <section className="panel workspace-panel">
@@ -924,19 +974,46 @@ function PlayerOverviewTab({ campaign }) {
           <div><dt>Session Number</dt><dd>#{campaign.session_number || 1}</dd></div>
         </dl>
       </section>
+      <section className="panel workspace-panel">
+        <p className="eyebrow">My Character</p>
+        {character ? (
+          <>
+            <h2>{character.name}</h2>
+            <dl className="detail-list">
+              <div><dt>Race</dt><dd>{character.race}</dd></div>
+              <div><dt>Class</dt><dd>{character.class_name}</dd></div>
+              <div><dt>Level</dt><dd>{character.level}</dd></div>
+            </dl>
+          </>
+        ) : (
+          <>
+            <h2>Your legend begins here.</h2>
+            <p className="portal-copy">No character has been assigned to you for this campaign yet.</p>
+            <div className="form-actions">
+              <Link className="secondary-button" to={`/portal/campaigns/${campaign.id}/characters/new`}>Create Character</Link>
+            </div>
+          </>
+        )}
+      </section>
+      <section className="panel workspace-panel">
+        <p className="eyebrow">Party</p>
+        <h2>{campaign.players?.length || 0} Players</h2>
+        <p className="portal-copy">{(campaign.players || []).map((entry) => entry.player?.display_name || entry.player?.player_name || `Player ${entry.user_id}`).join(", ") || "No party members listed yet."}</p>
+      </section>
     </div>
   );
 }
 
 function PlayerCharacterTab({ character }) {
+  const { id: campaignId } = useParams();
   if (!character) {
     return (
       <Panel className="notes-placeholder read-only-panel">
         <p className="eyebrow">Dragonlance Character</p>
-        <h2>No character assigned yet.</h2>
-        <p>Launch the existing Character Vault to create your Dragonlance character.</p>
+        <h2>Your legend begins here.</h2>
+        <p>Choose your Dragonlance people and begin building a character for this campaign.</p>
         <div className="form-actions">
-          <a className="secondary-button" href="/1e/characters/new/">Create Character</a>
+          <Link className="secondary-button" to={`/portal/campaigns/${campaignId}/characters/new`}>Create Character</Link>
         </div>
       </Panel>
     );
@@ -958,6 +1035,95 @@ function PlayerCharacterTab({ character }) {
         <a className="table-link" href={`/1e/characters/${character.id}/edit/`}>Edit in Vault</a>
       </div>
     </section>
+  );
+}
+
+function PlayerCharacterBuilderPage() {
+  const { id: campaignId } = useParams();
+  const { activePlayer } = usePlayerPortal();
+  const { data: races, error, loading } = useLoad(fetchDragonlanceRaces, []);
+  const { data: campaign } = useLoad(
+    () => campaignId ? api(`/player/campaigns/${campaignId}`, { auth: "player" }) : Promise.resolve(null),
+    [campaignId],
+  );
+  const [selectedRace, setSelectedRace] = useState("");
+  const defaultRaces = (races || []).filter((race) => race.enabled_by_default);
+  const advancedRaces = (races || []).filter((race) => race.advanced);
+
+  return (
+    <section className="player-portal-page character-builder-page">
+      <PlayerHero
+        eyebrow="Step 1"
+        title="Choose Race"
+        copy={campaign ? `${campaign.name} character foundation for ${activePlayer?.display_name || "your player profile"}.` : "Begin your Dragonlance character with the peoples of Krynn."}
+      />
+      {campaign ? (
+        <div className="builder-campaign-strip">
+          <span><strong>Campaign</strong>{campaign.name}</span>
+          <span><strong>Next Session</strong>{displayDate(campaign.next_session_date)}</span>
+          <span><strong>Schedule</strong>{campaign.schedule || "Unscheduled"}</span>
+          <span><strong>Session</strong>#{campaign.session_number || 1}</span>
+        </div>
+      ) : null}
+      <PageState loading={loading} error={error} />
+      {!loading && !error ? (
+        <>
+          <div className="builder-intro panel">
+            <p className="eyebrow">Dragonlance Character Builder</p>
+            <h2>Your legend begins here.</h2>
+            <p>Choose a race to stage your character foundation. Full class, abilities, equipment, and saving flow will come later.</p>
+            {selectedRace ? <strong>Selected Race: {selectedRace}</strong> : <span className="muted">No race selected yet.</span>}
+          </div>
+          <RaceCardSection title="Enabled Races" races={defaultRaces} selectedRace={selectedRace} onSelect={setSelectedRace} />
+          <RaceCardSection title="Advanced / DM Approval" races={advancedRaces} selectedRace={selectedRace} onSelect={setSelectedRace} />
+          <div className="form-actions builder-actions">
+            <Link className="table-link" to={campaignId ? `/portal/campaigns/${campaignId}` : "/portal"}>{campaignId ? "Back to Campaign" : "Back to My Campaigns"}</Link>
+            <button disabled={!selectedRace} type="button">Continue Later</button>
+          </div>
+        </>
+      ) : null}
+    </section>
+  );
+}
+
+function RaceCardSection({ title, races, selectedRace, onSelect }) {
+  return (
+    <section className="race-section">
+      <div className="section-heading">
+        <p className="eyebrow">{title}</p>
+      </div>
+      <div className="race-card-grid">
+        {races.map((race) => (
+          <RaceCard key={race.slug} race={race} selected={selectedRace === race.name} onSelect={onSelect} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function RaceCard({ race, selected, onSelect }) {
+  const disabled = !race.enabled_by_default;
+  return (
+    <article className={`panel race-card ${selected ? "selected" : ""} ${disabled ? "disabled" : ""}`}>
+      <div className="race-card-header">
+        <div>
+          <h2>{race.name}</h2>
+          <p>{race.description}</p>
+        </div>
+        <span>{race.advanced ? "Advanced" : "Enabled"}</span>
+      </div>
+      <dl className="race-details">
+        <div><dt>Ability Adjustments</dt><dd>{formatAbilityAdjustments(race.ability_adjustments)}</dd></div>
+        <div><dt>Allowed Classes</dt><dd>{race.allowed_classes.join(", ")}</dd></div>
+        <div><dt>Alignment</dt><dd>{race.allowed_alignments.join(", ")}</dd></div>
+        <div><dt>Languages</dt><dd>{race.languages.join(", ")}</dd></div>
+        <div><dt>Special Abilities</dt><dd>{race.special_abilities.join(", ")}</dd></div>
+        <div><dt>Movement</dt><dd>{race.movement}</dd></div>
+      </dl>
+      <button type="button" disabled={disabled} onClick={() => onSelect(race.name)}>
+        {selected ? "Selected" : "Select Race"}
+      </button>
+    </article>
   );
 }
 
@@ -1304,6 +1470,8 @@ export default function App() {
         <Route element={<Protected role="player"><PlayerShell /></Protected>}>
           <Route path="/portal" element={<PlayerCampaignsPage />} />
           <Route path="/portal/campaigns/:id" element={<PlayerCampaignHome />} />
+          <Route path="/portal/characters/new" element={<PlayerCharacterBuilderPage />} />
+          <Route path="/portal/campaigns/:id/characters/new" element={<PlayerCharacterBuilderPage />} />
         </Route>
         <Route element={<Protected><Shell /></Protected>}>
           <Route path="/campaigns" element={<CampaignsPage />} />
