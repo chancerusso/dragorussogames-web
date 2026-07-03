@@ -63,9 +63,8 @@ function Shell() {
         <nav>
           <NavLink to="/campaigns">Command Center</NavLink>
           <a href="/campaigns#active-campaigns">Campaigns</a>
-          <NavLink to="/characters">Characters</NavLink>
           <NavLink to="/players">Players</NavLink>
-          <NavLink to="/sessions">Sessions</NavLink>
+          <NavLink to="/characters">Characters</NavLink>
           <NavLink to="/archive">Archive</NavLink>
           <NavLink to="/settings">Settings</NavLink>
         </nav>
@@ -151,7 +150,10 @@ function PageState({ loading, error }) {
 
 function CampaignsPage() {
   const { data, error, loading, reload } = useLoad(() => api("/1e/campaigns?include_archived=true"));
+  const { data: players } = useLoad(() => api("/1e/players"), []);
+  const { data: characters } = useLoad(() => api("/1e/characters?include_archived=true"), []);
   const [createOpen, setCreateOpen] = useState(false);
+  const [formError, setFormError] = useState("");
   const [form, setForm] = useState({
     name: "",
     setting: "greyhawk",
@@ -169,6 +171,7 @@ function CampaignsPage() {
   async function createCampaign(event) {
     event.preventDefault();
     setSaving(true);
+    setFormError("");
     try {
       await api("/1e/campaigns", { method: "POST", body: JSON.stringify(form) });
       setForm({
@@ -182,6 +185,8 @@ function CampaignsPage() {
       });
       setCreateOpen(false);
       await reload();
+    } catch (err) {
+      setFormError(err.message);
     } finally {
       setSaving(false);
     }
@@ -194,39 +199,31 @@ function CampaignsPage() {
           <p className="eyebrow">Command Center</p>
           <h1>Welcome, DM.</h1>
           <h2>Your adventure begins here.</h2>
-          <p className="lede">Manage your campaigns, players, and sessions from your command center.</p>
+          <p className="lede">Manage campaigns, players, and characters from one quiet command center.</p>
         </div>
         <div className="summary-strip hero-stats">
-          <Stat label="Active Campaigns" value={activeCampaigns.length} />
-          <Stat label="Archived" value={archivedCampaigns.length} />
-          <Stat label="Characters" value={campaigns.reduce((total, campaign) => total + Number(campaign.character_count || 0), 0)} />
+          <Stat label="Campaigns" value={activeCampaigns.length} />
+          <Stat label="Players" value={(players || []).length} />
+          <Stat label="Characters" value={(characters || []).filter((character) => character.status !== "archived").length} />
         </div>
       </div>
 
       <PageState loading={loading} error={error} />
 
       <div className="action-grid">
-        <ActionCard tone="red" icon="S" title="Create Campaign" copy="Start a new campaign and build your world." action="Create New" onClick={() => setCreateOpen(true)} />
-        <ActionCard tone="green" icon="P" title="Manage Players" copy="Invite players and manage your roster." action="View Players" to="/players" />
-        <ActionCard tone="violet" icon="B" title="Sessions" copy="Plan sessions and track your adventures." action="View Sessions" to="/sessions" />
-        <ActionCard tone="blue" icon="C" title="Characters" copy="Create and manage campaign characters." action="View Characters" to="/characters" />
+        <ActionCard tone="red" title="Campaigns" copy="Create, review, and prepare campaign workspaces." action="Create Campaign" onClick={() => setCreateOpen(true)} />
+        <ActionCard tone="green" title="Players" copy="Manage the table roster and campaign membership." action="Manage Players" to="/players" />
+        <ActionCard tone="blue" title="Characters" copy="Review characters and open the existing sheet tools." action="View Characters" to="/characters" />
       </div>
 
       <div className="command-grid" id="active-campaigns">
         <ActiveCampaignPanel campaign={activeCampaigns[0]} onCreate={() => setCreateOpen(true)} />
-        <div className="stacked-panels">
-          <UpcomingSessionsPanel />
-          <RecentActivityPanel />
-        </div>
-        <div className="stacked-panels">
-          <QuickActionsPanel onCreate={() => setCreateOpen(true)} />
-          <DicePanel />
-        </div>
+        <ArchiveSummaryPanel campaigns={archivedCampaigns} />
       </div>
 
       {activeCampaigns.length > 1 ? (
         <>
-          <h2 className="section-title" id="active-campaigns">Active Campaigns</h2>
+          <h2 className="section-title">Active Campaigns</h2>
           <CampaignCardGrid campaigns={activeCampaigns.slice(1)} />
         </>
       ) : null}
@@ -234,8 +231,8 @@ function CampaignsPage() {
       {createOpen ? (
         <Modal title="Create Campaign" onClose={() => setCreateOpen(false)}>
           <form className="form-grid dashboard-create modal-form" onSubmit={createCampaign}>
-            <label>Name<input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} required /></label>
-            <label>Setting
+            <label className="wide primary-field">Campaign Name<input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} required /></label>
+            <label className="setting-field">Setting
               <select value={form.setting} onChange={(event) => setForm({ ...form, setting: event.target.value })}>
                 {SETTINGS.map((setting) => <option key={setting} value={setting}>{titleCase(setting)}</option>)}
               </select>
@@ -245,6 +242,7 @@ function CampaignsPage() {
             <label>Session #<input type="number" min="1" value={form.session_number} onChange={(event) => setForm({ ...form, session_number: event.target.value })} /></label>
             <label>Campaign Day<input type="number" min="1" value={form.current_campaign_day} onChange={(event) => setForm({ ...form, current_campaign_day: event.target.value })} /></label>
             <label className="wide">Notes<textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} /></label>
+            {formError ? <p className="error wide">{formError}</p> : null}
             <div className="form-actions wide">
               <button disabled={saving}>{saving ? "Creating..." : "Create Campaign"}</button>
               <button type="button" className="ghost-button" onClick={() => setCreateOpen(false)}>Cancel</button>
@@ -256,10 +254,9 @@ function CampaignsPage() {
   );
 }
 
-function ActionCard({ tone, icon, title, copy, action, to, onClick }) {
+function ActionCard({ tone, title, copy, action, to, onClick }) {
   const content = (
     <>
-      <div className="action-icon">{icon}</div>
       <div>
         <h2>{title}</h2>
         <p>{copy}</p>
@@ -286,7 +283,6 @@ function ActiveCampaignPanel({ campaign, onCreate }) {
     <section className="command-panel active-campaign">
       <p className="eyebrow">Active Campaign</p>
       <div className="campaign-focus">
-        <div className="campaign-seal">{String(campaign.setting || "G").slice(0, 1).toUpperCase()}</div>
         <div>
           <h2>{campaign.name}</h2>
           <p>{titleCase(campaign.setting)} | Session #{campaign.session_number || 1} | {campaign.schedule || "Schedule TBD"}</p>
@@ -303,49 +299,13 @@ function ActiveCampaignPanel({ campaign, onCreate }) {
   );
 }
 
-function UpcomingSessionsPanel() {
+function ArchiveSummaryPanel({ campaigns }) {
   return (
-    <section className="command-panel centered-panel">
-      <p className="eyebrow">Upcoming Sessions</p>
-      <div className="panel-emblem">CAL</div>
-      <h2>No sessions scheduled</h2>
-      <p>Schedule your next session to begin the adventure.</p>
-      <Link className="wide-command" to="/sessions">Schedule Session</Link>
-    </section>
-  );
-}
-
-function RecentActivityPanel() {
-  return (
-    <section className="command-panel activity-panel">
-      <p className="eyebrow">Recent Activity</p>
-      <div className="empty-row"><span>LOG</span><div><strong>No recent activity</strong><p>Your recent actions will appear here.</p></div></div>
-    </section>
-  );
-}
-
-function QuickActionsPanel({ onCreate }) {
-  return (
-    <section className="command-panel">
-      <p className="eyebrow">Quick Actions</p>
-      <div className="quick-list">
-        <button onClick={onCreate}>Create New Campaign<span>&gt;</span></button>
-        <Link to="/players">Invite Player<span>&gt;</span></Link>
-        <Link to="/sessions">Schedule Session<span>&gt;</span></Link>
-        <Link to="/characters">Create Character<span>&gt;</span></Link>
-        <Link to="/archive">View Archive<span>&gt;</span></Link>
-      </div>
-    </section>
-  );
-}
-
-function DicePanel() {
-  const [roll, setRoll] = useState(null);
-  return (
-    <section className="command-panel dice-panel">
-      <p className="eyebrow">Dice Roll</p>
-      <div className="dice-row"><div className="die-face">{roll || "20"}</div><div><strong>Roll a D20</strong><p>{roll ? `Result: ${roll}` : "Click the die to roll"}</p></div></div>
-      <button onClick={() => setRoll(Math.floor(Math.random() * 20) + 1)}>Roll D20</button>
+    <section className="command-panel archive-summary">
+      <p className="eyebrow">Archive</p>
+      <h2>{campaigns.length} archived campaign{campaigns.length === 1 ? "" : "s"}</h2>
+      <p>Older campaigns stay available without crowding the command center.</p>
+      <Link className="wide-command" to="/archive">View Archive</Link>
     </section>
   );
 }
@@ -811,7 +771,7 @@ export default function App() {
           <Route path="/campaigns/:id/notes" element={<CampaignNotesPage />} />
           <Route path="/players" element={<PlayersPage />} />
           <Route path="/characters" element={<CharactersPage />} />
-          <Route path="/sessions" element={<PlaceholderPage eyebrow="Calendar" title="Sessions" copy="Session scheduling will live here. For now, use campaign next-session fields." />} />
+          <Route path="/sessions" element={<Navigate to="/campaigns" replace />} />
           <Route path="/archive" element={<ArchivePage />} />
           <Route path="/settings" element={<PlaceholderPage eyebrow="Portal" title="Settings" copy="Portal preferences and account controls will live here." />} />
         </Route>

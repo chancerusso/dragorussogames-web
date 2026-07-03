@@ -35,7 +35,6 @@ export async function api(path, options = {}) {
 
 function addAdminDefaults(path, options) {
   if (!options.body || typeof options.body !== "string" || path.startsWith("/auth/")) return options;
-  if (path.startsWith("/1e/")) return options;
   if (!["POST", "PUT", "PATCH", "DELETE"].includes(String(options.method || "GET").toUpperCase())) return options;
   try {
     const payload = JSON.parse(options.body);
