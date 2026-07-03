@@ -1,0 +1,13 @@
+{
+  "id": "fighter",
+  "name": "Fighter",
+  "source": "DRAGOLANCE",
+  "category": "starting",
+  "base_class": "Fighter",
+  "unlock_note": "Available as a standard martial starting class.",
+  "short_description": "A practical warrior suited to soldiers, mercenaries, guards, and battlefield heroes across Ansalon.",
+  "hit_die": "d10",
+  "prime_ability": "Strength",
+  "key_notes": ["Full martial base", "Weapon freedom", "Good baseline for many orders"],
+  "selectable_at_level_1": true
+}

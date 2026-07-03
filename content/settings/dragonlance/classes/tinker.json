@@ -1,0 +1,13 @@
+{
+  "id": "tinker",
+  "name": "Tinker",
+  "source": "DRAGOLANCE",
+  "category": "starting",
+  "base_class": "Tinker",
+  "unlock_note": "PDF class for Krynn gnomes; race enforcement is intentionally deferred.",
+  "short_description": "A gnomish engineer-inventor devoted to guild work, devices, committees, and a lifelong Lifequest.",
+  "hit_die": "2d4 at 1st level",
+  "prime_ability": "Intelligence, Dexterity",
+  "key_notes": ["Gnome class", "Device creation", "Guild and Lifequest"],
+  "selectable_at_level_1": true
+}

@@ -1,0 +1,13 @@
+{
+  "id": "illusionist",
+  "name": "Illusionist",
+  "source": "DRAGOLANCE",
+  "category": "starting",
+  "base_class": "Student Magic-User",
+  "unlock_note": "Krynn makes no clear-cut distinction before 3rd level; higher advancement requires High Sorcery or renegade status.",
+  "short_description": "A student arcane specialist whose illusions fall under Krynn's broader High Sorcery structure.",
+  "hit_die": "d4",
+  "prime_ability": "Intelligence, Dexterity",
+  "key_notes": ["Student wizard", "No order before 3rd", "Test required for higher power"],
+  "selectable_at_level_1": true
+}

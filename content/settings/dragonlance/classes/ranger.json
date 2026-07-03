@@ -1,0 +1,13 @@
+{
+  "id": "ranger",
+  "name": "Ranger",
+  "source": "DRAGOLANCE",
+  "category": "starting",
+  "base_class": "Ranger",
+  "unlock_note": "Available as a starting protector and wilderness warrior.",
+  "short_description": "A scout, hunter, and defender of threatened lands, often drawn into the wars of Krynn.",
+  "hit_die": "d8",
+  "prime_ability": "Strength, Intelligence, Wisdom",
+  "key_notes": ["Wilderness role", "Protector theme", "Later spell details remain OSRIC-based for now"],
+  "selectable_at_level_1": true
+}

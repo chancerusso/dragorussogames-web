@@ -1,0 +1,13 @@
+{
+  "id": "knight-of-the-crown",
+  "name": "Knight of the Crown",
+  "source": "DRAGOLANCE",
+  "category": "starting",
+  "base_class": "Knight of Solamnia",
+  "unlock_note": "First Solamnic order and the entry path for Solamnic knightly advancement.",
+  "short_description": "The first order of Solamnic Knighthood, patterned around loyalty, obedience, courage, and service.",
+  "hit_die": "d10",
+  "prime_ability": "Strength, Wisdom",
+  "key_notes": ["Solamnic order", "Starts as Crown", "Can advance toward Sword and Rose"],
+  "selectable_at_level_1": true
+}

@@ -1,0 +1,13 @@
+{
+  "id": "barbarian",
+  "name": "Barbarian",
+  "source": "DRAGOLANCE",
+  "category": "starting",
+  "base_class": "Barbarian",
+  "unlock_note": "Acceptable standard class in Krynn; often from northern Ergoth, Khur, or other wild regions.",
+  "short_description": "A fierce warrior of the wilds, undisciplined by civilized nations but deeply adapted to harsh lands.",
+  "hit_die": "d12",
+  "prime_ability": "Strength, Dexterity, Constitution",
+  "key_notes": ["Wilderness warrior", "Nature empathy", "Unearthed Arcana class"],
+  "selectable_at_level_1": true
+}

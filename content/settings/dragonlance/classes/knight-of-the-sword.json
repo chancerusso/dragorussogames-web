@@ -1,0 +1,13 @@
+{
+  "id": "knight-of-the-sword",
+  "name": "Knight of the Sword",
+  "source": "DRAGOLANCE",
+  "category": "progression",
+  "base_class": "Knight of the Crown",
+  "unlock_note": "Requires fame and acceptance after service as a Knight of the Crown.",
+  "short_description": "The Solamnic order reached after worthy Crown service and acceptance by knightly council.",
+  "hit_die": "d10",
+  "prime_ability": "Strength, Wisdom, Charisma",
+  "key_notes": ["Solamnic progression", "Not level 1", "Requires Crown advancement"],
+  "selectable_at_level_1": false
+}

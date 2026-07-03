@@ -1,0 +1,13 @@
+{
+  "id": "knight-of-the-rose",
+  "name": "Knight of the Rose",
+  "source": "DRAGOLANCE",
+  "category": "progression",
+  "base_class": "Knight of the Sword",
+  "unlock_note": "Requires worthy advancement through Knight of the Sword before acceptance.",
+  "short_description": "The highest Solamnic order, reached after proven service in Crown and Sword.",
+  "hit_die": "d10",
+  "prime_ability": "Strength, Wisdom, Charisma",
+  "key_notes": ["Senior Solamnic path", "Not level 1", "Requires Sword advancement"],
+  "selectable_at_level_1": false
+}

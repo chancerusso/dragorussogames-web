@@ -1,0 +1,13 @@
+{
+  "id": "cavalier",
+  "name": "Cavalier",
+  "source": "DRAGOLANCE",
+  "category": "starting",
+  "base_class": "Cavalier",
+  "unlock_note": "Acceptable standard class; may later join Solamnic Knights by entering the Crown order as a first-level knight.",
+  "short_description": "A noble knight in service to an individual kingdom, distinct from the greater Solamnic Orders.",
+  "hit_die": "d10",
+  "prime_ability": "Strength, Dexterity, Constitution",
+  "key_notes": ["Noble knight", "Can enter Crown later", "Unearthed Arcana class"],
+  "selectable_at_level_1": true
+}

@@ -1,0 +1,13 @@
+{
+  "id": "paladin",
+  "name": "Paladin",
+  "source": "DRAGOLANCE",
+  "category": "starting",
+  "base_class": "Paladin",
+  "unlock_note": "Acceptable standard class; powers depend on service to a deity of good, and conversion may be needed in Krynn.",
+  "short_description": "A knight in the cause of good, sworn to a deity rather than to the Solamnic Knighthood.",
+  "hit_die": "d10",
+  "prime_ability": "Strength, Wisdom, Charisma",
+  "key_notes": ["Holy warrior", "Good deity service", "Can enter Crown later"],
+  "selectable_at_level_1": true
+}

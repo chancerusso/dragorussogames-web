@@ -1,0 +1,13 @@
+{
+  "id": "holy-order-of-the-stars",
+  "name": "Holy Order of the Stars",
+  "source": "DRAGOLANCE",
+  "category": "starting",
+  "base_class": "Cleric",
+  "unlock_note": "Krynn clerics serve one of the True Gods through the Orders of Good, Neutrality, or Evil.",
+  "short_description": "A true cleric of Krynn, empowered through deity, alignment order, and divine spheres.",
+  "hit_die": "d8",
+  "prime_ability": "Wisdom",
+  "key_notes": ["Krynn cleric", "Choose deity later", "Orders of Good, Neutrality, or Evil"],
+  "selectable_at_level_1": true
+}

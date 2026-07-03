@@ -95,6 +95,7 @@ from app.services.expedition import (
 
 router = APIRouter(prefix="/api")
 DRAGONLANCE_RACE_DIR = Path(__file__).resolve().parents[2] / "content" / "settings" / "dragonlance" / "races"
+DRAGONLANCE_CLASS_DIR = Path(__file__).resolve().parents[2] / "content" / "settings" / "dragonlance" / "classes"
 
 
 def load_dragonlance_race_names() -> set[str]:
@@ -109,6 +110,20 @@ def load_dragonlance_race_names() -> set[str]:
 
 
 DRAGONLANCE_RACE_NAMES = load_dragonlance_race_names()
+
+
+def load_dragonlance_class_names() -> set[str]:
+    try:
+        files = json.loads((DRAGONLANCE_CLASS_DIR / "index.json").read_text())
+        return {
+            json.loads((DRAGONLANCE_CLASS_DIR / file_name).read_text()).get("name")
+            for file_name in files
+        } - {None}
+    except OSError:
+        return set()
+
+
+DRAGONLANCE_CLASS_NAMES = load_dragonlance_class_names()
 
 
 def ensure_vault_seeded(db: Session) -> None:
@@ -520,7 +535,7 @@ def validate_character_choice(data: dict) -> None:
     alignment = data.get("alignment")
     if race and race not in RACES and race not in DRAGONLANCE_RACE_NAMES:
         raise HTTPException(status_code=422, detail=f"Unsupported race: {race}.")
-    if class_name and class_name not in CLASSES:
+    if class_name and class_name not in CLASSES and class_name not in DRAGONLANCE_CLASS_NAMES:
         raise HTTPException(status_code=422, detail=f"Unsupported class: {class_name}.")
     if alignment and alignment not in ALIGNMENTS:
         raise HTTPException(status_code=422, detail=f"Unsupported alignment: {alignment}.")

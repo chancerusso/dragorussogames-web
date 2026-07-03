@@ -1,0 +1,13 @@
+{
+  "id": "magic-user",
+  "name": "Magic-User",
+  "source": "DRAGOLANCE",
+  "category": "starting",
+  "base_class": "Student Magic-User",
+  "unlock_note": "Before 3rd level no order is chosen; higher advancement requires High Sorcery or renegade status.",
+  "short_description": "An arcane student of Krynn who may remain minor or seek the Test and the Orders of High Sorcery.",
+  "hit_die": "d4",
+  "prime_ability": "Intelligence",
+  "key_notes": ["Student wizard", "Order undecided before 3rd", "Test required for higher power"],
+  "selectable_at_level_1": true
+}

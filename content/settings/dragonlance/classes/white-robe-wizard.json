@@ -1,0 +1,13 @@
+{
+  "id": "white-robe-wizard",
+  "name": "White Robe Wizard",
+  "source": "DRAGOLANCE",
+  "category": "progression",
+  "base_class": "Wizard of High Sorcery",
+  "unlock_note": "Requires passing the Test without an act contrary to good.",
+  "short_description": "A High Sorcery order path associated with good, protection, and Solinari's white moon.",
+  "hit_die": "d4",
+  "prime_ability": "Intelligence",
+  "key_notes": ["Good order", "Solinari", "Requires the Test"],
+  "selectable_at_level_1": false
+}

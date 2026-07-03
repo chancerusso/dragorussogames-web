@@ -6,6 +6,7 @@ const abilities = ["strength", "intelligence", "wisdom", "dexterity", "constitut
 const abilityLabels = { strength: "STR", intelligence: "INT", wisdom: "WIS", dexterity: "DEX", constitution: "CON", charisma: "CHA" };
 const coins = ["platinum", "gold", "electrum", "silver", "copper"];
 const DRAGONLANCE_RACE_PATH = "/content/settings/dragonlance/races/";
+const DRAGONLANCE_CLASS_PATH = "/content/settings/dragonlance/classes/";
 const PLAYER_TOKEN_KEY = "drg_player_token";
 const fallbackDragonlanceRaces = [
   {
@@ -141,7 +142,7 @@ const fallbackDragonlanceRaces = [
     advanced: true,
   },
 ];
-const state = { characters: [], equipment: [], spells: [], campaigns: [], players: [], dragonlanceRaces: [], campaign: null, rules: null, character: null, currentPlayer: null, step: 0, draft: null, inventoryFilter: "equipped", dmOverride: false, dmCharacterFilters: { campaign_id: "", user_id: "", status: "" }, equipmentFilters: { q: "", type: "" }, editEquipmentId: null, dmCampaignTab: "overview" };
+const state = { characters: [], equipment: [], spells: [], campaigns: [], players: [], dragonlanceRaces: [], dragonlanceClasses: [], campaign: null, rules: null, character: null, currentPlayer: null, step: 0, draft: null, inventoryFilter: "equipped", dmOverride: false, dmCharacterFilters: { campaign_id: "", user_id: "", status: "" }, equipmentFilters: { q: "", type: "" }, editEquipmentId: null, dmCampaignTab: "overview" };
 const builderContext = detectBuilderContext();
 
 function h(value) {
@@ -283,6 +284,16 @@ async function fetchDragonlanceRaces() {
   }
 }
 
+async function fetchDragonlanceClasses() {
+  try {
+    const files = await fetchJson(`${DRAGONLANCE_CLASS_PATH}index.json`);
+    return Promise.all(files.map((file) => fetchJson(`${DRAGONLANCE_CLASS_PATH}${file}`)));
+  } catch (error) {
+    console.warn("Dragonlance class content unavailable.", error);
+    return [];
+  }
+}
+
 function pageKind() {
   const path = location.pathname.replace(/\/$/, "");
   if (path.endsWith("/new")) return "new";
@@ -324,11 +335,12 @@ function toast(message) {
 async function boot() {
   renderShell();
   try {
-    [state.rules, state.equipment, state.spells, state.dragonlanceRaces] = await Promise.all([
+    [state.rules, state.equipment, state.spells, state.dragonlanceRaces, state.dragonlanceClasses] = await Promise.all([
       api("/rules-data"),
       api("/equipment"),
       api("/spells"),
       fetchDragonlanceRaces(),
+      fetchDragonlanceClasses(),
     ]);
     const kind = pageKind();
 
@@ -596,7 +608,8 @@ function builderStep() {
       </div>
       ${isPlayerCharacterMode() ? `<div class="vault-source-notice">${h(builderContext.label)} campaign mode is active. Source availability is controlled by this campaign.</div>` : builderContext.setting === "dragolance" ? `<div class="vault-source-notice">Dragolance campaign mode is active. OSRIC classes are shown for reference until Dragolance class data is added.</div>` : ""}
       ${classSourceSection("OSRIC", osricClassCards(), d.class_name)}
-      ${classSourceSection("DRAGOLANCE", dragonlanceClassCards(), d.class_name)}
+      ${classSourceSection("DRAGOLANCE STARTING CLASSES", dragonlanceStartingClassCards(), d.class_name)}
+      ${classSourceSection("DRAGOLANCE PROGRESSION PATHS", dragonlanceProgressionClassCards(), d.class_name)}
     </section>
     <div class="vault-card vault-full"><h3>Class Notes</h3>${raceClassWarnings(d)}<p>${h((state.rules.classes[d.class_name] || {}).armor)}</p><p><strong>Weapons:</strong> ${h((state.rules.classes[d.class_name] || {}).weapons)}</p><p>Hit Dice: ${h(hitDiceText(d))}. Starting wealth: ${h((state.rules.classes[d.class_name] || {}).wealth)}.</p><p>Proficiencies: ${h(proficiencyCount(d.class_name, d.level) ?? "Manual DM Review")} at this level. Non-proficiency penalty: ${h((state.rules.classes[d.class_name] || {}).non_proficiency_penalty ?? "Manual DM Review")}.</p></div>
     <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/003-class/">Class</a></p>
@@ -742,12 +755,12 @@ function raceChoiceCard(card, selectedRace) {
 }
 
 function classSourceSection(source, classes, selectedClass) {
-  const empty = !classes.length ? `<div class="vault-choice-empty">Dragonlance-specific classes will appear here after their rules data is added. OSRIC classes remain available now.</div>` : "";
+  const empty = !classes.length ? `<div class="vault-choice-empty">No class options are available in this section yet.</div>` : "";
   return `<section class="vault-source-section">
     <div class="vault-source-heading">
       <div>
         <div class="vault-kicker">${h(source)}</div>
-        <h3>${source === "OSRIC" ? "Foundation Classes" : "Dragonlance Classes"}</h3>
+        <h3>${h(classSectionTitle(source))}</h3>
       </div>
       <span>${h(classes.length)} options</span>
     </div>
@@ -772,10 +785,18 @@ function classChoiceCard(card, selectedClass) {
         ${choiceFact("Requirements", card.requirements)}
         ${choiceFact("Key Notes", card.keyNotes)}
       </dl>
+      ${card.progressionNote ? `<p class="vault-unavailable">${h(card.progressionNote)}</p>` : ""}
       ${card.advisory ? `<p class="vault-unavailable">Ask your DM before selecting this option.</p>` : ""}
       <button class="vault-button ${selected ? "" : "secondary"}" type="button" data-select-class="${h(card.name)}" ${disabled ? "disabled" : ""}>${selected ? "Selected" : "Select Class"}</button>
     </div>
   </article>`;
+}
+
+function classSectionTitle(source) {
+  if (source === "OSRIC") return "Foundation Classes";
+  if (source === "DRAGOLANCE STARTING CLASSES") return "Starting Classes";
+  if (source === "DRAGOLANCE PROGRESSION PATHS") return "Progression Paths";
+  return "Dragonlance Classes";
 }
 
 function choiceFact(label, value) {
@@ -791,7 +812,15 @@ function osricClassCards() {
 }
 
 function dragonlanceClassCards() {
-  return [];
+  return state.dragonlanceClasses.map((classInfo) => classCardData(classInfo.name, "DRAGOLANCE", classInfo)).filter(Boolean);
+}
+
+function dragonlanceStartingClassCards() {
+  return dragonlanceClassCards().filter((card) => card.category !== "progression");
+}
+
+function dragonlanceProgressionClassCards() {
+  return dragonlanceClassCards().filter((card) => card.category === "progression");
 }
 
 function raceCardData(name, source = "OSRIC", data = null) {
@@ -825,6 +854,24 @@ function raceCardData(name, source = "OSRIC", data = null) {
 function classCardData(name, source = "OSRIC", data = null) {
   const classInfo = data || state.rules?.classes?.[name];
   if (!classInfo) return null;
+  if (source === "DRAGOLANCE") {
+    const progression = classInfo.category === "progression" || classInfo.selectable_at_level_1 === false;
+    const level = Number(state.draft?.level || 1);
+    return {
+      name,
+      source,
+      initials: initialsFor(name),
+      category: classInfo.category || "starting",
+      description: cleanChoiceText(classInfo.short_description) || "A Krynn-specific class option.",
+      hitDie: classInfo.hit_die || "See details later",
+      primeAbility: classInfo.prime_ability || "See details later",
+      requirements: cleanChoiceText(classInfo.unlock_note || classInfo.base_class) || "See details later",
+      keyNotes: compactList(classInfo.key_notes || [], 3),
+      progressionNote: progression && level <= 1 ? "Progression option — not selectable at level 1." : "",
+      advisory: sourceAdvisory(source) && !progression,
+      disabled: progression && level <= 1,
+    };
+  }
   const descriptions = {
     Assassin: "A stealth killer and infiltrator built around ambush, disguise, and underworld obligations.",
     Bard: "An advanced special path with lore, charm, and spellcasting after a complex entry route.",

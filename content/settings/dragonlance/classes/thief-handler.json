@@ -1,0 +1,13 @@
+{
+  "id": "thief-handler",
+  "name": "Thief / Handler",
+  "source": "DRAGOLANCE",
+  "category": "starting",
+  "base_class": "Thief",
+  "unlock_note": "Kender use the term handler because thief implies stealing for gain.",
+  "short_description": "A thief-style specialist; among kender, handling is curiosity-driven rather than profit-driven theft.",
+  "hit_die": "d6",
+  "prime_ability": "Dexterity",
+  "key_notes": ["Thief skills", "Kender handler term", "Curiosity over profit"],
+  "selectable_at_level_1": true
+}
