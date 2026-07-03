@@ -175,18 +175,20 @@ function newCharacterHref() {
 }
 
 async function api(path, options = {}) {
+  const { headers = {}, ...fetchOptions } = options;
   const response = await fetch(`${API}${path}`, {
-    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
-    ...options,
+    ...fetchOptions,
+    headers: { "Content-Type": "application/json", ...headers },
   });
   if (!response.ok) throw new Error(await cleanResponseError(response));
   return response.status === 204 ? null : response.json();
 }
 
 async function rootApi(path, options = {}) {
+  const { headers = {}, ...fetchOptions } = options;
   const response = await fetch(`${VAULT_API_BASE}${path}`, {
-    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
-    ...options,
+    ...fetchOptions,
+    headers: { "Content-Type": "application/json", ...headers },
   });
   if (!response.ok) throw new Error(await cleanResponseError(response));
   return response.status === 204 ? null : response.json();
@@ -521,6 +523,16 @@ function builderStep() {
   const d = state.draft;
   const races = Object.keys(state.rules?.races || {});
   const classes = Object.keys(state.rules?.classes || {});
+  if (state.step === 0 && isPlayerCharacterMode()) return `
+    ${field("Character Name", "name", d.name)}
+    ${playerIdentityHtml()}
+    ${campaignSelectHtml(d)}
+    ${field("Campaign Day", "campaign_day", d.campaign_day, "number")}
+    ${field("Current Location", "current_location", d.current_location)}
+    ${field("Personal Storage Location", "safe_storage_location", d.safe_storage_location || "", "text", "wide")}
+    <p class="vault-muted vault-full">Use this for items, coins, or gear not carried by the character.</p>
+    <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/">Character Creation</a></p>
+    ${navButtons()}`;
   if (state.step === 0) return `
     ${field("Character Name", "name", d.name)}
     ${selectField("Owner / Player", "user_id", String(d.user_id || state.currentPlayer?.id || ""), ["", ...state.players.map((player) => String(player.id))])}
@@ -603,8 +615,25 @@ function campaignSelectHtml(d) {
   if (isPlayerCharacterMode() && state.campaign) {
     return `<input type="hidden" name="campaign_id" value="${h(state.campaign.id)}"><div class="vault-card vault-full"><div class="vault-kicker">Campaign</div><h3>${h(state.campaign.name)}</h3><p>${h(title(state.campaign.setting || "classic"))} / Session #${h(state.campaign.session_number || 1)} / ${h(state.campaign.next_session_date || "Next session TBD")}</p></div>`;
   }
+  if (isPlayerCharacterMode()) {
+    return `<input type="hidden" name="campaign_id" value="${h(d.campaign_id || "")}"><div class="vault-card vault-full"><div class="vault-kicker">Campaign</div><h3>${h(playerCampaignLabel(d))}</h3><p>Campaign context will be attached when launched from a campaign.</p></div>`;
+  }
   if (!state.campaigns.length) return `<div class="vault-full vault-muted">No campaigns available. Your DM can assign this character later.</div>`;
   return selectField("Campaign", "campaign_id", d.campaign_id || "", ["", ...state.campaigns.map((c) => String(c.id))]);
+}
+
+function playerIdentityHtml() {
+  return `<div class="vault-card vault-full"><div class="vault-kicker">Player</div><h3>${h(playerDisplayName())}</h3><p>Ownership is taken from your player login.</p></div>`;
+}
+
+function playerDisplayName() {
+  return state.currentPlayer?.display_name || state.currentPlayer?.player_name || state.currentPlayer?.username || "Website Player";
+}
+
+function playerCampaignLabel(d) {
+  if (state.campaign?.name) return state.campaign.name;
+  if (d.campaign_id) return `Campaign #${d.campaign_id}`;
+  return "DRG";
 }
 
 function equipmentManager() {
@@ -1017,9 +1046,6 @@ async function saveDraft(navigate = true) {
 
 function characterSavePayload(d) {
   const payload = {
-    owner_name: d.owner_name,
-    email: d.email,
-    discord_user_id: d.discord_user_id,
     name: d.name,
     race: d.race,
     class_name: d.class_name,
@@ -1041,8 +1067,16 @@ function characterSavePayload(d) {
       current_hp: Number(d.combat?.current_hp || d.combat?.max_hp || 1),
     },
   };
-  if (!isPlayerCharacterMode() && d.user_id) payload.user_id = Number(d.user_id);
-  if (d.campaign_id) payload.campaign_id = Number(d.campaign_id);
+  if (isPlayerCharacterMode()) {
+    const campaignId = campaignIdParam() || state.campaign?.id || d.campaign_id;
+    if (campaignId) payload.campaign_id = Number(campaignId);
+  } else {
+    payload.owner_name = d.owner_name;
+    payload.email = d.email;
+    payload.discord_user_id = d.discord_user_id;
+    if (d.user_id) payload.user_id = Number(d.user_id);
+    if (d.campaign_id) payload.campaign_id = Number(d.campaign_id);
+  }
   if (!payload.name) payload.name = "Unnamed Adventurer";
   return payload;
 }
