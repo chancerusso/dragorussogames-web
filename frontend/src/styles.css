@@ -424,27 +424,126 @@ dd {
   margin-bottom: 18px;
 }
 
+.campaign-workspace {
+  display: grid;
+  gap: 18px;
+}
+
+.workspace-header {
+  background:
+    linear-gradient(120deg, rgba(44, 31, 17, 0.76), rgba(13, 11, 8, 0.94)),
+    #11100d;
+  border: 1px solid rgba(114, 86, 43, 0.52);
+  border-radius: 8px;
+  margin-bottom: 0;
+  padding: 22px;
+}
+
+.workspace-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.workspace-meta span {
+  background: rgba(12, 10, 8, 0.72);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: #ded2c1;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 7px 10px;
+}
+
 .tabs {
   border-bottom: 1px solid var(--line);
   display: flex;
   gap: 6px;
-  margin-bottom: 20px;
+  margin-bottom: 2px;
   overflow-x: auto;
 }
 
-.tabs a {
+.tabs a,
+.tabs button {
+  background: transparent;
   border: 1px solid transparent;
   border-radius: 6px 6px 0 0;
   color: var(--muted);
+  cursor: pointer;
   font-size: 0.9rem;
+  font-weight: 800;
+  min-height: 38px;
   padding: 10px 14px;
   white-space: nowrap;
 }
 
-.tabs a.active {
+.tabs a.active,
+.tabs button.active {
   background: var(--panel);
   border-color: var(--line);
+  border-bottom-color: var(--panel);
   color: var(--text);
+}
+
+.workspace-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+}
+
+.workspace-panel {
+  padding: 18px;
+}
+
+.workspace-panel h2,
+.form-heading h2,
+.notes-placeholder h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.detail-list {
+  margin: 18px 0 0;
+}
+
+.detail-list,
+.compact-stats {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.compact-stats {
+  margin-bottom: 16px;
+}
+
+.notes-box {
+  background: rgba(67, 45, 16, 0.18);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.notes-box strong {
+  color: var(--gold-2);
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+}
+
+.notes-box p {
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.workspace-form,
+.settings-form {
+  margin-bottom: 4px;
+}
+
+.form-heading {
+  margin-bottom: 2px;
 }
 
 .form-grid {

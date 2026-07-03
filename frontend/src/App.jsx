@@ -349,146 +349,151 @@ function CampaignCardGrid({ campaigns }) {
   );
 }
 
-function CampaignTabs({ id }) {
+const WORKSPACE_TABS = [
+  ["overview", "Overview"],
+  ["players", "Players"],
+  ["characters", "Characters"],
+  ["session-notes", "Session Notes"],
+  ["journal", "Journal"],
+  ["npcs", "NPCs"],
+  ["treasure", "Treasure"],
+  ["handouts", "Handouts"],
+  ["settings", "Settings"],
+];
+
+function CampaignTabs({ activeTab, onChange }) {
   return (
     <nav className="tabs">
-      <NavLink end to={`/campaigns/${id}`}>Overview</NavLink>
-      <NavLink to={`/campaigns/${id}/players`}>Players</NavLink>
-      <NavLink to={`/campaigns/${id}/characters`}>Characters</NavLink>
-      <NavLink to={`/campaigns/${id}/notes`}>Notes</NavLink>
+      {WORKSPACE_TABS.map(([key, label]) => (
+        <button key={key} className={activeTab === key ? "active" : ""} onClick={() => onChange(key)} type="button">
+          {label}
+        </button>
+      ))}
     </nav>
   );
 }
 
-function CampaignPage() {
+function CampaignWorkspace({ initialTab = "overview" }) {
   const { id } = useParams();
   const { data: campaign, error, loading, reload } = useLoad(() => api(`/1e/campaigns/${id}`), [id]);
-  const [saving, setSaving] = useState(false);
-  const [archiving, setArchiving] = useState(false);
+  const { data: players, reload: reloadPlayers } = useLoad(() => api("/1e/players"), []);
+  const { data: allCharacters } = useLoad(() => api("/1e/characters?include_archived=true"), []);
+  const [activeTab, setActiveTab] = useState(initialTab);
+  const [workspaceError, setWorkspaceError] = useState("");
 
-  async function save(event) {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    setSaving(true);
-    try {
-      await api(`/1e/campaigns/${id}`, {
-        method: "PUT",
-        body: JSON.stringify(Object.fromEntries(form.entries())),
-      });
-      await reload();
-    } finally {
-      setSaving(false);
-    }
-  }
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab, id]);
 
-  async function archiveCampaign() {
-    setArchiving(true);
-    try {
-      await api(`/1e/campaigns/${id}`, { method: "DELETE" });
-      await reload();
-    } finally {
-      setArchiving(false);
-    }
+  async function refreshWorkspace() {
+    await reload();
+    if (reloadPlayers) await reloadPlayers();
   }
 
   if (loading || error || !campaign) return <PageState loading={loading} error={error} />;
   return (
-    <section>
-      <CampaignHeader campaign={campaign} id={id} eyebrow="Campaign Workspace" />
-      <div className="stats-row">
-        <Stat label="Players" value={campaign.player_count || campaign.players?.length || 0} />
-        <Stat label="Characters" value={campaign.character_count || campaign.characters?.length || 0} />
-        <Stat label="Active PCs" value={campaign.active_characters?.length || 0} />
-        <Stat label="Next Session" value={displayDate(campaign.next_session_date)} />
-      </div>
-      <form className="panel form-grid" onSubmit={save}>
-        <label>Name<input name="name" defaultValue={campaign.name} required /></label>
-        <label>Setting
-          <select name="setting" defaultValue={campaign.setting || "greyhawk"}>
-            {SETTINGS.map((setting) => <option key={setting} value={setting}>{titleCase(setting)}</option>)}
-          </select>
-        </label>
-        <label>Schedule<input name="schedule" defaultValue={campaign.schedule || ""} placeholder="Weekly Sundays, 7 PM" /></label>
-        <label>Next Session<input name="next_session_date" type="date" defaultValue={campaign.next_session_date || ""} /></label>
-        <label>Session #<input name="session_number" type="number" min="1" defaultValue={campaign.session_number || 1} /></label>
-        <label>Campaign Day<input name="current_campaign_day" type="number" min="1" defaultValue={campaign.current_campaign_day || 1} /></label>
-        <label>Default Location<input name="default_location" defaultValue={campaign.default_location || "Town"} /></label>
-        <label>Status
-          <select name="status" defaultValue={campaign.status}>
-            <option>active</option>
-            <option>paused</option>
-            <option>archived</option>
-          </select>
-        </label>
-        <label className="wide">Overview Notes<textarea name="description" defaultValue={campaign.description || ""} /></label>
-        <div className="form-actions wide">
-          <button disabled={saving}>{saving ? "Saving..." : "Save Campaign"}</button>
-          <button className="danger-button" type="button" disabled={archiving || campaign.status === "archived"} onClick={archiveCampaign}>
-            {campaign.status === "archived" ? "Archived" : archiving ? "Archiving..." : "Archive Campaign"}
-          </button>
-        </div>
-      </form>
+    <section className="campaign-workspace">
+      <CampaignHeader campaign={campaign} eyebrow="Campaign Workspace" />
+      <CampaignTabs activeTab={activeTab} onChange={setActiveTab} />
+      {workspaceError ? <p className="error">{workspaceError}</p> : null}
+      {activeTab === "overview" ? <CampaignOverviewTab campaign={campaign} /> : null}
+      {activeTab === "players" ? (
+        <CampaignPlayersTab
+          campaign={campaign}
+          players={players || []}
+          onError={setWorkspaceError}
+          onReload={refreshWorkspace}
+        />
+      ) : null}
+      {activeTab === "characters" ? (
+        <CampaignCharactersTab
+          campaign={campaign}
+          allCharacters={allCharacters || []}
+          onError={setWorkspaceError}
+          onReload={reload}
+        />
+      ) : null}
+      {activeTab === "session-notes" ? <PlaceholderPanel title="Session Notes" copy="Session prep, recap, and table notes will live here in the next pass." /> : null}
+      {activeTab === "journal" ? <PlaceholderPanel title="Journal" copy="Campaign chronology and adventure logs will live here." /> : null}
+      {activeTab === "npcs" ? <PlaceholderPanel title="NPCs" copy="Important contacts, rivals, factions, and hirelings will live here." /> : null}
+      {activeTab === "treasure" ? <PlaceholderPanel title="Treasure" copy="Party treasure, claims, and discovered hoards will live here." /> : null}
+      {activeTab === "handouts" ? <PlaceholderPanel title="Handouts" copy="Maps, letters, clues, and player-facing files will live here." /> : null}
+      {activeTab === "settings" ? <CampaignSettingsTab campaign={campaign} onError={setWorkspaceError} onReload={reload} /> : null}
     </section>
   );
 }
 
-function CampaignPlayersPage() {
-  const { id } = useParams();
-  const { data: campaign, error, loading, reload } = useLoad(() => api(`/1e/campaigns/${id}`), [id]);
-  const { data: players, reload: reloadPlayers } = useLoad(() => api("/1e/players"), []);
-  const [createForm, setCreateForm] = useState({ display_name: "", email: "", discord_user_id: "", role: "player", status: "active" });
+function CampaignOverviewTab({ campaign }) {
+  return (
+    <div className="workspace-grid">
+      <section className="panel workspace-panel">
+        <p className="eyebrow">Overview</p>
+        <h2>{campaign.name}</h2>
+        <dl className="detail-list">
+          <div><dt>Setting</dt><dd>{titleCase(campaign.setting || "greyhawk")}</dd></div>
+          <div><dt>Status</dt><dd>{campaign.status || "active"}</dd></div>
+          <div><dt>Schedule</dt><dd>{campaign.schedule || "Unscheduled"}</dd></div>
+          <div><dt>Next Session</dt><dd>{displayDate(campaign.next_session_date)}</dd></div>
+          <div><dt>Session Number</dt><dd>#{campaign.session_number || 1}</dd></div>
+          <div><dt>Campaign Day</dt><dd>{campaign.current_campaign_day || 1}</dd></div>
+        </dl>
+      </section>
+      <section className="panel workspace-panel">
+        <p className="eyebrow">Table State</p>
+        <div className="stats-row compact-stats">
+          <Stat label="Players" value={campaign.player_count || campaign.players?.length || 0} />
+          <Stat label="Characters" value={campaign.character_count || campaign.characters?.length || 0} />
+          <Stat label="Active PCs" value={campaign.active_characters?.length || 0} />
+        </div>
+        <div className="notes-box">
+          <strong>Notes</strong>
+          <p>{campaign.description || "No campaign notes yet."}</p>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function CampaignPlayersTab({ campaign, players, onError, onReload }) {
   const [assignForm, setAssignForm] = useState({ user_id: "", role: "player" });
-
-  async function createPlayer(event) {
-    event.preventDefault();
-    await api("/1e/players", { method: "POST", body: JSON.stringify(createForm) });
-    setCreateForm({ display_name: "", email: "", discord_user_id: "", role: "player", status: "active" });
-    await reloadPlayers();
-  }
-
-  async function updatePlayer(player, patch) {
-    await api(`/1e/players/${player.id}`, { method: "PUT", body: JSON.stringify({ ...player, ...patch }) });
-    await reloadPlayers();
-    await reload();
-  }
 
   async function assignPlayer(event) {
     event.preventDefault();
     if (!assignForm.user_id) return;
-    await api(`/1e/campaigns/${id}/players`, {
-      method: "POST",
-      body: JSON.stringify({ user_id: Number(assignForm.user_id), role: assignForm.role }),
-    });
-    setAssignForm({ user_id: "", role: "player" });
-    await reload();
+    onError("");
+    try {
+      await api(`/1e/campaigns/${campaign.id}/players`, {
+        method: "POST",
+        body: JSON.stringify({ user_id: Number(assignForm.user_id), role: assignForm.role }),
+      });
+      setAssignForm({ user_id: "", role: "player" });
+      await onReload();
+    } catch (err) {
+      onError(err.message);
+    }
   }
 
   async function removePlayer(userId) {
-    await api(`/1e/campaigns/${id}/players/${userId}`, { method: "DELETE" });
-    await reload();
+    onError("");
+    try {
+      await api(`/1e/campaigns/${campaign.id}/players/${userId}`, { method: "DELETE" });
+      await onReload();
+    } catch (err) {
+      onError(err.message);
+    }
   }
 
-  if (loading || error || !campaign) return <PageState loading={loading} error={error} />;
   const members = campaign.players || [];
   const memberIds = new Set(members.map((entry) => entry.user_id));
-  const availablePlayers = (players || []).filter((player) => !memberIds.has(player.id));
+  const availablePlayers = players.filter((player) => !memberIds.has(player.id));
 
   return (
-    <section>
-      <CampaignHeader campaign={campaign} id={id} eyebrow="Campaign Players" />
-
-      <div className="two-column">
-        <form className="panel form-grid single-column" onSubmit={createPlayer}>
-          <h2 className="panel-title wide">Create Player</h2>
-          <label>Display Name<input value={createForm.display_name} onChange={(event) => setCreateForm({ ...createForm, display_name: event.target.value })} required /></label>
-          <label>Email<input type="email" value={createForm.email} onChange={(event) => setCreateForm({ ...createForm, email: event.target.value })} /></label>
-          <label>Discord User ID<input value={createForm.discord_user_id} onChange={(event) => setCreateForm({ ...createForm, discord_user_id: event.target.value })} /></label>
-          <label>Role<select value={createForm.role} onChange={(event) => setCreateForm({ ...createForm, role: event.target.value })}><option>player</option><option>dm</option><option>admin</option></select></label>
-          <button>Create Player</button>
-        </form>
-
-        <form className="panel form-grid single-column" onSubmit={assignPlayer}>
-          <h2 className="panel-title wide">Assign Existing Player</h2>
+    <>
+      <form className="panel form-grid compact workspace-form" onSubmit={assignPlayer}>
+        <div className="form-heading wide">
+          <p className="eyebrow">Roster</p>
+          <h2>Assign Existing Player</h2>
+        </div>
           <label>Player
             <select value={assignForm.user_id} onChange={(event) => setAssignForm({ ...assignForm, user_id: event.target.value })}>
               <option value="">Choose a player...</option>
@@ -503,8 +508,7 @@ function CampaignPlayersPage() {
             </select>
           </label>
           <button>Assign Player</button>
-        </form>
-      </div>
+      </form>
 
       <h2 className="section-title">Campaign Members</h2>
       <DataTable
@@ -514,56 +518,53 @@ function CampaignPlayersPage() {
           return [
             player.display_name || player.player_name || `Player ${entry.user_id}`,
             player.email || "-",
-            <button className={`status-toggle ${player.status || "active"}`} onClick={() => updatePlayer(player, { status: player.status === "inactive" ? "active" : "inactive" })}>{player.status || "active"}</button>,
+            player.status || "active",
             entry.role,
             player.role || "player",
             <button className="table-button" onClick={() => removePlayer(entry.user_id)}>Unassign</button>,
           ];
         })}
       />
-
-      <h2 className="section-title">All Players</h2>
-      <DataTable
-        columns={["Name", "Email", "Discord", "Role", "Status"]}
-        rows={(players || []).map((player) => [
-          <InlineText value={player.display_name || player.player_name} onSave={(value) => updatePlayer(player, { display_name: value, player_name: value })} />,
-          <InlineText value={player.email || ""} placeholder="No email" onSave={(value) => updatePlayer(player, { email: value })} />,
-          player.discord_user_id || "-",
-          <InlineSelect value={player.role || "player"} options={["player", "dm", "admin"]} onSave={(value) => updatePlayer(player, { role: value })} />,
-          <button className={`status-toggle ${player.status || "active"}`} onClick={() => updatePlayer(player, { status: player.status === "inactive" ? "active" : "inactive" })}>{player.status || "active"}</button>,
-        ])}
-      />
-    </section>
+    </>
   );
 }
 
-function CampaignCharactersPage() {
-  const { id } = useParams();
-  const { data: campaign, error, loading, reload } = useLoad(() => api(`/1e/campaigns/${id}`), [id]);
-  const { data: allCharacters } = useLoad(() => api("/1e/characters?include_archived=true"), []);
+function CampaignCharactersTab({ campaign, allCharacters, onError, onReload }) {
   const [characterId, setCharacterId] = useState("");
 
   async function assign(event) {
     event.preventDefault();
     if (!characterId) return;
-    await api(`/1e/campaigns/${id}/characters/${characterId}`, { method: "POST" });
-    setCharacterId("");
-    await reload();
+    onError("");
+    try {
+      await api(`/1e/campaigns/${campaign.id}/characters/${characterId}`, { method: "POST" });
+      setCharacterId("");
+      await onReload();
+    } catch (err) {
+      onError(err.message);
+    }
   }
 
   async function remove(characterIdToRemove) {
-    await api(`/1e/campaigns/${id}/characters/${characterIdToRemove}`, { method: "DELETE" });
-    await reload();
+    onError("");
+    try {
+      await api(`/1e/campaigns/${campaign.id}/characters/${characterIdToRemove}`, { method: "DELETE" });
+      await onReload();
+    } catch (err) {
+      onError(err.message);
+    }
   }
 
-  if (loading || error || !campaign) return <PageState loading={loading} error={error} />;
   const assignedIds = new Set((campaign.characters || []).map((character) => character.id));
-  const available = (allCharacters || []).filter((character) => !assignedIds.has(character.id));
+  const available = allCharacters.filter((character) => !assignedIds.has(character.id));
 
   return (
-    <section>
-      <CampaignHeader campaign={campaign} id={id} eyebrow="Campaign Characters" />
-      <form className="panel form-grid compact" onSubmit={assign}>
+    <>
+      <form className="panel form-grid compact workspace-form" onSubmit={assign}>
+        <div className="form-heading wide">
+          <p className="eyebrow">Vault</p>
+          <h2>Assign Existing Character</h2>
+        </div>
         <label className="wide">Assign Existing Character
           <select value={characterId} onChange={(event) => setCharacterId(event.target.value)}>
             <option value="">Choose a character...</option>
@@ -572,6 +573,7 @@ function CampaignCharactersPage() {
         </label>
         <button>Assign</button>
       </form>
+      <h2 className="section-title">Campaign Characters</h2>
       <DataTable
         columns={["Name", "Owner", "Race", "Class", "Level", "Status", "Location", "Actions"]}
         rows={(campaign.characters || []).map((character) => [
@@ -589,23 +591,86 @@ function CampaignCharactersPage() {
           </div>,
         ])}
       />
-    </section>
+    </>
   );
 }
 
-function CampaignNotesPage() {
-  const { id } = useParams();
-  const { data: campaign, error, loading } = useLoad(() => api(`/1e/campaigns/${id}`), [id]);
-  if (loading || error || !campaign) return <PageState loading={loading} error={error} />;
+function CampaignSettingsTab({ campaign, onError, onReload }) {
+  const [saving, setSaving] = useState(false);
+  const [archiving, setArchiving] = useState(false);
+
+  async function save(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    onError("");
+    setSaving(true);
+    try {
+      await api(`/1e/campaigns/${campaign.id}`, {
+        method: "PUT",
+        body: JSON.stringify(Object.fromEntries(form.entries())),
+      });
+      await onReload();
+    } catch (err) {
+      onError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function archiveCampaign() {
+    onError("");
+    setArchiving(true);
+    try {
+      await api(`/1e/campaigns/${campaign.id}`, { method: "DELETE" });
+      await onReload();
+    } catch (err) {
+      onError(err.message);
+    } finally {
+      setArchiving(false);
+    }
+  }
+
   return (
-    <section>
-      <CampaignHeader campaign={campaign} id={id} eyebrow="Campaign Notes" />
-      <div className="panel notes-placeholder">
-        <p className="eyebrow">Placeholder</p>
-        <h2>Notes are coming next.</h2>
-        <p>Use the campaign overview notes for now. Session logs, secrets, factions, and treasure records will get dedicated tools later.</p>
+    <form className="panel form-grid settings-form" onSubmit={save}>
+      <div className="form-heading wide">
+        <p className="eyebrow">Campaign Settings</p>
+        <h2>Edit Metadata</h2>
       </div>
-    </section>
+      <label className="wide primary-field">Campaign Name<input name="name" defaultValue={campaign.name} required /></label>
+      <label>Setting
+        <select name="setting" defaultValue={campaign.setting || "greyhawk"}>
+          {SETTINGS.map((setting) => <option key={setting} value={setting}>{titleCase(setting)}</option>)}
+        </select>
+      </label>
+      <label>Status
+        <select name="status" defaultValue={campaign.status}>
+          <option>active</option>
+          <option>paused</option>
+          <option>archived</option>
+        </select>
+      </label>
+      <label>Schedule<input name="schedule" defaultValue={campaign.schedule || ""} placeholder="Weekly Sundays, 7 PM" /></label>
+      <label>Next Session<input name="next_session_date" type="date" defaultValue={campaign.next_session_date || ""} /></label>
+      <label>Session #<input name="session_number" type="number" min="1" defaultValue={campaign.session_number || 1} /></label>
+      <label>Campaign Day<input name="current_campaign_day" type="number" min="1" defaultValue={campaign.current_campaign_day || 1} /></label>
+      <label className="wide">Overview Notes<textarea name="description" defaultValue={campaign.description || ""} /></label>
+      <div className="form-actions wide">
+        <button disabled={saving}>{saving ? "Saving..." : "Save Campaign"}</button>
+        <button className="danger-button" type="button" disabled={archiving || campaign.status === "archived"} onClick={archiveCampaign}>
+          {campaign.status === "archived" ? "Archived" : archiving ? "Archiving..." : "Archive Campaign"}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function PlaceholderPanel({ title, copy }) {
+  return (
+    <div className="panel notes-placeholder">
+      <p className="eyebrow">Placeholder</p>
+      <h2>{title}</h2>
+      <p>{copy}</p>
+    </div>
   );
 }
 
@@ -700,19 +765,21 @@ function PlainHeader({ eyebrow, title, copy }) {
   );
 }
 
-function CampaignHeader({ campaign, id, eyebrow }) {
+function CampaignHeader({ campaign, eyebrow }) {
   return (
-    <>
-      <header className="page-header">
+      <header className="page-header workspace-header">
         <div>
           <p className="eyebrow">{eyebrow}</p>
           <h1>{campaign.name}</h1>
-          <p className="lede">{titleCase(campaign.setting || "greyhawk")} | Session #{campaign.session_number || 1} | Day {campaign.current_campaign_day || 1}</p>
+          <div className="workspace-meta">
+            <span>{titleCase(campaign.setting || "greyhawk")}</span>
+            <span>Next: {displayDate(campaign.next_session_date)}</span>
+            <span>Session #{campaign.session_number || 1}</span>
+            <span>{campaign.schedule || "Schedule TBD"}</span>
+          </div>
         </div>
         <Link className="secondary-button" to="/campaigns">All Campaigns</Link>
       </header>
-      <CampaignTabs id={id} />
-    </>
   );
 }
 
@@ -765,10 +832,10 @@ export default function App() {
         <Route element={<Protected><Shell /></Protected>}>
           <Route path="/" element={<Navigate to="/campaigns" replace />} />
           <Route path="/campaigns" element={<CampaignsPage />} />
-          <Route path="/campaigns/:id" element={<CampaignPage />} />
-          <Route path="/campaigns/:id/players" element={<CampaignPlayersPage />} />
-          <Route path="/campaigns/:id/characters" element={<CampaignCharactersPage />} />
-          <Route path="/campaigns/:id/notes" element={<CampaignNotesPage />} />
+          <Route path="/campaigns/:id" element={<CampaignWorkspace />} />
+          <Route path="/campaigns/:id/players" element={<CampaignWorkspace initialTab="players" />} />
+          <Route path="/campaigns/:id/characters" element={<CampaignWorkspace initialTab="characters" />} />
+          <Route path="/campaigns/:id/notes" element={<CampaignWorkspace initialTab="session-notes" />} />
           <Route path="/players" element={<PlayersPage />} />
           <Route path="/characters" element={<CharactersPage />} />
           <Route path="/sessions" element={<Navigate to="/campaigns" replace />} />
