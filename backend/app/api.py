@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.auth import create_admin_token, require_admin, validate_admin_password
+from app.auth import create_admin_token, require_admin as require_jwt_admin, validate_admin_password
 from app.config import settings
 from app.db.models import (
     AuditLog,
@@ -75,7 +75,7 @@ from app.services.expedition import (
     get_store,
     get_tracker,
     order_payload,
-    require_admin,
+    require_admin as require_expedition_admin,
     start_tracker,
     tracker_payload,
     update_tracker,
@@ -542,7 +542,7 @@ def admin_logout(response: Response) -> dict:
 
 
 @router.get("/auth/me")
-def admin_me(admin: dict = Depends(require_admin)) -> dict:
+def admin_me(admin: dict = Depends(require_jwt_admin)) -> dict:
     return {"role": admin["role"], "display_name": "Admin", "expires_at": admin["exp"]}
 
 
@@ -552,13 +552,13 @@ def vault_rules_data() -> dict:
 
 
 @router.get("/1e/players")
-def list_vault_players(_: dict = Depends(require_admin), db: Session = Depends(get_db)) -> list[dict]:
+def list_vault_players(_: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> list[dict]:
     players = db.scalars(select(Player).order_by(Player.display_name, Player.player_name)).all()
     return [player_payload(player) for player in players]
 
 
 @router.post("/1e/players")
-def create_vault_player(data: dict, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def create_vault_player(data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     role = validate_player_role(data.get("role") or "player")
     status = validate_player_status(data.get("status") or "active")
     display_name = data.get("display_name") or data.get("player_name")
@@ -593,12 +593,12 @@ def create_vault_player(data: dict, _: dict = Depends(require_admin), db: Sessio
 
 
 @router.get("/1e/players/{user_id}")
-def get_vault_player(user_id: int, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def get_vault_player(user_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     return player_payload(get_player_or_404(db, user_id))
 
 
 @router.put("/1e/players/{user_id}")
-def update_vault_player(user_id: int, data: dict, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def update_vault_player(user_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     player = get_player_or_404(db, user_id)
     for field in ("display_name", "player_name", "email", "discord_user_id"):
         if field in data:
@@ -652,7 +652,7 @@ def list_vault_equipment(
 
 
 @router.post("/1e/equipment")
-def create_vault_equipment(data: dict, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def create_vault_equipment(data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     item = EquipmentCatalog(
         name=data["name"],
         type=data.get("type", "other"),
@@ -682,7 +682,7 @@ def create_vault_equipment(data: dict, _: dict = Depends(require_admin), db: Ses
 
 
 @router.put("/1e/equipment/{equipment_id}")
-def update_vault_equipment(equipment_id: int, data: dict, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def update_vault_equipment(equipment_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     item = db.get(EquipmentCatalog, equipment_id)
     if item is None:
         raise HTTPException(status_code=404, detail="Equipment not found.")
@@ -716,7 +716,7 @@ def update_vault_equipment(equipment_id: int, data: dict, _: dict = Depends(requ
 
 
 @router.delete("/1e/equipment/{equipment_id}")
-def delete_vault_equipment(equipment_id: int, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def delete_vault_equipment(equipment_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     item = db.get(EquipmentCatalog, equipment_id)
     if item is None:
         raise HTTPException(status_code=404, detail="Equipment not found.")
@@ -747,7 +747,7 @@ def list_vault_spells(
 
 
 @router.get("/1e/campaigns")
-def list_vault_campaigns(include_archived: bool = False, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> list[dict]:
+def list_vault_campaigns(include_archived: bool = False, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> list[dict]:
     statement = select(Campaign).order_by(Campaign.name)
     if not include_archived:
         statement = statement.where(Campaign.status != "archived")
@@ -761,7 +761,7 @@ def list_vault_campaigns(include_archived: bool = False, _: dict = Depends(requi
 
 
 @router.post("/1e/campaigns")
-def create_vault_campaign(data: dict, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def create_vault_campaign(data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     campaign = Campaign(
         name=data["name"],
         description=data.get("description"),
@@ -783,7 +783,7 @@ def create_vault_campaign(data: dict, _: dict = Depends(require_admin), db: Sess
 
 
 @router.get("/1e/campaigns/{campaign_id}")
-def get_vault_campaign(campaign_id: int, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def get_vault_campaign(campaign_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     campaign = get_campaign_or_404(db, campaign_id)
     payload = campaign_payload(campaign)
     payload.update(campaign_counts(db, campaign.id))
@@ -807,7 +807,7 @@ def get_vault_campaign(campaign_id: int, _: dict = Depends(require_admin), db: S
 
 
 @router.put("/1e/campaigns/{campaign_id}")
-def update_vault_campaign(campaign_id: int, data: dict, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def update_vault_campaign(campaign_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     campaign = db.get(Campaign, campaign_id)
     if campaign is None:
         raise HTTPException(status_code=404, detail="Campaign not found.")
@@ -828,7 +828,7 @@ def update_vault_campaign(campaign_id: int, data: dict, _: dict = Depends(requir
 
 
 @router.delete("/1e/campaigns/{campaign_id}")
-def delete_vault_campaign(campaign_id: int, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def delete_vault_campaign(campaign_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     campaign = get_campaign_or_404(db, campaign_id)
     campaign.status = "archived"
     db.commit()
@@ -836,7 +836,7 @@ def delete_vault_campaign(campaign_id: int, _: dict = Depends(require_admin), db
 
 
 @router.post("/1e/campaigns/{campaign_id}/players")
-def add_vault_campaign_player(campaign_id: int, data: dict, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def add_vault_campaign_player(campaign_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     campaign = get_campaign_or_404(db, campaign_id)
     user_id = data.get("user_id")
     if not user_id:
@@ -862,7 +862,7 @@ def add_vault_campaign_player(campaign_id: int, data: dict, _: dict = Depends(re
 
 
 @router.delete("/1e/campaigns/{campaign_id}/players/{user_id}")
-def remove_vault_campaign_player(campaign_id: int, user_id: int, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def remove_vault_campaign_player(campaign_id: int, user_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     membership = db.get(CampaignPlayer, (campaign_id, user_id))
     if membership is None:
         raise HTTPException(status_code=404, detail="Campaign player not found.")
@@ -872,7 +872,7 @@ def remove_vault_campaign_player(campaign_id: int, user_id: int, _: dict = Depen
 
 
 @router.post("/1e/campaigns/{campaign_id}/characters/{character_id}")
-def assign_vault_character_to_campaign(campaign_id: int, character_id: int, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def assign_vault_character_to_campaign(campaign_id: int, character_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     campaign = get_campaign_or_404(db, campaign_id)
     character = get_vault_character_or_404(db, character_id)
     character.campaign_id = campaign.id
@@ -884,7 +884,7 @@ def assign_vault_character_to_campaign(campaign_id: int, character_id: int, _: d
 
 
 @router.delete("/1e/campaigns/{campaign_id}/characters/{character_id}")
-def unassign_vault_character_from_campaign(campaign_id: int, character_id: int, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def unassign_vault_character_from_campaign(campaign_id: int, character_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     character = get_vault_character_or_404(db, character_id)
     if character.campaign_id != campaign_id:
         raise HTTPException(status_code=404, detail="Character is not assigned to that campaign.")
@@ -895,7 +895,7 @@ def unassign_vault_character_from_campaign(campaign_id: int, character_id: int, 
 
 
 @router.get("/1e/campaigns/{campaign_id}/safe-storage")
-def list_vault_safe_storage(campaign_id: int, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> list[dict]:
+def list_vault_safe_storage(campaign_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> list[dict]:
     get_campaign_or_404(db, campaign_id)
     stored_items = stored_items_for_campaign(db, campaign_id)
     locations = db.scalars(select(SafeStorageLocation).where(SafeStorageLocation.campaign_id == campaign_id, SafeStorageLocation.status != "archived").order_by(SafeStorageLocation.name)).all()
@@ -903,7 +903,7 @@ def list_vault_safe_storage(campaign_id: int, _: dict = Depends(require_admin), 
 
 
 @router.post("/1e/campaigns/{campaign_id}/safe-storage")
-def create_vault_safe_storage(campaign_id: int, data: dict, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def create_vault_safe_storage(campaign_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     campaign = get_campaign_or_404(db, campaign_id)
     name = data.get("name")
     if not name:
@@ -923,7 +923,7 @@ def create_vault_safe_storage(campaign_id: int, data: dict, _: dict = Depends(re
 
 
 @router.put("/1e/campaigns/{campaign_id}/safe-storage/{location_id}")
-def update_vault_safe_storage(campaign_id: int, location_id: int, data: dict, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def update_vault_safe_storage(campaign_id: int, location_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     location = db.get(SafeStorageLocation, location_id)
     if location is None or location.campaign_id != campaign_id:
         raise HTTPException(status_code=404, detail="Safe storage location not found.")
@@ -936,7 +936,7 @@ def update_vault_safe_storage(campaign_id: int, location_id: int, data: dict, _:
 
 
 @router.delete("/1e/campaigns/{campaign_id}/safe-storage/{location_id}")
-def archive_vault_safe_storage(campaign_id: int, location_id: int, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def archive_vault_safe_storage(campaign_id: int, location_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     location = db.get(SafeStorageLocation, location_id)
     if location is None or location.campaign_id != campaign_id:
         raise HTTPException(status_code=404, detail="Safe storage location not found.")
@@ -946,7 +946,7 @@ def archive_vault_safe_storage(campaign_id: int, location_id: int, _: dict = Dep
 
 
 @router.get("/1e/characters")
-def list_vault_characters(user_id: Optional[int] = None, include_archived: bool = False, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> list[dict]:
+def list_vault_characters(user_id: Optional[int] = None, include_archived: bool = False, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> list[dict]:
     statement = select(VaultCharacter).where(VaultCharacter.status != "archived").order_by(VaultCharacter.updated_at.desc())
     if include_archived:
         statement = select(VaultCharacter).order_by(VaultCharacter.updated_at.desc())
@@ -956,7 +956,7 @@ def list_vault_characters(user_id: Optional[int] = None, include_archived: bool 
 
 
 @router.post("/1e/characters")
-def create_vault_character(data: dict, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def create_vault_character(data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     ensure_vault_seeded(db)
     validate_character_choice(data)
     player = apply_player_fields(get_or_create_vault_player(db, data.get("owner_name") or data.get("display_name") or data.get("player_name"), data.get("user_id")), data)
@@ -1009,12 +1009,12 @@ def create_vault_character(data: dict, _: dict = Depends(require_admin), db: Ses
 
 
 @router.get("/1e/characters/{character_id}")
-def get_vault_character(character_id: int, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def get_vault_character(character_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     return character_payload(get_vault_character_or_404(db, character_id))
 
 
 @router.put("/1e/characters/{character_id}")
-def update_vault_character(character_id: int, data: dict, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def update_vault_character(character_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     character = get_vault_character_or_404(db, character_id)
     validate_character_choice(data)
     old_level = character.level
@@ -1060,7 +1060,7 @@ def update_vault_character(character_id: int, data: dict, _: dict = Depends(requ
 
 
 @router.delete("/1e/characters/{character_id}")
-def delete_vault_character(character_id: int, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def delete_vault_character(character_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     character = get_vault_character_or_404(db, character_id)
     character.status = "archived"
     db.commit()
@@ -1068,7 +1068,7 @@ def delete_vault_character(character_id: int, _: dict = Depends(require_admin), 
 
 
 @router.post("/1e/characters/{character_id}/inventory")
-def add_vault_inventory(character_id: int, data: dict, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def add_vault_inventory(character_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     character = get_vault_character_or_404(db, character_id)
     equipment = db.get(EquipmentCatalog, int(data["equipment_id"]))
     if equipment is None:
@@ -1098,7 +1098,7 @@ def add_vault_inventory(character_id: int, data: dict, _: dict = Depends(require
 
 
 @router.put("/1e/characters/{character_id}/inventory/{inventory_id}")
-def update_vault_inventory(character_id: int, inventory_id: int, data: dict, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def update_vault_inventory(character_id: int, inventory_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     character = get_vault_character_or_404(db, character_id)
     item = db.get(CharacterInventory, inventory_id)
     if item is None or item.character_id != character.id:
@@ -1118,7 +1118,7 @@ def update_vault_inventory(character_id: int, inventory_id: int, data: dict, _: 
 
 
 @router.delete("/1e/characters/{character_id}/inventory/{inventory_id}")
-def delete_vault_inventory(character_id: int, inventory_id: int, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def delete_vault_inventory(character_id: int, inventory_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     character = get_vault_character_or_404(db, character_id)
     item = db.get(CharacterInventory, inventory_id)
     if item is None or item.character_id != character.id:
@@ -1132,7 +1132,7 @@ def delete_vault_inventory(character_id: int, inventory_id: int, _: dict = Depen
 
 
 @router.post("/1e/characters/{character_id}/spells")
-def add_vault_character_spell(character_id: int, data: dict, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def add_vault_character_spell(character_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     character = get_vault_character_or_404(db, character_id)
     spell = db.get(SpellsCatalog, int(data["spell_id"]))
     if spell is None:
@@ -1162,7 +1162,7 @@ def add_vault_character_spell(character_id: int, data: dict, _: dict = Depends(r
 
 
 @router.put("/1e/characters/{character_id}/spells/{character_spell_id}")
-def update_vault_character_spell(character_id: int, character_spell_id: int, data: dict, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def update_vault_character_spell(character_id: int, character_spell_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     character = get_vault_character_or_404(db, character_id)
     character_spell = db.get(CharacterSpell, character_spell_id)
     if character_spell is None or character_spell.character_id != character.id:
@@ -1185,7 +1185,7 @@ def update_vault_character_spell(character_id: int, character_spell_id: int, dat
 
 
 @router.post("/1e/characters/{character_id}/weapon-proficiencies")
-def add_vault_weapon_proficiency(character_id: int, data: dict, _: dict = Depends(require_admin), db: Session = Depends(get_db)) -> dict:
+def add_vault_weapon_proficiency(character_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     character = get_vault_character_or_404(db, character_id)
     equipment = db.get(EquipmentCatalog, int(data["equipment_id"]))
     if equipment is None or equipment.type != "weapon":
@@ -1358,7 +1358,7 @@ def unequip_equipment_route(
 
 @router.post("/tracker/start", response_model=TrackerResponse)
 def start_tracker_route(data: TrackerStartRequest, db: Session = Depends(get_db)) -> dict:
-    require_admin(data.actor_is_admin)
+    require_expedition_admin(data.actor_is_admin)
     return start_tracker(db, data.guild_id, data.channel_id, data.actor_discord_user_id, data.move_rate, data.rations, data.oil_pints, data.notes)
 
 
@@ -1369,7 +1369,7 @@ def tracker_status_route(data: TrackerScope, db: Session = Depends(get_db)) -> d
 
 @router.post("/tracker/update", response_model=TrackerResponse)
 def tracker_update_route(data: TrackerUpdateRequest, db: Session = Depends(get_db)) -> dict:
-    require_admin(data.actor_is_admin)
+    require_expedition_admin(data.actor_is_admin)
     tracker = get_tracker(db, data.guild_id, data.channel_id)
     return update_tracker(db, tracker, data.action, data.amount, data.move_rate, data.holder, data.advance_turn)
 
@@ -1377,7 +1377,7 @@ def tracker_update_route(data: TrackerUpdateRequest, db: Session = Depends(get_d
 @router.post("/order", response_model=MarchingOrderResponse)
 def marching_order_route(data: MarchingOrderRequest, db: Session = Depends(get_db)) -> dict:
     if data.positions or data.notes is not None:
-        require_admin(data.actor_is_admin)
+        require_expedition_admin(data.actor_is_admin)
         return upsert_order(db, data.guild_id, data.channel_id, data.actor_discord_user_id, data.positions, data.notes)
     return order_payload(get_order(db, data.guild_id, data.channel_id), data.guild_id, data.channel_id)
 
@@ -1385,7 +1385,7 @@ def marching_order_route(data: MarchingOrderRequest, db: Session = Depends(get_d
 @router.post("/store", response_model=GroupStoreResponse)
 def group_store_route(data: GroupStoreRequest, db: Session = Depends(get_db)) -> dict:
     if data.action != "status":
-        require_admin(data.actor_is_admin)
+        require_expedition_admin(data.actor_is_admin)
     store = get_store(db, data.guild_id, data.channel_id, data.actor_discord_user_id, data.channel_name_snapshot)
     item = data.item.model_dump() if data.item is not None else None
     return update_store(db, store, data.actor_discord_user_id, data.action, item, data.coin, data.amount, data.notes)
