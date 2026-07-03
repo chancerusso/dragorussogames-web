@@ -114,6 +114,18 @@ button:disabled {
   width: 50px;
 }
 
+.brand-wordmark {
+  align-items: center;
+  display: flex;
+  width: 150px;
+}
+
+.brand-wordmark img {
+  display: block;
+  height: auto;
+  width: 100%;
+}
+
 .brand strong {
   display: block;
   font-family: Georgia, "Times New Roman", serif;
@@ -759,6 +771,18 @@ tbody tr:hover {
   gap: 18px;
   max-width: 440px;
   padding: 32px;
+  width: 100%;
+}
+
+.dragonlance-wordmark {
+  display: grid;
+  justify-items: center;
+  margin: -8px 0 4px;
+}
+
+.dragonlance-wordmark img {
+  display: block;
+  max-width: 330px;
   width: 100%;
 }
 

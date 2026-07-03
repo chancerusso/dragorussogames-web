@@ -10,22 +10,12 @@
   <link rel="stylesheet" href="/styles/character-vault.css" />
 </head>
 <body>
-  <main class="vault-shell">
-    <section class="vault-hero">
-      <div>
-        <div class="vault-eyebrow">Dragonlance</div>
-        <h1>Opening Character Builder</h1>
-        <p>The player character builder now lives inside the player app.</p>
-      </div>
-      <div class="vault-actions">
-        <a class="vault-button" href="/characters/new" data-builder-link>Open Builder</a>
-      </div>
-    </section>
-  </main>
-  <script>
-    const target = window.location.hostname === "dragolance.dragorussogames.com" ? "/characters/new" : "/portal/characters/new";
-    document.querySelector("[data-builder-link]").href = target;
-    window.location.replace(target);
-  </script>
+  <header class="one-e-header">
+    <a class="one-e-brand" href="/1e/">Drago Russo Games <span>First Edition</span></a>
+    <nav class="one-e-topnav" data-rules-nav aria-label="First Edition navigation"></nav>
+  </header>
+  <main class="vault-shell" data-vault-app></main>
+  <script src="/components/first-edition-app.js"></script>
+  <script src="/components/character-vault.js"></script>
 </body>
 </html>

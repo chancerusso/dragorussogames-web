@@ -1,6 +1,6 @@
 const VAULT_API_BASE =
   window.DRG1E_VAULT_API_BASE ||
-  "https://russo.dragorussogames.com/api";
+  "/api";
 const API = `${VAULT_API_BASE}/1e`;
 const abilities = ["strength", "intelligence", "wisdom", "dexterity", "constitution", "charisma"];
 const abilityLabels = { strength: "STR", intelligence: "INT", wisdom: "WIS", dexterity: "DEX", constitution: "CON", charisma: "CHA" };
@@ -141,9 +141,30 @@ const fallbackDragonlanceRaces = [
   },
 ];
 const state = { characters: [], equipment: [], spells: [], campaigns: [], players: [], dragonlanceRaces: [], campaign: null, rules: null, character: null, currentPlayer: null, step: 0, draft: null, inventoryFilter: "equipped", dmOverride: false, dmCharacterFilters: { campaign_id: "", user_id: "", status: "" }, equipmentFilters: { q: "", type: "" }, editEquipmentId: null, dmCampaignTab: "overview" };
+const builderContext = detectBuilderContext();
 
 function h(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+}
+
+function detectBuilderContext() {
+  const params = new URLSearchParams(window.location.search);
+  const setting = (params.get("setting") || params.get("source") || (window.location.hostname === "dragolance.dragorussogames.com" ? "dragolance" : "osric")).toLowerCase();
+  if (setting === "dragolance" || setting === "dragonlance") {
+    return { setting: "dragolance", label: "Dragolance", selectableSources: new Set(["DRAGOLANCE"]) };
+  }
+  if (setting === "greyhawk") {
+    return { setting: "greyhawk", label: "Greyhawk", selectableSources: new Set(["OSRIC", "GREYHAWK"]) };
+  }
+  return { setting: "osric", label: "OSRIC", selectableSources: new Set(["OSRIC", "DRAGOLANCE"]) };
+}
+
+function sourceSelectable(source) {
+  return builderContext.selectableSources.has(source);
+}
+
+function newCharacterHref() {
+  return builderContext.setting === "dragolance" ? "/1e/characters/new/?setting=dragolance" : "/1e/characters/new/";
 }
 
 async function api(path, options = {}) {
@@ -240,11 +261,13 @@ function renderShell() {
   const sheetId = characterId();
   const heroCopy = dmPage
     ? "Campaigns, characters, storage, and equipment for DRG 1e play."
-    : "Persistent OSRIC character building with DRG 1e table-rule ability rolls, catalog-only equipment, coins, spells, and campaign state.";
+    : builderContext.setting === "dragolance"
+      ? "Build one Dragolance character through the unified DRG 1e rules engine. Dragonlance sourcebook options are active for this campaign."
+      : "Persistent OSRIC character building with DRG 1e table-rule ability rolls, catalog-only equipment, coins, spells, and campaign state.";
   document.querySelector("[data-vault-app]").innerHTML = `
     <section class="vault-hero ${dmPage ? "vault-hero-compact" : ""}">
       <div>
-        <div class="vault-eyebrow">${dmPage ? "DM Tools" : "DRG 1e Character Vault"}</div>
+        <div class="vault-eyebrow">${dmPage ? "DM Tools" : builderContext.setting === "dragolance" ? "Dragolance Character Builder" : "DRG 1e Character Vault"}</div>
         <h1>${pageTitle()}</h1>
         <p>${heroCopy}</p>
         ${dmPage ? `<p class="vault-warning-text">DM tools are currently unprotected until login is enabled.</p>` : ""}
@@ -272,7 +295,7 @@ function pageTitle() {
 function playerNavHtml(sheetId) {
   return `
     <a class="vault-button secondary" href="/1e/characters/">Characters</a>
-    <a class="vault-button" href="/1e/characters/new/">New Character</a>
+    <a class="vault-button" href="${newCharacterHref()}">New Character</a>
     ${sheetId ? `<a class="vault-button secondary" href="/1e/characters/${sheetId}/">Character Sheet</a>` : ""}
     <a class="vault-button secondary" href="/1e/">Rules</a>
     <a class="vault-button secondary" href="/1e/equipment/">Equipment</a>
@@ -401,6 +424,7 @@ function builderStep() {
         </div>
         <div class="vault-statline">${adjustedStats(d).map(([name, value]) => `<div class="vault-stat"><strong>${value}</strong><span>${abilityLabels[name]}</span></div>`).join("")}</div>
       </div>
+      ${builderContext.setting === "dragolance" ? `<div class="vault-source-notice">Dragolance campaign mode is active. OSRIC appears as the rules foundation, but OSRIC-only options are not available for this campaign.</div>` : ""}
       ${raceSourceSection("OSRIC", osricRaceCards(), d.race)}
       ${raceSourceSection("DRAGOLANCE", settingDragonlanceRaces(), d.race)}
     </section>
@@ -423,6 +447,7 @@ function builderStep() {
           <span><strong>Wealth</strong>${h((state.rules.classes[d.class_name] || {}).wealth || "Review")}</span>
         </div>
       </div>
+      ${builderContext.setting === "dragolance" ? `<div class="vault-source-notice">Dragolance campaign mode is active. OSRIC classes are shown for reference until Dragolance class data is added.</div>` : ""}
       ${classSourceSection("OSRIC", osricClassCards(), d.class_name)}
       ${classSourceSection("DRAGOLANCE", [], d.class_name)}
     </section>
@@ -526,8 +551,8 @@ function raceSourceSection(source, races, selectedRace) {
 }
 
 function raceChoiceCard(card, selectedRace) {
-  const selected = card.name === selectedRace;
   const disabled = card.disabled;
+  const selected = card.name === selectedRace && !disabled;
   return `<article class="vault-choice-card ${selected ? "selected" : ""} ${disabled ? "disabled" : ""}" data-select-race="${h(card.name)}" tabindex="${disabled ? "-1" : "0"}" aria-selected="${selected}">
     <div class="vault-choice-art" aria-hidden="true"><span>${h(card.initials)}</span></div>
     <div class="vault-choice-body">
@@ -542,6 +567,7 @@ function raceChoiceCard(card, selectedRace) {
         ${choiceFact("Movement", card.movement)}
         ${choiceFact("Alignment", card.alignment)}
       </dl>
+      ${disabled ? `<p class="vault-unavailable">Not available for this campaign.</p>` : ""}
       <button class="vault-button ${selected ? "" : "secondary"}" type="button" data-select-race="${h(card.name)}" ${disabled ? "disabled" : ""}>${selected ? "Selected" : "Select Race"}</button>
     </div>
   </article>`;
@@ -563,7 +589,8 @@ function classSourceSection(source, classes, selectedClass) {
 
 function classChoiceCard(card, selectedClass) {
   const selected = card.name === selectedClass;
-  return `<article class="vault-choice-card ${selected ? "selected" : ""}" data-select-class="${h(card.name)}" tabindex="0" aria-selected="${selected}">
+  const disabled = card.disabled;
+  return `<article class="vault-choice-card ${selected ? "selected" : ""} ${disabled ? "disabled" : ""}" data-select-class="${h(card.name)}" tabindex="${disabled ? "-1" : "0"}" aria-selected="${selected}">
     <div class="vault-choice-art vault-choice-art-class" aria-hidden="true"><span>${h(card.initials)}</span></div>
     <div class="vault-choice-body">
       <div class="vault-choice-title-row">
@@ -577,7 +604,8 @@ function classChoiceCard(card, selectedClass) {
         ${choiceFact("Requirements", card.requirements)}
         ${choiceFact("Key Notes", card.keyNotes)}
       </dl>
-      <button class="vault-button ${selected ? "" : "secondary"}" type="button" data-select-class="${h(card.name)}">${selected ? "Selected" : "Select Class"}</button>
+      ${disabled ? `<p class="vault-unavailable">Not available for this campaign.</p>` : ""}
+      <button class="vault-button ${selected ? "" : "secondary"}" type="button" data-select-class="${h(card.name)}" ${disabled ? "disabled" : ""}>${selected ? "Selected" : "Select Class"}</button>
     </div>
   </article>`;
 }
@@ -617,7 +645,7 @@ function raceCardData(name, source = "OSRIC", data = null) {
     allowedClasses: compactList(race.allowed_classes || race.classes),
     movement: movement || "See details later",
     alignment: compactList(race.allowed_alignments) || "Any or class-limited",
-    disabled: dragonlance && !race.enabled_by_default,
+    disabled: !sourceSelectable(source),
   };
 }
 
@@ -646,6 +674,7 @@ function classCardData(name, source = "OSRIC", data = null) {
     primeAbility: classPrimeAbility(name),
     requirements: classRequirements(name),
     keyNotes: compactList([classInfo.armor, classInfo.weapons, classInfo.spellcaster ? "Spellcaster" : "No normal spellcasting"], 2),
+    disabled: !sourceSelectable(source),
   };
 }
 
@@ -734,6 +763,7 @@ function bindBuilderActions() {
   }));
   document.querySelectorAll("[data-select-class]").forEach((button) => button.addEventListener("click", (event) => {
     event.stopPropagation();
+    if (button.closest(".vault-choice-card.disabled")) return;
     syncDraft();
     state.draft.class_name = button.dataset.selectClass;
     renderBuilder();
@@ -927,7 +957,7 @@ function previewCharacter() {
 }
 
 function renderIndex() {
-  document.querySelector("[data-vault-view]").innerHTML = `${playerPanelHtml()}<div class="vault-grid">${state.characters.length ? state.characters.map((character) => `<article class="vault-card"><div class="vault-kicker">${h(labelize(character.status))} / ${h(labelize(character.life_status))}</div><h2>${h(character.name)}</h2><p>${h(character.race)} ${h(character.class_name)} ${h(character.level)}</p><p class="vault-muted">Owner: ${h(character.player?.display_name || character.user_id)}${character.campaign_id ? ` / ${h(campaignName(character.campaign_id))}` : ""}</p><div class="vault-statline"><div class="vault-stat"><strong>${character.combat.armor_class}</strong><span>AC</span></div><div class="vault-stat"><strong>${character.combat.current_hp}/${character.combat.max_hp}</strong><span>HP</span></div><div class="vault-stat"><strong>${character.combat.movement_rate}</strong><span>Move</span></div></div><div class="vault-actions"><a class="vault-button secondary" href="/1e/characters/${character.id}/">View</a><a class="vault-button secondary" href="/1e/characters/${character.id}/edit/">Edit</a><button class="vault-button secondary" type="button" data-delete="${character.id}">Archive</button></div></article>`).join("") : `<article class="vault-panel"><h2>No characters yet</h2><p>Create your first vault character, then assign them to a campaign when the DM is ready.</p><div class="vault-actions"><a class="vault-button" href="/1e/characters/new/">Create Character</a></div></article>`}</div>`;
+  document.querySelector("[data-vault-view]").innerHTML = `${playerPanelHtml()}<div class="vault-grid">${state.characters.length ? state.characters.map((character) => `<article class="vault-card"><div class="vault-kicker">${h(labelize(character.status))} / ${h(labelize(character.life_status))}</div><h2>${h(character.name)}</h2><p>${h(character.race)} ${h(character.class_name)} ${h(character.level)}</p><p class="vault-muted">Owner: ${h(character.player?.display_name || character.user_id)}${character.campaign_id ? ` / ${h(campaignName(character.campaign_id))}` : ""}</p><div class="vault-statline"><div class="vault-stat"><strong>${character.combat.armor_class}</strong><span>AC</span></div><div class="vault-stat"><strong>${character.combat.current_hp}/${character.combat.max_hp}</strong><span>HP</span></div><div class="vault-stat"><strong>${character.combat.movement_rate}</strong><span>Move</span></div></div><div class="vault-actions"><a class="vault-button secondary" href="/1e/characters/${character.id}/">View</a><a class="vault-button secondary" href="/1e/characters/${character.id}/edit/">Edit</a><button class="vault-button secondary" type="button" data-delete="${character.id}">Archive</button></div></article>`).join("") : `<article class="vault-panel"><h2>No characters yet</h2><p>Create your first vault character, then assign them to a campaign when the DM is ready.</p><div class="vault-actions"><a class="vault-button" href="${newCharacterHref()}">Create Character</a></div></article>`}</div>`;
   document.querySelector("[data-player-form]")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.target));
@@ -957,7 +987,7 @@ function playerPanelHtml() {
     ${field("Player Name", "display_name", state.currentPlayer?.display_name || "Website Player")}
     ${field("Email", "email", state.currentPlayer?.email || "", "email")}
     ${field("Discord User ID", "discord_user_id", state.currentPlayer?.discord_user_id || "")}
-    <div class="vault-actions vault-full"><button class="vault-button" type="submit">Save Player</button><a class="vault-button secondary" href="/1e/characters/new/">Create Character</a></div>
+    <div class="vault-actions vault-full"><button class="vault-button" type="submit">Save Player</button><a class="vault-button secondary" href="${newCharacterHref()}">Create Character</a></div>
   </form></section>`;
 }
 

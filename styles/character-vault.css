@@ -252,6 +252,15 @@
   gap:11px;
 }
 
+.vault-source-notice{
+  border:1px solid rgba(122,33,27,.24);
+  border-radius:8px;
+  background:rgba(122,33,27,.08);
+  color:#4b392f;
+  font-weight:800;
+  padding:11px 13px;
+}
+
 .vault-source-heading{
   align-items:end;
   border-bottom:1px solid rgba(122,33,27,.18);
@@ -447,6 +456,17 @@
   background:rgba(122,33,27,.06);
   color:#4b392f;
   padding:18px;
+}
+
+.vault-unavailable{
+  border:1px solid rgba(122,33,27,.22);
+  border-radius:6px;
+  background:rgba(122,33,27,.08);
+  color:#7a211b;
+  font-size:.82rem;
+  font-weight:900;
+  margin:0;
+  padding:8px 9px;
 }
 
 .vault-sheet .vault-card{

@@ -73,7 +73,7 @@ function playerCampaignPath(id) {
 }
 
 function playerCharacterBuilderPath(campaignId) {
-  if (isDragolanceHost()) return "/characters/new";
+  if (isDragolanceHost()) return "/1e/characters/new/?setting=dragolance";
   return campaignId ? `/portal/campaigns/${campaignId}/characters/new` : "/portal/characters/new";
 }
 
@@ -149,7 +149,13 @@ function AppSidebar({ mode, title, subtitle, brandTo, navItems, account, onSignO
   return (
     <aside className={`sidebar ${mode === "player" ? "player-sidebar" : ""}`}>
       <Link className="brand" to={brandTo}>
-        <span className="brand-mark">DRG</span>
+        {mode === "player" && isDragolanceHost() ? (
+          <span className="brand-wordmark" aria-label="Dragolance">
+            <img src="/assets/dragolance-logo.png" alt="" />
+          </span>
+        ) : (
+          <span className="brand-mark">DRG</span>
+        )}
         <span>
           <strong>{title}</strong>
           <small>{subtitle}</small>
@@ -260,7 +266,9 @@ function PlayerShell({ children }) {
             ...(dragolance ? [{ label: "Home", to: "/", end: true }] : []),
             { label: "My Campaigns", to: dragolance ? "/campaigns" : "/portal", end: true },
             { label: dragolance ? "Rules" : "Dragonlance Rules", href: "/1e/" },
-            { label: "Create Character", to: dragolance ? "/characters/new" : "/portal/characters/new" },
+            dragolance
+              ? { label: "Create Character", href: "/1e/characters/new/?setting=dragolance" }
+              : { label: "Create Character", to: "/portal/characters/new" },
           ]}
           account={
             <div className="account-card">
@@ -348,7 +356,9 @@ function PlayerLoginPage() {
   return (
     <div className="login-page dragonlance-login">
       <form className="login-panel" onSubmit={submit}>
-        <div className="dragonlance-mark">DL</div>
+        <div className="dragonlance-wordmark">
+          <img src="/assets/dragolance-logo.png" alt="Dragolance" />
+        </div>
         <p className="eyebrow">{dragolance ? "Dragolance" : "Dragonlance"}</p>
         <h1>{dragolance ? "Dragolance" : "Dragonlance"}</h1>
         <p className="login-subtitle">Welcome to Krynn</p>
@@ -991,7 +1001,7 @@ function DragolancePlayerHomepage() {
               <h2>Your legend begins here.</h2>
               <p className="portal-copy">Start with the peoples of Krynn and choose your first race.</p>
               <div className="form-actions">
-                <Link className="secondary-button" to="/characters/new">Create Character</Link>
+                <a className="secondary-button" href="/1e/characters/new/?setting=dragolance">Create Character</a>
               </div>
             </section>
           </div>
@@ -1010,7 +1020,7 @@ function DragolancePlayerHomepage() {
               <div className="empty-character-callout">
                 <h2>Your legend begins here.</h2>
                 <p className="portal-copy">No characters are assigned to your Dragolance campaigns yet.</p>
-                <Link className="secondary-button" to="/characters/new">Create Character</Link>
+                <a className="secondary-button" href="/1e/characters/new/?setting=dragolance">Create Character</a>
               </div>
             )}
           </section>
@@ -1646,7 +1656,7 @@ export default function App() {
           <Route element={<Protected role="player"><PlayerShell /></Protected>}>
             <Route path="/campaigns" element={<PlayerCampaignsPage />} />
             <Route path="/campaigns/:id" element={<PlayerCampaignHome />} />
-            <Route path="/characters/new" element={<PlayerCharacterBuilderPage />} />
+            <Route path="/characters/new" element={<Navigate to="/1e/characters/new/?setting=dragolance" replace />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

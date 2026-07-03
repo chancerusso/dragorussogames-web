@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Response
@@ -92,6 +94,21 @@ from app.services.expedition import (
 )
 
 router = APIRouter(prefix="/api")
+DRAGONLANCE_RACE_DIR = Path(__file__).resolve().parents[2] / "content" / "settings" / "dragonlance" / "races"
+
+
+def load_dragonlance_race_names() -> set[str]:
+    try:
+        files = json.loads((DRAGONLANCE_RACE_DIR / "index.json").read_text())
+        return {
+            json.loads((DRAGONLANCE_RACE_DIR / file_name).read_text()).get("name")
+            for file_name in files
+        } - {None}
+    except OSError:
+        return set()
+
+
+DRAGONLANCE_RACE_NAMES = load_dragonlance_race_names()
 
 
 def ensure_vault_seeded(db: Session) -> None:
@@ -499,7 +516,7 @@ def validate_character_choice(data: dict) -> None:
     race = data.get("race")
     class_name = data.get("class_name")
     alignment = data.get("alignment")
-    if race and race not in RACES:
+    if race and race not in RACES and race not in DRAGONLANCE_RACE_NAMES:
         raise HTTPException(status_code=422, detail=f"Unsupported race: {race}.")
     if class_name and class_name not in CLASSES:
         raise HTTPException(status_code=422, detail=f"Unsupported class: {class_name}.")
