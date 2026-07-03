@@ -391,25 +391,42 @@ function builderStep() {
     ${navButtons()}`;
   if (state.step === 2) return `
     <input type="hidden" name="race" value="${h(d.race)}">
-    <section class="vault-full dragonlance-race-step">
-      <div class="vault-section-heading">
+    <section class="vault-full vault-choice-step">
+      ${choiceStepHeader("Race", "What race do you want to play?", d.race || "None", "Choose your ancestry from the OSRIC foundation or Dragonlance sourcebook options.")}
+      <div class="vault-choice-summary">
         <div>
-          <div class="vault-kicker">Dragonlance Race Selection v0.6.0</div>
-          <h2>Choose Your People</h2>
-          <p class="vault-muted">Foundation data only. Racial maximum ability scores and racial level limits are intentionally excluded by DRG house rules.</p>
+          <span>Selected Race</span>
+          <strong>${h(d.race || "None")}</strong>
+          <p>${h(raceCardData(d.race, dragonlanceRaceProfile(d.race) ? "DRAGOLANCE" : "OSRIC")?.description || "Choose a race to see adjusted scores and restrictions.")}</p>
         </div>
-        <div class="vault-selected-race">Selected: <strong>${h(d.race || "None")}</strong></div>
+        <div class="vault-statline">${adjustedStats(d).map(([name, value]) => `<div class="vault-stat"><strong>${value}</strong><span>${abilityLabels[name]}</span></div>`).join("")}</div>
       </div>
-      <div class="vault-card vault-full vault-adjusted-scores dragonlance-adjusted-scores"><h3>Adjusted Scores</h3><div class="vault-statline">${adjustedStats(d).map(([name, value]) => `<div class="vault-stat"><strong>${value}</strong><span>${abilityLabels[name]}</span></div>`).join("")}</div></div>
-      ${dragonlanceRaceSection("Default Races", settingDragonlanceRaces().filter((race) => race.enabled_by_default), d.race)}
-      ${dragonlanceRaceSection("Advanced / DM Approval", settingDragonlanceRaces().filter((race) => race.advanced), d.race)}
+      ${raceSourceSection("OSRIC", osricRaceCards(), d.race)}
+      ${raceSourceSection("DRAGOLANCE", settingDragonlanceRaces(), d.race)}
     </section>
-    <div class="vault-card vault-full"><h3>Race Restrictions</h3>${raceClassWarnings(d)}<p><strong>Current class options:</strong> ${h((dragonlanceRaceProfile(d.race)?.allowed_classes || state.rules.races[d.race]?.classes || races).join(", "))}</p><p><strong>Current alignment options:</strong> ${h((dragonlanceRaceProfile(d.race)?.allowed_alignments || ["Manual DM Review"]).join(", "))}</p></div>
+    <div class="vault-card vault-full"><h3>Race Restrictions</h3>${raceClassWarnings(d)}<p><strong>Current class options:</strong> ${h(compactList(dragonlanceRaceProfile(d.race)?.allowed_classes || state.rules.races[d.race]?.classes || races, 12))}</p><p><strong>Current alignment options:</strong> ${h(compactList(dragonlanceRaceProfile(d.race)?.allowed_alignments || ["See details later"], 6))}</p></div>
     <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/002-race/">Race</a>. Dragonlance-specific Knights and Wizards restrictions will be added in a later pass.</p>
     ${navButtons()}`;
   if (state.step === 3) return `
-    ${selectField("Class", "class_name", d.class_name, classes)}
-    <div class="vault-card vault-wide"><h3>Class Notes</h3>${raceClassWarnings(d)}<p>${h((state.rules.classes[d.class_name] || {}).armor)}</p><p><strong>Weapons:</strong> ${h((state.rules.classes[d.class_name] || {}).weapons)}</p><p>Hit Dice: ${h(hitDiceText(d))}. Starting wealth: ${h((state.rules.classes[d.class_name] || {}).wealth)}.</p><p>Proficiencies: ${h(proficiencyCount(d.class_name, d.level) ?? "Manual DM Review")} at this level. Non-proficiency penalty: ${h((state.rules.classes[d.class_name] || {}).non_proficiency_penalty ?? "Manual DM Review")}.</p></div>
+    <input type="hidden" name="class_name" value="${h(d.class_name)}">
+    <section class="vault-full vault-choice-step">
+      ${choiceStepHeader("Class", "What class do you want to play?", d.class_name || "None", "Choose the role, hit die, restrictions, and core adventuring shape for this character.")}
+      <div class="vault-choice-summary">
+        <div>
+          <span>Selected Class</span>
+          <strong>${h(d.class_name || "None")}</strong>
+          <p>${h(classCardData(d.class_name)?.description || "Choose a class to see rules notes and equipment permissions.")}</p>
+        </div>
+        <div class="vault-compact-list">
+          <span><strong>Hit Die</strong>${h(hitDiceText(d))}</span>
+          <span><strong>Proficiencies</strong>${h(proficiencyCount(d.class_name, d.level) ?? "Review")}</span>
+          <span><strong>Wealth</strong>${h((state.rules.classes[d.class_name] || {}).wealth || "Review")}</span>
+        </div>
+      </div>
+      ${classSourceSection("OSRIC", osricClassCards(), d.class_name)}
+      ${classSourceSection("DRAGOLANCE", [], d.class_name)}
+    </section>
+    <div class="vault-card vault-full"><h3>Class Notes</h3>${raceClassWarnings(d)}<p>${h((state.rules.classes[d.class_name] || {}).armor)}</p><p><strong>Weapons:</strong> ${h((state.rules.classes[d.class_name] || {}).weapons)}</p><p>Hit Dice: ${h(hitDiceText(d))}. Starting wealth: ${h((state.rules.classes[d.class_name] || {}).wealth)}.</p><p>Proficiencies: ${h(proficiencyCount(d.class_name, d.level) ?? "Manual DM Review")} at this level. Non-proficiency penalty: ${h((state.rules.classes[d.class_name] || {}).non_proficiency_penalty ?? "Manual DM Review")}.</p></div>
     <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/003-class/">Class</a></p>
     ${navButtons()}`;
   if (state.step === 4) return `${selectField("Alignment", "alignment", d.alignment, state.rules.alignments)}<div class="vault-card vault-wide">${raceClassWarnings(d)}<p><strong>${h(d.class_name)}:</strong> ${h((state.rules.classes[d.class_name] || {}).alignment || "Any alignment")}</p></div><p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/004-alignment/">Alignment</a>.</p>${navButtons()}`;
@@ -484,36 +501,208 @@ function spellRows(spells) {
   return spells.map((spell) => `<tr><td><strong>${h(spell.name)}</strong><br><a class="vault-mini" href="${h(spell.rules_reference)}">Rules</a></td><td>${spell.spell_level}<br><span class="vault-mini">${h(spell.class_list.join(", "))}</span></td><td>${h(spell.range || "")}</td><td>${h(spell.duration || "")}</td><td>${h(spell.area_of_effect || "")}</td><td><button class="vault-button secondary" type="button" data-add-spell="${spell.id}">Add/Prepare</button></td></tr>`).join("");
 }
 
-function dragonlanceRaceSection(titleText, races, selectedRace) {
-  return `<section class="vault-full dragonlance-race-section">
-    <div class="vault-kicker">${h(titleText)}</div>
-    <div class="dragonlance-race-grid">${races.map((race) => dragonlanceRaceCard(race, selectedRace)).join("")}</div>
+function choiceStepHeader(kind, titleText, selected, description) {
+  return `<header class="vault-choice-header">
+    <div>
+      <div class="vault-kicker">${h(kind)} Selection</div>
+      <h2>${h(titleText)}</h2>
+      <p>${h(description)}</p>
+    </div>
+    <div class="vault-selected-pill">Selected <strong>${h(selected)}</strong></div>
+  </header>`;
+}
+
+function raceSourceSection(source, races, selectedRace) {
+  return `<section class="vault-source-section">
+    <div class="vault-source-heading">
+      <div>
+        <div class="vault-kicker">${h(source)}</div>
+        <h3>${source === "OSRIC" ? "Foundation Races" : "Dragonlance Races"}</h3>
+      </div>
+      <span>${h(races.length)} options</span>
+    </div>
+    <div class="vault-choice-grid">${races.map((race) => raceChoiceCard(raceCardData(race.name, source, race), selectedRace)).join("")}</div>
   </section>`;
 }
 
-function dragonlanceRaceCard(race, selectedRace) {
-  const selected = race.name === selectedRace;
-  const disabled = !race.enabled_by_default;
-  return `<article class="dragonlance-race-card ${selected ? "selected" : ""} ${disabled ? "disabled" : ""}">
-    <div class="dragonlance-race-card-header">
-      <div>
-        <h3>${h(race.name)}</h3>
-        <p>${h(race.description)}</p>
+function raceChoiceCard(card, selectedRace) {
+  const selected = card.name === selectedRace;
+  const disabled = card.disabled;
+  return `<article class="vault-choice-card ${selected ? "selected" : ""} ${disabled ? "disabled" : ""}" data-select-race="${h(card.name)}" tabindex="${disabled ? "-1" : "0"}" aria-selected="${selected}">
+    <div class="vault-choice-art" aria-hidden="true"><span>${h(card.initials)}</span></div>
+    <div class="vault-choice-body">
+      <div class="vault-choice-title-row">
+        <h3>${h(card.name)}</h3>
+        <span class="vault-source-badge">${h(card.source)}</span>
       </div>
-      <div class="dragonlance-race-badges">${race.advanced ? `<span class="vault-badge">Advanced</span>` : `<span class="vault-badge">Default</span>`}${race.source_status ? `<span class="vault-badge">${h(race.source_status)}</span>` : ""}</div>
+      <p class="vault-choice-blurb">${h(card.description)}</p>
+      <dl class="vault-choice-facts">
+        ${choiceFact("Ability Adjustments", card.adjustments)}
+        ${choiceFact("Allowed Classes", card.allowedClasses)}
+        ${choiceFact("Movement", card.movement)}
+        ${choiceFact("Alignment", card.alignment)}
+      </dl>
+      <button class="vault-button ${selected ? "" : "secondary"}" type="button" data-select-race="${h(card.name)}" ${disabled ? "disabled" : ""}>${selected ? "Selected" : "Select Race"}</button>
     </div>
-    ${dragonlanceRaceDetail("Ability Adjustments", formatAbilityAdjustments(race.ability_adjustments))}
-    ${dragonlanceRaceDetail("Allowed Classes", race.allowed_classes.join(", "))}
-    ${dragonlanceRaceDetail("Allowed Alignments", race.allowed_alignments.join(", "))}
-    ${dragonlanceRaceDetail("Languages", race.languages.join(", "))}
-    ${dragonlanceRaceDetail("Special Abilities", race.special_abilities.join(", "))}
-    ${dragonlanceRaceDetail("Movement", race.movement)}
-    <button class="vault-button ${selected ? "" : "secondary"}" type="button" data-select-race="${h(race.name)}" ${disabled ? "disabled" : ""}>${selected ? "Selected" : "Select Race"}</button>
   </article>`;
 }
 
-function dragonlanceRaceDetail(label, value) {
-  return `<p class="dragonlance-race-detail"><strong>${h(label)}:</strong> ${h(value || "None")}</p>`;
+function classSourceSection(source, classes, selectedClass) {
+  const empty = !classes.length ? `<div class="vault-choice-empty">Dragonlance-specific classes will appear here after their rules data is added. OSRIC classes remain available now.</div>` : "";
+  return `<section class="vault-source-section">
+    <div class="vault-source-heading">
+      <div>
+        <div class="vault-kicker">${h(source)}</div>
+        <h3>${source === "OSRIC" ? "Foundation Classes" : "Dragonlance Classes"}</h3>
+      </div>
+      <span>${h(classes.length)} options</span>
+    </div>
+    ${empty || `<div class="vault-choice-grid">${classes.map((classInfo) => classChoiceCard(classInfo, selectedClass)).join("")}</div>`}
+  </section>`;
+}
+
+function classChoiceCard(card, selectedClass) {
+  const selected = card.name === selectedClass;
+  return `<article class="vault-choice-card ${selected ? "selected" : ""}" data-select-class="${h(card.name)}" tabindex="0" aria-selected="${selected}">
+    <div class="vault-choice-art vault-choice-art-class" aria-hidden="true"><span>${h(card.initials)}</span></div>
+    <div class="vault-choice-body">
+      <div class="vault-choice-title-row">
+        <h3>${h(card.name)}</h3>
+        <span class="vault-source-badge">${h(card.source)}</span>
+      </div>
+      <p class="vault-choice-blurb">${h(card.description)}</p>
+      <dl class="vault-choice-facts">
+        ${choiceFact("Hit Die", card.hitDie)}
+        ${choiceFact("Prime Ability", card.primeAbility)}
+        ${choiceFact("Requirements", card.requirements)}
+        ${choiceFact("Key Notes", card.keyNotes)}
+      </dl>
+      <button class="vault-button ${selected ? "" : "secondary"}" type="button" data-select-class="${h(card.name)}">${selected ? "Selected" : "Select Class"}</button>
+    </div>
+  </article>`;
+}
+
+function choiceFact(label, value) {
+  return `<div><dt>${h(label)}</dt><dd>${h(cleanChoiceText(value) || "See details later")}</dd></div>`;
+}
+
+function osricRaceCards() {
+  return Object.entries(state.rules?.races || {}).map(([name, race]) => ({ name, ...race }));
+}
+
+function osricClassCards() {
+  return Object.entries(state.rules?.classes || {}).map(([name, classInfo]) => classCardData(name, "OSRIC", classInfo));
+}
+
+function raceCardData(name, source = "OSRIC", data = null) {
+  const race = data || (source === "DRAGOLANCE" ? dragonlanceRaceProfile(name) : state.rules?.races?.[name]);
+  if (!race) return null;
+  const dragonlance = source === "DRAGOLANCE";
+  const movement = dragonlance ? cleanChoiceText(race.movement) : (race.movement ? `${race.movement} ft` : "");
+  const descriptions = {
+    Human: "The flexible baseline for classic adventuring, with the broadest long-term class freedom.",
+    Dwarf: "Hardy underground folk with stout defenses, stonecraft, and a strong martial tradition.",
+    Elf: "Graceful demi-humans with keen senses, magic potential, and woodland fighting skill.",
+    Gnome: "Clever underground folk known for illusion, craft, and practical dungeon instincts.",
+    "Half-Elf": "Adaptable children of two worlds, blending human flexibility with elven gifts.",
+    Halfling: "Small, quiet, resilient folk well suited to scouting, stealth, and careful play.",
+    "Half-Orc": "Tough frontier survivors built for harsh combat roles and dangerous work.",
+  };
+  return {
+    name,
+    source,
+    initials: initialsFor(name),
+    description: cleanChoiceText(race.description || descriptions[name]) || "A classic First Edition ancestry.",
+    adjustments: formatAbilityAdjustments(race.ability_adjustments || race.adjustments),
+    allowedClasses: compactList(race.allowed_classes || race.classes),
+    movement: movement || "See details later",
+    alignment: compactList(race.allowed_alignments) || "Any or class-limited",
+    disabled: dragonlance && !race.enabled_by_default,
+  };
+}
+
+function classCardData(name, source = "OSRIC", data = null) {
+  const classInfo = data || state.rules?.classes?.[name];
+  if (!classInfo) return null;
+  const descriptions = {
+    Assassin: "A stealth killer and infiltrator built around ambush, disguise, and underworld obligations.",
+    Bard: "An advanced special path with lore, charm, and spellcasting after a complex entry route.",
+    Cleric: "An armored divine spellcaster who heals, turns undead, and anchors the party line.",
+    Druid: "A neutral priest of the old ways with nature magic, survival power, and strict limits.",
+    Fighter: "The direct martial path with the best weapon freedom and the strongest fighting base.",
+    Illusionist: "A specialist arcane caster focused on deception, misdirection, and strange magic.",
+    "Magic-User": "A fragile but powerful arcane scholar whose spellbook changes the shape of play.",
+    Monk: "A demanding lawful path built around discipline, mobility, and unusual advancement.",
+    Paladin: "A lawful good holy warrior with strict vows, martial strength, and divine gifts.",
+    Ranger: "A wilderness warrior and protector with strong combat ability and later spellcasting.",
+    Thief: "A nimble specialist for locks, scouting, traps, climbing, and opportunistic combat.",
+  };
+  return {
+    name,
+    source,
+    initials: initialsFor(name),
+    description: descriptions[name] || "A classic First Edition adventuring class.",
+    hitDie: classInfo.hit_die_text || (classInfo.hit_die ? `d${classInfo.hit_die}` : "See details later"),
+    primeAbility: classPrimeAbility(name),
+    requirements: classRequirements(name),
+    keyNotes: compactList([classInfo.armor, classInfo.weapons, classInfo.spellcaster ? "Spellcaster" : "No normal spellcasting"], 2),
+  };
+}
+
+function classPrimeAbility(name) {
+  const primes = {
+    Assassin: "None",
+    Bard: "Dexterity, Charisma",
+    Cleric: "Wisdom",
+    Druid: "Wisdom, Charisma",
+    Fighter: "Strength",
+    Illusionist: "Intelligence, Dexterity",
+    "Magic-User": "Intelligence",
+    Monk: "Strength, Wisdom, Dexterity",
+    Paladin: "Strength, Wisdom, Charisma",
+    Ranger: "Strength, Intelligence, Wisdom",
+    Thief: "Dexterity",
+  };
+  return primes[name] || "See details later";
+}
+
+function classRequirements(name) {
+  const requirements = {
+    Assassin: "STR 12, DEX 12, INT 11",
+    Bard: "Advanced entry path",
+    Cleric: "WIS 9",
+    Druid: "WIS 12, CHA 15",
+    Fighter: "STR 9",
+    Illusionist: "INT 15, DEX 16",
+    "Magic-User": "INT 9",
+    Monk: "Lawful; high abilities",
+    Paladin: "CHA 17, Lawful Good",
+    Ranger: "STR 13, INT 13, WIS 14",
+    Thief: "DEX 9",
+  };
+  return requirements[name] || "See details later";
+}
+
+function compactList(values = [], limit = 5) {
+  const cleaned = (Array.isArray(values) ? values : [values]).map(cleanChoiceText).filter(Boolean);
+  if (!cleaned.length) return "";
+  const visible = cleaned.slice(0, limit).join(", ");
+  return cleaned.length > limit ? `${visible}, +${cleaned.length - limit} more` : visible;
+}
+
+function cleanChoiceText(value) {
+  const text = String(value ?? "").replace(/\s+-\s+TODO[\/_ -]*VERIFY/gi, "").replace(/TODO[\/_ -]*VERIFY/gi, "").trim();
+  if (!text || /^manual dm review$/i.test(text)) return "";
+  return text;
+}
+
+function initialsFor(value) {
+  return String(value || "")
+    .split(/[\s-]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0].toUpperCase())
+    .join("");
 }
 
 function dragonlanceRaceProfile(name) {
@@ -536,11 +725,26 @@ function bindBuilderActions() {
   document.querySelector("[data-save]")?.addEventListener("click", saveDraft);
   document.querySelector("[name='race']")?.addEventListener("change", () => { syncDraft(); renderBuilder(); });
   document.querySelector("[name='class_name']")?.addEventListener("change", () => { syncDraft(); renderBuilder(); });
-  document.querySelectorAll("[data-select-race]").forEach((button) => button.addEventListener("click", () => {
+  document.querySelectorAll("[data-select-race]").forEach((button) => button.addEventListener("click", (event) => {
+    event.stopPropagation();
+    if (button.closest(".vault-choice-card.disabled")) return;
     syncDraft();
     state.draft.race = button.dataset.selectRace;
     renderBuilder();
   }));
+  document.querySelectorAll("[data-select-class]").forEach((button) => button.addEventListener("click", (event) => {
+    event.stopPropagation();
+    syncDraft();
+    state.draft.class_name = button.dataset.selectClass;
+    renderBuilder();
+  }));
+  document.querySelectorAll(".vault-choice-card[data-select-race], .vault-choice-card[data-select-class]").forEach((card) => {
+    card.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      card.click();
+    });
+  });
   document.querySelector("[data-roll]")?.addEventListener("click", () => {
     state.draft.original_rolls = Array.from({ length: 6 }, roll4d6DropLowest);
     state.draft.assigned_rolls = {};
