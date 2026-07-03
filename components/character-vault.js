@@ -166,6 +166,7 @@ function sourceSelectable(source) {
 }
 
 function newCharacterHref() {
+  if (isPlayerCharacterMode()) return "/1e/characters/new/";
   return builderContext.setting === "dragolance" ? "/1e/characters/new/?setting=dragolance" : "/1e/characters/new/";
 }
 
@@ -204,8 +205,39 @@ function playerAuthHeaders() {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+function isClassicHost() {
+  return window.location.hostname.toLowerCase() === "classic.dragorussogames.com";
+}
+
+function isDragolanceHost() {
+  return window.location.hostname.toLowerCase().includes("dragolance");
+}
+
+function campaignIdParam() {
+  const value = new URLSearchParams(window.location.search).get("campaign_id");
+  return value ? Number(value) : null;
+}
+
+function isPlayerCharacterMode() {
+  const params = new URLSearchParams(window.location.search);
+  return !isDmMode() && (isClassicHost() || isDragolanceHost() || params.has("campaign_id") || params.get("setting") === "dragolance");
+}
+
 function isPlayerBuilderMode() {
-  return pageKind() === "new" && builderContext.setting === "dragolance";
+  return pageKind() === "new" && isPlayerCharacterMode();
+}
+
+function applyCampaignSourceContext(campaign) {
+  if (!campaign) return;
+  const setting = String(campaign.setting || "").toLowerCase();
+  const sourcebooks = Array.isArray(campaign.allowed_sourcebooks) && campaign.allowed_sourcebooks.length
+    ? campaign.allowed_sourcebooks
+    : setting === "dragonlance" || setting === "dragolance"
+      ? ["DRAGOLANCE"]
+      : ["OSRIC", "GREYHAWK"];
+  builderContext.setting = setting === "dragonlance" ? "dragolance" : setting || builderContext.setting;
+  builderContext.label = title(builderContext.setting);
+  builderContext.selectableSources = new Set(sourcebooks.map((source) => String(source).toUpperCase()));
 }
 
 async function fetchJson(path) {
@@ -265,7 +297,7 @@ async function boot() {
     ]);
     const kind = pageKind();
 
-    if (isPlayerBuilderMode()) {
+    if (isPlayerCharacterMode()) {
       await hydratePlayerBuilderContext();
     } else {
       [state.campaigns, state.players] = await Promise.all([
@@ -275,7 +307,12 @@ async function boot() {
       hydrateCurrentPlayer();
     }
 
-    if (kind === "show" || kind === "edit") state.character = await api(`/characters/${characterId()}`);
+    if (kind === "show" || kind === "edit") {
+      state.character = isPlayerCharacterMode()
+        ? await rootApi(`/player/characters/${characterId()}`, { headers: playerAuthHeaders() })
+        : await api(`/characters/${characterId()}`);
+      if (state.character?.campaign_id) applyCampaignSourceContext(state.campaigns.find((campaign) => campaign.id === state.character.campaign_id));
+    }
     if (kind === "campaign" && campaignId()) {
       state.campaign = await api(`/campaigns/${campaignId()}`);
       state.characters = await api("/characters?include_archived=true");
@@ -294,9 +331,12 @@ async function hydratePlayerBuilderContext() {
   const headers = playerAuthHeaders();
   const player = await optionalApi(() => rootApi("/player/me", { headers }), null);
   const campaigns = await optionalApi(() => rootApi("/player/campaigns", { headers }), []);
+  const selectedCampaignId = campaignIdParam();
   state.currentPlayer = player;
   state.players = player ? [player] : [];
-  state.campaigns = campaigns.filter((campaign) => ["dragolance", "dragonlance"].includes(String(campaign.setting || "").toLowerCase()));
+  state.campaigns = campaigns;
+  state.campaign = selectedCampaignId ? campaigns.find((campaign) => Number(campaign.id) === selectedCampaignId) || null : null;
+  applyCampaignSourceContext(state.campaign || campaigns[0]);
   if (player?.id) localStorage.setItem("drg1e_player_id", String(player.id));
 }
 
@@ -311,13 +351,15 @@ function renderShell() {
   const sheetId = characterId();
   const heroCopy = dmPage
     ? "Campaigns, characters, storage, and equipment for DRG 1e play."
-    : builderContext.setting === "dragolance"
-      ? "Build one Dragolance character through the unified DRG 1e rules engine. Dragonlance sourcebook options are active for this campaign."
-      : "Persistent OSRIC character building with DRG 1e table-rule ability rolls, catalog-only equipment, coins, spells, and campaign state.";
+    : isPlayerCharacterMode()
+      ? "Build and maintain your classic First Edition character through the unified DRG 1e rules engine."
+      : builderContext.setting === "dragolance"
+        ? "Build one Dragolance character through the unified DRG 1e rules engine. Dragonlance sourcebook options are active for this campaign."
+        : "Persistent OSRIC character building with DRG 1e table-rule ability rolls, catalog-only equipment, coins, spells, and campaign state.";
   document.querySelector("[data-vault-app]").innerHTML = `
     <section class="vault-hero ${dmPage ? "vault-hero-compact" : ""}">
       <div>
-        <div class="vault-eyebrow">${dmPage ? "DM Tools" : builderContext.setting === "dragolance" ? "Dragolance Character Builder" : "DRG 1e Character Vault"}</div>
+        <div class="vault-eyebrow">${dmPage ? "DM Tools" : isPlayerCharacterMode() ? "My Characters" : builderContext.setting === "dragolance" ? "Dragolance Character Builder" : "DRG 1e Character Vault"}</div>
         <h1>${pageTitle()}</h1>
         <p>${heroCopy}</p>
         ${dmPage ? `<p class="vault-warning-text">DM tools are currently unprotected until login is enabled.</p>` : ""}
@@ -343,6 +385,15 @@ function pageTitle() {
 }
 
 function playerNavHtml(sheetId) {
+  if (isPlayerCharacterMode()) {
+    const campaignHref = state.campaign?.id ? `/campaigns/${state.campaign.id}` : "";
+    return `
+      <a class="vault-button" href="/">Back to Player Home</a>
+      ${campaignHref ? `<a class="vault-button secondary" href="${campaignHref}">Back to Campaign</a>` : ""}
+      <a class="vault-button secondary" href="/characters">My Characters</a>
+      ${sheetId ? `<a class="vault-button secondary" href="/1e/characters/${sheetId}/">Character Sheet</a>` : ""}
+      <a class="vault-button secondary" href="/1e/">Rules</a>`;
+  }
   return `
     <a class="vault-button secondary" href="/1e/characters/">Characters</a>
     <a class="vault-button" href="${newCharacterHref()}">New Character</a>
@@ -394,6 +445,7 @@ function initialDraft() {
     xp: 0,
     status: "active",
     life_status: "alive",
+    campaign_id: campaignIdParam() || state.campaign?.id || "",
     campaign_day: 1,
     current_location: "Town",
     safe_storage_location: "",
@@ -474,7 +526,7 @@ function builderStep() {
         </div>
         <div class="vault-statline">${adjustedStats(d).map(([name, value]) => `<div class="vault-stat"><strong>${value}</strong><span>${abilityLabels[name]}</span></div>`).join("")}</div>
       </div>
-      ${builderContext.setting === "dragolance" ? `<div class="vault-source-notice">Dragolance campaign mode is active. OSRIC appears as the rules foundation, but OSRIC-only options are not available for this campaign.</div>` : ""}
+      ${isPlayerCharacterMode() ? `<div class="vault-source-notice">${h(builderContext.label)} campaign mode is active. Source availability is controlled by this campaign.</div>` : builderContext.setting === "dragolance" ? `<div class="vault-source-notice">Dragolance campaign mode is active. OSRIC appears as the rules foundation, but OSRIC-only options are not available for this campaign.</div>` : ""}
       ${raceSourceSection("OSRIC", osricRaceCards(), d.race)}
       ${raceSourceSection("DRAGOLANCE", settingDragonlanceRaces(), d.race)}
     </section>
@@ -497,9 +549,9 @@ function builderStep() {
           <span><strong>Wealth</strong>${h((state.rules.classes[d.class_name] || {}).wealth || "Review")}</span>
         </div>
       </div>
-      ${builderContext.setting === "dragolance" ? `<div class="vault-source-notice">Dragolance campaign mode is active. OSRIC classes are shown for reference until Dragolance class data is added.</div>` : ""}
+      ${isPlayerCharacterMode() ? `<div class="vault-source-notice">${h(builderContext.label)} campaign mode is active. Source availability is controlled by this campaign.</div>` : builderContext.setting === "dragolance" ? `<div class="vault-source-notice">Dragolance campaign mode is active. OSRIC classes are shown for reference until Dragolance class data is added.</div>` : ""}
       ${classSourceSection("OSRIC", osricClassCards(), d.class_name)}
-      ${classSourceSection("DRAGOLANCE", [], d.class_name)}
+      ${classSourceSection("DRAGOLANCE", dragonlanceClassCards(), d.class_name)}
     </section>
     <div class="vault-card vault-full"><h3>Class Notes</h3>${raceClassWarnings(d)}<p>${h((state.rules.classes[d.class_name] || {}).armor)}</p><p><strong>Weapons:</strong> ${h((state.rules.classes[d.class_name] || {}).weapons)}</p><p>Hit Dice: ${h(hitDiceText(d))}. Starting wealth: ${h((state.rules.classes[d.class_name] || {}).wealth)}.</p><p>Proficiencies: ${h(proficiencyCount(d.class_name, d.level) ?? "Manual DM Review")} at this level. Non-proficiency penalty: ${h((state.rules.classes[d.class_name] || {}).non_proficiency_penalty ?? "Manual DM Review")}.</p></div>
     <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/003-class/">Class</a></p>
@@ -523,6 +575,9 @@ function navButtons(save = false) {
 }
 
 function campaignSelectHtml(d) {
+  if (isPlayerCharacterMode() && state.campaign) {
+    return `<input type="hidden" name="campaign_id" value="${h(state.campaign.id)}"><div class="vault-card vault-full"><div class="vault-kicker">Campaign</div><h3>${h(state.campaign.name)}</h3><p>${h(title(state.campaign.setting || "classic"))} / Session #${h(state.campaign.session_number || 1)} / ${h(state.campaign.next_session_date || "Next session TBD")}</p></div>`;
+  }
   if (!state.campaigns.length) return `<div class="vault-full vault-muted">No campaigns available. Your DM can assign this character later.</div>`;
   return selectField("Campaign", "campaign_id", d.campaign_id || "", ["", ...state.campaigns.map((c) => String(c.id))]);
 }
@@ -638,8 +693,8 @@ function classSourceSection(source, classes, selectedClass) {
 }
 
 function classChoiceCard(card, selectedClass) {
-  const selected = card.name === selectedClass;
   const disabled = card.disabled;
+  const selected = card.name === selectedClass && !disabled;
   return `<article class="vault-choice-card ${selected ? "selected" : ""} ${disabled ? "disabled" : ""}" data-select-class="${h(card.name)}" tabindex="${disabled ? "-1" : "0"}" aria-selected="${selected}">
     <div class="vault-choice-art vault-choice-art-class" aria-hidden="true"><span>${h(card.initials)}</span></div>
     <div class="vault-choice-body">
@@ -670,6 +725,11 @@ function osricRaceCards() {
 
 function osricClassCards() {
   return Object.entries(state.rules?.classes || {}).map(([name, classInfo]) => classCardData(name, "OSRIC", classInfo));
+}
+
+function dragonlanceClassCards() {
+  if (!sourceSelectable("DRAGOLANCE")) return [];
+  return Object.entries(state.rules?.classes || {}).map(([name, classInfo]) => classCardData(name, "DRAGOLANCE", classInfo));
 }
 
 function raceCardData(name, source = "OSRIC", data = null) {
@@ -900,8 +960,8 @@ async function saveDraft(navigate = true) {
   if (!state.draft.campaign_id) state.draft.campaign_id = null;
   const method = state.character?.id ? "PUT" : "POST";
   const path = state.character?.id ? `/characters/${state.character.id}` : "/characters";
-  state.character = isPlayerBuilderMode() && !state.character?.id
-    ? await rootApi("/player/characters", { method: "POST", headers: playerAuthHeaders(), body: JSON.stringify(state.draft) })
+  state.character = isPlayerCharacterMode()
+    ? await rootApi(state.character?.id ? `/player/characters/${state.character.id}` : "/player/characters", { method, headers: playerAuthHeaders(), body: JSON.stringify(state.draft) })
     : await api(path, { method, body: JSON.stringify(state.draft) });
   if (state.character.player?.id) {
     state.currentPlayer = state.character.player;
@@ -912,7 +972,9 @@ async function saveDraft(navigate = true) {
   if (navigate && pageKind() === "new") {
     location.href = `/1e/characters/${state.character.id}/`;
   } else if (pageKind() === "edit") {
-    state.character = await api(`/characters/${state.character.id}`);
+    state.character = isPlayerCharacterMode()
+      ? await rootApi(`/player/characters/${state.character.id}`, { headers: playerAuthHeaders() })
+      : await api(`/characters/${state.character.id}`);
     state.draft = initialDraft();
     toast("Saved.");
   }

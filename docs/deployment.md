@@ -154,3 +154,27 @@ server {
     }
 }
 ```
+
+Example player portal site for `classic.dragorussogames.com`:
+
+```nginx
+server {
+    server_name classic.dragorussogames.com;
+    root /var/www/classic.dragorussogames.com;
+    index index.html;
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:8010/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location / {
+        try_files $uri /index.html;
+    }
+}
+```
+
+`dragolance.dragorussogames.com` is no longer the player portal. It should either redirect to `https://classic.dragorussogames.com/` at Nginx level or serve the same React build long enough for the client-side redirect to run.

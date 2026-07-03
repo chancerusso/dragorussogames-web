@@ -786,6 +786,22 @@ tbody tr:hover {
   width: 100%;
 }
 
+.classic-login-brands {
+  align-items: start;
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  margin: -8px 0 4px;
+}
+
+.classic-login-brands img {
+  display: block;
+  height: auto;
+  max-height: 88px;
+  max-width: 46%;
+  object-fit: contain;
+}
+
 .login-subtitle {
   color: var(--gold-2);
   font-family: Georgia, "Times New Roman", serif;

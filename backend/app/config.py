@@ -14,7 +14,8 @@ class Settings(BaseSettings):
         "https://www.dragorussogames.com,"
         "https://dragorussogames.com,"
         "https://russo.dragorussogames.com,"
-        "https://dm.dragorussogames.com"
+        "https://dm.dragorussogames.com,"
+        "https://classic.dragorussogames.com"
     )
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")

@@ -64,17 +64,25 @@ function isDragolanceHost() {
   return window.location.hostname === "dragolance.dragorussogames.com";
 }
 
+function isClassicHost() {
+  return window.location.hostname === "classic.dragorussogames.com";
+}
+
+function isDmHost() {
+  return window.location.hostname === "dm.dragorussogames.com";
+}
+
 function isPlayerHostname() {
-  return isDragolanceHost() || window.location.hostname.startsWith("portal.");
+  return isClassicHost() || window.location.hostname.startsWith("portal.");
 }
 
 function playerCampaignPath(id) {
-  return isDragolanceHost() ? `/campaigns/${id}` : `/portal/campaigns/${id}`;
+  return isClassicHost() ? `/campaigns/${id}` : `/portal/campaigns/${id}`;
 }
 
 function playerCharacterBuilderPath(campaignId) {
-  if (isDragolanceHost()) return "/1e/characters/new/?setting=dragolance";
-  return campaignId ? `/portal/campaigns/${campaignId}/characters/new` : "/portal/characters/new";
+  const query = campaignId ? `?campaign_id=${campaignId}` : "";
+  return `/1e/characters/new/${query}`;
 }
 
 function isDragonlanceCampaign(campaign) {
@@ -131,27 +139,27 @@ function Protected({ children, role = "admin" }) {
   const auth = useAuth();
   const location = useLocation();
   const authed = role === "player" ? auth.playerAuthed : auth.authed;
-  const loginPath = role === "player" ? (isDragolanceHost() ? "/" : "/portal/login") : "/login";
+  const loginPath = role === "player" ? (isClassicHost() ? "/login" : "/portal/login") : "/login";
   return authed ? children : <Navigate to={loginPath} replace state={{ from: location.pathname }} />;
 }
 
 function HomeRedirect() {
-  return <Navigate to={isPlayerHostname() ? "/portal" : "/campaigns"} replace />;
+  return <Navigate to={isPlayerHostname() ? "/" : "/campaigns"} replace />;
 }
 
-function DragolanceRoot() {
+function ClassicRoot() {
   const auth = useAuth();
-  if (!isDragolanceHost()) return <HomeRedirect />;
-  return auth.playerAuthed ? <PlayerShell><DragolancePlayerHomepage /></PlayerShell> : <PlayerLoginPage />;
+  if (!isClassicHost()) return <HomeRedirect />;
+  return auth.playerAuthed ? <PlayerShell><ClassicPlayerHomepage /></PlayerShell> : <PlayerLoginPage />;
 }
 
 function AppSidebar({ mode, title, subtitle, brandTo, navItems, account, onSignOut }) {
   return (
     <aside className={`sidebar ${mode === "player" ? "player-sidebar" : ""}`}>
       <Link className="brand" to={brandTo}>
-        {mode === "player" && isDragolanceHost() ? (
+        {mode === "player" ? (
           <span className="brand-wordmark" aria-label="Dragolance">
-            <img src="/assets/dragolance-logo.png" alt="" />
+            <img src="/assets/drago-classic-logo.png" alt="" />
           </span>
         ) : (
           <span className="brand-mark">DRG</span>
@@ -180,11 +188,11 @@ function AppSidebar({ mode, title, subtitle, brandTo, navItems, account, onSignO
 }
 
 function PortalSwitcher({ mode }) {
-  if (mode === "player" && isDragolanceHost()) {
+  if (mode === "player" && isClassicHost()) {
     return (
       <div className="portal-switcher">
-        <span>Campaign</span>
-        <strong>Dragolance</strong>
+        <span>Portal</span>
+        <strong>Drago Classic</strong>
       </div>
     );
   }
@@ -192,14 +200,14 @@ function PortalSwitcher({ mode }) {
     return (
       <div className="portal-switcher">
         <span>Portal</span>
-        <Link to="/portal">View Dragonlance Portal</Link>
+        <a href="https://classic.dragorussogames.com/">View Classic Portal</a>
       </div>
     );
   }
   return (
     <div className="portal-switcher">
       <span>Portal</span>
-      <strong>Dragonlance Portal</strong>
+      <strong>Drago Classic</strong>
     </div>
   );
 }
@@ -242,11 +250,11 @@ function PlayerShell({ children }) {
   const auth = useAuth();
   const navigate = useNavigate();
   const { data: activePlayer, error } = useLoad(() => api("/player/me", { auth: "player" }), []);
-  const dragolance = isDragolanceHost();
+  const classic = isClassicHost();
 
   async function signOut() {
     auth.signOutPlayer();
-    navigate(dragolance ? "/" : "/portal/login");
+    navigate(classic ? "/login" : "/portal/login");
   }
 
   const context = useMemo(
@@ -259,16 +267,15 @@ function PlayerShell({ children }) {
       <div className="app-shell player-shell">
         <AppSidebar
           mode="player"
-          title={dragolance ? "Dragolance" : "Dragonlance Portal"}
-          subtitle={dragolance ? "Welcome to Krynn" : "Dragonlance Campaigns"}
-          brandTo={dragolance ? "/" : "/portal"}
+          title="Drago Classic"
+          subtitle="Classic AD&D Player Portal"
+          brandTo={classic ? "/" : "/portal"}
         navItems={[
-            ...(dragolance ? [{ label: "Home", to: "/", end: true }] : []),
-            { label: "My Campaigns", to: dragolance ? "/campaigns" : "/portal", end: true },
-            { label: dragolance ? "Rules" : "Dragonlance Rules", href: "/1e/" },
-            dragolance
-              ? { label: "Create Character", href: "/1e/characters/new/?setting=dragolance" }
-              : { label: "Create Character", to: "/portal/characters/new" },
+            { label: "Home", to: classic ? "/" : "/portal", end: true },
+            { label: "My Campaigns", to: classic ? "/campaigns" : "/portal/campaigns", end: true },
+            { label: "My Characters", to: classic ? "/characters" : "/portal/characters" },
+            { label: "Create Character", href: "/1e/characters/new/" },
+            { label: "1e Rules", href: "/1e/" },
           ]}
           account={
             <div className="account-card">
@@ -336,7 +343,7 @@ function PlayerLoginPage() {
   const auth = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const dragolance = isDragolanceHost();
+  const classic = isClassicHost();
 
   async function submit(event) {
     event.preventDefault();
@@ -345,7 +352,7 @@ function PlayerLoginPage() {
     try {
       await playerLogin(username, password);
       auth.refreshPlayer();
-      navigate(location.state?.from || (dragolance ? "/" : "/portal"));
+      navigate(location.state?.from || (classic ? "/" : "/portal"));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -356,13 +363,13 @@ function PlayerLoginPage() {
   return (
     <div className="login-page dragonlance-login">
       <form className="login-panel" onSubmit={submit}>
-        <div className="dragonlance-wordmark">
+        <div className="classic-login-brands">
           <img src="/assets/dragolance-logo.png" alt="Dragolance" />
+          <img src="/assets/drago-classic-logo.png" alt="Drago Classic" />
         </div>
-        <p className="eyebrow">{dragolance ? "Dragolance" : "Dragonlance"}</p>
-        <h1>{dragolance ? "Dragolance" : "Dragonlance"}</h1>
-        <p className="login-subtitle">Welcome to Krynn</p>
-        {dragolance ? <p className="login-copy">The gods are silent. Dragons are only legends. War is coming.</p> : null}
+        <p className="eyebrow">Drago Classic</p>
+        <h1>Player Login</h1>
+        <p className="login-subtitle">Your campaigns, characters, and classic rules in one place.</p>
         <label>
           Username
           <input autoFocus value={username} onChange={(event) => setUsername(event.target.value)} />
@@ -461,7 +468,7 @@ function CampaignsPage() {
           <h2>Your adventure begins here.</h2>
           <p className="lede">Manage campaigns, players, and characters from one quiet command center.</p>
           <div className="hero-actions">
-            <a className="secondary-button" href="/portal" target="_blank" rel="noreferrer">Player View</a>
+            <a className="secondary-button" href="https://classic.dragorussogames.com/" target="_blank" rel="noreferrer">Player View</a>
           </div>
         </div>
         <div className="summary-strip hero-stats">
@@ -944,19 +951,23 @@ function PlaceholderPanel({ title, copy }) {
   );
 }
 
-function DragolancePlayerHomepage() {
-  const { activePlayerId, activePlayer } = usePlayerPortal();
+function ClassicPlayerHomepage() {
+  const { activePlayer, activePlayerId } = usePlayerPortal();
   const { data, error, loading } = useLoad(() => api("/player/campaigns", { auth: "player" }), []);
-  const campaigns = useMemo(() => (data || []).filter(isDragonlanceCampaign), [data]);
-  const characters = useMemo(() => playerCharactersFromCampaigns(campaigns, activePlayerId), [campaigns, activePlayerId]);
+  const { data: characterData, error: characterError, loading: charactersLoading, reload: reloadCharacters } = useLoad(() => api("/player/characters", { auth: "player" }), []);
+  const campaigns = data || [];
+  const characters = useMemo(() => (characterData || []).map((character) => ({
+    ...character,
+    campaign_name: campaigns.find((campaign) => campaign.id === character.campaign_id)?.name || character.campaign?.name,
+  })), [characterData, campaigns]);
   const nextSession = useMemo(() => nextSessionCampaign(campaigns), [campaigns]);
 
   return (
     <section className="player-portal-page player-homepage">
       <PlayerHero
-        eyebrow="Dragolance"
+        eyebrow="Drago Classic"
         title={`Welcome, ${activePlayer?.display_name || activePlayer?.player_name || "Player"}`}
-        copy="The gods are silent. Dragons are only legends. War is coming."
+        copy="Your campaigns, characters, and classic First Edition rules are ready."
       />
       <PageState loading={loading} error={error} />
       {!loading && !error ? (
@@ -976,7 +987,7 @@ function DragolancePlayerHomepage() {
                   return <CampaignCard key={campaign.id} campaign={campaign} variant="player" character={character} />;
                 })}
               </div>
-              {campaigns.length === 0 ? <p className="portal-copy">No Dragolance campaign memberships found.</p> : null}
+              {campaigns.length === 0 ? <p className="portal-copy">No campaign memberships found. Ask your DM to add this account to a campaign.</p> : null}
             </section>
             <section className="panel home-panel">
               <p className="eyebrow">Next Session</p>
@@ -999,9 +1010,9 @@ function DragolancePlayerHomepage() {
             <section className="panel home-panel">
               <p className="eyebrow">Create Character</p>
               <h2>Your legend begins here.</h2>
-              <p className="portal-copy">Start with the peoples of Krynn and choose your first race.</p>
+              <p className="portal-copy">Choose a campaign, then open the unified classic character builder.</p>
               <div className="form-actions">
-                <a className="secondary-button" href="/1e/characters/new/?setting=dragolance">Create Character</a>
+                <CreateCharacterLink campaigns={campaigns} />
               </div>
             </section>
           </div>
@@ -1012,15 +1023,16 @@ function DragolancePlayerHomepage() {
                 <h2>Character Roster</h2>
               </div>
             </div>
+            <PageState loading={charactersLoading} error={characterError} />
             {characters.length ? (
               <div className="character-card-grid">
-                {characters.map((character) => <PlayerCharacterCard key={character.id} character={character} />)}
+                {characters.map((character) => <PlayerCharacterCard key={character.id} character={character} onDeleted={reloadCharacters} />)}
               </div>
             ) : (
               <div className="empty-character-callout">
                 <h2>Your legend begins here.</h2>
-                <p className="portal-copy">No characters are assigned to your Dragolance campaigns yet.</p>
-                <a className="secondary-button" href="/1e/characters/new/?setting=dragolance">Create Character</a>
+                <p className="portal-copy">No characters are assigned to your account yet.</p>
+                <CreateCharacterLink campaigns={campaigns} />
               </div>
             )}
           </section>
@@ -1030,7 +1042,28 @@ function DragolancePlayerHomepage() {
   );
 }
 
-function PlayerCharacterCard({ character }) {
+function CreateCharacterLink({ campaigns }) {
+  if (campaigns.length === 1) {
+    return <a className="secondary-button" href={playerCharacterBuilderPath(campaigns[0].id)}>Create Character</a>;
+  }
+  if (campaigns.length > 1) return <Link className="secondary-button" to="/characters/new">Create Character</Link>;
+  return <a className="secondary-button" href="/1e/characters/new/">Create Character</a>;
+}
+
+function PlayerCharacterCard({ character, onDeleted }) {
+  const [busy, setBusy] = useState(false);
+
+  async function deleteCharacter() {
+    if (!window.confirm(`Delete ${character.name}?`)) return;
+    setBusy(true);
+    try {
+      await api(`/player/characters/${character.id}`, { auth: "player", method: "DELETE" });
+      if (onDeleted) await onDeleted();
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <article className="character-card">
       <p className="eyebrow">{character.campaign_name || "Campaign"}</p>
@@ -1044,6 +1077,7 @@ function PlayerCharacterCard({ character }) {
       <div className="form-actions">
         <a className="secondary-button" href={`/1e/characters/${character.id}/`}>View</a>
         <a className="table-link" href={`/1e/characters/${character.id}/edit/`}>Edit</a>
+        <button className="table-button" type="button" disabled={busy} onClick={deleteCharacter}>{busy ? "Deleting..." : "Delete"}</button>
       </div>
     </article>
   );
@@ -1051,23 +1085,15 @@ function PlayerCharacterCard({ character }) {
 
 function PlayerCampaignsPage() {
   const { activePlayerId, activePlayer } = usePlayerPortal();
-  const navigate = useNavigate();
   const { data, error, loading } = useLoad(() => api("/player/campaigns", { auth: "player" }), []);
-  const dragolance = isDragolanceHost();
-  const campaigns = useMemo(() => dragolance ? (data || []).filter(isDragonlanceCampaign) : (data || []), [data, dragolance]);
-
-  useEffect(() => {
-    if (!loading && campaigns.length === 1) {
-      navigate(playerCampaignPath(campaigns[0].id), { replace: true });
-    }
-  }, [campaigns, loading, navigate]);
+  const campaigns = data || [];
 
   return (
     <section className="player-portal-page">
       <PlayerHero
-        eyebrow={dragolance ? "Dragolance" : "Dragonlance"}
+        eyebrow="Drago Classic"
         title="My Campaigns"
-        copy={activePlayer ? `Welcome to Krynn, ${activePlayer.display_name || activePlayer.player_name}.` : "Sign in to see your campaigns."}
+        copy={activePlayer ? `Welcome, ${activePlayer.display_name || activePlayer.player_name}.` : "Sign in to see your campaigns."}
       />
       <PageState loading={loading} error={error} />
       <div className="card-grid player-campaign-grid">
@@ -1079,8 +1105,8 @@ function PlayerCampaignsPage() {
       {!loading && !error && campaigns.length === 0 ? (
         <div className="panel notes-placeholder">
           <p className="eyebrow">No Campaigns</p>
-          <h2>No Dragolance campaign memberships found.</h2>
-          <p>Ask your DM to add this player profile to a Dragolance campaign.</p>
+          <h2>No campaign memberships found.</h2>
+          <p>Ask your DM to add this player profile to a campaign.</p>
         </div>
       ) : null}
     </section>
@@ -1094,7 +1120,6 @@ function PlayerCampaignHome() {
   const [activeTab, setActiveTab] = useState("overview");
 
   if (loading || error || !campaign) return <PageState loading={loading} error={error} />;
-  if (isDragolanceHost() && !isDragonlanceCampaign(campaign)) return <Navigate to="/campaigns" replace />;
 
   const character = campaign.my_character || playerCharacterForCampaign(campaign, activePlayerId);
 
@@ -1108,6 +1133,85 @@ function PlayerCampaignHome() {
       {activeTab === "journal" ? <ReadOnlyPlaceholder title="Journal" copy="Read-only session summaries will appear here once the journal backend exists." /> : null}
       {activeTab === "handouts" ? <ReadOnlyPlaceholder title="Handouts" copy="Read-only campaign handouts, maps, and clues will appear here once uploaded." /> : null}
       {activeTab === "rules" ? <PlayerRulesTab campaign={campaign} /> : null}
+    </section>
+  );
+}
+
+function PlayerCreateCharacterPage() {
+  const { data, error, loading } = useLoad(() => api("/player/campaigns", { auth: "player" }), []);
+  const campaigns = data || [];
+
+  if (!loading && !error && campaigns.length === 1) {
+    window.location.href = playerCharacterBuilderPath(campaigns[0].id);
+    return <p className="muted">Opening character builder...</p>;
+  }
+
+  return (
+    <section className="player-portal-page">
+      <PlayerHero
+        eyebrow="Create Character"
+        title="Choose a Campaign"
+        copy="Your campaign determines which sourcebooks are available in the shared builder."
+      />
+      <PageState loading={loading} error={error} />
+      {!loading && !error ? (
+        <div className="card-grid player-campaign-grid">
+          {campaigns.map((campaign) => (
+            <a key={campaign.id} className="campaign-card" href={playerCharacterBuilderPath(campaign.id)}>
+              <div className="card-topline">
+                <span>Campaign</span>
+                <span>{titleCase(campaign.setting || "greyhawk")}</span>
+              </div>
+              <h2>{campaign.name}</h2>
+              <dl className="campaign-facts">
+                <div><dt>Next Session</dt><dd>{displayDate(campaign.next_session_date)}</dd></div>
+                <div><dt>Session Number</dt><dd>#{campaign.session_number || 1}</dd></div>
+              </dl>
+              <span className="action-button">Create Character</span>
+            </a>
+          ))}
+        </div>
+      ) : null}
+      {!loading && !error && campaigns.length === 0 ? (
+        <Panel className="notes-placeholder">
+          <p className="eyebrow">No Campaigns</p>
+          <h2>Your DM has not assigned a campaign yet.</h2>
+          <p>Characters can be created once this player account belongs to a campaign.</p>
+        </Panel>
+      ) : null}
+    </section>
+  );
+}
+
+function PlayerCharactersPage() {
+  const { data: campaigns } = useLoad(() => api("/player/campaigns", { auth: "player" }), []);
+  const { data: characters, error, loading, reload } = useLoad(() => api("/player/characters", { auth: "player" }), []);
+  const campaignList = campaigns || [];
+  const enriched = (characters || []).map((character) => ({
+    ...character,
+    campaign_name: campaignList.find((campaign) => campaign.id === character.campaign_id)?.name || character.campaign?.name,
+  }));
+
+  return (
+    <section className="player-portal-page">
+      <PlayerHero
+        eyebrow="My Characters"
+        title="Character Roster"
+        copy="View, edit, or retire the characters owned by this player account."
+      />
+      <PageState loading={loading} error={error} />
+      {!loading && !error && enriched.length ? (
+        <div className="character-card-grid">
+          {enriched.map((character) => <PlayerCharacterCard key={character.id} character={character} onDeleted={reload} />)}
+        </div>
+      ) : null}
+      {!loading && !error && !enriched.length ? (
+        <div className="empty-character-callout panel">
+          <h2>Your legend begins here.</h2>
+          <p className="portal-copy">No characters are assigned to your account yet.</p>
+          <CreateCharacterLink campaigns={campaignList} />
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -1165,13 +1269,13 @@ function PlayerOverviewTab({ campaign, character }) {
 
 function PlayerCharacterTab({ character }) {
   const { id: campaignId } = useParams();
-  const label = isDragolanceHost() ? "Dragolance Character" : "Dragonlance Character";
+  const label = "My Character";
   if (!character) {
     return (
       <Panel className="notes-placeholder read-only-panel">
         <p className="eyebrow">{label}</p>
         <h2>Your legend begins here.</h2>
-        <p>Choose your Dragonlance people and begin building a character for this campaign.</p>
+        <p>Choose a sourcebook option and begin building a character for this campaign.</p>
         <div className="form-actions">
           <Link className="secondary-button" to={playerCharacterBuilderPath(campaignId)}>Create Character</Link>
         </div>
@@ -1192,7 +1296,7 @@ function PlayerCharacterTab({ character }) {
       </dl>
       <div className="form-actions">
         <a className="secondary-button" href={`/1e/characters/${character.id}/`}>View Character</a>
-        <a className="table-link" href={`/1e/characters/${character.id}/edit/`}>Edit in Vault</a>
+        <a className="table-link" href={`/1e/characters/${character.id}/edit/`}>Edit Character</a>
       </div>
     </section>
   );
@@ -1312,23 +1416,22 @@ function PlayerRosterTab({ campaign }) {
 
 function PlayerRulesTab({ campaign }) {
   const setting = campaign.setting || "greyhawk";
-  const dragolance = isDragolanceHost();
   return (
     <div className="rule-link-grid">
       <a className="panel rule-card" href="/1e/">
-        <p className="eyebrow">{dragolance ? "Dragolance" : "Dragonlance"}</p>
-        <h2>Player Rules</h2>
-        <p>Temporary rules reference until Krynn-specific data replaces the engine.</p>
+        <p className="eyebrow">1e Rules</p>
+        <h2>Rules Library</h2>
+        <p>Open the shared classic First Edition rules reference.</p>
       </a>
       <div className="panel rule-card muted-card">
-        <p className="eyebrow">{dragolance ? "Dragolance" : "Dragonlance"}</p>
-        <h2>Setting Rules</h2>
-        <p>Setting rules are staged for v0.6.0.</p>
+        <p className="eyebrow">{titleCase(setting)}</p>
+        <h2>Campaign Rules</h2>
+        <p>Setting-specific sourcebook rules will appear here as the library expands.</p>
       </div>
       <div className="panel rule-card muted-card">
-        <p className="eyebrow">Krynn</p>
+        <p className="eyebrow">Sourcebook</p>
         <h2>{setting === "dragonlance" || setting === "dragolance" ? "Current Setting" : "Campaign Lore"}</h2>
-        <p>Krynn campaign information will be linked here once published.</p>
+        <p>Campaign information will be linked here once published.</p>
       </div>
     </div>
   );
@@ -1345,7 +1448,7 @@ function ReadOnlyPlaceholder({ title, copy }) {
 }
 
 function PlayerHero({ eyebrow, title, copy }) {
-  if (isDragolanceHost()) return <Header eyebrow={eyebrow} title={title} copy={copy} className="player-hero" />;
+  if (isClassicHost()) return <Header eyebrow={eyebrow} title={title} copy={copy} className="player-hero" />;
   return <Header eyebrow={eyebrow} title={title} copy={copy} className="player-hero" action={<Link className="secondary-button" to="/">Return to DM Portal</Link>} />;
 }
 
@@ -1557,12 +1660,13 @@ function PlainHeader({ eyebrow, title, copy }) {
 }
 
 function CampaignHeader({ campaign, eyebrow }) {
+  const campaignBackPath = isClassicHost() ? "/campaigns" : window.location.pathname.startsWith("/portal") ? "/portal" : "/campaigns";
   return (
     <Header
       eyebrow={eyebrow}
       title={campaign.name}
       className="workspace-header"
-      action={<Link className="secondary-button" to={window.location.pathname.startsWith("/portal") ? "/portal" : "/campaigns"}>{window.location.pathname.startsWith("/portal") ? "My Campaigns" : "All Campaigns"}</Link>}
+      action={<Link className="secondary-button" to={campaignBackPath}>{isClassicHost() || window.location.pathname.startsWith("/portal") ? "My Campaigns" : "All Campaigns"}</Link>}
     >
       <div className="workspace-meta">
         <span>{titleCase(campaign.setting || "greyhawk")}</span>
@@ -1647,16 +1751,21 @@ function InlineSelect({ value, options, onSave }) {
 
 export default function App() {
   if (isDragolanceHost()) {
+    window.location.replace("https://classic.dragorussogames.com/");
+    return null;
+  }
+
+  if (isClassicHost()) {
     return (
       <AuthProvider>
         <Routes>
-          <Route path="/" element={<DragolanceRoot />} />
-          <Route path="/login" element={<Navigate to="/" replace />} />
-          <Route path="/portal/login" element={<Navigate to="/" replace />} />
+          <Route path="/login" element={<PlayerLoginPage />} />
+          <Route path="/" element={<ClassicRoot />} />
           <Route element={<Protected role="player"><PlayerShell /></Protected>}>
             <Route path="/campaigns" element={<PlayerCampaignsPage />} />
             <Route path="/campaigns/:id" element={<PlayerCampaignHome />} />
-            <Route path="/characters/new" element={<Navigate to="/1e/characters/new/?setting=dragolance" replace />} />
+            <Route path="/characters" element={<PlayerCharactersPage />} />
+            <Route path="/characters/new" element={<PlayerCreateCharacterPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
@@ -1672,9 +1781,11 @@ export default function App() {
         <Route path="/" element={<HomeRedirect />} />
         <Route element={<Protected role="player"><PlayerShell /></Protected>}>
           <Route path="/portal" element={<PlayerCampaignsPage />} />
+          <Route path="/portal/campaigns" element={<PlayerCampaignsPage />} />
           <Route path="/portal/campaigns/:id" element={<PlayerCampaignHome />} />
-          <Route path="/portal/characters/new" element={<PlayerCharacterBuilderPage />} />
-          <Route path="/portal/campaigns/:id/characters/new" element={<PlayerCharacterBuilderPage />} />
+          <Route path="/portal/characters" element={<PlayerCharactersPage />} />
+          <Route path="/portal/characters/new" element={<PlayerCreateCharacterPage />} />
+          <Route path="/portal/campaigns/:id/characters/new" element={<PlayerCreateCharacterPage />} />
         </Route>
         <Route element={<Protected><Shell /></Protected>}>
           <Route path="/campaigns" element={<CampaignsPage />} />

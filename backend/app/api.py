@@ -157,12 +157,14 @@ def spell_payload(spell: SpellsCatalog) -> dict:
 
 
 def campaign_payload(campaign: Campaign) -> dict:
+    allowed_sourcebooks = ["DRAGOLANCE"] if campaign.setting in {"dragonlance", "dragolance"} else ["OSRIC", "GREYHAWK"]
     return {
         "id": campaign.id,
         "name": campaign.name,
         "description": campaign.description,
         "dm_user_id": campaign.dm_user_id,
         "setting": campaign.setting,
+        "allowed_sourcebooks": allowed_sourcebooks,
         "schedule": campaign.schedule,
         "next_session_date": campaign.next_session_date,
         "session_number": campaign.session_number,
@@ -1079,6 +1081,13 @@ def list_vault_characters(user_id: Optional[int] = None, include_archived: bool 
     return [character_payload(character) for character in db.scalars(statement).all()]
 
 
+def player_character_or_404(db: Session, character_id: int, player_id: int) -> VaultCharacter:
+    character = get_vault_character_or_404(db, character_id)
+    if character.user_id != player_id:
+        raise HTTPException(status_code=404, detail="Character not found.")
+    return character
+
+
 def create_vault_character_for_player(data: dict, player: Player, db: Session) -> dict:
     ensure_vault_seeded(db)
     validate_character_choice(data)
@@ -1130,6 +1139,17 @@ def create_vault_character_for_player(data: dict, player: Player, db: Session) -
     return character_payload(character)
 
 
+@router.get("/player/characters")
+def list_player_vault_characters(claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> list[dict]:
+    player = player_from_claims(db, claims)
+    characters = db.scalars(
+        select(VaultCharacter)
+        .where(VaultCharacter.user_id == player.id, VaultCharacter.status != "archived")
+        .order_by(VaultCharacter.updated_at.desc())
+    ).all()
+    return [character_payload(character) for character in characters]
+
+
 @router.post("/player/characters")
 def create_player_vault_character(data: dict, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
     player = player_from_claims(db, claims)
@@ -1138,6 +1158,12 @@ def create_player_vault_character(data: dict, claims: dict = Depends(require_pla
         ensure_player_campaign_member(db, int(campaign_id), player.id)
     data = {**data, "user_id": player.id}
     return create_vault_character_for_player(data, player, db)
+
+
+@router.get("/player/characters/{character_id}")
+def get_player_vault_character(character_id: int, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
+    player = player_from_claims(db, claims)
+    return character_payload(player_character_or_404(db, character_id, player.id))
 
 
 @router.post("/1e/characters")
@@ -1151,9 +1177,7 @@ def get_vault_character(character_id: int, _: dict = Depends(require_jwt_admin),
     return character_payload(get_vault_character_or_404(db, character_id))
 
 
-@router.put("/1e/characters/{character_id}")
-def update_vault_character(character_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
-    character = get_vault_character_or_404(db, character_id)
+def update_vault_character_record(character: VaultCharacter, data: dict, db: Session) -> dict:
     validate_character_choice(data)
     old_level = character.level
     for field in (
@@ -1195,6 +1219,42 @@ def update_vault_character(character_id: int, data: dict, _: dict = Depends(requ
     if "level" in data and character.level != old_level:
         payload["level_review"] = "Level changed — review HP."
     return payload
+
+
+@router.put("/player/characters/{character_id}")
+def update_player_vault_character(character_id: int, data: dict, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
+    player = player_from_claims(db, claims)
+    character = player_character_or_404(db, character_id, player.id)
+    campaign_id = data.get("campaign_id")
+    if campaign_id:
+        ensure_player_campaign_member(db, int(campaign_id), player.id)
+    return update_vault_character_record(character, data, db)
+
+
+@router.patch("/player/characters/{character_id}")
+def patch_player_vault_character(character_id: int, data: dict, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
+    return update_player_vault_character(character_id, data, claims, db)
+
+
+@router.put("/1e/characters/{character_id}")
+def update_vault_character(character_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    character = get_vault_character_or_404(db, character_id)
+    return update_vault_character_record(character, data, db)
+
+
+@router.patch("/1e/characters/{character_id}")
+def patch_vault_character(character_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    character = get_vault_character_or_404(db, character_id)
+    return update_vault_character_record(character, data, db)
+
+
+@router.delete("/player/characters/{character_id}")
+def delete_player_vault_character(character_id: int, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
+    player = player_from_claims(db, claims)
+    character = player_character_or_404(db, character_id, player.id)
+    character.status = "archived"
+    db.commit()
+    return {"ok": True, "archived": True}
 
 
 @router.delete("/1e/characters/{character_id}")
