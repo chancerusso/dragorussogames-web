@@ -1366,9 +1366,9 @@ function RaceCardSection({ title, races, selectedRace, onSelect }) {
 }
 
 function RaceCard({ race, selected, onSelect }) {
-  const disabled = !race.enabled_by_default;
+  const advisory = !race.enabled_by_default;
   return (
-    <article className={`panel race-card ${selected ? "selected" : ""} ${disabled ? "disabled" : ""}`}>
+    <article className={`panel race-card ${selected ? "selected" : ""}`}>
       <div className="race-card-header">
         <div>
           <h2>{race.name}</h2>
@@ -1378,13 +1378,13 @@ function RaceCard({ race, selected, onSelect }) {
       </div>
       <dl className="race-details">
         <div><dt>Ability Adjustments</dt><dd>{formatAbilityAdjustments(race.ability_adjustments)}</dd></div>
-        <div><dt>Allowed Classes</dt><dd>{race.allowed_classes.join(", ")}</dd></div>
         <div><dt>Alignment</dt><dd>{race.allowed_alignments.join(", ")}</dd></div>
         <div><dt>Languages</dt><dd>{race.languages.join(", ")}</dd></div>
         <div><dt>Special Abilities</dt><dd>{race.special_abilities.join(", ")}</dd></div>
         <div><dt>Movement</dt><dd>{race.movement}</dd></div>
       </dl>
-      <button type="button" disabled={disabled} onClick={() => onSelect(race.name)}>
+      {advisory ? <p className="portal-copy">Ask your DM before selecting this option.</p> : null}
+      <button type="button" onClick={() => onSelect(race.name)}>
         {selected ? "Selected" : "Select Race"}
       </button>
     </article>

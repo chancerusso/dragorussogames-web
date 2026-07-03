@@ -165,6 +165,10 @@ function sourceSelectable(source) {
   return builderContext.selectableSources.has(source);
 }
 
+function sourceAdvisory(source) {
+  return !sourceSelectable(source);
+}
+
 function newCharacterHref() {
   if (isPlayerCharacterMode()) return "/1e/characters/new/";
   return builderContext.setting === "dragolance" ? "/1e/characters/new/?setting=dragolance" : "/1e/characters/new/";
@@ -175,7 +179,7 @@ async function api(path, options = {}) {
     headers: { "Content-Type": "application/json", ...(options.headers || {}) },
     ...options,
   });
-  if (!response.ok) throw new Error(await response.text());
+  if (!response.ok) throw new Error(await cleanResponseError(response));
   return response.status === 204 ? null : response.json();
 }
 
@@ -184,8 +188,25 @@ async function rootApi(path, options = {}) {
     headers: { "Content-Type": "application/json", ...(options.headers || {}) },
     ...options,
   });
-  if (!response.ok) throw new Error(await response.text());
+  if (!response.ok) throw new Error(await cleanResponseError(response));
   return response.status === 204 ? null : response.json();
+}
+
+async function cleanResponseError(response) {
+  const fallback = `Request failed (${response.status}).`;
+  try {
+    const contentType = response.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      const payload = await response.json();
+      const detail = payload.detail ?? payload.message ?? payload;
+      if (Array.isArray(detail)) return "Unable to save changes. Please check the form and try again.";
+      if (typeof detail === "object" && detail) return detail.msg || detail.detail || detail.message || fallback;
+      return String(detail || fallback).replace(/^"|"$/g, "");
+    }
+    return (await response.text()).replace(/^"|"$/g, "") || fallback;
+  } catch {
+    return fallback;
+  }
 }
 
 async function optionalApi(loader, fallback) {
@@ -530,7 +551,7 @@ function builderStep() {
       ${raceSourceSection("OSRIC", osricRaceCards(), d.race)}
       ${raceSourceSection("DRAGOLANCE", settingDragonlanceRaces(), d.race)}
     </section>
-    <div class="vault-card vault-full"><h3>Race Restrictions</h3>${raceClassWarnings(d)}<p><strong>Current class options:</strong> ${h(compactList(dragonlanceRaceProfile(d.race)?.allowed_classes || state.rules.races[d.race]?.classes || races, 12))}</p><p><strong>Current alignment options:</strong> ${h(compactList(dragonlanceRaceProfile(d.race)?.allowed_alignments || ["See details later"], 6))}</p></div>
+    <div class="vault-card vault-full"><h3>Race Notes</h3>${raceClassWarnings(d)}<p><strong>Alignment notes:</strong> ${h(compactList(dragonlanceRaceProfile(d.race)?.allowed_alignments || ["See details later"], 6))}</p></div>
     <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/002-race/">Race</a>. Dragonlance-specific Knights and Wizards restrictions will be added in a later pass.</p>
     ${navButtons()}`;
   if (state.step === 3) return `
@@ -643,15 +664,16 @@ function choiceStepHeader(kind, titleText, selected, description) {
 }
 
 function raceSourceSection(source, races, selectedRace) {
+  const cards = races.map((race) => raceCardData(race.name, source, race)).filter(Boolean);
   return `<section class="vault-source-section">
     <div class="vault-source-heading">
       <div>
         <div class="vault-kicker">${h(source)}</div>
         <h3>${source === "OSRIC" ? "Foundation Races" : "Dragonlance Races"}</h3>
       </div>
-      <span>${h(races.length)} options</span>
+      <span>${h(cards.length)} options</span>
     </div>
-    <div class="vault-choice-grid">${races.map((race) => raceChoiceCard(raceCardData(race.name, source, race), selectedRace)).join("")}</div>
+    <div class="vault-choice-grid">${cards.map((card) => raceChoiceCard(card, selectedRace)).join("")}</div>
   </section>`;
 }
 
@@ -668,11 +690,11 @@ function raceChoiceCard(card, selectedRace) {
       <p class="vault-choice-blurb">${h(card.description)}</p>
       <dl class="vault-choice-facts">
         ${choiceFact("Ability Adjustments", card.adjustments)}
-        ${choiceFact("Allowed Classes", card.allowedClasses)}
         ${choiceFact("Movement", card.movement)}
         ${choiceFact("Alignment", card.alignment)}
+        ${choiceFact("Languages", card.languages)}
       </dl>
-      ${disabled ? `<p class="vault-unavailable">Not available for this campaign.</p>` : ""}
+      ${card.advisory ? `<p class="vault-unavailable">Ask your DM before selecting this option.</p>` : ""}
       <button class="vault-button ${selected ? "" : "secondary"}" type="button" data-select-race="${h(card.name)}" ${disabled ? "disabled" : ""}>${selected ? "Selected" : "Select Race"}</button>
     </div>
   </article>`;
@@ -709,7 +731,7 @@ function classChoiceCard(card, selectedClass) {
         ${choiceFact("Requirements", card.requirements)}
         ${choiceFact("Key Notes", card.keyNotes)}
       </dl>
-      ${disabled ? `<p class="vault-unavailable">Not available for this campaign.</p>` : ""}
+      ${card.advisory ? `<p class="vault-unavailable">Ask your DM before selecting this option.</p>` : ""}
       <button class="vault-button ${selected ? "" : "secondary"}" type="button" data-select-class="${h(card.name)}" ${disabled ? "disabled" : ""}>${selected ? "Selected" : "Select Class"}</button>
     </div>
   </article>`;
@@ -728,8 +750,7 @@ function osricClassCards() {
 }
 
 function dragonlanceClassCards() {
-  if (!sourceSelectable("DRAGOLANCE")) return [];
-  return Object.entries(state.rules?.classes || {}).map(([name, classInfo]) => classCardData(name, "DRAGOLANCE", classInfo));
+  return [];
 }
 
 function raceCardData(name, source = "OSRIC", data = null) {
@@ -752,10 +773,11 @@ function raceCardData(name, source = "OSRIC", data = null) {
     initials: initialsFor(name),
     description: cleanChoiceText(race.description || descriptions[name]) || "A classic First Edition ancestry.",
     adjustments: formatAbilityAdjustments(race.ability_adjustments || race.adjustments),
-    allowedClasses: compactList(race.allowed_classes || race.classes),
     movement: movement || "See details later",
     alignment: compactList(race.allowed_alignments) || "Any or class-limited",
-    disabled: !sourceSelectable(source),
+    languages: compactList(race.languages || []),
+    advisory: sourceAdvisory(source),
+    disabled: false,
   };
 }
 
@@ -784,7 +806,8 @@ function classCardData(name, source = "OSRIC", data = null) {
     primeAbility: classPrimeAbility(name),
     requirements: classRequirements(name),
     keyNotes: compactList([classInfo.armor, classInfo.weapons, classInfo.spellcaster ? "Spellcaster" : "No normal spellcasting"], 2),
-    disabled: !sourceSelectable(source),
+    advisory: sourceAdvisory(source),
+    disabled: false,
   };
 }
 
@@ -861,7 +884,16 @@ function formatAbilityAdjustments(adjustments = {}) {
 function bindBuilderActions() {
   document.querySelector("[data-prev]")?.addEventListener("click", () => { syncDraft(); state.step = Math.max(0, state.step - 1); renderBuilder(); });
   document.querySelector("[data-next]")?.addEventListener("click", () => { syncDraft(); state.step = Math.min(10, state.step + 1); renderBuilder(); });
-  document.querySelector("[data-save]")?.addEventListener("click", saveDraft);
+  document.querySelector("[data-save]")?.addEventListener("click", async (event) => {
+    event.preventDefault();
+    try {
+      await saveDraft();
+    } catch (error) {
+      const message = error?.message || "Unable to save character.";
+      console.error("Character save failed.", error);
+      toast(message);
+    }
+  });
   document.querySelector("[name='race']")?.addEventListener("change", () => { syncDraft(); renderBuilder(); });
   document.querySelector("[name='class_name']")?.addEventListener("change", () => { syncDraft(); renderBuilder(); });
   document.querySelectorAll("[data-select-race]").forEach((button) => button.addEventListener("click", (event) => {
@@ -970,13 +1002,14 @@ async function saveDraft(navigate = true) {
   state.draft = { ...state.draft, id: state.character.id };
   toast("Saved.");
   if (navigate && pageKind() === "new") {
-    location.href = `/1e/characters/${state.character.id}/`;
+    location.href = isPlayerCharacterMode() ? "/characters" : `/1e/characters/${state.character.id}/`;
   } else if (pageKind() === "edit") {
     state.character = isPlayerCharacterMode()
       ? await rootApi(`/player/characters/${state.character.id}`, { headers: playerAuthHeaders() })
       : await api(`/characters/${state.character.id}`);
     state.draft = initialDraft();
     toast("Saved.");
+    if (navigate && isPlayerCharacterMode()) location.href = "/characters";
   }
   return state.character;
 }
@@ -1041,15 +1074,9 @@ function proficiencyCount(className, level) {
 
 function raceClassWarnings(d) {
   const warnings = [];
-  const dragonlanceRace = dragonlanceRaceProfile(d.race);
-  const race = state.rules?.races?.[d.race] || {};
   const cls = state.rules?.classes?.[d.class_name] || {};
-  if (dragonlanceRace?.allowed_classes?.length && !dragonlanceRace.allowed_classes.some((className) => className.split(" - ")[0] === d.class_name)) {
-    warnings.push(`${d.race} cannot normally choose ${d.class_name} under the Dragonlance foundation restrictions.`);
-  }
-  if (race.classes && !race.classes.includes(d.class_name)) warnings.push(`${d.race} cannot normally choose ${d.class_name} as a single class.`);
   if (cls.allowed_alignments?.length && !cls.allowed_alignments.includes(d.alignment)) warnings.push(`${d.class_name} alignment restriction: ${cls.alignment}.`);
-  return warnings.length ? `<div class="vault-warning">${warnings.map((warning) => `<p>${h(warning)}</p>`).join("")}</div>` : `<p class="vault-muted">No race/class/alignment warnings.</p>`;
+  return warnings.length ? `<div class="vault-warning">${warnings.map((warning) => `<p>${h(warning)}</p>`).join("")}</div>` : `<p class="vault-muted">All standard classes are allowed for all races. Ask your DM about campaign-specific exceptions.</p>`;
 }
 
 function coinCount(values = {}) {
