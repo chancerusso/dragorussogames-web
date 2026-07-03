@@ -142,7 +142,7 @@ function HomeRedirect() {
 function DragolanceRoot() {
   const auth = useAuth();
   if (!isDragolanceHost()) return <HomeRedirect />;
-  return auth.playerAuthed ? <Navigate to="/campaigns" replace /> : <PlayerLoginPage />;
+  return auth.playerAuthed ? <PlayerShell><DragolancePlayerHomepage /></PlayerShell> : <PlayerLoginPage />;
 }
 
 function AppSidebar({ mode, title, subtitle, brandTo, navItems, account, onSignOut }) {
@@ -232,7 +232,7 @@ function Shell() {
   );
 }
 
-function PlayerShell() {
+function PlayerShell({ children }) {
   const auth = useAuth();
   const navigate = useNavigate();
   const { data: activePlayer, error } = useLoad(() => api("/player/me", { auth: "player" }), []);
@@ -255,8 +255,9 @@ function PlayerShell() {
           mode="player"
           title={dragolance ? "Dragolance" : "Dragonlance Portal"}
           subtitle={dragolance ? "Welcome to Krynn" : "Dragonlance Campaigns"}
-          brandTo={dragolance ? "/campaigns" : "/portal"}
+          brandTo={dragolance ? "/" : "/portal"}
         navItems={[
+            ...(dragolance ? [{ label: "Home", to: "/", end: true }] : []),
             { label: "My Campaigns", to: dragolance ? "/campaigns" : "/portal", end: true },
             { label: dragolance ? "Rules" : "Dragonlance Rules", href: "/1e/" },
             { label: "Create Character", to: dragolance ? "/characters/new" : "/portal/characters/new" },
@@ -273,7 +274,7 @@ function PlayerShell() {
           onSignOut={signOut}
         />
         <main className="content player-content">
-          <Outlet />
+          {children || <Outlet />}
         </main>
       </div>
     </PlayerPortalContext.Provider>
@@ -933,6 +934,111 @@ function PlaceholderPanel({ title, copy }) {
   );
 }
 
+function DragolancePlayerHomepage() {
+  const { activePlayerId, activePlayer } = usePlayerPortal();
+  const { data, error, loading } = useLoad(() => api("/player/campaigns", { auth: "player" }), []);
+  const campaigns = useMemo(() => (data || []).filter(isDragonlanceCampaign), [data]);
+  const characters = useMemo(() => playerCharactersFromCampaigns(campaigns, activePlayerId), [campaigns, activePlayerId]);
+  const nextSession = useMemo(() => nextSessionCampaign(campaigns), [campaigns]);
+
+  return (
+    <section className="player-portal-page player-homepage">
+      <PlayerHero
+        eyebrow="Dragolance"
+        title={`Welcome, ${activePlayer?.display_name || activePlayer?.player_name || "Player"}`}
+        copy="The gods are silent. Dragons are only legends. War is coming."
+      />
+      <PageState loading={loading} error={error} />
+      {!loading && !error ? (
+        <>
+          <div className="home-grid">
+            <section className="panel home-panel home-panel-wide">
+              <div className="section-heading">
+                <div>
+                  <p className="eyebrow">My Campaigns</p>
+                  <h2>Assigned Campaigns</h2>
+                </div>
+                <Link className="table-link" to="/campaigns">View All</Link>
+              </div>
+              <div className="card-grid player-campaign-grid compact-grid">
+                {campaigns.map((campaign) => {
+                  const character = campaign.my_character || playerCharacterForCampaign(campaign, activePlayerId);
+                  return <CampaignCard key={campaign.id} campaign={campaign} variant="player" character={character} />;
+                })}
+              </div>
+              {campaigns.length === 0 ? <p className="portal-copy">No Dragolance campaign memberships found.</p> : null}
+            </section>
+            <section className="panel home-panel">
+              <p className="eyebrow">Next Session</p>
+              {nextSession ? (
+                <>
+                  <h2>{displayDate(nextSession.next_session_date)}</h2>
+                  <dl className="detail-list">
+                    <div><dt>Campaign</dt><dd>{nextSession.name}</dd></div>
+                    <div><dt>Schedule</dt><dd>{nextSession.schedule || "Unscheduled"}</dd></div>
+                    <div><dt>Session</dt><dd>#{nextSession.session_number || 1}</dd></div>
+                  </dl>
+                </>
+              ) : (
+                <>
+                  <h2>Not scheduled</h2>
+                  <p className="portal-copy">Your next session has not been posted yet.</p>
+                </>
+              )}
+            </section>
+            <section className="panel home-panel">
+              <p className="eyebrow">Create Character</p>
+              <h2>Your legend begins here.</h2>
+              <p className="portal-copy">Start with the peoples of Krynn and choose your first race.</p>
+              <div className="form-actions">
+                <Link className="secondary-button" to="/characters/new">Create Character</Link>
+              </div>
+            </section>
+          </div>
+          <section className="panel home-panel">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">My Characters</p>
+                <h2>Character Roster</h2>
+              </div>
+            </div>
+            {characters.length ? (
+              <div className="character-card-grid">
+                {characters.map((character) => <PlayerCharacterCard key={character.id} character={character} />)}
+              </div>
+            ) : (
+              <div className="empty-character-callout">
+                <h2>Your legend begins here.</h2>
+                <p className="portal-copy">No characters are assigned to your Dragolance campaigns yet.</p>
+                <Link className="secondary-button" to="/characters/new">Create Character</Link>
+              </div>
+            )}
+          </section>
+        </>
+      ) : null}
+    </section>
+  );
+}
+
+function PlayerCharacterCard({ character }) {
+  return (
+    <article className="character-card">
+      <p className="eyebrow">{character.campaign_name || "Campaign"}</p>
+      <h2>{character.name}</h2>
+      <dl className="detail-list">
+        <div><dt>Race</dt><dd>{character.race || "-"}</dd></div>
+        <div><dt>Class</dt><dd>{character.class_name || "-"}</dd></div>
+        <div><dt>Level</dt><dd>{character.level || 1}</dd></div>
+        <div><dt>Campaign</dt><dd>{character.campaign_name || "-"}</dd></div>
+      </dl>
+      <div className="form-actions">
+        <a className="secondary-button" href={`/1e/characters/${character.id}/`}>View</a>
+        <a className="table-link" href={`/1e/characters/${character.id}/edit/`}>Edit</a>
+      </div>
+    </article>
+  );
+}
+
 function PlayerCampaignsPage() {
   const { activePlayerId, activePlayer } = usePlayerPortal();
   const navigate = useNavigate();
@@ -1235,6 +1341,29 @@ function PlayerHero({ eyebrow, title, copy }) {
 
 function playerCharacterForCampaign(campaign, playerId) {
   return (campaign.characters || []).find((character) => String(character.user_id) === String(playerId));
+}
+
+function playerCharactersFromCampaigns(campaigns, playerId) {
+  const seen = new Set();
+  return campaigns.flatMap((campaign) => {
+    const matches = [
+      campaign.my_character,
+      ...(campaign.characters || []).filter((character) => String(character.user_id) === String(playerId)),
+    ].filter(Boolean);
+    return matches.map((character) => ({ ...character, campaign_name: campaign.name, campaign_id: campaign.id }));
+  }).filter((character) => {
+    if (!character.id || seen.has(character.id)) return false;
+    seen.add(character.id);
+    return true;
+  });
+}
+
+function nextSessionCampaign(campaigns) {
+  const scheduled = campaigns
+    .filter((campaign) => campaign.next_session_date)
+    .slice()
+    .sort((a, b) => String(a.next_session_date).localeCompare(String(b.next_session_date)));
+  return scheduled[0] || campaigns[0] || null;
 }
 
 function PlayersPage() {

@@ -833,6 +833,62 @@ tbody tr:hover {
   gap: 16px;
 }
 
+.player-homepage {
+  display: grid;
+  gap: 16px;
+}
+
+.home-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.65fr);
+}
+
+.home-panel {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.home-panel-wide {
+  grid-row: span 2;
+}
+
+.compact-grid {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin-top: 0;
+}
+
+.character-card-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.character-card {
+  background: rgba(13, 11, 8, 0.72);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.character-card h2,
+.home-panel h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  margin: 0;
+}
+
+.empty-character-callout {
+  border: 1px solid rgba(201, 154, 63, 0.32);
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  max-width: 560px;
+  padding: 16px;
+}
+
 .character-builder-page {
   display: grid;
   gap: 16px;
@@ -1023,6 +1079,7 @@ tbody tr:hover {
   .action-grid,
   .workspace-grid,
   .rule-link-grid,
+  .home-grid,
   .builder-campaign-strip {
     grid-template-columns: 1fr;
   }
