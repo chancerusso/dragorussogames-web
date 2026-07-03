@@ -12,8 +12,10 @@ export function setToken(token) {
 
 export async function api(path, options = {}) {
   const token = getToken();
-  const requestOptions = addAdminDefaults(path, options);
-  const response = await fetch(`${API_BASE}${path}`, {
+  const method = String(options.method || "GET").toUpperCase();
+  const requestPath = addAdminQuery(path, method);
+  const requestOptions = addAdminDefaults(path, options, method);
+  const response = await fetch(`${API_BASE}${requestPath}`, {
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
@@ -27,15 +29,23 @@ export async function api(path, options = {}) {
     throw new Error("Authentication required.");
   }
   if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(detail || `Request failed: ${response.status}`);
+    throw new Error(await getErrorMessage(response));
   }
   return response.status === 204 ? null : response.json();
 }
 
-function addAdminDefaults(path, options) {
+function addAdminQuery(path, method) {
+  if (!path.startsWith("/1e/") || !isWriteMethod(method)) return path;
+
+  const [pathname, query = ""] = path.split("?");
+  const params = new URLSearchParams(query);
+  params.set("actor_is_admin", "true");
+  return `${pathname}?${params.toString()}`;
+}
+
+function addAdminDefaults(path, options, method) {
   if (!options.body || typeof options.body !== "string" || path.startsWith("/auth/")) return options;
-  if (!["POST", "PUT", "PATCH", "DELETE"].includes(String(options.method || "GET").toUpperCase())) return options;
+  if (!isWriteMethod(method)) return options;
   try {
     const payload = JSON.parse(options.body);
     if (!payload || Array.isArray(payload) || typeof payload !== "object") return options;
@@ -50,6 +60,57 @@ function addAdminDefaults(path, options) {
   } catch {
     return options;
   }
+}
+
+function isWriteMethod(method) {
+  return ["POST", "PUT", "PATCH", "DELETE"].includes(method);
+}
+
+async function getErrorMessage(response) {
+  const fallback = `Request failed (${response.status}).`;
+
+  try {
+    const contentType = response.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      const payload = await response.json();
+      return cleanErrorDetail(payload.detail ?? payload.message ?? payload) || fallback;
+    }
+
+    const text = await response.text();
+    return cleanErrorDetail(text) || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function cleanErrorDetail(detail) {
+  if (!detail) return "";
+
+  if (Array.isArray(detail)) {
+    if (detail.some(isActorAdminError)) {
+      return "Admin authorization was not accepted. Please refresh and try again.";
+    }
+    return "Unable to save changes. Please check the form and try again.";
+  }
+
+  if (typeof detail === "object") {
+    const message = detail.msg || detail.detail || detail.message || "";
+    if (isActorAdminError(detail) || String(message).includes("actor_is_admin")) {
+      return "Admin authorization was not accepted. Please refresh and try again.";
+    }
+    return message || "Unable to save changes. Please check the form and try again.";
+  }
+
+  const text = String(detail);
+  if (text.includes("actor_is_admin")) {
+    return "Admin authorization was not accepted. Please refresh and try again.";
+  }
+  return text.replace(/^"|"$/g, "");
+}
+
+function isActorAdminError(detail) {
+  const location = Array.isArray(detail?.loc) ? detail.loc.join(".") : "";
+  return location.includes("actor_is_admin") || String(detail?.msg || "").includes("actor_is_admin");
 }
 
 export async function login(password) {
