@@ -66,7 +66,11 @@ function cleanErrorDetail(detail) {
   if (!detail) return "";
 
   if (Array.isArray(detail)) {
-    return "Unable to save changes. Please check the form and try again.";
+    return detail.map((item) => {
+      if (typeof item === "string") return item;
+      const location = Array.isArray(item?.loc) ? item.loc.filter((part) => part !== "body").join(".") : "";
+      return [location, item?.msg].filter(Boolean).join(": ");
+    }).filter(Boolean).join("; ");
   }
 
   if (typeof detail === "object") {

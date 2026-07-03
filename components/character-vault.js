@@ -199,7 +199,11 @@ async function cleanResponseError(response) {
     if (contentType.includes("application/json")) {
       const payload = await response.json();
       const detail = payload.detail ?? payload.message ?? payload;
-      if (Array.isArray(detail)) return "Unable to save changes. Please check the form and try again.";
+      if (Array.isArray(detail)) return detail.map((item) => {
+        if (typeof item === "string") return item;
+        const location = Array.isArray(item?.loc) ? item.loc.filter((part) => part !== "body").join(".") : "";
+        return [location, item?.msg].filter(Boolean).join(": ");
+      }).filter(Boolean).join("; ") || fallback;
       if (typeof detail === "object" && detail) return detail.msg || detail.detail || detail.message || fallback;
       return String(detail || fallback).replace(/^"|"$/g, "");
     }
@@ -986,15 +990,12 @@ async function ensureSaved() {
 
 async function saveDraft(navigate = true) {
   syncDraft();
-  if (state.draft.user_id) state.draft.user_id = Number(state.draft.user_id);
-  if (!state.draft.user_id) delete state.draft.user_id;
-  if (state.draft.campaign_id) state.draft.campaign_id = Number(state.draft.campaign_id);
-  if (!state.draft.campaign_id) state.draft.campaign_id = null;
   const method = state.character?.id ? "PUT" : "POST";
   const path = state.character?.id ? `/characters/${state.character.id}` : "/characters";
+  const payload = characterSavePayload(state.draft);
   state.character = isPlayerCharacterMode()
-    ? await rootApi(state.character?.id ? `/player/characters/${state.character.id}` : "/player/characters", { method, headers: playerAuthHeaders(), body: JSON.stringify(state.draft) })
-    : await api(path, { method, body: JSON.stringify(state.draft) });
+    ? await rootApi(state.character?.id ? `/player/characters/${state.character.id}` : "/player/characters", { method, headers: playerAuthHeaders(), body: JSON.stringify(payload) })
+    : await api(path, { method, body: JSON.stringify(payload) });
   if (state.character.player?.id) {
     state.currentPlayer = state.character.player;
     localStorage.setItem("drg1e_player_id", String(state.currentPlayer.id));
@@ -1012,6 +1013,38 @@ async function saveDraft(navigate = true) {
     if (navigate && isPlayerCharacterMode()) location.href = "/characters";
   }
   return state.character;
+}
+
+function characterSavePayload(d) {
+  const payload = {
+    owner_name: d.owner_name,
+    email: d.email,
+    discord_user_id: d.discord_user_id,
+    name: d.name,
+    race: d.race,
+    class_name: d.class_name,
+    subclass_or_specialty: d.subclass_or_specialty,
+    alignment: d.alignment,
+    level: Number(d.level || 1),
+    xp: Number(d.xp || 0),
+    status: d.status || "active",
+    life_status: d.life_status || "alive",
+    campaign_day: Number(d.campaign_day || 1),
+    current_location: d.current_location || "Town",
+    safe_storage_location: d.safe_storage_location || null,
+    notes: d.notes || "",
+    original_rolls: Array.isArray(d.original_rolls) ? d.original_rolls.map((roll) => Number(roll)).filter((roll) => Number.isFinite(roll)) : [],
+    abilities: Object.fromEntries(abilities.map((ability) => [ability, Number(d.abilities?.[ability] || 10)])),
+    coins: Object.fromEntries(coins.map((coin) => [coin, Number(d.coins?.[coin] || 0)])),
+    combat: {
+      max_hp: Number(d.combat?.max_hp || 1),
+      current_hp: Number(d.combat?.current_hp || d.combat?.max_hp || 1),
+    },
+  };
+  if (!isPlayerCharacterMode() && d.user_id) payload.user_id = Number(d.user_id);
+  if (d.campaign_id) payload.campaign_id = Number(d.campaign_id);
+  if (!payload.name) payload.name = "Unnamed Adventurer";
+  return payload;
 }
 
 function filterEquipment() {
