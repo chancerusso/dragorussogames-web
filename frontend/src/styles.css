@@ -1075,6 +1075,137 @@ tbody tr:hover {
   margin: 0;
 }
 
+.dragonlance-guide-page {
+  display: grid;
+  gap: 16px;
+}
+
+.guide-nav {
+  background: rgba(13, 11, 8, 0.72);
+  border: 1px solid rgba(114, 86, 43, 0.52);
+  border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+  position: sticky;
+  top: 12px;
+  z-index: 2;
+}
+
+.guide-nav a {
+  background: linear-gradient(180deg, #fff7e8, #ead8b8);
+  border: 1px solid rgba(204, 161, 84, 0.62);
+  border-radius: 999px;
+  color: #2e1d12;
+  font-size: 0.78rem;
+  font-weight: 850;
+  padding: 7px 10px;
+}
+
+.guide-section,
+.guide-source-panel {
+  padding: 20px;
+}
+
+.guide-section h2,
+.guide-source-panel h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.55rem;
+  margin: 0;
+}
+
+.guide-section h3 {
+  color: var(--gold-2);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.05rem;
+  margin: 18px 0 10px;
+}
+
+.guide-card-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  margin-top: 16px;
+}
+
+.compact-guide-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.guide-card {
+  background: linear-gradient(180deg, rgba(31, 25, 17, 0.96), rgba(16, 13, 9, 0.96));
+  border: 1px solid rgba(114, 86, 43, 0.58);
+  border-radius: 8px;
+  display: grid;
+  gap: 9px;
+  padding: 14px;
+}
+
+.guide-card h4 {
+  color: var(--text);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.12rem;
+  margin: 0;
+}
+
+.guide-card p {
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.guide-details {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr;
+  margin: 4px 0 0;
+}
+
+.guide-details div {
+  background: rgba(67, 45, 16, 0.2);
+  border: 1px solid rgba(114, 86, 43, 0.42);
+  border-radius: 7px;
+  padding: 9px;
+}
+
+.guide-details dt {
+  color: var(--gold);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.guide-details dd {
+  color: var(--text);
+  font-size: 0.88rem;
+  line-height: 1.42;
+  margin: 0;
+}
+
+.guide-list {
+  color: var(--muted);
+  line-height: 1.55;
+  margin: 12px 0 0;
+  padding-left: 20px;
+}
+
+.guide-list li + li {
+  margin-top: 6px;
+}
+
+.guide-banner {
+  background: linear-gradient(180deg, #fff7e8, #ead8b8);
+  border: 1px solid rgba(204, 161, 84, 0.72);
+  border-radius: 8px;
+  color: #2e1d12;
+  font-weight: 900;
+  margin-top: 14px;
+  padding: 11px 12px;
+}
+
 .muted-card {
   opacity: 0.74;
 }

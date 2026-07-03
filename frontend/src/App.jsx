@@ -12,6 +12,7 @@ import mountainDwarfRace from "../../content/settings/dragonlance/races/mountain
 import qualinestiElfRace from "../../content/settings/dragonlance/races/qualinesti-elf.json";
 import silvanestiElfRace from "../../content/settings/dragonlance/races/silvanesti-elf.json";
 import tinkerGnomeRace from "../../content/settings/dragonlance/races/tinker-gnome.json";
+import dragonlanceReference from "../../content/settings/dragonlance/reference/index.json";
 import { api, getPlayerToken, getToken, login, logout, playerLogin, playerLogout } from "./api.js";
 
 const AuthContext = createContext(null);
@@ -276,6 +277,7 @@ function PlayerShell({ children }) {
             { label: "My Characters", to: classic ? "/characters" : "/portal/characters" },
             { label: "Create Character", href: "/1e/characters/new/" },
             { label: "1e Rules", href: "/1e/" },
+            { label: "Dragonlance Guide", to: classic ? "/dragonlance" : "/portal/dragonlance" },
           ]}
           account={
             <div className="account-card">
@@ -1015,6 +1017,14 @@ function ClassicPlayerHomepage() {
                 <CreateCharacterLink campaigns={campaigns} />
               </div>
             </section>
+            <section className="panel home-panel">
+              <p className="eyebrow">Sourcebook</p>
+              <h2>Dragonlance Guide</h2>
+              <p className="portal-copy">Read the player-safe Krynn reference before choosing a race, class, deity, or order.</p>
+              <div className="form-actions">
+                <Link className="secondary-button" to="/dragonlance">Open Guide</Link>
+              </div>
+            </section>
           </div>
           <section className="panel home-panel">
             <div className="section-heading">
@@ -1456,6 +1466,7 @@ function PlayerRosterTab({ campaign }) {
 
 function PlayerRulesTab({ campaign }) {
   const setting = campaign.setting || "greyhawk";
+  const dragonlance = setting === "dragonlance" || setting === "dragolance";
   return (
     <div className="rule-link-grid">
       <a className="panel rule-card" href="/1e/">
@@ -1463,11 +1474,11 @@ function PlayerRulesTab({ campaign }) {
         <h2>Rules Library</h2>
         <p>Open the shared classic First Edition rules reference.</p>
       </a>
-      <div className="panel rule-card muted-card">
+      <Link className={`panel rule-card ${dragonlance ? "" : "muted-card"}`} to={dragonlance ? "/dragonlance" : "#"}>
         <p className="eyebrow">{titleCase(setting)}</p>
-        <h2>Campaign Rules</h2>
-        <p>Setting-specific sourcebook rules will appear here as the library expands.</p>
-      </div>
+        <h2>{dragonlance ? "Dragonlance Guide" : "Campaign Rules"}</h2>
+        <p>{dragonlance ? "Open the player-safe Krynn sourcebook reference." : "Setting-specific sourcebook rules will appear here as the library expands."}</p>
+      </Link>
       <div className="panel rule-card muted-card">
         <p className="eyebrow">Sourcebook</p>
         <h2>{setting === "dragonlance" || setting === "dragolance" ? "Current Setting" : "Campaign Lore"}</h2>
@@ -1484,6 +1495,187 @@ function ReadOnlyPlaceholder({ title, copy }) {
       <h2>{title}</h2>
       <p>{copy}</p>
     </Panel>
+  );
+}
+
+function DragonlanceGuidePage() {
+  const ref = dragonlanceReference;
+  return (
+    <section className="player-portal-page dragonlance-guide-page">
+      <PlayerHero
+        eyebrow="Sourcebook"
+        title={ref.title}
+        copy="A player-safe Krynn reference for Classic campaigns."
+      />
+      <nav className="guide-nav" aria-label="Dragonlance guide sections">
+        {ref.navigation.map((item) => <a key={item.id} href={`#${item.id}`}>{item.label}</a>)}
+      </nav>
+      <GuideIntroSection section={ref.guide} />
+      <GuideDeities section={ref.deities} />
+      <GuideClassSection section={ref.classes} />
+      <GuideEntrySection section={ref.high_sorcery} />
+      <GuideEntrySection section={ref.solamnia} />
+      <GuideEquipment section={ref.equipment} />
+      <GuideRaceSection section={ref.races} />
+      <GuideEntrySection section={ref.timeline} />
+      <GuideEntrySection section={ref.geography} />
+      <GuideEntrySection section={ref.organizations} />
+      <GuideEntrySection section={ref.languages} />
+      <section className="panel guide-source-panel">
+        <p className="eyebrow">Source Reviewed</p>
+        <h2>PDF Sections</h2>
+        <ul className="guide-list">
+          {ref.source_pages_reviewed.map((page) => <li key={page}>{page}</li>)}
+        </ul>
+        <p className="portal-copy">{ref.forbidden_content_policy}</p>
+      </section>
+    </section>
+  );
+}
+
+function GuideIntroSection({ section }) {
+  return (
+    <section className="panel guide-section" id={section.id}>
+      <p className="eyebrow">{section.eyebrow}</p>
+      <h2>{section.heading}</h2>
+      <p className="portal-copy">{section.summary}</p>
+      <div className="guide-card-grid">
+        {section.cards.map((card) => <GuideCard key={card.title} title={card.title} body={card.body} />)}
+      </div>
+      <h3>Before Building</h3>
+      <ul className="guide-list">
+        {section.before_building.map((item) => <li key={item}>{item}</li>)}
+      </ul>
+    </section>
+  );
+}
+
+function GuideDeities({ section }) {
+  return (
+    <section className="panel guide-section" id={section.id}>
+      <p className="eyebrow">Faith</p>
+      <h2>{section.heading}</h2>
+      <p className="portal-copy">{section.summary}</p>
+      {section.groups.map((group) => (
+        <div className="guide-subsection" key={group.title}>
+          <h3>{group.title}</h3>
+          <div className="guide-card-grid compact-guide-grid">
+            {group.entries.map((entry) => (
+              <article className="guide-card" key={entry.name}>
+                <p className="eyebrow">{entry.alignment}</p>
+                <h4>{entry.name}</h4>
+                <p>{entry.description}</p>
+                <dl className="guide-details">
+                  <div><dt>Role</dt><dd>{entry.portfolio}</dd></div>
+                  <div><dt>Holy Symbol</dt><dd>{entry.holy_symbol}</dd></div>
+                  <div><dt>Cleric / Druid Relevance</dt><dd>{entry.cleric_relevance}</dd></div>
+                </dl>
+              </article>
+            ))}
+          </div>
+        </div>
+      ))}
+    </section>
+  );
+}
+
+function GuideClassSection({ section }) {
+  return (
+    <section className="panel guide-section" id={section.id}>
+      <p className="eyebrow">Characters</p>
+      <h2>{section.heading}</h2>
+      <p className="portal-copy">{section.summary}</p>
+      <GuideClassGroup title="Starting Classes" classes={section.starting} />
+      <GuideClassGroup title="Progression Paths" classes={section.progression} />
+    </section>
+  );
+}
+
+function GuideClassGroup({ title, classes }) {
+  return (
+    <div className="guide-subsection">
+      <h3>{title}</h3>
+      <div className="guide-card-grid">
+        {classes.map((item) => (
+          <article className="guide-card" key={item.name}>
+            <p className="eyebrow">{item.progression_note}</p>
+            <h4>{item.name}</h4>
+            <p>{item.overview}</p>
+            <dl className="guide-details">
+              <div><dt>Hit Die</dt><dd>{item.hit_die}</dd></div>
+              <div><dt>Prime Ability</dt><dd>{item.prime_ability}</dd></div>
+              <div><dt>Spell Table</dt><dd>{item.spell_table}</dd></div>
+              <div><dt>Advancement</dt><dd>{item.advancement_notes}</dd></div>
+              <div><dt>Campaign Restrictions</dt><dd>{item.campaign_restrictions}</dd></div>
+            </dl>
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function GuideEquipment({ section }) {
+  return (
+    <section className="panel guide-section" id={section.id}>
+      <p className="eyebrow">Equipment</p>
+      <h2>{section.heading}</h2>
+      <div className="guide-banner">{section.banner}</div>
+      <p className="portal-copy">{section.summary}</p>
+      <div className="guide-card-grid compact-guide-grid">
+        {section.items.map((item) => <GuideCard key={item.name} title={item.name} eyebrow={item.type} body={item.description} />)}
+      </div>
+      <p className="portal-copy">{section.omission_note}</p>
+    </section>
+  );
+}
+
+function GuideRaceSection({ section }) {
+  return (
+    <section className="panel guide-section" id={section.id}>
+      <p className="eyebrow">Peoples</p>
+      <h2>{section.heading}</h2>
+      <p className="portal-copy">{section.summary}</p>
+      <div className="guide-card-grid">
+        {section.entries.map((race) => (
+          <article className="guide-card" key={race.name}>
+            <p className="eyebrow">{race.campaign_note}</p>
+            <h4>{race.name}</h4>
+            <p>{race.culture}</p>
+            <dl className="guide-details">
+              <div><dt>Ability Adjustments</dt><dd>{race.ability_adjustments}</dd></div>
+              <div><dt>Movement</dt><dd>{race.movement}</dd></div>
+              <div><dt>Languages</dt><dd>{race.languages}</dd></div>
+              <div><dt>Alignment</dt><dd>{race.alignment}</dd></div>
+              <div><dt>Roleplaying Notes</dt><dd>{race.roleplaying}</dd></div>
+            </dl>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function GuideEntrySection({ section }) {
+  return (
+    <section className="panel guide-section" id={section.id}>
+      <p className="eyebrow">Reference</p>
+      <h2>{section.heading}</h2>
+      <p className="portal-copy">{section.summary}</p>
+      <div className="guide-card-grid compact-guide-grid">
+        {section.entries.map((entry) => <GuideCard key={entry.title || entry.name} title={entry.title || entry.name} body={entry.body || entry.description} />)}
+      </div>
+    </section>
+  );
+}
+
+function GuideCard({ eyebrow, title, body }) {
+  return (
+    <article className="guide-card">
+      {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
+      <h4>{title}</h4>
+      <p>{body}</p>
+    </article>
   );
 }
 
@@ -1810,6 +2002,7 @@ export default function App() {
             <Route path="/campaigns/:id" element={<PlayerCampaignHome />} />
             <Route path="/characters" element={<PlayerCharactersPage />} />
             <Route path="/characters/new" element={<PlayerCreateCharacterPage />} />
+            <Route path="/dragonlance" element={<DragonlanceGuidePage />} />
             <Route path="/characters/:id" element={<PlayerVaultToolPage />} />
             <Route path="/characters/:id/edit" element={<PlayerVaultToolPage />} />
             <Route path="/1e/characters/new" element={<PlayerVaultToolPage />} />
@@ -1835,6 +2028,7 @@ export default function App() {
           <Route path="/portal/characters" element={<PlayerCharactersPage />} />
           <Route path="/portal/characters/new" element={<PlayerCreateCharacterPage />} />
           <Route path="/portal/campaigns/:id/characters/new" element={<PlayerCreateCharacterPage />} />
+          <Route path="/portal/dragonlance" element={<DragonlanceGuidePage />} />
         </Route>
         <Route element={<Protected><Shell /></Protected>}>
           <Route path="/campaigns" element={<CampaignsPage />} />

@@ -1,0 +1,259 @@
+{
+  "title": "Dragonlance Player's Guide",
+  "source": "Dragonlance Adventures 1e",
+  "source_pages_reviewed": [
+    "PDF pp. 6-7 / book pp. 4-5: table of contents and section map",
+    "PDF pp. 13-15 / book pp. 11-13: characters in Krynn and acceptable classes",
+    "PDF pp. 16-22 / book pp. 14-20: Knights of Solamnia",
+    "PDF pp. 23-24 / book pp. 21-22: Tinkers",
+    "PDF pp. 29-38 / book pp. 27-36: Wizards of High Sorcery, moons, orders, and Test",
+    "PDF pp. 41-49 / book pp. 39-47: clerics, Holy Orders, and gods",
+    "PDF pp. 51-72 / book pp. 49-70: races of Krynn",
+    "PDF pp. 85-89 / book pp. 83-87: ages of Krynn and early timeline",
+    "PDF pp. 102-108 / book pp. 100-106: War of the Lance context and Ansalon overview",
+    "PDF pp. 115-122 / book pp. 113-120: ordinary player-facing equipment references checked for exclusions"
+  ],
+  "forbidden_content_policy": "This player guide excludes DM-only monster statistics, NPC stat blocks, artifact details, adventure secrets, module rewards, and special magic item mechanics.",
+  "navigation": [
+    { "id": "guide", "label": "Dragonlance Player's Guide" },
+    { "id": "deities", "label": "Deities" },
+    { "id": "classes", "label": "Dragonlance Classes" },
+    { "id": "high-sorcery", "label": "Orders of High Sorcery" },
+    { "id": "solamnia", "label": "Knights of Solamnia" },
+    { "id": "equipment", "label": "Dragonlance Equipment" },
+    { "id": "races", "label": "Dragonlance Races" },
+    { "id": "timeline", "label": "Timeline" },
+    { "id": "geography", "label": "Geography" },
+    { "id": "organizations", "label": "Organizations" },
+    { "id": "languages", "label": "Languages" }
+  ],
+  "guide": {
+    "id": "guide",
+    "eyebrow": "Player Reference",
+    "heading": "Dragonlance Player's Guide",
+    "summary": "Krynn is a world where faith, magic, honor, and history all matter at the table. The Classic builder uses OSRIC as the foundation and layers Dragonlance sourcebook options on top.",
+    "cards": [
+      {
+        "title": "What makes Dragonlance different?",
+        "body": "Alignment has real story weight, divine power comes through Krynn's gods, arcane magic is watched by the Orders of High Sorcery, and knightly honor can shape a character's future."
+      },
+      {
+        "title": "Available races and classes",
+        "body": "The builder supports the current campaign list: Krynn peoples, standard adventuring classes, Solamnic knights, student wizards, handlers, and tinkers."
+      },
+      {
+        "title": "Progression-only choices",
+        "body": "Knight of the Sword, Knight of the Rose, and the robe orders are visible as goals. They are not level 1 starting choices because the PDF presents them as advancement paths."
+      },
+      {
+        "title": "True clerics and druids",
+        "body": "Clerics and druids in Krynn draw power from the true gods. Their beliefs, alignment, and service matter more than in a generic dungeon campaign."
+      },
+      {
+        "title": "Solamnic knights",
+        "body": "A Solamnic character begins with the Crown. Sword and Rose represent later acceptance, achievement, and story progression."
+      },
+      {
+        "title": "High Sorcery",
+        "body": "Magic-users and illusionists begin as students or ordinary arcane characters. The robe path begins later, after the Test and a decision about magical allegiance."
+      }
+    ],
+    "before_building": [
+      "Ask your DM which sourcebooks are active for your campaign.",
+      "Choose a race and class for the character you want to play now, not only for an advanced title later.",
+      "If you want a knight, begin with Knight of the Crown.",
+      "If you want a robe wizard, begin with Magic-User or Illusionist.",
+      "If you want divine magic, choose Cleric or Druid and discuss deity/alignment with your DM."
+    ]
+  },
+  "deities": {
+    "id": "deities",
+    "heading": "Deities",
+    "summary": "The PDF groups Krynn's gods into Good, Neutrality, and Evil. Clerics and druids serve through deity, alignment, and spheres of influence.",
+    "groups": [
+      {
+        "title": "Good",
+        "entries": [
+          { "name": "Paladine", "alignment": "Lawful Good", "portfolio": "father of good, law, leadership, protection", "holy_symbol": "Not listed in reviewed section", "cleric_relevance": "Major good deity and source of lawful good divine service.", "description": "Paladine guides good through law, mercy, and mortal choice rather than constant direct intervention." },
+          { "name": "Majere", "alignment": "Neutral Good", "portfolio": "discipline, contemplation, monastic wisdom", "holy_symbol": "Not listed in reviewed section", "cleric_relevance": "A contemplative good deity for disciplined spiritual characters.", "description": "Majere favors restraint, patience, and inward mastery." },
+          { "name": "Kiri-Jolith", "alignment": "Lawful Good", "portfolio": "honorable war, courage, just battle", "holy_symbol": "Not listed in reviewed section", "cleric_relevance": "Important to martial clerics and the ideals of the Knights of the Sword.", "description": "Kiri-Jolith represents battle in service to justice rather than conquest." },
+          { "name": "Mishakal", "alignment": "Lawful Good", "portfolio": "healing, restoration, compassion", "holy_symbol": "Not listed in reviewed section", "cleric_relevance": "Strong choice for healing-focused clerics.", "description": "Mishakal's faith restored knowledge of the true gods to many people after long darkness." },
+          { "name": "Habbakuk", "alignment": "Neutral Good", "portfolio": "animals, sea, nature, renewal", "holy_symbol": "Not listed in reviewed section", "cleric_relevance": "Relevant to rangers, sailors, druids, and nature-minded divine characters.", "description": "Habbakuk teaches harmony with living things and natural justice." },
+          { "name": "Branchala", "alignment": "Neutral Good", "portfolio": "music, joy, beauty, inspiration", "holy_symbol": "Not listed in reviewed section", "cleric_relevance": "A good deity for artists, wanderers, and celebrants.", "description": "Branchala embodies the music of living souls and the creative spark." },
+          { "name": "Solinari", "alignment": "Lawful Good", "portfolio": "white moon, good magic", "holy_symbol": "White moon association", "cleric_relevance": "Not a cleric path in this guide; relevant to White Robe wizards.", "description": "Solinari is the patron of the White Robes and good-aligned High Sorcery." }
+        ]
+      },
+      {
+        "title": "Neutral",
+        "entries": [
+          { "name": "Gilean", "alignment": "Neutral", "portfolio": "knowledge, balance, the Tobril", "holy_symbol": "Not listed in reviewed section", "cleric_relevance": "Central neutral deity for knowledge and balance.", "description": "Gilean stands between good and evil, preserving knowledge and equilibrium." },
+          { "name": "Sirrion", "alignment": "Neutral", "portfolio": "flame, natural power, transformation", "holy_symbol": "Not listed in reviewed section", "cleric_relevance": "A neutral divine source for fire and creative change.", "description": "Sirrion is passionate, elemental, and tied to the force of change." },
+          { "name": "Reorx", "alignment": "Neutral", "portfolio": "forge, craft, technology, creation", "holy_symbol": "Not listed in reviewed section", "cleric_relevance": "Revered by dwarves and gnomes; formal priesthood varies by culture.", "description": "Reorx shaped the world and is tied closely to craft, invention, and the origins of several peoples." },
+          { "name": "Chislev", "alignment": "Neutral", "portfolio": "nature, animals, plants, weather", "holy_symbol": "Not listed in reviewed section", "cleric_relevance": "A strong deity for druids and nature-focused divine characters.", "description": "Chislev is nature itself: living, wild, and balanced." },
+          { "name": "Zivilyn", "alignment": "Neutral", "portfolio": "wisdom, time, insight", "holy_symbol": "Not listed in reviewed section", "cleric_relevance": "A contemplative neutral path for wisdom-seeking characters.", "description": "Zivilyn is associated with deep perspective and the wisdom of many times and places." },
+          { "name": "Shinare", "alignment": "Neutral", "portfolio": "wealth, commerce, industry", "holy_symbol": "Not listed in reviewed section", "cleric_relevance": "Relevant to merchants, artisans, and civic-minded characters.", "description": "Shinare governs trade, work, and prosperity created through effort." },
+          { "name": "Lunitari", "alignment": "Neutral", "portfolio": "red moon, neutral magic", "holy_symbol": "Red moon association", "cleric_relevance": "Not a cleric path in this guide; relevant to Red Robe wizards.", "description": "Lunitari is the patron of the Red Robes and balance-oriented High Sorcery." }
+        ]
+      },
+      {
+        "title": "Evil",
+        "entries": [
+          { "name": "Takhisis", "alignment": "Lawful Evil", "portfolio": "darkness, tyranny, domination", "holy_symbol": "Not listed in reviewed section", "cleric_relevance": "Primary evil deity; evil divine service requires DM approval.", "description": "Takhisis seeks rule and conquest, and her influence drives much of Krynn's great conflict." },
+          { "name": "Sargonnas", "alignment": "Lawful Evil", "portfolio": "vengeance, wrath, conquest", "holy_symbol": "Not listed in reviewed section", "cleric_relevance": "Known among minotaurs as Sargas.", "description": "Sargonnas embodies vengeance, grim strength, and calculated brutality." },
+          { "name": "Morgion", "alignment": "Neutral Evil", "portfolio": "disease, decay, secrecy", "holy_symbol": "Not listed in reviewed section", "cleric_relevance": "Evil divine path; usually unsuitable for standard heroic play.", "description": "Morgion is a solitary power of plague, decline, and hidden suffering." },
+          { "name": "Chemosh", "alignment": "Lawful Evil", "portfolio": "undeath, false immortality", "holy_symbol": "Worshipers are described with white skull masks and black robes", "cleric_relevance": "Evil divine path; usually unsuitable for standard heroic play.", "description": "Chemosh offers a corrupt promise of endurance beyond death." },
+          { "name": "Zeboim", "alignment": "Chaotic Evil", "portfolio": "storms, sea rage, tempests", "holy_symbol": "Not listed in reviewed section", "cleric_relevance": "A feared sea power; evil divine path needs DM approval.", "description": "Zeboim is dangerous, unpredictable, and dreaded by sailors." },
+          { "name": "Hiddukel", "alignment": "Chaotic Evil", "portfolio": "greed, corrupt bargains, ill-gotten wealth", "holy_symbol": "Not listed in reviewed section", "cleric_relevance": "Evil divine path; usually unsuitable for standard heroic play.", "description": "Hiddukel tempts mortals through profit, deception, and bad bargains." },
+          { "name": "Nuitari", "alignment": "Lawful Evil", "portfolio": "black moon, evil magic", "holy_symbol": "Black moon association", "cleric_relevance": "Not a cleric path in this guide; relevant to Black Robe wizards.", "description": "Nuitari is the patron of the Black Robes and power-seeking High Sorcery." }
+        ]
+      }
+    ]
+  },
+  "classes": {
+    "id": "classes",
+    "heading": "Dragonlance Classes",
+    "summary": "These are the Dragonlance class choices supported by the current Classic campaign setup.",
+    "starting": [
+      { "name": "Cleric", "overview": "A true cleric of Krynn serving a deity through alignment and divine spheres.", "hit_die": "d8", "prime_ability": "Wisdom", "progression_note": "Selectable at level 1.", "spell_table": "Uses the cleric progression for the appropriate order of Good, Neutrality, or Evil.", "advancement_notes": "Deity choice shapes available divine powers and expected conduct.", "campaign_restrictions": "Discuss deity and alignment with your DM." },
+      { "name": "Druid", "overview": "A divine servant of nature and the Balance through Krynn's gods.", "hit_die": "d8", "prime_ability": "Wisdom, Charisma", "progression_note": "Selectable at level 1.", "spell_table": "Uses druidic/nature divine magic as allowed by deity and campaign.", "advancement_notes": "Best paired with a nature-oriented deity such as Chislev or Habbakuk.", "campaign_restrictions": "Must fit the campaign's treatment of nature faith." },
+      { "name": "Fighter", "overview": "A practical warrior for soldiers, mercenaries, guards, and battlefield heroes.", "hit_die": "d10", "prime_ability": "Strength", "progression_note": "Selectable at level 1.", "spell_table": "None.", "advancement_notes": "Can remain a martial character or pursue campaign-specific orders later.", "campaign_restrictions": "No special Dragonlance restriction in this guide." },
+      { "name": "Ranger", "overview": "A wilderness defender and scout suited to the plains, forests, and borderlands of Ansalon.", "hit_die": "d8", "prime_ability": "Strength, Intelligence, Wisdom", "progression_note": "Selectable at level 1.", "spell_table": "Later spell access remains campaign-managed.", "advancement_notes": "Works well for Nordmaar, Tarsis, Abanasinia, and frontier origins.", "campaign_restrictions": "Confirm homeland and deity expectations with your DM." },
+      { "name": "Knight of the Crown", "overview": "The entry order of the Solamnic Knighthood, built around loyalty, obedience, courage, and service.", "hit_die": "d10", "prime_ability": "Strength, Wisdom", "progression_note": "Selectable at level 1.", "spell_table": "None at the Crown stage.", "advancement_notes": "Crown service is the path toward Sword and eventually Rose.", "campaign_restrictions": "Requires honorable conduct and acceptance of Solamnic expectations." },
+      { "name": "Magic-User", "overview": "An arcane student or independent caster before the robe path is decided.", "hit_die": "d4", "prime_ability": "Intelligence", "progression_note": "Selectable at level 1.", "spell_table": "Uses standard magic-user spellcasting until High Sorcery decisions apply.", "advancement_notes": "The PDF notes that order choice is not determined before 3rd level.", "campaign_restrictions": "Ignoring the Orders at higher level risks being treated as a renegade." },
+      { "name": "Illusionist", "overview": "A specialist arcane caster whose magic is folded into Krynn's wider High Sorcery structure.", "hit_die": "d4", "prime_ability": "Intelligence, Dexterity", "progression_note": "Selectable at level 1.", "spell_table": "Uses illusionist spellcasting as allowed by the campaign.", "advancement_notes": "Before 3rd level, the Orders make no strict distinction between magic-users and illusionists.", "campaign_restrictions": "Higher-level progression should address the Orders of High Sorcery." },
+      { "name": "Thief / Handler", "overview": "A stealth and skill specialist; among kender, handling is curiosity-driven rather than profit-driven theft.", "hit_die": "d6", "prime_ability": "Dexterity", "progression_note": "Selectable at level 1.", "spell_table": "None.", "advancement_notes": "Kender handlers are expected to create roleplay complications, not excuse hostile play.", "campaign_restrictions": "Respect table boundaries around possessions and party trust." },
+      { "name": "Tinker", "overview": "A gnomish engineer-inventor tied to guilds, committees, devices, and a Lifequest.", "hit_die": "2d4 at 1st level", "prime_ability": "Intelligence, Dexterity", "progression_note": "Selectable at level 1.", "spell_table": "None.", "advancement_notes": "Tinker play centers on devices, guild work, and improbable engineering.", "campaign_restrictions": "Usually for tinker gnomes; race enforcement is handled by campaign agreement." }
+    ],
+    "progression": [
+      { "name": "Knight of the Sword", "overview": "The Solamnic order reached after worthy Crown service.", "hit_die": "d10", "prime_ability": "Strength, Wisdom, Charisma", "progression_note": "Progression option, not selectable at level 1.", "spell_table": "Gains clerical spell access later through Kiri-Jolith-oriented service.", "advancement_notes": "Requires Crown advancement, petition, and story approval.", "campaign_restrictions": "Unlocked by campaign progress." },
+      { "name": "Knight of the Rose", "overview": "The highest Solamnic order, focused on wisdom, justice, compassion, and leadership.", "hit_die": "d10", "prime_ability": "Strength, Wisdom, Charisma", "progression_note": "Progression option, not selectable at level 1.", "spell_table": "No separate player-facing spell table in this guide.", "advancement_notes": "Requires proven advancement through Crown and Sword.", "campaign_restrictions": "Unlocked by story, honor, and DM approval." },
+      { "name": "White Robe Wizard", "overview": "A robe order devoted to good magic under Solinari.", "hit_die": "d4", "prime_ability": "Intelligence", "progression_note": "Progression option after the Test.", "spell_table": "Uses White Robe spheres and moon effects after order entry.", "advancement_notes": "Associated with good, protection, and Solinari.", "campaign_restrictions": "Not selectable at level 1." },
+      { "name": "Red Robe Wizard", "overview": "A robe order devoted to neutral magic under Lunitari.", "hit_die": "d4", "prime_ability": "Intelligence", "progression_note": "Progression option after the Test.", "spell_table": "Uses Red Robe spheres and moon effects after order entry.", "advancement_notes": "Associated with balance, independence, and Lunitari.", "campaign_restrictions": "Not selectable at level 1." },
+      { "name": "Black Robe Wizard", "overview": "A robe order devoted to evil magic under Nuitari.", "hit_die": "d4", "prime_ability": "Intelligence", "progression_note": "Progression option after the Test.", "spell_table": "Uses Black Robe spheres and moon effects after order entry.", "advancement_notes": "Associated with ambition, secrecy, and Nuitari.", "campaign_restrictions": "Requires DM approval for player use." }
+    ]
+  },
+  "high_sorcery": {
+    "id": "high-sorcery",
+    "heading": "Orders of High Sorcery",
+    "summary": "Krynn's arcane magic is governed by the three moon gods and the Orders of High Sorcery.",
+    "entries": [
+      { "title": "White Robes", "body": "White Robes follow Solinari and represent good-aligned magic. Their role emphasizes protection, responsibility, and the defense of magic from corrupt use." },
+      { "title": "Red Robes", "body": "Red Robes follow Lunitari and represent neutral magic. They often stand between extremes and are tied to balance, independence, and practical judgment." },
+      { "title": "Black Robes", "body": "Black Robes follow Nuitari and represent evil-aligned magic. They seek power and secrecy, and their use as player characters requires DM approval." },
+      { "title": "The Test", "body": "The Test of High Sorcery is a major threshold for arcane characters. This guide does not reveal Test content; it only notes that the Test marks the path into the robe orders." },
+      { "title": "Moon Magic", "body": "Solinari, Lunitari, and Nuitari affect their followers' magic through lunar phases. Low-level students are not affected in the same way as tested wizards." },
+      { "title": "Progression Concept", "body": "Begin as a Magic-User or Illusionist. Around the proper level and story moment, the character may face the Test and enter a robe order." }
+    ]
+  },
+  "solamnia": {
+    "id": "solamnia",
+    "heading": "Knights of Solamnia",
+    "summary": "The Solamnic path is a story of honor, service, and advancement through orders.",
+    "entries": [
+      { "title": "Knight of the Crown", "body": "The starting Solamnic order. Crown knights focus on loyalty, obedience, courage, and the practical defense of honor." },
+      { "title": "Knight of the Sword", "body": "A later order for knights who have proven themselves through Crown service. Sword knights bind martial duty to spiritual and heroic ideals." },
+      { "title": "Knight of the Rose", "body": "The highest order. Rose knights are expected to show wisdom, justice, compassion, and leadership." },
+      { "title": "Progression", "body": "Sword and Rose are not level 1 choices. They represent acceptance by the Knighthood after service, experience, and story validation." },
+      { "title": "Code and Roleplay", "body": "Solamnic play is about conduct as much as combat. A knight's reputation and choices should matter in the campaign." }
+    ]
+  },
+  "equipment": {
+    "id": "equipment",
+    "heading": "Dragonlance Equipment",
+    "banner": "These items are available only in Dragonlance campaigns.",
+    "summary": "This section lists ordinary, cultural, and player-facing items only. It excludes artifacts, module rewards, dragon orb details, special magic item mechanics, and treasure secrets.",
+    "items": [
+      { "name": "Hoopak", "type": "Kender weapon/tool", "description": "A kender staff-sling associated with travel, mischief, and personal style. Ask your DM for table rules before equipping one." },
+      { "name": "Kender pouches", "type": "Cultural gear", "description": "Kender carry many pouches filled with found objects, keepsakes, and surprises. Use them for roleplay, not as an excuse to disrupt the table." },
+      { "name": "Tinker tools", "type": "Gnomish gear", "description": "Tinkers work with gears, pulleys, clockwork, waterwheels, and other mechanical parts. Device construction is campaign-managed." },
+      { "name": "Gnomish devices", "type": "Tinker creations", "description": "Player-facing devices should be approved by the DM and treated as unreliable, experimental inventions." },
+      { "name": "Solamnic arms and armor", "type": "Knightly gear", "description": "Ordinary knightly weapons, shields, armor, and heraldic equipment may be appropriate for Solamnic characters." },
+      { "name": "Medallion of Faith", "type": "Divine focus", "description": "True clerics begin with a sign of their faith. The story of how the cleric received it should be discussed with the DM." }
+    ],
+    "omission_note": "DM-only artifacts, adventure rewards, special magic item mechanics, and treasure secrets are intentionally omitted."
+  },
+  "races": {
+    "id": "races",
+    "heading": "Dragonlance Races",
+    "summary": "These entries match the current builder race list. Advanced or rare peoples should be chosen with DM approval.",
+    "entries": [
+      { "name": "Human", "culture": "The most widespread and varied people of Ansalon.", "ability_adjustments": "None", "movement": "12 in / 120 ft", "languages": "Common and regional tongues by campaign", "alignment": "Any", "roleplaying": "Flexible origins, broad ambitions, and strong ties to the changing politics of Krynn.", "campaign_note": "Standard option." },
+      { "name": "Kender", "culture": "Fearless, curious wanderers with intense emotions and a talent for finding things.", "ability_adjustments": "DEX +1, STR -1", "movement": "6 in / 60 ft", "languages": "Common, Kenderspeak", "alignment": "Usually non-evil", "roleplaying": "Curiosity and fearlessness should create adventure hooks, not player conflict.", "campaign_note": "Use with table consent." },
+      { "name": "Hill Dwarf", "culture": "Surface dwarves with strong clan identity and ties to trade, craft, and survival.", "ability_adjustments": "CON +1, CHA -1", "movement": "6 in / 60 ft", "languages": "Common, Dwarvish", "alignment": "Often lawful or clan-centered", "roleplaying": "Practical, stubborn, and shaped by dwarven history.", "campaign_note": "Standard Dragonlance dwarf option." },
+      { "name": "Mountain Dwarf", "culture": "Dwarves of great underground realms such as Thorbardin.", "ability_adjustments": "CON +1, CHA -1", "movement": "6 in / 60 ft", "languages": "Common, Dwarvish", "alignment": "Often lawful", "roleplaying": "Tradition, clan duty, and guarded pride are central themes.", "campaign_note": "Standard with campaign origin approval." },
+      { "name": "Qualinesti Elf", "culture": "Western elves descended from Silvanesti, more open to the outside world.", "ability_adjustments": "DEX +1, CON -1", "movement": "12 in / 120 ft", "languages": "Common, Elvish", "alignment": "Often good or neutral", "roleplaying": "Balance elven heritage with practical engagement in the wider world.", "campaign_note": "Standard elven option." },
+      { "name": "Silvanesti Elf", "culture": "High elves with ancient traditions and a proud, formal society.", "ability_adjustments": "DEX +1, CON -1", "movement": "12 in / 120 ft", "languages": "Common, Elvish", "alignment": "Often lawful or tradition-bound", "roleplaying": "Lean into discipline, history, and cultural pride.", "campaign_note": "Confirm current campaign era and homeland status." },
+      { "name": "Half-Elf", "culture": "People between human and elven worlds, often shaped by divided belonging.", "ability_adjustments": "None", "movement": "12 in / 120 ft", "languages": "Common, Elvish", "alignment": "Any", "roleplaying": "A strong choice for characters navigating borders, cultures, and identities.", "campaign_note": "Standard option." },
+      { "name": "Tinker Gnome", "culture": "Gnomish inventors defined by guilds, committees, devices, and Lifequests.", "ability_adjustments": "INT +1, WIS -1", "movement": "6 in / 60 ft", "languages": "Common, Gnomish", "alignment": "Often neutral", "roleplaying": "Build with exuberant overengineering and good humor.", "campaign_note": "Best paired with the Tinker class." },
+      { "name": "Gully Dwarf", "culture": "Aghar survivors who thrive in ruins, refuse heaps, and hard conditions.", "ability_adjustments": "CON +1, INT -1, CHA -1", "movement": "6 in / 60 ft", "languages": "Common, Dwarvish, Aghar dialect by campaign", "alignment": "Often non-lawful", "roleplaying": "Use carefully; the tone can become comic or tragic depending on the table.", "campaign_note": "Advanced / DM approval." },
+      { "name": "Irda", "culture": "Rare, graceful, secretive descendants of ancient ogres with shapechanging lore.", "ability_adjustments": "INT +1, CHA +1, CON -1", "movement": "12 in / 120 ft", "languages": "Common, Irda, Ancient Ogre by campaign", "alignment": "Usually good-leaning", "roleplaying": "A rare people with major setting implications.", "campaign_note": "Advanced / DM approval." },
+      { "name": "Minotaur", "culture": "Militant seafarers with a fierce honor culture and strong belief in strength.", "ability_adjustments": "STR +1, INT -1, CHA -1", "movement": "12 in / 120 ft", "languages": "Common, Kothian/Minotaur by campaign", "alignment": "Often lawful", "roleplaying": "Honor, dominance, seamanship, and family reputation are major themes.", "campaign_note": "Advanced / DM approval." }
+    ]
+  },
+  "timeline": {
+    "id": "timeline",
+    "heading": "Timeline",
+    "summary": "A spoiler-light overview of the eras that shape player characters.",
+    "entries": [
+      { "title": "Age of Dreams", "body": "A legendary age of origins, first peoples, ancient wars, and the earliest foundations of elven, dwarven, human, and knightly history." },
+      { "title": "Age of Light and Age of Might", "body": "Civilizations rise, trade, build wonders, and eventually fall into pride and conflict." },
+      { "title": "Cataclysm", "body": "A world-shattering divine judgment ends the Age of Might, changes the land, and leaves generations struggling in darkness." },
+      { "title": "Post-Cataclysm World", "body": "True clerics vanish for centuries, old orders are blamed or broken, and communities survive through hardship, memory, and superstition." },
+      { "title": "War of the Lance Context", "body": "The return of dragons and armies of evil reshapes Ansalon. Player characters live in a world where the war's consequences are personal and political." }
+    ]
+  },
+  "geography": {
+    "id": "geography",
+    "heading": "Geography",
+    "summary": "A short gazetteer for player orientation in Ansalon.",
+    "entries": [
+      { "name": "Ansalon", "description": "The southern continent that forms the main stage for the War of the Lance and most Dragonlance campaigning." },
+      { "name": "Abanasinia", "description": "A plains region with tribes, towns, and the communities around Solace and Haven." },
+      { "name": "Solace", "description": "A famous Abanasinian settlement and starting touchstone for many Dragonlance stories." },
+      { "name": "Qualinesti", "description": "The western elven homeland, historically tied to peace with dwarves and humans." },
+      { "name": "Silvanesti", "description": "The ancient high elven realm, proud and deeply traditional." },
+      { "name": "Thorbardin", "description": "The great dwarven mountain kingdom and one of Ansalon's most important underground realms." },
+      { "name": "Sanction", "description": "A harsh eastern city and strategic region connected to the wars of the age." },
+      { "name": "Neraka", "description": "A bleak central region associated with evil power and Dragonarmy activity." },
+      { "name": "Plains of Dust", "description": "A dry southern region suited to hard travel, nomads, and frontier danger." },
+      { "name": "Palanthus", "description": "A major northern city and center of civilization after the war." },
+      { "name": "Sancrist", "description": "An island region associated with the Whitestone and important councils." },
+      { "name": "Mithas and Kothas", "description": "Minotaur island realms with strong naval traditions." },
+      { "name": "Tarsis", "description": "Once a port, later stranded inland after the Cataclysm changed the seas." }
+    ]
+  },
+  "organizations": {
+    "id": "organizations",
+    "heading": "Organizations",
+    "summary": "Player-facing organizations and factions without stat blocks or adventure secrets.",
+    "entries": [
+      { "name": "Knights of Solamnia", "description": "A chivalric order devoted to honor, goodness, and duty through the Crown, Sword, and Rose." },
+      { "name": "Orders of High Sorcery", "description": "The arcane orders that regulate wizardry through the White, Red, and Black Robes." },
+      { "name": "Seekers", "description": "A post-Cataclysm religious movement in regions such as Haven and Solace, important because true divine power had vanished from common life." },
+      { "name": "Dragonarmies", "description": "Militarized forces of evil that reshape the political reality of Ansalon during the War of the Lance." },
+      { "name": "Whitestone Forces", "description": "A broad alliance of good peoples and nations formed to resist the Dragonarmies." },
+      { "name": "Elven Nations", "description": "Silvanesti and Qualinesti preserve different elven traditions and political priorities." },
+      { "name": "Dwarven Kingdoms", "description": "Dwarven peoples are organized around clans, mountain realms, and old grudges." },
+      { "name": "Minotaur Realms", "description": "Mithas and Kothas are naval, martial societies built around strength and competition." },
+      { "name": "Gnomish Guilds", "description": "Tinker gnomes organize invention and work through guilds, committees, and Lifequests." }
+    ]
+  },
+  "languages": {
+    "id": "languages",
+    "heading": "Languages",
+    "summary": "The PDF and current builder data point to the following player-facing language families. Final language choices remain campaign-managed.",
+    "entries": [
+      { "name": "Common", "description": "The broad trade and adventuring language used across many human and mixed communities." },
+      { "name": "Regional human tongues", "description": "Local languages and dialects vary across Ansalon." },
+      { "name": "Elven tongues", "description": "Used among Silvanesti, Qualinesti, Kagonesti, and related elven peoples." },
+      { "name": "Dwarven tongues", "description": "Used among hill dwarves, mountain dwarves, and other dwarven communities." },
+      { "name": "Kenderspeak", "description": "The kender language, often paired with Common for kender characters." },
+      { "name": "Gnomish", "description": "The language of tinker gnomes, guilds, devices, and technical explanations." },
+      { "name": "Aghar dialects", "description": "Gully dwarf speech varies by clan and community." },
+      { "name": "Irda and Ancient Ogre", "description": "Rare languages tied to Irda heritage and ancient ogre origins." },
+      { "name": "Kothian / Minotaur", "description": "Minotaur language used in Mithas, Kothas, and naval culture." },
+      { "name": "Goblin and Ogre tongues", "description": "Common among hostile or monstrous peoples; availability depends on campaign background." },
+      { "name": "Draconic / dragon languages", "description": "Known by dragons and some dragon-related creatures; usually not a casual starting language." }
+    ]
+  }
+}

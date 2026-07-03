@@ -470,6 +470,7 @@ function playerNavHtml(sheetId) {
       ${campaignHref ? `<a class="vault-button secondary" href="${campaignHref}">Back to Campaign</a>` : ""}
       <a class="vault-button secondary" href="/characters">My Characters</a>
       ${sheetId ? `<a class="vault-button secondary" href="${characterViewHref(sheetId)}">Character Sheet</a>` : ""}
+      <a class="vault-button secondary" href="/dragonlance">Dragonlance Guide</a>
       <a class="vault-button secondary" href="/1e/">Rules</a>`;
   }
   return `
