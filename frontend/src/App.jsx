@@ -1790,6 +1790,10 @@ function InlineSelect({ value, options, onSave }) {
 }
 
 export default function App() {
+  useEffect(() => {
+    document.title = isClassicHost() ? "Drago Classic | Player Portal" : "DM Portal | Drago Russo Games";
+  }, []);
+
   if (isDragolanceHost()) {
     window.location.replace("https://classic.dragorussogames.com/");
     return null;

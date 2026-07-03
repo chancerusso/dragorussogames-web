@@ -100,12 +100,28 @@
 .vault-button.secondary,
 .vault-tab,
 .vault-chip{
-  background:rgba(122,33,27,.08);
-  color:#7a211b;
+  background:linear-gradient(180deg,#fff7e8,#ead8b8);
+  border-color:rgba(204,161,84,.62);
+  color:#3a2415;
 }
 
 .vault-tab[aria-selected="true"],
 .vault-chip.active{
+  background:#7a211b;
+  color:#fbf4e6;
+  border-color:rgba(251,244,230,.34);
+}
+
+.vault-tab:hover,
+.vault-tab:focus-visible{
+  background:#fbf4e6;
+  color:#2e1d12;
+  outline:2px solid rgba(204,161,84,.48);
+  outline-offset:2px;
+}
+
+.vault-tab[aria-selected="true"]:hover,
+.vault-tab[aria-selected="true"]:focus-visible{
   background:#7a211b;
   color:#fbf4e6;
 }
