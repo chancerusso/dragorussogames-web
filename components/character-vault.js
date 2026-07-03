@@ -142,7 +142,7 @@ const fallbackDragonlanceRaces = [
     advanced: true,
   },
 ];
-const state = { characters: [], equipment: [], spells: [], campaigns: [], players: [], dragonlanceRaces: [], dragonlanceClasses: [], campaign: null, rules: null, character: null, currentPlayer: null, step: 0, draft: null, inventoryFilter: "equipped", dmOverride: false, dmCharacterFilters: { campaign_id: "", user_id: "", status: "" }, equipmentFilters: { q: "", type: "" }, editEquipmentId: null, dmCampaignTab: "overview" };
+const state = { characters: [], equipment: [], spells: [], campaigns: [], players: [], dragonlanceRaces: [], dragonlanceClasses: [], campaign: null, rules: null, character: null, currentPlayer: null, step: 0, draft: null, hpRollMessage: "", inventoryFilter: "equipped", dmOverride: false, dmCharacterFilters: { campaign_id: "", user_id: "", status: "" }, equipmentFilters: { q: "", type: "" }, editEquipmentId: null, dmCampaignTab: "overview" };
 const builderContext = detectBuilderContext();
 
 function h(value) {
@@ -325,11 +325,17 @@ function campaignId() {
   return match ? Number(match[1]) : null;
 }
 
-function toast(message) {
+function toast(message, tone = "") {
   const node = document.querySelector("[data-vault-toast]");
-  if (node) node.textContent = message;
+  if (node) {
+    node.textContent = message;
+    node.dataset.tone = tone;
+  }
   const panelNode = document.querySelector("[data-panel-toast]");
-  if (panelNode) panelNode.textContent = message;
+  if (panelNode) {
+    panelNode.textContent = message;
+    panelNode.dataset.tone = tone;
+  }
 }
 
 async function boot() {
@@ -583,7 +589,7 @@ function builderStep() {
         </div>
         <div class="vault-statline">${adjustedStats(d).map(([name, value]) => `<div class="vault-stat"><strong>${value}</strong><span>${abilityLabels[name]}</span></div>`).join("")}</div>
       </div>
-      ${isPlayerCharacterMode() ? `<div class="vault-source-notice">${h(builderContext.label)} campaign mode is active. Source availability is controlled by this campaign.</div>` : builderContext.setting === "dragolance" ? `<div class="vault-source-notice">Dragolance campaign mode is active. OSRIC appears as the rules foundation, but OSRIC-only options are not available for this campaign.</div>` : ""}
+      ${sourcebookNoticeHtml()}
       ${raceSourceSection("OSRIC", osricRaceCards(), d.race)}
       ${raceSourceSection("DRAGOLANCE", settingDragonlanceRaces(), d.race)}
     </section>
@@ -606,7 +612,7 @@ function builderStep() {
           <span><strong>Wealth</strong>${h((state.rules.classes[d.class_name] || {}).wealth || "Review")}</span>
         </div>
       </div>
-      ${isPlayerCharacterMode() ? `<div class="vault-source-notice">${h(builderContext.label)} campaign mode is active. Source availability is controlled by this campaign.</div>` : builderContext.setting === "dragolance" ? `<div class="vault-source-notice">Dragolance campaign mode is active. OSRIC classes are shown for reference until Dragolance class data is added.</div>` : ""}
+      ${sourcebookNoticeHtml()}
       ${classSourceSection("OSRIC", osricClassCards(), d.class_name)}
       ${classSourceSection("DRAGOLANCE STARTING CLASSES", dragonlanceStartingClassCards(), d.class_name)}
       ${classSourceSection("DRAGOLANCE PROGRESSION PATHS", dragonlanceProgressionClassCards(), d.class_name)}
@@ -615,7 +621,7 @@ function builderStep() {
     <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/003-class/">Class</a></p>
     ${navButtons()}`;
   if (state.step === 4) return `${selectField("Alignment", "alignment", d.alignment, state.rules.alignments)}<div class="vault-card vault-wide">${raceClassWarnings(d)}<p><strong>${h(d.class_name)}:</strong> ${h((state.rules.classes[d.class_name] || {}).alignment || "Any alignment")}</p></div><p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/004-alignment/">Alignment</a>.</p>${navButtons()}`;
-  if (state.step === 5) return `${field("Max HP", "combat.max_hp", d.combat.max_hp, "number")}${field("Current HP", "combat.current_hp", d.combat.current_hp, "number")}<p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/007-hit-points/">Hit Points</a></p>${navButtons()}`;
+  if (state.step === 5) return `${hitPointsStepHtml(d)}${navButtons()}`;
   if (state.step === 6) return `${coins.map((coin) => field(title(coin), `coins.${coin}`, d.coins[coin], "number")).join("")}<div class="vault-card vault-wide"><h3>Coin Load</h3><p>${coinCount(d.coins)} coins, ${coinWeight(d.coins)} lb.</p></div><p class="vault-rules vault-full">Rules: <a href="/1e/equipment/">Coins weigh 10 per lb</a></p>${navButtons()}`;
   if (state.step === 7) return equipmentManager() + navButtons();
   if (state.step === 8) return proficiencyManager() + navButtons();
@@ -643,6 +649,10 @@ function campaignSelectHtml(d) {
   return selectField("Campaign", "campaign_id", d.campaign_id || "", ["", ...state.campaigns.map((c) => String(c.id))]);
 }
 
+function sourcebookNoticeHtml() {
+  return `<div class="vault-source-notice"><strong>Campaign Sourcebooks</strong><span>This campaign determines which sourcebooks, races, classes, and options are available.</span></div>`;
+}
+
 function playerIdentityHtml() {
   return `<div class="vault-card vault-full"><div class="vault-kicker">Player</div><h3>${h(playerDisplayName())}</h3><p>Ownership is taken from your player login.</p></div>`;
 }
@@ -655,6 +665,35 @@ function playerCampaignLabel(d) {
   if (state.campaign?.name) return state.campaign.name;
   if (d.campaign_id) return `Campaign #${d.campaign_id}`;
   return "DRG";
+}
+
+function hitPointsStepHtml(d) {
+  const con = Number(d.abilities?.constitution || 10);
+  const conMod = constitutionHpAdjustment(con, d.class_name);
+  return `
+    <div class="vault-card vault-full">
+      <div class="vault-kicker">Hit Points</div>
+      <h3>${h(d.class_name || "Class")} Hit Die</h3>
+      <div class="vault-compact-list">
+        <span><strong>Hit Die</strong>${h(hitDiceText(d))}</span>
+        <span><strong>CON Modifier</strong>${h(formatSigned(conMod))}</span>
+      </div>
+      <div class="vault-actions"><button class="vault-button" type="button" data-roll-hp>Roll Hit Die</button></div>
+      ${state.hpRollMessage ? `<p class="vault-success-text">${h(state.hpRollMessage)}</p>` : ""}
+    </div>
+    ${field("Max HP", "combat.max_hp", d.combat.max_hp, "number")}
+    ${field("Current HP", "combat.current_hp", d.combat.current_hp, "number")}
+    <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/007-hit-points/">Hit Points</a></p>`;
+}
+
+function formatSigned(value) {
+  return Number(value) >= 0 ? `+${Number(value)}` : String(Number(value));
+}
+
+function formatConEquation(value) {
+  const number = Number(value);
+  if (number === 0) return "+ 0";
+  return number > 0 ? `+ ${number}` : `- ${Math.abs(number)}`;
 }
 
 function equipmentManager() {
@@ -813,6 +852,10 @@ function osricClassCards() {
 
 function dragonlanceClassCards() {
   return state.dragonlanceClasses.map((classInfo) => classCardData(classInfo.name, "DRAGOLANCE", classInfo)).filter(Boolean);
+}
+
+function dragonlanceClassProfile(name) {
+  return state.dragonlanceClasses.find((classInfo) => classInfo.name === name) || null;
 }
 
 function dragonlanceStartingClassCards() {
@@ -1010,6 +1053,16 @@ function bindBuilderActions() {
     state.draft.assigned_rolls = {};
     renderBuilder();
   });
+  document.querySelector("[data-roll-hp]")?.addEventListener("click", () => {
+    syncDraft();
+    const roll = rollHitDice(hitDiceText(state.draft));
+    const conMod = constitutionHpAdjustment(Number(state.draft.abilities?.constitution || 10), state.draft.class_name);
+    const hp = Math.max(1, roll.total + conMod);
+    state.draft.combat.max_hp = hp;
+    state.draft.combat.current_hp = hp;
+    state.hpRollMessage = `Rolled ${roll.detail} ${formatConEquation(conMod)} CON = ${hp} HP`;
+    renderBuilder();
+  });
   document.querySelectorAll("[data-add-equipment]").forEach((button) => button.addEventListener("click", async (event) => {
     event.preventDefault();
     const character = await ensureSaved();
@@ -1085,16 +1138,18 @@ async function saveDraft(navigate = true) {
     localStorage.setItem("drg1e_player_id", String(state.currentPlayer.id));
   }
   state.draft = { ...state.draft, id: state.character.id };
-  toast("Saved.");
   if (navigate && pageKind() === "new") {
-    location.href = isPlayerCharacterMode() ? "/characters" : `/1e/characters/${state.character.id}/`;
+    renderBuilder();
+    toast("Character saved.", "success");
   } else if (pageKind() === "edit") {
     state.character = isPlayerCharacterMode()
       ? await rootApi(`/player/characters/${state.character.id}`, { headers: playerAuthHeaders() })
       : await api(`/characters/${state.character.id}`);
     state.draft = initialDraft();
-    toast("Saved.");
-    if (navigate && isPlayerCharacterMode()) location.href = "/characters";
+    if (navigate) renderBuilder();
+    toast("Character saved.", "success");
+  } else {
+    toast("Character saved.", "success");
   }
   return state.character;
 }
@@ -1466,7 +1521,7 @@ function inventoryRow(item, proficiencies = []) {
 function savingThrowsHtml(c) {
   const saves = c.combat?.saving_throws;
   if (!saves?.categories) return `<p>Manual DM Review: ${h(saves?.reason || "saving table not encoded")}</p>`;
-  return `<p class="vault-muted">Level band ${h(saves.level_band)}. Roll this number or higher on d20.</p><table class="vault-table"><tbody>${Object.entries(saves.categories).map(([key, value]) => `<tr><th>${h(saves.labels?.[key] || title(key))}</th><td>${h(value)}</td></tr>`).join("")}</tbody></table>${(saves.notes || []).map((note) => `<p class="vault-muted">${h(note)}</p>`).join("")}`;
+  return `<p class="vault-muted">Level band ${h(saves.level_band)}. Roll this number or higher on d20.</p><table class="vault-table vault-saving-table"><tbody>${Object.entries(saves.categories).map(([key, value]) => `<tr><th>${h(saves.labels?.[key] || title(key))}</th><td>${h(value)}</td></tr>`).join("")}</tbody></table>${(saves.notes || []).map((note) => `<p class="vault-muted">${h(note)}</p>`).join("")}`;
 }
 
 function warningsHtml(c) {
@@ -1971,6 +2026,8 @@ function hitDiceText(c) {
   const level = Number(c.level || 1);
   const className = c.class_name;
   if (className === "Ranger" && level === 1) return "2d8";
+  const dragonlanceClass = dragonlanceClassProfile(className);
+  if (dragonlanceClass?.hit_die) return dragonlanceClass.hit_die;
   const hitDie = c.class_details?.hit_die || state.rules?.classes?.[className]?.hit_die;
   if (hitDie && level === 1) return `1d${hitDie}`;
   return c.class_details?.hit_die_text || state.rules?.classes?.[className]?.hit_die_text || (hitDie ? `d${hitDie}` : "Manual DM Review");
@@ -2015,6 +2072,29 @@ function isAmmunition(item = {}) {
 function roll4d6DropLowest() {
   const dice = Array.from({ length: 4 }, () => Math.floor(Math.random() * 6) + 1).sort((a, b) => a - b);
   return dice.slice(1).reduce((sum, die) => sum + die, 0);
+}
+
+function rollHitDice(text) {
+  const match = String(text || "").match(/(\d*)d(\d+)/i);
+  const count = Math.max(1, Number(match?.[1] || 1));
+  const sides = Math.max(1, Number(match?.[2] || 6));
+  const rolls = Array.from({ length: count }, () => Math.floor(Math.random() * sides) + 1);
+  return {
+    total: rolls.reduce((sum, roll) => sum + roll, 0),
+    detail: rolls.length > 1 ? `${rolls.join(" + ")} (${count}d${sides})` : String(rolls[0]),
+  };
+}
+
+function constitutionHpAdjustment(constitution, className = "") {
+  const warrior = ["Fighter", "Paladin", "Ranger", "Barbarian", "Cavalier", "Knight of the Crown", "Knight of the Sword", "Knight of the Rose"].includes(className);
+  if (constitution <= 3) return -2;
+  if (constitution <= 6) return -1;
+  if (constitution === 15) return 1;
+  if (constitution === 16) return 2;
+  if (constitution === 17) return warrior ? 3 : 2;
+  if (constitution === 18) return warrior ? 4 : 2;
+  if (constitution >= 19) return warrior ? 5 : 2;
+  return 0;
 }
 
 boot();
