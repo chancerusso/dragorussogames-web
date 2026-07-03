@@ -770,6 +770,12 @@ tbody tr:hover {
   margin: -6px 0 10px;
 }
 
+.login-copy {
+  color: var(--muted);
+  line-height: 1.5;
+  margin: -4px 0 0;
+}
+
 .muted,
 .error {
   color: var(--muted);
