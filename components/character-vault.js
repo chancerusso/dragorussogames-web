@@ -7,6 +7,11 @@ const abilityLabels = { strength: "STR", intelligence: "INT", wisdom: "WIS", dex
 const coins = ["platinum", "gold", "electrum", "silver", "copper"];
 const DRAGONLANCE_RACE_PATH = "/content/settings/dragonlance/races/";
 const DRAGONLANCE_CLASS_PATH = "/content/settings/dragonlance/classes/";
+const DRAGONLANCE_HIDDEN_CLASS_NAMES = new Set([
+  "Barbarian",
+  "Cavalier",
+  "Paladin",
+]);
 const PLAYER_TOKEN_KEY = "drg_player_token";
 const fallbackDragonlanceRaces = [
   {
@@ -166,6 +171,10 @@ function sourceSelectable(source) {
   return builderContext.selectableSources.has(source);
 }
 
+function isDragonlanceMode() {
+  return builderContext.setting === "dragolance";
+}
+
 function sourceAdvisory(source) {
   return !sourceSelectable(source);
 }
@@ -276,7 +285,7 @@ async function fetchJson(path) {
 
 async function fetchDragonlanceRaces() {
   try {
-    const files = await fetchJson(`${DRAGONLANCE_RACE_PATH}index.json`);
+    const files = contentIndexFiles(await fetchJson(`${DRAGONLANCE_RACE_PATH}index.json`));
     return Promise.all(files.map((file) => fetchJson(`${DRAGONLANCE_RACE_PATH}${file}`)));
   } catch (error) {
     console.warn("Dragonlance race content unavailable; using fallback race data.", error);
@@ -286,12 +295,28 @@ async function fetchDragonlanceRaces() {
 
 async function fetchDragonlanceClasses() {
   try {
-    const files = await fetchJson(`${DRAGONLANCE_CLASS_PATH}index.json`);
-    return Promise.all(files.map((file) => fetchJson(`${DRAGONLANCE_CLASS_PATH}${file}`)));
+    const files = contentIndexFiles(await fetchJson(`${DRAGONLANCE_CLASS_PATH}index.json`));
+    const classes = await Promise.all(files.map(async (file) => {
+      try {
+        return await fetchJson(`${DRAGONLANCE_CLASS_PATH}${file}`);
+      } catch (error) {
+        console.warn(`Dragonlance class file unavailable: ${file}`, error);
+        return null;
+      }
+    }));
+    return classes.filter((classInfo) => classInfo?.name);
   } catch (error) {
     console.warn("Dragonlance class content unavailable.", error);
     return [];
   }
+}
+
+function contentIndexFiles(index) {
+  if (Array.isArray(index)) return index;
+  if (Array.isArray(index?.files)) return index.files;
+  if (Array.isArray(index?.classes)) return index.classes;
+  if (Array.isArray(index?.races)) return index.races;
+  return [];
 }
 
 function pageKind() {
@@ -847,7 +872,9 @@ function osricRaceCards() {
 }
 
 function osricClassCards() {
-  return Object.entries(state.rules?.classes || {}).map(([name, classInfo]) => classCardData(name, "OSRIC", classInfo));
+  return Object.entries(state.rules?.classes || {})
+    .filter(([name]) => !isDragonlanceMode() || !DRAGONLANCE_HIDDEN_CLASS_NAMES.has(name))
+    .map(([name, classInfo]) => classCardData(name, "OSRIC", classInfo));
 }
 
 function dragonlanceClassCards() {
@@ -1521,7 +1548,7 @@ function inventoryRow(item, proficiencies = []) {
 function savingThrowsHtml(c) {
   const saves = c.combat?.saving_throws;
   if (!saves?.categories) return `<p>Manual DM Review: ${h(saves?.reason || "saving table not encoded")}</p>`;
-  return `<p class="vault-muted">Level band ${h(saves.level_band)}. Roll this number or higher on d20.</p><table class="vault-table vault-saving-table"><tbody>${Object.entries(saves.categories).map(([key, value]) => `<tr><th>${h(saves.labels?.[key] || title(key))}</th><td>${h(value)}</td></tr>`).join("")}</tbody></table>${(saves.notes || []).map((note) => `<p class="vault-muted">${h(note)}</p>`).join("")}`;
+  return `<p class="vault-muted">Level band ${h(saves.level_band)}. Roll this number or higher on d20.</p><div class="vault-saving-list">${Object.entries(saves.categories).map(([key, value]) => `<div class="vault-saving-row"><span>${h(saves.labels?.[key] || title(key))}</span><strong>${h(value)}</strong></div>`).join("")}</div>${(saves.notes || []).map((note) => `<p class="vault-muted">${h(note)}</p>`).join("")}`;
 }
 
 function warningsHtml(c) {

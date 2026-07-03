@@ -1,13 +1,13 @@
 {
   "id": "druid",
-  "name": "Druid (Heathen)",
+  "name": "Druid",
   "source": "DRAGOLANCE",
   "category": "starting",
   "base_class": "Druid",
-  "unlock_note": "Acceptable for travelers from beyond Krynn; like heathen clerics, their powers are lost in Krynn until conversion.",
-  "short_description": "A druidic priest from outside Krynn whose original divine connection does not function normally here.",
+  "unlock_note": "Available as a true druid of Krynn.",
+  "short_description": "A true druid of Krynn, serving nature through the gods and the Balance rather than older powerless traditions.",
   "hit_die": "d8",
   "prime_ability": "Wisdom, Charisma",
-  "key_notes": ["Traveler class", "Powerless until conversion", "May convert by campaign"],
+  "key_notes": ["Nature priest", "Serves the Balance", "Divine connection"],
   "selectable_at_level_1": true
 }

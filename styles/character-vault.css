@@ -884,27 +884,41 @@
   text-transform:uppercase;
 }
 
-.vault-saving-table{
-  border-collapse:separate;
-  border-spacing:0 6px;
+.vault-saving-list{
+  display:grid;
+  gap:8px;
+  margin-top:14px;
 }
 
-.vault-saving-table th,
-.vault-saving-table td{
+.vault-saving-row{
+  align-items:center;
   border:1px solid rgba(75,47,31,.22);
+  border-radius:6px;
   background:linear-gradient(180deg,#fff7e8,#ead8b8);
   color:#3a2415;
+  display:flex;
+  gap:14px;
+  justify-content:space-between;
+  min-height:40px;
+  padding:8px 10px;
 }
 
-.vault-saving-table th{
-  border-right:0;
-  border-radius:6px 0 0 6px;
+.vault-saving-row span{
+  color:#2e1d12;
+  font-family:'Cinzel',serif;
+  font-size:.78rem;
+  font-weight:800;
+  letter-spacing:0;
+  text-transform:uppercase;
 }
 
-.vault-saving-table td{
-  border-left:0;
-  border-radius:0 6px 6px 0;
+.vault-saving-row strong{
+  color:#2e1d12;
+  flex:0 0 auto;
+  font-size:1rem;
   font-weight:900;
+  min-width:3ch;
+  text-align:right;
 }
 
 .vault-list{

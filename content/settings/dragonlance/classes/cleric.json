@@ -1,0 +1,13 @@
+{
+  "id": "cleric",
+  "name": "Cleric",
+  "source": "DRAGOLANCE",
+  "category": "starting",
+  "base_class": "Cleric",
+  "unlock_note": "Available as a true cleric of Krynn.",
+  "short_description": "A true cleric of Krynn, empowered directly by a deity through alignment, divine spheres, and the restored gods.",
+  "hit_die": "d8",
+  "prime_ability": "Wisdom",
+  "key_notes": ["Divine caster", "Serves a Krynn deity", "Spheres chosen later"],
+  "selectable_at_level_1": true
+}

@@ -3,7 +3,7 @@
   "name": "Red Robe Wizard",
   "source": "DRAGOLANCE",
   "category": "progression",
-  "base_class": "Wizard of High Sorcery",
+  "base_class": "Robe Order Wizard",
   "unlock_note": "Requires passing the Test without an act contrary to chaos.",
   "short_description": "A High Sorcery order path associated with balance, independence, and Lunitari's red moon.",
   "hit_die": "d4",
