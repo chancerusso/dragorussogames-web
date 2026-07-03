@@ -1075,12 +1075,52 @@ function PlayerCharacterCard({ character, onDeleted }) {
         <div><dt>Campaign</dt><dd>{character.campaign_name || "-"}</dd></div>
       </dl>
       <div className="form-actions">
-        <a className="secondary-button" href={`/1e/characters/${character.id}/`}>View</a>
-        <a className="table-link" href={`/1e/characters/${character.id}/edit/`}>Edit</a>
+        <a className="secondary-button" href={`/characters/${character.id}`}>View</a>
+        <a className="table-link" href={`/characters/${character.id}/edit`}>Edit</a>
         <button className="table-button" type="button" disabled={busy} onClick={deleteCharacter}>{busy ? "Deleting..." : "Delete"}</button>
       </div>
     </article>
   );
+}
+
+function PlayerVaultToolPage() {
+  const { id } = useParams();
+  const location = useLocation();
+
+  useEffect(() => {
+    ensureStylesheet("/style.css");
+    ensureStylesheet("/styles/first-edition.css");
+    ensureStylesheet("/styles/character-vault.css");
+    document.querySelector("[data-vault-app]")?.replaceChildren();
+    loadClassicScript("/components/first-edition-app.js", "player-vault-rules-nav")
+      .then(() => loadClassicScript("/components/character-vault.js", "player-vault-character-vault"))
+      .catch((error) => {
+        const node = document.querySelector("[data-vault-app]");
+        if (node) node.textContent = error?.message || "Unable to load character tools.";
+      });
+  }, [id, location.pathname, location.search]);
+
+  return <main className="vault-shell" data-vault-app />;
+}
+
+function ensureStylesheet(href) {
+  if (document.querySelector(`link[href="${href}"]`)) return;
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = href;
+  document.head.appendChild(link);
+}
+
+function loadClassicScript(src, id) {
+  document.querySelector(`script[data-classic-loader="${id}"]`)?.remove();
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = src;
+    script.dataset.classicLoader = id;
+    script.onload = resolve;
+    script.onerror = () => reject(new Error(`Unable to load ${src}`));
+    document.body.appendChild(script);
+  });
 }
 
 function PlayerCampaignsPage() {
@@ -1295,8 +1335,8 @@ function PlayerCharacterTab({ character }) {
         <div><dt>XP</dt><dd>{character.xp || 0}</dd></div>
       </dl>
       <div className="form-actions">
-        <a className="secondary-button" href={`/1e/characters/${character.id}/`}>View Character</a>
-        <a className="table-link" href={`/1e/characters/${character.id}/edit/`}>Edit Character</a>
+        <a className="secondary-button" href={`/characters/${character.id}`}>View Character</a>
+        <a className="table-link" href={`/characters/${character.id}/edit`}>Edit Character</a>
       </div>
     </section>
   );
@@ -1766,6 +1806,11 @@ export default function App() {
             <Route path="/campaigns/:id" element={<PlayerCampaignHome />} />
             <Route path="/characters" element={<PlayerCharactersPage />} />
             <Route path="/characters/new" element={<PlayerCreateCharacterPage />} />
+            <Route path="/characters/:id" element={<PlayerVaultToolPage />} />
+            <Route path="/characters/:id/edit" element={<PlayerVaultToolPage />} />
+            <Route path="/1e/characters/new" element={<PlayerVaultToolPage />} />
+            <Route path="/1e/characters/:id" element={<PlayerVaultToolPage />} />
+            <Route path="/1e/characters/:id/edit" element={<PlayerVaultToolPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

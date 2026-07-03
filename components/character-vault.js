@@ -292,13 +292,21 @@ function pageKind() {
   if (path.includes("/dm/players")) return "dmPlayers";
   if (path.includes("/dm/characters")) return "dmCharacters";
   if (path.includes("/dm/equipment")) return "dmEquipment";
-  const match = path.match(/\/1e\/characters\/(\d+)$/);
+  const match = path.match(/(?:\/1e)?\/characters\/(\d+)$/);
   return match ? "show" : "index";
 }
 
 function characterId() {
-  const match = location.pathname.match(/\/1e\/characters\/(\d+)/);
+  const match = location.pathname.match(/(?:\/1e)?\/characters\/(\d+)/);
   return match ? Number(match[1]) : null;
+}
+
+function characterViewHref(id) {
+  return isPlayerCharacterMode() ? `/characters/${id}` : `/1e/characters/${id}/`;
+}
+
+function characterEditHref(id) {
+  return isPlayerCharacterMode() ? `/characters/${id}/edit` : `/1e/characters/${id}/edit/`;
 }
 
 function campaignId() {
@@ -418,7 +426,7 @@ function playerNavHtml(sheetId) {
       <a class="vault-button" href="/">Back to Player Home</a>
       ${campaignHref ? `<a class="vault-button secondary" href="${campaignHref}">Back to Campaign</a>` : ""}
       <a class="vault-button secondary" href="/characters">My Characters</a>
-      ${sheetId ? `<a class="vault-button secondary" href="/1e/characters/${sheetId}/">Character Sheet</a>` : ""}
+      ${sheetId ? `<a class="vault-button secondary" href="${characterViewHref(sheetId)}">Character Sheet</a>` : ""}
       <a class="vault-button secondary" href="/1e/">Rules</a>`;
   }
   return `
@@ -607,7 +615,7 @@ function navButtons(save = false) {
     <button class="vault-button secondary" type="button" data-prev ${state.step === 0 ? "disabled" : ""}>Previous</button>
     <button class="vault-button secondary" type="button" data-next ${state.step === 10 ? "disabled" : ""}>Next</button>
     <button class="vault-button" type="button" data-save>${save ? "Save Character" : "Save"}</button>
-    ${state.character?.id ? `<a class="vault-button secondary" href="/1e/characters/${state.character.id}/">View</a>` : ""}
+    ${state.character?.id ? `<a class="vault-button secondary" href="${characterViewHref(state.character.id)}">View</a>` : ""}
   </div>`;
 }
 
@@ -1289,7 +1297,7 @@ function openQuickEditModal(c) {
     ${coins.map((coin) => field(title(coin), `coin_${coin}`, c.coins?.[coin] ?? 0, "number")).join("")}
     <label class="vault-field full">Notes<textarea name="notes">${h(c.notes || "")}</textarea></label>
     <div class="vault-panel-toast vault-full" data-panel-toast></div>
-    <div class="vault-actions vault-full"><button class="vault-button" type="submit">Save</button><a class="vault-button secondary" href="/1e/characters/${c.id}/edit/">Full Edit</a></div>
+    <div class="vault-actions vault-full"><button class="vault-button" type="submit">Save</button><a class="vault-button secondary" href="${characterEditHref(c.id)}">Full Edit</a></div>
   </form></div>`;
   modal.querySelector(".vault-modal-close").addEventListener("click", () => modal.remove());
   modal.addEventListener("click", (event) => { if (event.target === modal) modal.remove(); });
@@ -1297,19 +1305,24 @@ function openQuickEditModal(c) {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.target));
     const coinsPatch = Object.fromEntries(coins.map((coin) => [coin, Number(data[`coin_${coin}`] || 0)]));
-    state.character = await api(`/characters/${state.character.id}`, {
+    const patchPayload = {
+      xp: Number(data.xp || 0),
+      campaign_day: Number(data.campaign_day || 1),
+      current_location: data.current_location,
+      notes: data.notes,
+      safe_storage_location: data.safe_storage_location,
+      coins: coinsPatch,
+      combat: { current_hp: Number(data.current_hp || 0), max_hp: Number(data.max_hp || 0) },
+    };
+    state.character = isPlayerCharacterMode()
+      ? await rootApi(`/player/characters/${state.character.id}`, { method: "PUT", headers: playerAuthHeaders(), body: JSON.stringify(patchPayload) })
+      : await api(`/characters/${state.character.id}`, {
       method: "PUT",
-      body: JSON.stringify({
-        xp: Number(data.xp || 0),
-        campaign_day: Number(data.campaign_day || 1),
-        current_location: data.current_location,
-        notes: data.notes,
-        safe_storage_location: data.safe_storage_location,
-        coins: coinsPatch,
-        combat: { current_hp: Number(data.current_hp || 0), max_hp: Number(data.max_hp || 0) },
-      }),
+      body: JSON.stringify(patchPayload),
     });
-    state.character = await api(`/characters/${state.character.id}`);
+    state.character = isPlayerCharacterMode()
+      ? await rootApi(`/player/characters/${state.character.id}`, { headers: playerAuthHeaders() })
+      : await api(`/characters/${state.character.id}`);
     toast("Saved.");
     modal.remove();
     renderSheet();
@@ -1327,7 +1340,7 @@ function sheetHtml(c) {
     <section class="vault-panel">${sectionTitle("Equipment", "/1e/equipment/")}${inventoryHtml(c)}</section>
     <section class="vault-panel">${sectionTitle("Spells", "/1e/how-to-play/magic/")}${spellsHtml(c)}</section>
     <section class="vault-card"><div class="vault-kicker">Campaign State</div><p>Day ${h(c.campaign_day)} at ${h(c.current_location)}.</p><p>Storage: ${h(c.safe_storage_location || "No storage location set")}</p></section>
-    <section class="vault-panel"><div class="vault-kicker">Notes</div><p>${h(c.notes || "No notes.")}</p><div class="vault-actions"><a class="vault-button secondary" href="/1e/characters/${c.id || ""}/edit/">Full Edit</a></div></section>
+    <section class="vault-panel"><div class="vault-kicker">Notes</div><p>${h(c.notes || "No notes.")}</p><div class="vault-actions"><a class="vault-button secondary" href="${characterEditHref(c.id || "")}">Full Edit</a></div></section>
   </div>`;
 }
 
@@ -1347,7 +1360,7 @@ function sheetHeaderHtml(c) {
     </div>
     ${abilityStripHtml(c)}
     ${warningsHtml(c)}
-    <div class="vault-actions"><button class="vault-button secondary" type="button" data-quick-edit-open>Quick Edit</button><a class="vault-button secondary" href="/1e/characters/${c.id || ""}/edit/">Full Edit</a></div>
+    <div class="vault-actions"><button class="vault-button secondary" type="button" data-quick-edit-open>Quick Edit</button><a class="vault-button secondary" href="${characterEditHref(c.id || "")}">Full Edit</a></div>
   </section>`;
 }
 
