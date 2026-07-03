@@ -1,0 +1,18 @@
+{
+  "name": "Gully Dwarf",
+  "slug": "gully-dwarf",
+  "description": "Aghar survivors with comedic legacy baggage; use only with explicit table consent.",
+  "ability_adjustments": {
+    "constitution": 1,
+    "intelligence": -1,
+    "charisma": -1
+  },
+  "allowed_classes": ["Fighter - TODO_VERIFY", "Thief - TODO_VERIFY"],
+  "allowed_alignments": ["Any non-lawful - TODO_VERIFY"],
+  "languages": ["Common - TODO_VERIFY", "Dwarvish - TODO_VERIFY", "Aghar dialect - TODO_VERIFY"],
+  "special_abilities": ["Survival instincts - TODO_VERIFY", "Disease/poison resilience - TODO_VERIFY"],
+  "movement": "6\" / 60 ft - TODO_VERIFY",
+  "enabled_by_default": false,
+  "advanced": true,
+  "source_status": "TODO_VERIFY"
+}

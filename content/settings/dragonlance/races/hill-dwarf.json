@@ -1,0 +1,17 @@
+{
+  "name": "Hill Dwarf",
+  "slug": "hill-dwarf",
+  "description": "Practical dwarves of clan and craft, sturdy in battle and grounded in old traditions.",
+  "ability_adjustments": {
+    "constitution": 1,
+    "charisma": -1
+  },
+  "allowed_classes": ["Fighter", "Cleric", "Thief - TODO_VERIFY"],
+  "allowed_alignments": ["Any lawful - TODO_VERIFY", "Neutral - TODO_VERIFY"],
+  "languages": ["Common", "Dwarvish", "Hill dwarf clan tongue - TODO_VERIFY"],
+  "special_abilities": ["Infravision - TODO_VERIFY", "Stonework detection - TODO_VERIFY", "Poison/magic save bonuses - TODO_VERIFY"],
+  "movement": "9\" / 90 ft",
+  "enabled_by_default": true,
+  "advanced": false,
+  "source_status": "TODO_VERIFY"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Kender",
+  "slug": "kender",
+  "description": "Fearless, curious wanderers whose courage and handling habits require careful table agreement.",
+  "ability_adjustments": {
+    "dexterity": 1,
+    "strength": -1
+  },
+  "allowed_classes": ["Fighter", "Thief", "Ranger - TODO_VERIFY", "Cleric - TODO_VERIFY"],
+  "allowed_alignments": ["Any non-evil - TODO_VERIFY"],
+  "languages": ["Common", "Kenderspeak - TODO_VERIFY"],
+  "special_abilities": ["Fear resistance - TODO_VERIFY", "Taunt - TODO_VERIFY", "Handling/pockets - TODO_VERIFY"],
+  "movement": "9\" / 90 ft - TODO_VERIFY",
+  "enabled_by_default": true,
+  "advanced": false,
+  "source_status": "TODO_VERIFY"
+}

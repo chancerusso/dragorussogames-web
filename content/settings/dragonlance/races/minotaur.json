@@ -1,0 +1,18 @@
+{
+  "name": "Minotaur",
+  "slug": "minotaur",
+  "description": "Militant seafarers with strong honor codes and campaign-specific social consequences.",
+  "ability_adjustments": {
+    "strength": 1,
+    "intelligence": -1,
+    "charisma": -1
+  },
+  "allowed_classes": ["Fighter", "Cleric - TODO_VERIFY", "Thief - TODO_VERIFY"],
+  "allowed_alignments": ["Any lawful - TODO_VERIFY"],
+  "languages": ["Common", "Kothian/Minotaur - TODO_VERIFY"],
+  "special_abilities": ["Natural horns - TODO_VERIFY", "Seamanship - TODO_VERIFY", "Honor-code restrictions - TODO_VERIFY"],
+  "movement": "12\" / 120 ft - TODO_VERIFY",
+  "enabled_by_default": false,
+  "advanced": true,
+  "source_status": "TODO_VERIFY"
+}

@@ -1,0 +1,18 @@
+{
+  "name": "Irda",
+  "slug": "irda",
+  "description": "Rare, secretive high ogres with major setting implications; DM approval required.",
+  "ability_adjustments": {
+    "intelligence": 1,
+    "charisma": 1,
+    "constitution": -1
+  },
+  "allowed_classes": ["Magic-User - TODO_VERIFY", "Fighter - TODO_VERIFY", "Cleric - TODO_VERIFY"],
+  "allowed_alignments": ["Any non-evil - TODO_VERIFY"],
+  "languages": ["Common", "Irda - TODO_VERIFY", "Ancient Ogre - TODO_VERIFY"],
+  "special_abilities": ["Shapechanging - TODO_VERIFY", "Magic affinity - TODO_VERIFY", "Setting-secret restrictions - TODO_VERIFY"],
+  "movement": "12\" / 120 ft - TODO_VERIFY",
+  "enabled_by_default": false,
+  "advanced": true,
+  "source_status": "TODO_VERIFY"
+}

@@ -5,7 +5,142 @@ const API = `${VAULT_API_BASE}/1e`;
 const abilities = ["strength", "intelligence", "wisdom", "dexterity", "constitution", "charisma"];
 const abilityLabels = { strength: "STR", intelligence: "INT", wisdom: "WIS", dexterity: "DEX", constitution: "CON", charisma: "CHA" };
 const coins = ["platinum", "gold", "electrum", "silver", "copper"];
-const state = { characters: [], equipment: [], spells: [], campaigns: [], players: [], campaign: null, rules: null, character: null, currentPlayer: null, step: 0, draft: null, inventoryFilter: "equipped", dmOverride: false, dmCharacterFilters: { campaign_id: "", user_id: "", status: "" }, equipmentFilters: { q: "", type: "" }, editEquipmentId: null, dmCampaignTab: "overview" };
+const DRAGONLANCE_RACE_PATH = "/content/settings/dragonlance/races/";
+const fallbackDragonlanceRaces = [
+  {
+    name: "Human",
+    description: "The dominant free peoples of Ansalon, with the broadest class and culture options.",
+    ability_adjustments: {},
+    allowed_classes: ["Fighter", "Cleric", "Magic-User", "Thief", "Ranger", "Paladin", "Druid", "Assassin", "Monk", "Bard"],
+    allowed_alignments: ["Any"],
+    languages: ["Common", "Regional language - TODO/VERIFY"],
+    special_abilities: ["No racial maximums or level limits under DRG house rules"],
+    movement: "12\" / 120 ft",
+    enabled_by_default: true,
+    advanced: false,
+  },
+  {
+    name: "Kender",
+    description: "Fearless, curious wanderers whose courage and handling habits require careful table agreement.",
+    ability_adjustments: { dexterity: 1, strength: -1 },
+    allowed_classes: ["Fighter", "Thief", "Ranger - TODO/VERIFY", "Cleric - TODO/VERIFY"],
+    allowed_alignments: ["Any non-evil - TODO/VERIFY"],
+    languages: ["Common", "Kenderspeak - TODO/VERIFY"],
+    special_abilities: ["Fear resistance - TODO/VERIFY", "Taunt - TODO/VERIFY", "Handling/pockets - TODO/VERIFY"],
+    movement: "9\" / 90 ft - TODO/VERIFY",
+    enabled_by_default: true,
+    advanced: false,
+  },
+  {
+    name: "Hill Dwarf",
+    description: "Practical dwarves of clan and craft, sturdy in battle and grounded in old traditions.",
+    ability_adjustments: { constitution: 1, charisma: -1 },
+    allowed_classes: ["Fighter", "Cleric", "Thief - TODO/VERIFY"],
+    allowed_alignments: ["Any lawful - TODO/VERIFY", "Neutral - TODO/VERIFY"],
+    languages: ["Common", "Dwarvish", "Hill dwarf clan tongue - TODO/VERIFY"],
+    special_abilities: ["Infravision - TODO/VERIFY", "Stonework detection - TODO/VERIFY", "Poison/magic save bonuses - TODO/VERIFY"],
+    movement: "9\" / 90 ft",
+    enabled_by_default: true,
+    advanced: false,
+  },
+  {
+    name: "Mountain Dwarf",
+    description: "Deep-clan dwarves of strongholds and stone halls, hardier and more insular than their hill kin.",
+    ability_adjustments: { constitution: 1, charisma: -1 },
+    allowed_classes: ["Fighter", "Cleric", "Thief - TODO/VERIFY"],
+    allowed_alignments: ["Any lawful - TODO/VERIFY", "Neutral - TODO/VERIFY"],
+    languages: ["Common", "Dwarvish", "Mountain dwarf clan tongue - TODO/VERIFY"],
+    special_abilities: ["Infravision - TODO/VERIFY", "Stonework detection - TODO/VERIFY", "Poison/magic save bonuses - TODO/VERIFY"],
+    movement: "9\" / 90 ft",
+    enabled_by_default: true,
+    advanced: false,
+  },
+  {
+    name: "Qualinesti Elf",
+    description: "Woodland elves with a proud national tradition, suited to warriors, scouts, and arcane paths.",
+    ability_adjustments: { dexterity: 1, constitution: -1 },
+    allowed_classes: ["Fighter", "Magic-User", "Thief", "Ranger - TODO/VERIFY"],
+    allowed_alignments: ["Any good - TODO/VERIFY", "Neutral - TODO/VERIFY"],
+    languages: ["Common", "Elvish", "Qualinesti - TODO/VERIFY"],
+    special_abilities: ["Infravision - TODO/VERIFY", "Secret door detection - TODO/VERIFY", "Sleep/charm resistance - TODO/VERIFY"],
+    movement: "12\" / 120 ft",
+    enabled_by_default: true,
+    advanced: false,
+  },
+  {
+    name: "Silvanesti Elf",
+    description: "Ancient high elves bound to tradition, courtly magic, and the weight of a fading homeland.",
+    ability_adjustments: { dexterity: 1, constitution: -1 },
+    allowed_classes: ["Fighter", "Magic-User", "Thief - TODO/VERIFY"],
+    allowed_alignments: ["Any good - TODO/VERIFY", "Lawful Neutral - TODO/VERIFY"],
+    languages: ["Common", "Elvish", "Silvanesti - TODO/VERIFY"],
+    special_abilities: ["Infravision - TODO/VERIFY", "Secret door detection - TODO/VERIFY", "Sleep/charm resistance - TODO/VERIFY"],
+    movement: "12\" / 120 ft",
+    enabled_by_default: true,
+    advanced: false,
+  },
+  {
+    name: "Half-Elf",
+    description: "Children of two worlds, adaptable but often caught between human ambition and elven memory.",
+    ability_adjustments: {},
+    allowed_classes: ["Fighter", "Cleric", "Magic-User", "Thief", "Ranger", "Druid - TODO/VERIFY"],
+    allowed_alignments: ["Any"],
+    languages: ["Common", "Elvish", "Regional language - TODO/VERIFY"],
+    special_abilities: ["Infravision - TODO/VERIFY", "Secret door detection - TODO/VERIFY", "Sleep/charm resistance - TODO/VERIFY"],
+    movement: "12\" / 120 ft",
+    enabled_by_default: true,
+    advanced: false,
+  },
+  {
+    name: "Tinker Gnome",
+    description: "Brilliant, chaotic inventors whose devices are story engines as much as equipment.",
+    ability_adjustments: { intelligence: 1, wisdom: -1 },
+    allowed_classes: ["Fighter", "Thief", "Illusionist - TODO/VERIFY", "Cleric - TODO/VERIFY"],
+    allowed_alignments: ["Any non-evil - TODO/VERIFY"],
+    languages: ["Common", "Gnomish", "Technologist jargon - TODO/VERIFY"],
+    special_abilities: ["Infravision - TODO/VERIFY", "Tinkering specialty - TODO/VERIFY", "Device mishaps - TODO/VERIFY"],
+    movement: "6\" / 60 ft - TODO/VERIFY",
+    enabled_by_default: true,
+    advanced: false,
+  },
+  {
+    name: "Gully Dwarf",
+    description: "Aghar survivors with comedic legacy baggage; use only with explicit table consent.",
+    ability_adjustments: { constitution: 1, intelligence: -1, charisma: -1 },
+    allowed_classes: ["Fighter - TODO/VERIFY", "Thief - TODO/VERIFY"],
+    allowed_alignments: ["Any non-lawful - TODO/VERIFY"],
+    languages: ["Common - TODO/VERIFY", "Dwarvish - TODO/VERIFY", "Aghar dialect - TODO/VERIFY"],
+    special_abilities: ["Survival instincts - TODO/VERIFY", "Disease/poison resilience - TODO/VERIFY"],
+    movement: "6\" / 60 ft - TODO/VERIFY",
+    enabled_by_default: false,
+    advanced: true,
+  },
+  {
+    name: "Irda",
+    description: "Rare, secretive high ogres with major setting implications; DM approval required.",
+    ability_adjustments: { intelligence: 1, charisma: 1, constitution: -1 },
+    allowed_classes: ["Magic-User - TODO/VERIFY", "Fighter - TODO/VERIFY", "Cleric - TODO/VERIFY"],
+    allowed_alignments: ["Any non-evil - TODO/VERIFY"],
+    languages: ["Common", "Irda - TODO/VERIFY", "Ancient Ogre - TODO/VERIFY"],
+    special_abilities: ["Shapechanging - TODO/VERIFY", "Magic affinity - TODO/VERIFY", "Setting-secret restrictions - TODO/VERIFY"],
+    movement: "12\" / 120 ft - TODO/VERIFY",
+    enabled_by_default: false,
+    advanced: true,
+  },
+  {
+    name: "Minotaur",
+    description: "Militant seafarers with strong honor codes and campaign-specific social consequences.",
+    ability_adjustments: { strength: 1, intelligence: -1, charisma: -1 },
+    allowed_classes: ["Fighter", "Cleric - TODO/VERIFY", "Thief - TODO/VERIFY"],
+    allowed_alignments: ["Any lawful - TODO/VERIFY"],
+    languages: ["Common", "Kothian/Minotaur - TODO/VERIFY"],
+    special_abilities: ["Natural horns - TODO/VERIFY", "Seamanship - TODO/VERIFY", "Honor-code restrictions - TODO/VERIFY"],
+    movement: "12\" / 120 ft - TODO/VERIFY",
+    enabled_by_default: false,
+    advanced: true,
+  },
+];
+const state = { characters: [], equipment: [], spells: [], campaigns: [], players: [], dragonlanceRaces: [], campaign: null, rules: null, character: null, currentPlayer: null, step: 0, draft: null, inventoryFilter: "equipped", dmOverride: false, dmCharacterFilters: { campaign_id: "", user_id: "", status: "" }, equipmentFilters: { q: "", type: "" }, editEquipmentId: null, dmCampaignTab: "overview" };
 
 function h(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
@@ -18,6 +153,22 @@ async function api(path, options = {}) {
   });
   if (!response.ok) throw new Error(await response.text());
   return response.status === 204 ? null : response.json();
+}
+
+async function fetchJson(path) {
+  const response = await fetch(path);
+  if (!response.ok) throw new Error(`Unable to load ${path}`);
+  return response.json();
+}
+
+async function fetchDragonlanceRaces() {
+  try {
+    const files = await fetchJson(`${DRAGONLANCE_RACE_PATH}index.json`);
+    return Promise.all(files.map((file) => fetchJson(`${DRAGONLANCE_RACE_PATH}${file}`)));
+  } catch (error) {
+    console.warn("Dragonlance race content unavailable; using fallback race data.", error);
+    return fallbackDragonlanceRaces;
+  }
 }
 
 function pageKind() {
@@ -53,12 +204,13 @@ function toast(message) {
 async function boot() {
   renderShell();
   try {
-    [state.rules, state.equipment, state.spells, state.campaigns, state.players] = await Promise.all([
+    [state.rules, state.equipment, state.spells, state.campaigns, state.players, state.dragonlanceRaces] = await Promise.all([
       api("/rules-data"),
       api("/equipment"),
       api("/spells"),
       api("/campaigns"),
       api("/players"),
+      fetchDragonlanceRaces(),
     ]);
     hydrateCurrentPlayer();
     const kind = pageKind();
@@ -238,10 +390,22 @@ function builderStep() {
     <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/001-ability-scores/">4d6 drop lowest DRG 1e table rule</a></p>
     ${navButtons()}`;
   if (state.step === 2) return `
-    ${selectField("Race", "race", d.race, races, "compact")}
-    <div class="vault-card vault-wide vault-adjusted-scores"><h3>Adjusted Scores</h3><div class="vault-statline">${adjustedStats(d).map(([name, value]) => `<div class="vault-stat"><strong>${value}</strong><span>${abilityLabels[name]}</span></div>`).join("")}</div></div>
-    <div class="vault-card vault-full"><h3>Race Details</h3>${raceClassWarnings(d)}<p><strong>Eligible classes:</strong> ${h((state.rules.races[d.race]?.classes || []).join(", "))}</p><p><strong>Vision:</strong> ${h(state.rules.races[d.race]?.vision || "Manual DM Review")}</p><p><strong>Languages:</strong> ${h((state.rules.races[d.race]?.languages || []).join(", "))}</p><p><strong>Level limits:</strong> ${h(state.rules.races[d.race]?.level_limits || "Manual DM Review")}</p></div>
-    <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/002-race/">Race</a> and race reference pages</p>
+    <input type="hidden" name="race" value="${h(d.race)}">
+    <section class="vault-full dragonlance-race-step">
+      <div class="vault-section-heading">
+        <div>
+          <div class="vault-kicker">Dragonlance Race Selection v0.6.0</div>
+          <h2>Choose Your People</h2>
+          <p class="vault-muted">Foundation data only. Racial maximum ability scores and racial level limits are intentionally excluded by DRG house rules.</p>
+        </div>
+        <div class="vault-selected-race">Selected: <strong>${h(d.race || "None")}</strong></div>
+      </div>
+      <div class="vault-card vault-full vault-adjusted-scores dragonlance-adjusted-scores"><h3>Adjusted Scores</h3><div class="vault-statline">${adjustedStats(d).map(([name, value]) => `<div class="vault-stat"><strong>${value}</strong><span>${abilityLabels[name]}</span></div>`).join("")}</div></div>
+      ${dragonlanceRaceSection("Default Races", settingDragonlanceRaces().filter((race) => race.enabled_by_default), d.race)}
+      ${dragonlanceRaceSection("Advanced / DM Approval", settingDragonlanceRaces().filter((race) => race.advanced), d.race)}
+    </section>
+    <div class="vault-card vault-full"><h3>Race Restrictions</h3>${raceClassWarnings(d)}<p><strong>Current class options:</strong> ${h((dragonlanceRaceProfile(d.race)?.allowed_classes || state.rules.races[d.race]?.classes || races).join(", "))}</p><p><strong>Current alignment options:</strong> ${h((dragonlanceRaceProfile(d.race)?.allowed_alignments || ["Manual DM Review"]).join(", "))}</p></div>
+    <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/002-race/">Race</a>. Dragonlance-specific Knights and Wizards restrictions will be added in a later pass.</p>
     ${navButtons()}`;
   if (state.step === 3) return `
     ${selectField("Class", "class_name", d.class_name, classes)}
@@ -320,12 +484,63 @@ function spellRows(spells) {
   return spells.map((spell) => `<tr><td><strong>${h(spell.name)}</strong><br><a class="vault-mini" href="${h(spell.rules_reference)}">Rules</a></td><td>${spell.spell_level}<br><span class="vault-mini">${h(spell.class_list.join(", "))}</span></td><td>${h(spell.range || "")}</td><td>${h(spell.duration || "")}</td><td>${h(spell.area_of_effect || "")}</td><td><button class="vault-button secondary" type="button" data-add-spell="${spell.id}">Add/Prepare</button></td></tr>`).join("");
 }
 
+function dragonlanceRaceSection(titleText, races, selectedRace) {
+  return `<section class="vault-full dragonlance-race-section">
+    <div class="vault-kicker">${h(titleText)}</div>
+    <div class="dragonlance-race-grid">${races.map((race) => dragonlanceRaceCard(race, selectedRace)).join("")}</div>
+  </section>`;
+}
+
+function dragonlanceRaceCard(race, selectedRace) {
+  const selected = race.name === selectedRace;
+  const disabled = !race.enabled_by_default;
+  return `<article class="dragonlance-race-card ${selected ? "selected" : ""} ${disabled ? "disabled" : ""}">
+    <div class="dragonlance-race-card-header">
+      <div>
+        <h3>${h(race.name)}</h3>
+        <p>${h(race.description)}</p>
+      </div>
+      <div class="dragonlance-race-badges">${race.advanced ? `<span class="vault-badge">Advanced</span>` : `<span class="vault-badge">Default</span>`}${race.source_status ? `<span class="vault-badge">${h(race.source_status)}</span>` : ""}</div>
+    </div>
+    ${dragonlanceRaceDetail("Ability Adjustments", formatAbilityAdjustments(race.ability_adjustments))}
+    ${dragonlanceRaceDetail("Allowed Classes", race.allowed_classes.join(", "))}
+    ${dragonlanceRaceDetail("Allowed Alignments", race.allowed_alignments.join(", "))}
+    ${dragonlanceRaceDetail("Languages", race.languages.join(", "))}
+    ${dragonlanceRaceDetail("Special Abilities", race.special_abilities.join(", "))}
+    ${dragonlanceRaceDetail("Movement", race.movement)}
+    <button class="vault-button ${selected ? "" : "secondary"}" type="button" data-select-race="${h(race.name)}" ${disabled ? "disabled" : ""}>${selected ? "Selected" : "Select Race"}</button>
+  </article>`;
+}
+
+function dragonlanceRaceDetail(label, value) {
+  return `<p class="dragonlance-race-detail"><strong>${h(label)}:</strong> ${h(value || "None")}</p>`;
+}
+
+function dragonlanceRaceProfile(name) {
+  return settingDragonlanceRaces().find((race) => race.name === name) || null;
+}
+
+function settingDragonlanceRaces() {
+  return state.dragonlanceRaces?.length ? state.dragonlanceRaces : fallbackDragonlanceRaces;
+}
+
+function formatAbilityAdjustments(adjustments = {}) {
+  const entries = Object.entries(adjustments);
+  if (!entries.length) return "None";
+  return entries.map(([ability, value]) => `${abilityLabels[ability] || title(ability)} ${Number(value) > 0 ? "+" : ""}${value}`).join(", ");
+}
+
 function bindBuilderActions() {
   document.querySelector("[data-prev]")?.addEventListener("click", () => { syncDraft(); state.step = Math.max(0, state.step - 1); renderBuilder(); });
   document.querySelector("[data-next]")?.addEventListener("click", () => { syncDraft(); state.step = Math.min(10, state.step + 1); renderBuilder(); });
   document.querySelector("[data-save]")?.addEventListener("click", saveDraft);
   document.querySelector("[name='race']")?.addEventListener("change", () => { syncDraft(); renderBuilder(); });
   document.querySelector("[name='class_name']")?.addEventListener("change", () => { syncDraft(); renderBuilder(); });
+  document.querySelectorAll("[data-select-race]").forEach((button) => button.addEventListener("click", () => {
+    syncDraft();
+    state.draft.race = button.dataset.selectRace;
+    renderBuilder();
+  }));
   document.querySelector("[data-roll]")?.addEventListener("click", () => {
     state.draft.original_rolls = Array.from({ length: 6 }, roll4d6DropLowest);
     state.draft.assigned_rolls = {};
@@ -478,8 +693,12 @@ function proficiencyCount(className, level) {
 
 function raceClassWarnings(d) {
   const warnings = [];
+  const dragonlanceRace = dragonlanceRaceProfile(d.race);
   const race = state.rules?.races?.[d.race] || {};
   const cls = state.rules?.classes?.[d.class_name] || {};
+  if (dragonlanceRace?.allowed_classes?.length && !dragonlanceRace.allowed_classes.some((className) => className.split(" - ")[0] === d.class_name)) {
+    warnings.push(`${d.race} cannot normally choose ${d.class_name} under the Dragonlance foundation restrictions.`);
+  }
   if (race.classes && !race.classes.includes(d.class_name)) warnings.push(`${d.race} cannot normally choose ${d.class_name} as a single class.`);
   if (cls.allowed_alignments?.length && !cls.allowed_alignments.includes(d.alignment)) warnings.push(`${d.class_name} alignment restriction: ${cls.alignment}.`);
   return warnings.length ? `<div class="vault-warning">${warnings.map((warning) => `<p>${h(warning)}</p>`).join("")}</div>` : `<p class="vault-muted">No race/class/alignment warnings.</p>`;
@@ -494,7 +713,7 @@ function coinWeight(values = {}) {
 }
 
 function adjustedStats(d) {
-  const adjustments = state.rules?.races?.[d.race]?.adjustments || {};
+  const adjustments = dragonlanceRaceProfile(d.race)?.ability_adjustments || state.rules?.races?.[d.race]?.adjustments || {};
   return abilities.map((ability) => [ability, Math.max(3, Math.min(18, Number(d.abilities[ability] || 10) + Number(adjustments[ability] || 0)))]);
 }
 

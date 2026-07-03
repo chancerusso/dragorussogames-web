@@ -1,0 +1,14 @@
+{
+  "name": "Human",
+  "slug": "human",
+  "description": "The dominant free peoples of Ansalon, with the broadest class and culture options.",
+  "ability_adjustments": {},
+  "allowed_classes": ["Fighter", "Cleric", "Magic-User", "Thief", "Ranger", "Paladin", "Druid", "Assassin", "Monk", "Bard"],
+  "allowed_alignments": ["Any"],
+  "languages": ["Common", "Regional language - TODO_VERIFY"],
+  "special_abilities": ["No racial maximums or level limits under DRG house rules"],
+  "movement": "12\" / 120 ft",
+  "enabled_by_default": true,
+  "advanced": false,
+  "source_status": "TODO_VERIFY"
+}

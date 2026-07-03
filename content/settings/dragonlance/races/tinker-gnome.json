@@ -1,0 +1,17 @@
+{
+  "name": "Tinker Gnome",
+  "slug": "tinker-gnome",
+  "description": "Brilliant, chaotic inventors whose devices are story engines as much as equipment.",
+  "ability_adjustments": {
+    "intelligence": 1,
+    "wisdom": -1
+  },
+  "allowed_classes": ["Fighter", "Thief", "Illusionist - TODO_VERIFY", "Cleric - TODO_VERIFY"],
+  "allowed_alignments": ["Any non-evil - TODO_VERIFY"],
+  "languages": ["Common", "Gnomish", "Technologist jargon - TODO_VERIFY"],
+  "special_abilities": ["Infravision - TODO_VERIFY", "Tinkering specialty - TODO_VERIFY", "Device mishaps - TODO_VERIFY"],
+  "movement": "6\" / 60 ft - TODO_VERIFY",
+  "enabled_by_default": true,
+  "advanced": false,
+  "source_status": "TODO_VERIFY"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Qualinesti Elf",
+  "slug": "qualinesti-elf",
+  "description": "Woodland elves with a proud national tradition, suited to warriors, scouts, and arcane paths.",
+  "ability_adjustments": {
+    "dexterity": 1,
+    "constitution": -1
+  },
+  "allowed_classes": ["Fighter", "Magic-User", "Thief", "Ranger - TODO_VERIFY"],
+  "allowed_alignments": ["Any good - TODO_VERIFY", "Neutral - TODO_VERIFY"],
+  "languages": ["Common", "Elvish", "Qualinesti - TODO_VERIFY"],
+  "special_abilities": ["Infravision - TODO_VERIFY", "Secret door detection - TODO_VERIFY", "Sleep/charm resistance - TODO_VERIFY"],
+  "movement": "12\" / 120 ft",
+  "enabled_by_default": true,
+  "advanced": false,
+  "source_status": "TODO_VERIFY"
+}

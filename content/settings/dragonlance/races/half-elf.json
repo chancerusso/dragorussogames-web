@@ -1,0 +1,14 @@
+{
+  "name": "Half-Elf",
+  "slug": "half-elf",
+  "description": "Children of two worlds, adaptable but often caught between human ambition and elven memory.",
+  "ability_adjustments": {},
+  "allowed_classes": ["Fighter", "Cleric", "Magic-User", "Thief", "Ranger", "Druid - TODO_VERIFY"],
+  "allowed_alignments": ["Any"],
+  "languages": ["Common", "Elvish", "Regional language - TODO_VERIFY"],
+  "special_abilities": ["Infravision - TODO_VERIFY", "Secret door detection - TODO_VERIFY", "Sleep/charm resistance - TODO_VERIFY"],
+  "movement": "12\" / 120 ft",
+  "enabled_by_default": true,
+  "advanced": false,
+  "source_status": "TODO_VERIFY"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Mountain Dwarf",
+  "slug": "mountain-dwarf",
+  "description": "Deep-clan dwarves of strongholds and stone halls, hardier and more insular than their hill kin.",
+  "ability_adjustments": {
+    "constitution": 1,
+    "charisma": -1
+  },
+  "allowed_classes": ["Fighter", "Cleric", "Thief - TODO_VERIFY"],
+  "allowed_alignments": ["Any lawful - TODO_VERIFY", "Neutral - TODO_VERIFY"],
+  "languages": ["Common", "Dwarvish", "Mountain dwarf clan tongue - TODO_VERIFY"],
+  "special_abilities": ["Infravision - TODO_VERIFY", "Stonework detection - TODO_VERIFY", "Poison/magic save bonuses - TODO_VERIFY"],
+  "movement": "9\" / 90 ft",
+  "enabled_by_default": true,
+  "advanced": false,
+  "source_status": "TODO_VERIFY"
+}
