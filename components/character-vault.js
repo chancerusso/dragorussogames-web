@@ -6,6 +6,7 @@ const abilities = ["strength", "intelligence", "wisdom", "dexterity", "constitut
 const abilityLabels = { strength: "STR", intelligence: "INT", wisdom: "WIS", dexterity: "DEX", constitution: "CON", charisma: "CHA" };
 const coins = ["platinum", "gold", "electrum", "silver", "copper"];
 const DRAGONLANCE_RACE_PATH = "/content/settings/dragonlance/races/";
+const PLAYER_TOKEN_KEY = "drg_player_token";
 const fallbackDragonlanceRaces = [
   {
     name: "Human",
@@ -149,7 +150,8 @@ function h(value) {
 
 function detectBuilderContext() {
   const params = new URLSearchParams(window.location.search);
-  const setting = (params.get("setting") || params.get("source") || (window.location.hostname === "dragolance.dragorussogames.com" ? "dragolance" : "osric")).toLowerCase();
+  const hostSetting = window.location.hostname.toLowerCase().includes("dragolance") ? "dragolance" : "osric";
+  const setting = (params.get("setting") || params.get("source") || hostSetting).toLowerCase();
   if (setting === "dragolance" || setting === "dragonlance") {
     return { setting: "dragolance", label: "Dragolance", selectableSources: new Set(["DRAGOLANCE"]) };
   }
@@ -174,6 +176,36 @@ async function api(path, options = {}) {
   });
   if (!response.ok) throw new Error(await response.text());
   return response.status === 204 ? null : response.json();
+}
+
+async function rootApi(path, options = {}) {
+  const response = await fetch(`${VAULT_API_BASE}${path}`, {
+    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+    ...options,
+  });
+  if (!response.ok) throw new Error(await response.text());
+  return response.status === 204 ? null : response.json();
+}
+
+async function optionalApi(loader, fallback) {
+  try {
+    return await loader();
+  } catch (error) {
+    const message = String(error?.message || "");
+    const lowered = message.toLowerCase();
+    if (message.includes("401") || lowered.includes("authentication") || lowered.includes("authenticated")) return fallback;
+    console.warn("Optional vault context unavailable.", error);
+    return fallback;
+  }
+}
+
+function playerAuthHeaders() {
+  const token = localStorage.getItem(PLAYER_TOKEN_KEY);
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+function isPlayerBuilderMode() {
+  return pageKind() === "new" && builderContext.setting === "dragolance";
 }
 
 async function fetchJson(path) {
@@ -225,16 +257,24 @@ function toast(message) {
 async function boot() {
   renderShell();
   try {
-    [state.rules, state.equipment, state.spells, state.campaigns, state.players, state.dragonlanceRaces] = await Promise.all([
+    [state.rules, state.equipment, state.spells, state.dragonlanceRaces] = await Promise.all([
       api("/rules-data"),
       api("/equipment"),
       api("/spells"),
-      api("/campaigns"),
-      api("/players"),
       fetchDragonlanceRaces(),
     ]);
-    hydrateCurrentPlayer();
     const kind = pageKind();
+
+    if (isPlayerBuilderMode()) {
+      await hydratePlayerBuilderContext();
+    } else {
+      [state.campaigns, state.players] = await Promise.all([
+        optionalApi(() => api("/campaigns"), []),
+        optionalApi(() => api("/players"), []),
+      ]);
+      hydrateCurrentPlayer();
+    }
+
     if (kind === "show" || kind === "edit") state.character = await api(`/characters/${characterId()}`);
     if (kind === "campaign" && campaignId()) {
       state.campaign = await api(`/campaigns/${campaignId()}`);
@@ -245,9 +285,19 @@ async function boot() {
     if (kind === "index") state.characters = await api(`/characters${state.currentPlayer?.id ? `?user_id=${state.currentPlayer.id}` : ""}`);
     render();
   } catch (error) {
-    toast("API unavailable. Start the RUSSO backend to use permanent character storage.");
+    toast("Required builder data is unavailable. Check rules, equipment, and spell APIs.");
     console.error(error);
   }
+}
+
+async function hydratePlayerBuilderContext() {
+  const headers = playerAuthHeaders();
+  const player = await optionalApi(() => rootApi("/player/me", { headers }), null);
+  const campaigns = await optionalApi(() => rootApi("/player/campaigns", { headers }), []);
+  state.currentPlayer = player;
+  state.players = player ? [player] : [];
+  state.campaigns = campaigns.filter((campaign) => ["dragolance", "dragonlance"].includes(String(campaign.setting || "").toLowerCase()));
+  if (player?.id) localStorage.setItem("drg1e_player_id", String(player.id));
 }
 
 function hydrateCurrentPlayer() {
@@ -850,7 +900,9 @@ async function saveDraft(navigate = true) {
   if (!state.draft.campaign_id) state.draft.campaign_id = null;
   const method = state.character?.id ? "PUT" : "POST";
   const path = state.character?.id ? `/characters/${state.character.id}` : "/characters";
-  state.character = await api(path, { method, body: JSON.stringify(state.draft) });
+  state.character = isPlayerBuilderMode() && !state.character?.id
+    ? await rootApi("/player/characters", { method: "POST", headers: playerAuthHeaders(), body: JSON.stringify(state.draft) })
+    : await api(path, { method, body: JSON.stringify(state.draft) });
   if (state.character.player?.id) {
     state.currentPlayer = state.character.player;
     localStorage.setItem("drg1e_player_id", String(state.currentPlayer.id));

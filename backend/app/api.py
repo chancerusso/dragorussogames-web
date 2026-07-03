@@ -1079,11 +1079,9 @@ def list_vault_characters(user_id: Optional[int] = None, include_archived: bool 
     return [character_payload(character) for character in db.scalars(statement).all()]
 
 
-@router.post("/1e/characters")
-def create_vault_character(data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+def create_vault_character_for_player(data: dict, player: Player, db: Session) -> dict:
     ensure_vault_seeded(db)
     validate_character_choice(data)
-    player = apply_player_fields(get_or_create_vault_player(db, data.get("owner_name") or data.get("display_name") or data.get("player_name"), data.get("user_id")), data)
     scores = {ability: int((data.get("abilities") or {}).get(ability) or 10) for ability in ABILITIES}
     race = data.get("race") or "Human"
     class_name = data.get("class_name") or "Fighter"
@@ -1130,6 +1128,22 @@ def create_vault_character(data: dict, _: dict = Depends(require_jwt_admin), db:
     db.commit()
     db.refresh(character)
     return character_payload(character)
+
+
+@router.post("/player/characters")
+def create_player_vault_character(data: dict, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
+    player = player_from_claims(db, claims)
+    campaign_id = data.get("campaign_id")
+    if campaign_id:
+        ensure_player_campaign_member(db, int(campaign_id), player.id)
+    data = {**data, "user_id": player.id}
+    return create_vault_character_for_player(data, player, db)
+
+
+@router.post("/1e/characters")
+def create_vault_character(data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    player = apply_player_fields(get_or_create_vault_player(db, data.get("owner_name") or data.get("display_name") or data.get("player_name"), data.get("user_id")), data)
+    return create_vault_character_for_player(data, player, db)
 
 
 @router.get("/1e/characters/{character_id}")
