@@ -359,6 +359,9 @@ function CampaignsPage() {
           <h1>Welcome, DM.</h1>
           <h2>Your adventure begins here.</h2>
           <p className="lede">Manage campaigns, players, and characters from one quiet command center.</p>
+          <div className="hero-actions">
+            <a className="secondary-button" href="/portal" target="_blank" rel="noreferrer">Player View</a>
+          </div>
         </div>
         <div className="summary-strip hero-stats">
           <StatCard label="Campaigns" value={activeCampaigns.length} />
@@ -1015,7 +1018,7 @@ function ReadOnlyPlaceholder({ title, copy }) {
 }
 
 function PlayerHero({ eyebrow, title, copy }) {
-  return <Header eyebrow={eyebrow} title={title} copy={copy} className="player-hero" />;
+  return <Header eyebrow={eyebrow} title={title} copy={copy} className="player-hero" action={<Link className="secondary-button" to="/">Return to DM Portal</Link>} />;
 }
 
 function playerCharacterForCampaign(campaign, playerId) {
