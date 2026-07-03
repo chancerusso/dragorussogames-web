@@ -61,9 +61,18 @@ function Shell() {
           </span>
         </Link>
         <nav>
-          <NavLink to="/campaigns">Campaigns</NavLink>
+          <NavLink to="/campaigns">Command Center</NavLink>
+          <a href="/campaigns#active-campaigns">Campaigns</a>
+          <NavLink to="/characters">Characters</NavLink>
+          <NavLink to="/players">Players</NavLink>
+          <NavLink to="/sessions">Sessions</NavLink>
+          <NavLink to="/archive">Archive</NavLink>
+          <NavLink to="/settings">Settings</NavLink>
         </nav>
-        <button className="ghost-button" onClick={signOut}>Sign Out</button>
+        <div className="sidebar-footer">
+          <button className="ghost-button" onClick={signOut}>Sign Out</button>
+          <small>DM Account</small>
+        </div>
       </aside>
       <main className="content">
         <Outlet />
@@ -142,6 +151,7 @@ function PageState({ loading, error }) {
 
 function CampaignsPage() {
   const { data, error, loading, reload } = useLoad(() => api("/1e/campaigns?include_archived=true"));
+  const [createOpen, setCreateOpen] = useState(false);
   const [form, setForm] = useState({
     name: "",
     setting: "greyhawk",
@@ -170,6 +180,7 @@ function CampaignsPage() {
         current_campaign_day: 1,
         description: "",
       });
+      setCreateOpen(false);
       await reload();
     } finally {
       setSaving(false);
@@ -177,44 +188,179 @@ function CampaignsPage() {
   }
 
   return (
-    <section>
-      <header className="page-header dashboard-header">
+    <section className="command-center">
+      <div className="command-hero">
         <div>
-          <p className="eyebrow">Campaign Command</p>
-          <h1>DM Dashboard</h1>
-          <p className="lede">Create campaigns, assign players, and keep the table roster ready for play.</p>
+          <p className="eyebrow">Command Center</p>
+          <h1>Welcome, DM.</h1>
+          <h2>Your adventure begins here.</h2>
+          <p className="lede">Manage your campaigns, players, and sessions from your command center.</p>
         </div>
-        <div className="summary-strip">
+        <div className="summary-strip hero-stats">
           <Stat label="Active Campaigns" value={activeCampaigns.length} />
           <Stat label="Archived" value={archivedCampaigns.length} />
           <Stat label="Characters" value={campaigns.reduce((total, campaign) => total + Number(campaign.character_count || 0), 0)} />
         </div>
-      </header>
-
-      <form className="panel form-grid dashboard-create" onSubmit={createCampaign}>
-        <label>Name<input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} required /></label>
-        <label>Setting
-          <select value={form.setting} onChange={(event) => setForm({ ...form, setting: event.target.value })}>
-            {SETTINGS.map((setting) => <option key={setting} value={setting}>{titleCase(setting)}</option>)}
-          </select>
-        </label>
-        <label>Schedule<input placeholder="Weekly Sundays, 7 PM" value={form.schedule} onChange={(event) => setForm({ ...form, schedule: event.target.value })} /></label>
-        <label>Next Session<input type="date" value={form.next_session_date} onChange={(event) => setForm({ ...form, next_session_date: event.target.value })} /></label>
-        <label>Session #<input type="number" min="1" value={form.session_number} onChange={(event) => setForm({ ...form, session_number: event.target.value })} /></label>
-        <label>Campaign Day<input type="number" min="1" value={form.current_campaign_day} onChange={(event) => setForm({ ...form, current_campaign_day: event.target.value })} /></label>
-        <label className="wide">Notes<textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} /></label>
-        <button disabled={saving}>{saving ? "Creating..." : "Create Campaign"}</button>
-      </form>
+      </div>
 
       <PageState loading={loading} error={error} />
-      <CampaignCardGrid campaigns={activeCampaigns} />
-      {archivedCampaigns.length ? (
+
+      <div className="action-grid">
+        <ActionCard tone="red" icon="S" title="Create Campaign" copy="Start a new campaign and build your world." action="Create New" onClick={() => setCreateOpen(true)} />
+        <ActionCard tone="green" icon="P" title="Manage Players" copy="Invite players and manage your roster." action="View Players" to="/players" />
+        <ActionCard tone="violet" icon="B" title="Sessions" copy="Plan sessions and track your adventures." action="View Sessions" to="/sessions" />
+        <ActionCard tone="blue" icon="C" title="Characters" copy="Create and manage campaign characters." action="View Characters" to="/characters" />
+      </div>
+
+      <div className="command-grid" id="active-campaigns">
+        <ActiveCampaignPanel campaign={activeCampaigns[0]} onCreate={() => setCreateOpen(true)} />
+        <div className="stacked-panels">
+          <UpcomingSessionsPanel />
+          <RecentActivityPanel />
+        </div>
+        <div className="stacked-panels">
+          <QuickActionsPanel onCreate={() => setCreateOpen(true)} />
+          <DicePanel />
+        </div>
+      </div>
+
+      {activeCampaigns.length > 1 ? (
         <>
-          <h2 className="section-title">Archived</h2>
-          <CampaignCardGrid campaigns={archivedCampaigns} />
+          <h2 className="section-title" id="active-campaigns">Active Campaigns</h2>
+          <CampaignCardGrid campaigns={activeCampaigns.slice(1)} />
         </>
       ) : null}
+
+      {createOpen ? (
+        <Modal title="Create Campaign" onClose={() => setCreateOpen(false)}>
+          <form className="form-grid dashboard-create modal-form" onSubmit={createCampaign}>
+            <label>Name<input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} required /></label>
+            <label>Setting
+              <select value={form.setting} onChange={(event) => setForm({ ...form, setting: event.target.value })}>
+                {SETTINGS.map((setting) => <option key={setting} value={setting}>{titleCase(setting)}</option>)}
+              </select>
+            </label>
+            <label>Schedule<input placeholder="Weekly Sundays, 7 PM" value={form.schedule} onChange={(event) => setForm({ ...form, schedule: event.target.value })} /></label>
+            <label>Next Session<input type="date" value={form.next_session_date} onChange={(event) => setForm({ ...form, next_session_date: event.target.value })} /></label>
+            <label>Session #<input type="number" min="1" value={form.session_number} onChange={(event) => setForm({ ...form, session_number: event.target.value })} /></label>
+            <label>Campaign Day<input type="number" min="1" value={form.current_campaign_day} onChange={(event) => setForm({ ...form, current_campaign_day: event.target.value })} /></label>
+            <label className="wide">Notes<textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} /></label>
+            <div className="form-actions wide">
+              <button disabled={saving}>{saving ? "Creating..." : "Create Campaign"}</button>
+              <button type="button" className="ghost-button" onClick={() => setCreateOpen(false)}>Cancel</button>
+            </div>
+          </form>
+        </Modal>
+      ) : null}
     </section>
+  );
+}
+
+function ActionCard({ tone, icon, title, copy, action, to, onClick }) {
+  const content = (
+    <>
+      <div className="action-icon">{icon}</div>
+      <div>
+        <h2>{title}</h2>
+        <p>{copy}</p>
+      </div>
+      <span className="action-button">{action}</span>
+    </>
+  );
+  if (to) return <Link className={`action-card ${tone}`} to={to}>{content}</Link>;
+  return <button className={`action-card ${tone}`} onClick={onClick}>{content}</button>;
+}
+
+function ActiveCampaignPanel({ campaign, onCreate }) {
+  if (!campaign) {
+    return (
+      <section className="command-panel active-campaign">
+        <p className="eyebrow">Active Campaign</p>
+        <h2>No campaign yet</h2>
+        <p className="muted">Create your first campaign to begin building the roster.</p>
+        <button onClick={onCreate}>Create Campaign</button>
+      </section>
+    );
+  }
+  return (
+    <section className="command-panel active-campaign">
+      <p className="eyebrow">Active Campaign</p>
+      <div className="campaign-focus">
+        <div className="campaign-seal">{String(campaign.setting || "G").slice(0, 1).toUpperCase()}</div>
+        <div>
+          <h2>{campaign.name}</h2>
+          <p>{titleCase(campaign.setting)} | Session #{campaign.session_number || 1} | {campaign.schedule || "Schedule TBD"}</p>
+          <p>Campaign Day: {campaign.current_campaign_day || 1}</p>
+        </div>
+      </div>
+      <div className="progress-line"><span style={{ width: `${Math.min(100, Number(campaign.character_count || 0) * 10)}%` }} /></div>
+      <div className="session-box">
+        <div><strong>Next Session</strong><span>{displayDate(campaign.next_session_date)}</span></div>
+        <Link className="table-link" to={`/campaigns/${campaign.id}`}>Schedule</Link>
+      </div>
+      <Link className="wide-command" to={`/campaigns/${campaign.id}`}>View Campaign</Link>
+    </section>
+  );
+}
+
+function UpcomingSessionsPanel() {
+  return (
+    <section className="command-panel centered-panel">
+      <p className="eyebrow">Upcoming Sessions</p>
+      <div className="panel-emblem">CAL</div>
+      <h2>No sessions scheduled</h2>
+      <p>Schedule your next session to begin the adventure.</p>
+      <Link className="wide-command" to="/sessions">Schedule Session</Link>
+    </section>
+  );
+}
+
+function RecentActivityPanel() {
+  return (
+    <section className="command-panel activity-panel">
+      <p className="eyebrow">Recent Activity</p>
+      <div className="empty-row"><span>LOG</span><div><strong>No recent activity</strong><p>Your recent actions will appear here.</p></div></div>
+    </section>
+  );
+}
+
+function QuickActionsPanel({ onCreate }) {
+  return (
+    <section className="command-panel">
+      <p className="eyebrow">Quick Actions</p>
+      <div className="quick-list">
+        <button onClick={onCreate}>Create New Campaign<span>&gt;</span></button>
+        <Link to="/players">Invite Player<span>&gt;</span></Link>
+        <Link to="/sessions">Schedule Session<span>&gt;</span></Link>
+        <Link to="/characters">Create Character<span>&gt;</span></Link>
+        <Link to="/archive">View Archive<span>&gt;</span></Link>
+      </div>
+    </section>
+  );
+}
+
+function DicePanel() {
+  const [roll, setRoll] = useState(null);
+  return (
+    <section className="command-panel dice-panel">
+      <p className="eyebrow">Dice Roll</p>
+      <div className="dice-row"><div className="die-face">{roll || "20"}</div><div><strong>Roll a D20</strong><p>{roll ? `Result: ${roll}` : "Click the die to roll"}</p></div></div>
+      <button onClick={() => setRoll(Math.floor(Math.random() * 20) + 1)}>Roll D20</button>
+    </section>
+  );
+}
+
+function Modal({ title, children, onClose }) {
+  return (
+    <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
+      <section className="modal-panel" role="dialog" aria-modal="true" aria-label={title} onMouseDown={(event) => event.stopPropagation()}>
+        <header className="modal-header">
+          <h2>{title}</h2>
+          <button className="ghost-button" onClick={onClose}>Close</button>
+        </header>
+        {children}
+      </section>
+    </div>
   );
 }
 
@@ -503,6 +649,97 @@ function CampaignNotesPage() {
   );
 }
 
+function PlayersPage() {
+  const { data: players, error, loading, reload } = useLoad(() => api("/1e/players"), []);
+
+  async function toggle(player) {
+    await api(`/1e/players/${player.id}`, {
+      method: "PUT",
+      body: JSON.stringify({ ...player, status: player.status === "inactive" ? "active" : "inactive" }),
+    });
+    await reload();
+  }
+
+  return (
+    <section>
+      <PlainHeader eyebrow="Roster" title="Players" copy="Manage the people behind the characters." />
+      <PageState loading={loading} error={error} />
+      <DataTable
+        columns={["Name", "Email", "Discord", "Role", "Status"]}
+        rows={(players || []).map((player) => [
+          player.display_name || player.player_name,
+          player.email || "-",
+          player.discord_user_id || "-",
+          player.role || "player",
+          <button className={`status-toggle ${player.status || "active"}`} onClick={() => toggle(player)}>{player.status || "active"}</button>,
+        ])}
+      />
+    </section>
+  );
+}
+
+function CharactersPage() {
+  const { data: characters, error, loading } = useLoad(() => api("/1e/characters?include_archived=true"), []);
+  return (
+    <section>
+      <PlainHeader eyebrow="Vault" title="Characters" copy="Review campaign characters and jump into the existing character tools." />
+      <PageState loading={loading} error={error} />
+      <DataTable
+        columns={["Name", "Owner", "Race", "Class", "Level", "Status", "Actions"]}
+        rows={(characters || []).map((character) => [
+          character.name,
+          character.player?.display_name || character.player?.player_name || "-",
+          character.race,
+          character.class_name,
+          character.level,
+          `${character.status} / ${character.life_status}`,
+          <div className="row-actions">
+            <a className="table-link" href={`/1e/characters/${character.id}/`}>View</a>
+            <a className="table-link" href={`/1e/characters/${character.id}/edit/`}>Edit</a>
+          </div>,
+        ])}
+      />
+    </section>
+  );
+}
+
+function PlaceholderPage({ eyebrow, title, copy }) {
+  return (
+    <section>
+      <PlainHeader eyebrow={eyebrow} title={title} copy={copy} />
+      <div className="command-panel notes-placeholder">
+        <p className="eyebrow">Placeholder</p>
+        <h2>{title} tools are coming next.</h2>
+        <p>{copy}</p>
+      </div>
+    </section>
+  );
+}
+
+function ArchivePage() {
+  const { data: campaigns, error, loading } = useLoad(() => api("/1e/campaigns?include_archived=true"), []);
+  const archived = (campaigns || []).filter((campaign) => campaign.status === "archived");
+  return (
+    <section>
+      <PlainHeader eyebrow="Records" title="Archive" copy="Archived campaigns remain available for review." />
+      <PageState loading={loading} error={error} />
+      <CampaignCardGrid campaigns={archived} />
+    </section>
+  );
+}
+
+function PlainHeader({ eyebrow, title, copy }) {
+  return (
+    <header className="page-header">
+      <div>
+        <p className="eyebrow">{eyebrow}</p>
+        <h1>{title}</h1>
+        <p className="lede">{copy}</p>
+      </div>
+    </header>
+  );
+}
+
 function CampaignHeader({ campaign, id, eyebrow }) {
   return (
     <>
@@ -572,6 +809,11 @@ export default function App() {
           <Route path="/campaigns/:id/players" element={<CampaignPlayersPage />} />
           <Route path="/campaigns/:id/characters" element={<CampaignCharactersPage />} />
           <Route path="/campaigns/:id/notes" element={<CampaignNotesPage />} />
+          <Route path="/players" element={<PlayersPage />} />
+          <Route path="/characters" element={<CharactersPage />} />
+          <Route path="/sessions" element={<PlaceholderPage eyebrow="Calendar" title="Sessions" copy="Session scheduling will live here. For now, use campaign next-session fields." />} />
+          <Route path="/archive" element={<ArchivePage />} />
+          <Route path="/settings" element={<PlaceholderPage eyebrow="Portal" title="Settings" copy="Portal preferences and account controls will live here." />} />
         </Route>
       </Routes>
     </AuthProvider>
