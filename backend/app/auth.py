@@ -4,6 +4,7 @@ import base64
 import hashlib
 import hmac
 import json
+import secrets
 import time
 from typing import Any, Optional
 
@@ -13,6 +14,8 @@ from app.config import settings
 
 TOKEN_TTL_SECONDS = 60 * 60 * 12
 TOKEN_ALGORITHM = "HS256"
+PASSWORD_ALGORITHM = "pbkdf2_sha256"
+PASSWORD_ITERATIONS = 260_000
 
 
 def _base64url_encode(value: bytes) -> str:
@@ -33,20 +36,23 @@ def _signature(signing_input: str) -> str:
     return _base64url_encode(digest)
 
 
-def create_admin_token() -> str:
+def create_token(payload: dict[str, Any]) -> str:
     now = int(time.time())
     header = {"alg": TOKEN_ALGORITHM, "typ": "JWT"}
-    payload = {
-        "sub": "admin",
-        "role": "admin",
-        "iat": now,
-        "exp": now + TOKEN_TTL_SECONDS,
-    }
+    payload = {**payload, "iat": now, "exp": now + TOKEN_TTL_SECONDS}
     signing_input = ".".join((_base64url_encode(_json_bytes(header)), _base64url_encode(_json_bytes(payload))))
     return f"{signing_input}.{_signature(signing_input)}"
 
 
-def verify_admin_token(token: Optional[str]) -> dict[str, Any]:
+def create_admin_token() -> str:
+    return create_token({"sub": "admin", "role": "admin"})
+
+
+def create_player_token(player_id: int, username: str, display_name: str | None = None) -> str:
+    return create_token({"sub": str(player_id), "role": "player", "username": username, "display_name": display_name})
+
+
+def verify_token(token: Optional[str], required_role: str) -> dict[str, Any]:
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required.")
     try:
@@ -58,11 +64,19 @@ def verify_admin_token(token: Optional[str]) -> dict[str, Any]:
         payload = json.loads(_base64url_decode(payload_b64))
     except (ValueError, json.JSONDecodeError):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid session.") from None
-    if header.get("alg") != TOKEN_ALGORITHM or payload.get("role") != "admin":
+    if header.get("alg") != TOKEN_ALGORITHM or payload.get("role") != required_role:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid session.")
     if int(payload.get("exp", 0)) < int(time.time()):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Session expired.")
     return payload
+
+
+def verify_admin_token(token: Optional[str]) -> dict[str, Any]:
+    return verify_token(token, "admin")
+
+
+def verify_player_token(token: Optional[str]) -> dict[str, Any]:
+    return verify_token(token, "player")
 
 
 def require_admin(
@@ -75,8 +89,36 @@ def require_admin(
     return verify_admin_token(token)
 
 
+def require_player(authorization: Optional[str] = Header(default=None)) -> dict[str, Any]:
+    token = None
+    if authorization and authorization.lower().startswith("bearer "):
+        token = authorization.split(" ", 1)[1].strip()
+    return verify_player_token(token)
+
+
 def validate_admin_password(password: Optional[str]) -> None:
     if not settings.admin_password:
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="ADMIN_PASSWORD is not configured.")
     if not password or not hmac.compare_digest(password, settings.admin_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid admin password.")
+
+
+def hash_password(password: str) -> str:
+    if not password:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="password is required.")
+    salt = secrets.token_hex(16)
+    digest = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt.encode("ascii"), PASSWORD_ITERATIONS)
+    return f"{PASSWORD_ALGORITHM}${PASSWORD_ITERATIONS}${salt}${base64.b64encode(digest).decode('ascii')}"
+
+
+def verify_password(password: Optional[str], password_hash: Optional[str]) -> bool:
+    if not password or not password_hash:
+        return False
+    try:
+        algorithm, iterations, salt, expected = password_hash.split("$", 3)
+        if algorithm != PASSWORD_ALGORITHM:
+            return False
+        digest = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt.encode("ascii"), int(iterations))
+        return hmac.compare_digest(base64.b64encode(digest).decode("ascii"), expected)
+    except (ValueError, TypeError):
+        return False

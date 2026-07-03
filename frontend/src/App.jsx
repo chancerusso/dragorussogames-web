@@ -1,12 +1,25 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { Link, Navigate, NavLink, Outlet, Route, Routes, useNavigate, useParams } from "react-router-dom";
-import { api, getToken, login, logout } from "./api.js";
+import { Link, Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
+import { api, getPlayerToken, getToken, login, logout, playerLogin, playerLogout } from "./api.js";
 
 const AuthContext = createContext(null);
-const SETTINGS = ["greyhawk", "dragonlance"];
+const PlayerPortalContext = createContext(null);
+const SETTINGS = ["dragonlance", "greyhawk"];
+const PLAYER_TABS = [
+  ["overview", "Overview"],
+  ["character", "My Character"],
+  ["players", "Party"],
+  ["journal", "Journal"],
+  ["handouts", "Handouts"],
+  ["rules", "Rules"],
+];
 
 function useAuth() {
   return useContext(AuthContext);
+}
+
+function usePlayerPortal() {
+  return useContext(PlayerPortalContext);
 }
 
 function titleCase(value) {
@@ -22,23 +35,81 @@ function displayDate(value) {
 
 function AuthProvider({ children }) {
   const [token, setTokenState] = useState(getToken());
+  const [playerToken, setPlayerTokenState] = useState(getPlayerToken());
   const value = useMemo(
     () => ({
       authed: Boolean(token),
+      playerAuthed: Boolean(playerToken),
       refresh: () => setTokenState(getToken()),
+      refreshPlayer: () => setPlayerTokenState(getPlayerToken()),
       signOut: async () => {
         await logout();
         setTokenState(null);
       },
+      signOutPlayer: () => {
+        playerLogout();
+        setPlayerTokenState(null);
+      },
     }),
-    [token],
+    [token, playerToken],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-function Protected({ children }) {
+function Protected({ children, role = "admin" }) {
   const auth = useAuth();
-  return auth.authed ? children : <Navigate to="/login" replace />;
+  const location = useLocation();
+  const authed = role === "player" ? auth.playerAuthed : auth.authed;
+  return authed ? children : <Navigate to={role === "player" ? "/portal/login" : "/login"} replace state={{ from: location.pathname }} />;
+}
+
+function HomeRedirect() {
+  return <Navigate to={window.location.hostname.startsWith("portal.") ? "/portal" : "/campaigns"} replace />;
+}
+
+function AppSidebar({ mode, title, subtitle, brandTo, navItems, account, onSignOut }) {
+  return (
+    <aside className={`sidebar ${mode === "player" ? "player-sidebar" : ""}`}>
+      <Link className="brand" to={brandTo}>
+        <span className="brand-mark">DRG</span>
+        <span>
+          <strong>{title}</strong>
+          <small>{subtitle}</small>
+        </span>
+      </Link>
+      <nav>
+        {navItems.map((item) => (
+          item.href ? (
+            <a key={item.label} href={item.href}>{item.label}</a>
+          ) : (
+            <NavLink key={item.label} end={item.end} to={item.to}>{item.label}</NavLink>
+          )
+        ))}
+      </nav>
+      <div className="sidebar-footer">
+        <PortalSwitcher mode={mode} />
+        {account}
+        <button className="ghost-button" onClick={onSignOut}>Sign Out</button>
+      </div>
+    </aside>
+  );
+}
+
+function PortalSwitcher({ mode }) {
+  if (mode === "dm") {
+    return (
+      <div className="portal-switcher">
+        <span>Portal</span>
+        <Link to="/portal">View Dragonlance Portal</Link>
+      </div>
+    );
+  }
+  return (
+    <div className="portal-switcher">
+      <span>Portal</span>
+      <strong>Dragonlance Portal</strong>
+    </div>
+  );
 }
 
 function Shell() {
@@ -52,31 +123,73 @@ function Shell() {
 
   return (
     <div className="app-shell">
-      <aside className="sidebar">
-        <Link className="brand" to="/campaigns">
-          <span className="brand-mark">DRG</span>
-          <span>
-            <strong>DM Portal</strong>
-            <small>Campaign Command</small>
-          </span>
-        </Link>
-        <nav>
-          <NavLink to="/campaigns">Command Center</NavLink>
-          <a href="/campaigns#active-campaigns">Campaigns</a>
-          <NavLink to="/players">Players</NavLink>
-          <NavLink to="/characters">Characters</NavLink>
-          <NavLink to="/archive">Archive</NavLink>
-          <NavLink to="/settings">Settings</NavLink>
-        </nav>
-        <div className="sidebar-footer">
-          <button className="ghost-button" onClick={signOut}>Sign Out</button>
-          <small>DM Account</small>
-        </div>
-      </aside>
+      <AppSidebar
+        mode="dm"
+        title="DM Portal"
+        subtitle="Campaign Command"
+        brandTo="/campaigns"
+        navItems={[
+          { label: "Command Center", to: "/campaigns" },
+          { label: "Campaigns", href: "/campaigns#active-campaigns" },
+          { label: "Players", to: "/players" },
+          { label: "Characters", to: "/characters" },
+          { label: "Archive", to: "/archive" },
+          { label: "Settings", to: "/settings" },
+        ]}
+        account={<small>DM Account</small>}
+        onSignOut={signOut}
+      />
       <main className="content">
         <Outlet />
       </main>
     </div>
+  );
+}
+
+function PlayerShell() {
+  const auth = useAuth();
+  const navigate = useNavigate();
+  const { data: activePlayer, error } = useLoad(() => api("/player/me", { auth: "player" }), []);
+
+  async function signOut() {
+    auth.signOutPlayer();
+    navigate("/portal/login");
+  }
+
+  const context = useMemo(
+    () => ({ activePlayerId: activePlayer?.id ? String(activePlayer.id) : "", activePlayer }),
+    [activePlayer],
+  );
+
+  return (
+    <PlayerPortalContext.Provider value={context}>
+      <div className="app-shell player-shell">
+        <AppSidebar
+          mode="player"
+          title="Dragonlance Portal"
+          subtitle="Dragonlance Campaigns"
+          brandTo="/portal"
+        navItems={[
+            { label: "My Campaigns", to: "/portal", end: true },
+            { label: "Dragonlance Rules", href: "/1e/" },
+            { label: "Create Character", href: "/1e/characters/new/" },
+          ]}
+          account={
+            <div className="account-card">
+              <span>Logged in as:</span>
+              <strong>{error ? "Unavailable" : activePlayer?.display_name || activePlayer?.player_name || "Player Name"}</strong>
+              <span>Role:</span>
+              <strong>Player</strong>
+              {error ? <small className="error">{error}</small> : null}
+            </div>
+          }
+          onSignOut={signOut}
+        />
+        <main className="content player-content">
+          <Outlet />
+        </main>
+      </div>
+    </PlayerPortalContext.Provider>
   );
 }
 
@@ -86,6 +199,7 @@ function LoginPage() {
   const [busy, setBusy] = useState(false);
   const auth = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   async function submit(event) {
     event.preventDefault();
@@ -94,7 +208,7 @@ function LoginPage() {
     try {
       await login(password);
       auth.refresh();
-      navigate("/campaigns");
+      navigate(location.state?.from || (window.location.hostname.startsWith("portal.") ? "/portal" : "/campaigns"));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -113,6 +227,51 @@ function LoginPage() {
         </label>
         {error ? <p className="error">{error}</p> : null}
         <button disabled={busy}>{busy ? "Opening..." : "Enter Portal"}</button>
+      </form>
+    </div>
+  );
+}
+
+function PlayerLoginPage() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const auth = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  async function submit(event) {
+    event.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      await playerLogin(username, password);
+      auth.refreshPlayer();
+      navigate(location.state?.from || "/portal");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="login-page dragonlance-login">
+      <form className="login-panel" onSubmit={submit}>
+        <div className="dragonlance-mark">DL</div>
+        <p className="eyebrow">Dragonlance</p>
+        <h1>Dragonlance Portal</h1>
+        <label>
+          Username
+          <input autoFocus value={username} onChange={(event) => setUsername(event.target.value)} />
+        </label>
+        <label>
+          Password
+          <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
+        </label>
+        {error ? <p className="error">{error}</p> : null}
+        <button disabled={busy}>{busy ? "Opening..." : "Enter Dragonlance"}</button>
       </form>
     </div>
   );
@@ -156,7 +315,7 @@ function CampaignsPage() {
   const [formError, setFormError] = useState("");
   const [form, setForm] = useState({
     name: "",
-    setting: "greyhawk",
+    setting: "dragonlance",
     schedule: "",
     next_session_date: "",
     session_number: 1,
@@ -176,7 +335,7 @@ function CampaignsPage() {
       await api("/1e/campaigns", { method: "POST", body: JSON.stringify(form) });
       setForm({
         name: "",
-        setting: "greyhawk",
+        setting: "dragonlance",
         schedule: "",
         next_session_date: "",
         session_number: 1,
@@ -202,9 +361,9 @@ function CampaignsPage() {
           <p className="lede">Manage campaigns, players, and characters from one quiet command center.</p>
         </div>
         <div className="summary-strip hero-stats">
-          <Stat label="Campaigns" value={activeCampaigns.length} />
-          <Stat label="Players" value={(players || []).length} />
-          <Stat label="Characters" value={(characters || []).filter((character) => character.status !== "archived").length} />
+          <StatCard label="Campaigns" value={activeCampaigns.length} />
+          <StatCard label="Players" value={(players || []).length} />
+          <StatCard label="Characters" value={(characters || []).filter((character) => character.status !== "archived").length} />
         </div>
       </div>
 
@@ -328,24 +487,38 @@ function CampaignCardGrid({ campaigns }) {
   return (
     <div className="card-grid">
       {campaigns.map((campaign) => (
-        <Link className={`campaign-card ${campaign.status === "archived" ? "is-archived" : ""}`} key={campaign.id} to={`/campaigns/${campaign.id}`}>
-          <div className="card-topline">
-            <span className={`status-pill ${campaign.status}`}>{campaign.status}</span>
-            <span>{titleCase(campaign.setting || "greyhawk")}</span>
-          </div>
-          <h2>{campaign.name}</h2>
-          <p>{campaign.description || "No campaign notes yet."}</p>
-          <dl className="campaign-facts">
-            <div><dt>Schedule</dt><dd>{campaign.schedule || "Unscheduled"}</dd></div>
-            <div><dt>Next</dt><dd>{displayDate(campaign.next_session_date)}</dd></div>
-            <div><dt>Session</dt><dd>#{campaign.session_number || 1}</dd></div>
-            <div><dt>Day</dt><dd>{campaign.current_campaign_day || 1}</dd></div>
-            <div><dt>Players</dt><dd>{campaign.player_count || 0}</dd></div>
-            <div><dt>Characters</dt><dd>{campaign.character_count || 0}</dd></div>
-          </dl>
-        </Link>
+        <CampaignCard key={campaign.id} campaign={campaign} variant="dm" />
       ))}
     </div>
+  );
+}
+
+function CampaignCard({ campaign, variant = "dm", character }) {
+  const isPlayer = variant === "player";
+  return (
+    <Link className={`campaign-card ${campaign.status === "archived" ? "is-archived" : ""}`} to={isPlayer ? `/portal/campaigns/${campaign.id}` : `/campaigns/${campaign.id}`}>
+      <div className="card-topline">
+        <span>{isPlayer ? "Campaign" : "Campaign"}</span>
+        <span>{titleCase(campaign.setting || "greyhawk")}</span>
+      </div>
+      <h2>{campaign.name}</h2>
+      <dl className="campaign-facts">
+        {isPlayer ? (
+          <>
+            <div><dt>My Character</dt><dd>{character?.name || "No character assigned"}</dd></div>
+            <div><dt>Next Session</dt><dd>{displayDate(campaign.next_session_date)}</dd></div>
+          </>
+        ) : (
+          <>
+            <div><dt>Players</dt><dd>{campaign.player_count || campaign.players?.length || 0}</dd></div>
+            <div><dt>Characters</dt><dd>{campaign.character_count || campaign.characters?.length || 0}</dd></div>
+            <div><dt>Next Session</dt><dd>{displayDate(campaign.next_session_date)}</dd></div>
+            <div><dt>Session Number</dt><dd>#{campaign.session_number || 1}</dd></div>
+          </>
+        )}
+      </dl>
+      <span className="action-button">{isPlayer ? "Open" : "Edit"}</span>
+    </Link>
   );
 }
 
@@ -362,15 +535,7 @@ const WORKSPACE_TABS = [
 ];
 
 function CampaignTabs({ activeTab, onChange }) {
-  return (
-    <nav className="tabs">
-      {WORKSPACE_TABS.map(([key, label]) => (
-        <button key={key} className={activeTab === key ? "active" : ""} onClick={() => onChange(key)} type="button">
-          {label}
-        </button>
-      ))}
-    </nav>
-  );
+  return <Tabs tabs={WORKSPACE_TABS} activeTab={activeTab} onChange={onChange} />;
 }
 
 function CampaignWorkspace({ initialTab = "overview" }) {
@@ -441,9 +606,9 @@ function CampaignOverviewTab({ campaign }) {
       <section className="panel workspace-panel">
         <p className="eyebrow">Table State</p>
         <div className="stats-row compact-stats">
-          <Stat label="Players" value={campaign.player_count || campaign.players?.length || 0} />
-          <Stat label="Characters" value={campaign.character_count || campaign.characters?.length || 0} />
-          <Stat label="Active PCs" value={campaign.active_characters?.length || 0} />
+          <StatCard label="Players" value={campaign.player_count || campaign.players?.length || 0} />
+          <StatCard label="Characters" value={campaign.character_count || campaign.characters?.length || 0} />
+          <StatCard label="Active PCs" value={campaign.active_characters?.length || 0} />
         </div>
         <div className="notes-box">
           <strong>Notes</strong>
@@ -512,15 +677,16 @@ function CampaignPlayersTab({ campaign, players, onError, onReload }) {
 
       <h2 className="section-title">Campaign Members</h2>
       <DataTable
-        columns={["Name", "Email", "Status", "Campaign Role", "Global Role", "Actions"]}
+        columns={["Name", "Username", "Character", "Status", "Campaign Role", "Actions"]}
         rows={members.map((entry) => {
           const player = entry.player || {};
+          const character = (campaign.characters || []).find((item) => item.user_id === entry.user_id);
           return [
             player.display_name || player.player_name || `Player ${entry.user_id}`,
-            player.email || "-",
-            player.status || "active",
+            player.username || "-",
+            character?.name || "-",
+            player.active === false ? "inactive" : player.status || "active",
             entry.role,
-            player.role || "player",
             <button className="table-button" onClick={() => removePlayer(entry.user_id)}>Unassign</button>,
           ];
         })}
@@ -666,39 +832,318 @@ function CampaignSettingsTab({ campaign, onError, onReload }) {
 
 function PlaceholderPanel({ title, copy }) {
   return (
-    <div className="panel notes-placeholder">
+    <Panel className="notes-placeholder">
       <p className="eyebrow">Placeholder</p>
       <h2>{title}</h2>
       <p>{copy}</p>
+    </Panel>
+  );
+}
+
+function PlayerCampaignsPage() {
+  const { activePlayerId, activePlayer } = usePlayerPortal();
+  const navigate = useNavigate();
+  const { data, error, loading } = useLoad(() => api("/player/campaigns", { auth: "player" }), []);
+
+  useEffect(() => {
+    if (!loading && data?.length === 1) {
+      navigate(`/portal/campaigns/${data[0].id}`, { replace: true });
+    }
+  }, [data, loading, navigate]);
+
+  return (
+    <section className="player-portal-page">
+      <PlayerHero
+        eyebrow="Dragonlance"
+        title="My Campaigns"
+        copy={activePlayer ? `Welcome to Dragonlance, ${activePlayer.display_name || activePlayer.player_name}.` : "Sign in to see your Dragonlance campaigns."}
+      />
+      <PageState loading={loading} error={error} />
+      <div className="card-grid player-campaign-grid">
+        {(data || []).map((campaign) => {
+          const character = campaign.my_character || playerCharacterForCampaign(campaign, activePlayerId);
+          return <CampaignCard key={campaign.id} campaign={campaign} variant="player" character={character} />;
+        })}
+      </div>
+      {!loading && !error && data?.length === 0 ? (
+        <div className="panel notes-placeholder">
+          <p className="eyebrow">No Campaigns</p>
+          <h2>No active campaign memberships found.</h2>
+          <p>Ask your DM to add this player profile to a campaign.</p>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function PlayerCampaignHome() {
+  const { id } = useParams();
+  const { activePlayerId } = usePlayerPortal();
+  const { data: campaign, error, loading } = useLoad(() => api(`/player/campaigns/${id}`, { auth: "player" }), [id]);
+  const [activeTab, setActiveTab] = useState("overview");
+
+  if (loading || error || !campaign) return <PageState loading={loading} error={error} />;
+
+  const character = campaign.my_character || playerCharacterForCampaign(campaign, activePlayerId);
+
+  return (
+    <section className="player-portal-page">
+      <CampaignHeader campaign={campaign} eyebrow="Campaign Home" />
+      <PlayerTabs activeTab={activeTab} onChange={setActiveTab} />
+      {activeTab === "overview" ? <PlayerOverviewTab campaign={campaign} /> : null}
+      {activeTab === "character" ? <PlayerCharacterTab character={character} /> : null}
+      {activeTab === "players" ? <PlayerRosterTab campaign={campaign} /> : null}
+      {activeTab === "journal" ? <ReadOnlyPlaceholder title="Journal" copy="Read-only session summaries will appear here once the journal backend exists." /> : null}
+      {activeTab === "handouts" ? <ReadOnlyPlaceholder title="Handouts" copy="Read-only campaign handouts, maps, and clues will appear here once uploaded." /> : null}
+      {activeTab === "rules" ? <PlayerRulesTab campaign={campaign} /> : null}
+    </section>
+  );
+}
+
+function PlayerTabs({ activeTab, onChange }) {
+  return <Tabs tabs={PLAYER_TABS} activeTab={activeTab} onChange={onChange} className="player-tabs" />;
+}
+
+function PlayerOverviewTab({ campaign }) {
+  return (
+    <div className="workspace-grid">
+      <section className="panel workspace-panel">
+        <p className="eyebrow">Overview</p>
+        <h2>{campaign.name}</h2>
+        <p className="portal-copy">{campaign.description || "No campaign description has been posted yet."}</p>
+      </section>
+      <section className="panel workspace-panel">
+        <p className="eyebrow">Session</p>
+        <dl className="detail-list">
+          <div><dt>Schedule</dt><dd>{campaign.schedule || "Unscheduled"}</dd></div>
+          <div><dt>Next Session</dt><dd>{displayDate(campaign.next_session_date)}</dd></div>
+          <div><dt>Current Adventure</dt><dd>{campaign.default_location || "Not recorded yet"}</dd></div>
+          <div><dt>Session Number</dt><dd>#{campaign.session_number || 1}</dd></div>
+        </dl>
+      </section>
     </div>
   );
 }
 
+function PlayerCharacterTab({ character }) {
+  if (!character) {
+    return (
+      <Panel className="notes-placeholder read-only-panel">
+        <p className="eyebrow">Dragonlance Character</p>
+        <h2>No character assigned yet.</h2>
+        <p>Launch the existing Character Vault to create your Dragonlance character.</p>
+        <div className="form-actions">
+          <a className="secondary-button" href="/1e/characters/new/">Create Character</a>
+        </div>
+      </Panel>
+    );
+  }
+  return (
+    <section className="panel workspace-panel character-summary">
+        <p className="eyebrow">Dragonlance Character</p>
+      <h2>{character.name}</h2>
+      <dl className="detail-list">
+        <div><dt>Race</dt><dd>{character.race}</dd></div>
+        <div><dt>Class</dt><dd>{character.class_name}</dd></div>
+        <div><dt>Level</dt><dd>{character.level}</dd></div>
+        <div><dt>Status</dt><dd>{character.status} / {character.life_status}</dd></div>
+        <div><dt>Location</dt><dd>{character.current_location || "-"}</dd></div>
+        <div><dt>XP</dt><dd>{character.xp || 0}</dd></div>
+      </dl>
+      <div className="form-actions">
+        <a className="secondary-button" href={`/1e/characters/${character.id}/`}>View Character</a>
+        <a className="table-link" href={`/1e/characters/${character.id}/edit/`}>Edit in Vault</a>
+      </div>
+    </section>
+  );
+}
+
+function PlayerRosterTab({ campaign }) {
+  return (
+    <>
+      <h2 className="section-title">Dragonlance Party</h2>
+      <DataTable
+        columns={["Player", "Campaign Role", "Character", "Class", "Level", "Status"]}
+        rows={(campaign.players || []).map((entry) => {
+          const player = entry.player || {};
+          const character = (campaign.characters || []).find((item) => item.user_id === entry.user_id);
+          return [
+            player.display_name || player.player_name || `Player ${entry.user_id}`,
+            entry.role,
+            character?.name || "-",
+            character?.class_name || "-",
+            character?.level || "-",
+            character ? `${character.status} / ${character.life_status}` : "-",
+          ];
+        })}
+      />
+    </>
+  );
+}
+
+function PlayerRulesTab({ campaign }) {
+  const setting = campaign.setting || "greyhawk";
+  return (
+    <div className="rule-link-grid">
+      <a className="panel rule-card" href="/1e/">
+        <p className="eyebrow">Dragonlance</p>
+        <h2>Player Rules</h2>
+        <p>Temporary rules reference until Dragonlance-specific data replaces the engine.</p>
+      </a>
+      <div className="panel rule-card muted-card">
+        <p className="eyebrow">Dragonlance</p>
+        <h2>Setting Rules</h2>
+        <p>Setting rules are staged for v0.6.0.</p>
+      </div>
+      <div className="panel rule-card muted-card">
+        <p className="eyebrow">Krynn</p>
+        <h2>{setting === "dragonlance" ? "Current Setting" : "Campaign Lore"}</h2>
+        <p>Dragonlance campaign information will be linked here once published.</p>
+      </div>
+    </div>
+  );
+}
+
+function ReadOnlyPlaceholder({ title, copy }) {
+  return (
+    <Panel className="notes-placeholder read-only-panel">
+      <p className="eyebrow">Read Only</p>
+      <h2>{title}</h2>
+      <p>{copy}</p>
+    </Panel>
+  );
+}
+
+function PlayerHero({ eyebrow, title, copy }) {
+  return <Header eyebrow={eyebrow} title={title} copy={copy} className="player-hero" />;
+}
+
+function playerCharacterForCampaign(campaign, playerId) {
+  return (campaign.characters || []).find((character) => String(character.user_id) === String(playerId));
+}
+
 function PlayersPage() {
   const { data: players, error, loading, reload } = useLoad(() => api("/1e/players"), []);
+  const [modal, setModal] = useState(null);
+  const [formError, setFormError] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  async function toggle(player) {
+  function openNew() {
+    setFormError("");
+    setModal({ type: "new", player: { display_name: "", username: "", password: "", active: true } });
+  }
+
+  function openEdit(player) {
+    setFormError("");
+    setModal({ type: "edit", player: { ...player } });
+  }
+
+  function openReset(player) {
+    setFormError("");
+    setModal({ type: "reset", player, password: "" });
+  }
+
+  async function savePlayer(event) {
+    event.preventDefault();
+    setSaving(true);
+    setFormError("");
+    try {
+      if (modal.type === "new") {
+        await api("/1e/players", { method: "POST", body: JSON.stringify(modal.player) });
+      } else {
+        await api(`/1e/players/${modal.player.id}`, { method: "PUT", body: JSON.stringify(modal.player) });
+      }
+      setModal(null);
+      await reload();
+    } catch (err) {
+      setFormError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function deactivate(player) {
     await api(`/1e/players/${player.id}`, {
       method: "PUT",
-      body: JSON.stringify({ ...player, status: player.status === "inactive" ? "active" : "inactive" }),
+      body: JSON.stringify({ ...player, active: false, status: "inactive" }),
     });
     await reload();
   }
 
+  async function resetPassword(event) {
+    event.preventDefault();
+    setSaving(true);
+    setFormError("");
+    try {
+      await api(`/1e/players/${modal.player.id}/reset-password`, {
+        method: "POST",
+        body: JSON.stringify({ password: modal.password }),
+      });
+      setModal(null);
+    } catch (err) {
+      setFormError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <section>
-      <PlainHeader eyebrow="Roster" title="Players" copy="Manage the people behind the characters." />
+      <Header
+        eyebrow="Roster"
+        title="Players"
+        copy="Manage Dragonlance player accounts, campaign access, and credentials."
+        action={<button onClick={openNew}>New Player</button>}
+      />
       <PageState loading={loading} error={error} />
       <DataTable
-        columns={["Name", "Email", "Discord", "Role", "Status"]}
+        columns={["Display Name", "Username", "Campaigns", "Characters", "Status", "Actions"]}
         rows={(players || []).map((player) => [
           player.display_name || player.player_name,
-          player.email || "-",
-          player.discord_user_id || "-",
-          player.role || "player",
-          <button className={`status-toggle ${player.status || "active"}`} onClick={() => toggle(player)}>{player.status || "active"}</button>,
+          player.username || "-",
+          player.campaign_count || 0,
+          player.character_count || 0,
+          player.active ? "Active" : "Inactive",
+          <div className="row-actions">
+            <button className="table-button" onClick={() => openEdit(player)}>Edit</button>
+            <button className="table-button" disabled={!player.active} onClick={() => deactivate(player)}>Deactivate</button>
+            <button className="table-button" onClick={() => openReset(player)}>Reset Password</button>
+          </div>,
         ])}
       />
+      {modal?.type === "new" || modal?.type === "edit" ? (
+        <Modal title={modal.type === "new" ? "New Player" : "Edit Player"} onClose={() => setModal(null)}>
+          <form className="form-grid modal-form" onSubmit={savePlayer}>
+            <label>Display Name<input value={modal.player.display_name || ""} onChange={(event) => setModal({ ...modal, player: { ...modal.player, display_name: event.target.value, player_name: event.target.value } })} required /></label>
+            <label>Username<input value={modal.player.username || ""} onChange={(event) => setModal({ ...modal, player: { ...modal.player, username: event.target.value } })} required /></label>
+            {modal.type === "new" ? <label>Password<input type="password" value={modal.player.password || ""} onChange={(event) => setModal({ ...modal, player: { ...modal.player, password: event.target.value } })} required /></label> : null}
+            <label>Active
+              <select value={modal.player.active ? "true" : "false"} onChange={(event) => setModal({ ...modal, player: { ...modal.player, active: event.target.value === "true" } })}>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+              </select>
+            </label>
+            {formError ? <p className="error wide">{formError}</p> : null}
+            <div className="form-actions wide">
+              <button disabled={saving}>{saving ? "Saving..." : "Save"}</button>
+              <button type="button" className="ghost-button" onClick={() => setModal(null)}>Cancel</button>
+            </div>
+          </form>
+        </Modal>
+      ) : null}
+      {modal?.type === "reset" ? (
+        <Modal title="Reset Password" onClose={() => setModal(null)}>
+          <form className="form-grid single-column modal-form" onSubmit={resetPassword}>
+            <p className="muted">Set a new password for {modal.player.display_name || modal.player.player_name}.</p>
+            <label>New Password<input type="password" value={modal.password} onChange={(event) => setModal({ ...modal, password: event.target.value })} required /></label>
+            {formError ? <p className="error">{formError}</p> : null}
+            <div className="form-actions">
+              <button disabled={saving}>{saving ? "Saving..." : "Reset Password"}</button>
+              <button type="button" className="ghost-button" onClick={() => setModal(null)}>Cancel</button>
+            </div>
+          </form>
+        </Modal>
+      ) : null}
     </section>
   );
 }
@@ -754,32 +1199,73 @@ function ArchivePage() {
 }
 
 function PlainHeader({ eyebrow, title, copy }) {
-  return (
-    <header className="page-header">
-      <div>
-        <p className="eyebrow">{eyebrow}</p>
-        <h1>{title}</h1>
-        <p className="lede">{copy}</p>
-      </div>
-    </header>
-  );
+  return <Header eyebrow={eyebrow} title={title} copy={copy} />;
 }
 
 function CampaignHeader({ campaign, eyebrow }) {
   return (
-      <header className="page-header workspace-header">
-        <div>
-          <p className="eyebrow">{eyebrow}</p>
-          <h1>{campaign.name}</h1>
-          <div className="workspace-meta">
-            <span>{titleCase(campaign.setting || "greyhawk")}</span>
-            <span>Next: {displayDate(campaign.next_session_date)}</span>
-            <span>Session #{campaign.session_number || 1}</span>
-            <span>{campaign.schedule || "Schedule TBD"}</span>
-          </div>
-        </div>
-        <Link className="secondary-button" to="/campaigns">All Campaigns</Link>
-      </header>
+    <Header
+      eyebrow={eyebrow}
+      title={campaign.name}
+      className="workspace-header"
+      action={<Link className="secondary-button" to={window.location.pathname.startsWith("/portal") ? "/portal" : "/campaigns"}>{window.location.pathname.startsWith("/portal") ? "My Campaigns" : "All Campaigns"}</Link>}
+    >
+      <div className="workspace-meta">
+        <span>{titleCase(campaign.setting || "greyhawk")}</span>
+        <span>Next: {displayDate(campaign.next_session_date)}</span>
+        <span>Session #{campaign.session_number || 1}</span>
+        <span>{campaign.schedule || "Schedule TBD"}</span>
+      </div>
+    </Header>
+  );
+}
+
+function Header({ eyebrow, title, copy, className = "", action, children }) {
+  return (
+    <header className={`page-header ${className}`.trim()}>
+      <div>
+        <p className="eyebrow">{eyebrow}</p>
+        <h1>{title}</h1>
+        {copy ? <p className="lede">{copy}</p> : null}
+        {children}
+      </div>
+      {action}
+    </header>
+  );
+}
+
+function Panel({ children, className = "" }) {
+  return <div className={`panel ${className}`.trim()}>{children}</div>;
+}
+
+function Tabs({ tabs, activeTab, onChange, className = "" }) {
+  return (
+    <nav className={`tabs ${className}`.trim()}>
+      {tabs.map(([key, label]) => (
+        <button key={key} className={activeTab === key ? "active" : ""} onClick={() => onChange(key)} type="button">
+          {label}
+        </button>
+      ))}
+    </nav>
+  );
+}
+
+function StatCard({ label, value }) {
+  return <div className="stat"><span>{label}</span><strong>{value}</strong></div>;
+}
+
+function DataTable({ columns, rows }) {
+  return (
+    <div className="table-wrap">
+      <table>
+        <thead><tr>{columns.map((column) => <th key={column}>{column}</th>)}</tr></thead>
+        <tbody>
+          {rows.length ? rows.map((row, index) => (
+            <tr key={index}>{row.map((cell, cellIndex) => <td key={cellIndex}>{cell}</td>)}</tr>
+          )) : <tr><td colSpan={columns.length}>No records yet.</td></tr>}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -805,32 +1291,18 @@ function InlineSelect({ value, options, onSave }) {
   );
 }
 
-function Stat({ label, value }) {
-  return <div className="stat"><span>{label}</span><strong>{value}</strong></div>;
-}
-
-function DataTable({ columns, rows }) {
-  return (
-    <div className="table-wrap">
-      <table>
-        <thead><tr>{columns.map((column) => <th key={column}>{column}</th>)}</tr></thead>
-        <tbody>
-          {rows.length ? rows.map((row, index) => (
-            <tr key={index}>{row.map((cell, cellIndex) => <td key={cellIndex}>{cell}</td>)}</tr>
-          )) : <tr><td colSpan={columns.length}>No records yet.</td></tr>}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
 export default function App() {
   return (
     <AuthProvider>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/portal/login" element={<PlayerLoginPage />} />
+        <Route path="/" element={<HomeRedirect />} />
+        <Route element={<Protected role="player"><PlayerShell /></Protected>}>
+          <Route path="/portal" element={<PlayerCampaignsPage />} />
+          <Route path="/portal/campaigns/:id" element={<PlayerCampaignHome />} />
+        </Route>
         <Route element={<Protected><Shell /></Protected>}>
-          <Route path="/" element={<Navigate to="/campaigns" replace />} />
           <Route path="/campaigns" element={<CampaignsPage />} />
           <Route path="/campaigns/:id" element={<CampaignWorkspace />} />
           <Route path="/campaigns/:id/players" element={<CampaignWorkspace initialTab="players" />} />

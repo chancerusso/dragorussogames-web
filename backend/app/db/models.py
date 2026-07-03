@@ -47,12 +47,15 @@ class Player(TimestampMixin, Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     player_name: Mapped[str] = mapped_column(String(120), nullable=False)
+    username: Mapped[Optional[str]] = mapped_column(String(80), unique=True, nullable=True)
+    password_hash: Mapped[Optional[str]] = mapped_column(String(240), nullable=True)
     display_name: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
     discord_username: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
     discord_user_id: Mapped[Optional[str]] = mapped_column(String(32), unique=True, nullable=True)
     email: Mapped[Optional[str]] = mapped_column(String(180), nullable=True)
     role: Mapped[str] = mapped_column(String(40), default="player", server_default="player", nullable=False)
     status: Mapped[str] = mapped_column(String(40), default="active", server_default="active", nullable=False)
+    active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true", nullable=False)
 
     characters: Mapped[list["Character"]] = relationship(back_populates="player")
 

@@ -1,5 +1,6 @@
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "/api";
 const TOKEN_KEY = "drg_dm_admin_token";
+const PLAYER_TOKEN_KEY = "drg_player_token";
 
 export function getToken() {
   return localStorage.getItem(TOKEN_KEY);
@@ -10,20 +11,33 @@ export function setToken(token) {
   else localStorage.removeItem(TOKEN_KEY);
 }
 
+export function getPlayerToken() {
+  return localStorage.getItem(PLAYER_TOKEN_KEY);
+}
+
+export function setPlayerToken(token) {
+  if (token) localStorage.setItem(PLAYER_TOKEN_KEY, token);
+  else localStorage.removeItem(PLAYER_TOKEN_KEY);
+}
+
 export async function api(path, options = {}) {
-  const token = getToken();
+  const { auth = "admin", ...fetchOptions } = options;
+  const token = auth === "player" ? getPlayerToken() : auth === "admin" ? getToken() : null;
   const response = await fetch(`${API_BASE}${path}`, {
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(options.headers || {}),
+      ...(fetchOptions.headers || {}),
     },
-    ...options,
+    ...fetchOptions,
   });
   if (response.status === 401) {
-    setToken(null);
-    throw new Error("Authentication required.");
+    if (auth === "player" || auth === "admin") {
+      if (auth === "player") setPlayerToken(null);
+      if (auth === "admin") setToken(null);
+      throw new Error("Authentication required.");
+    }
   }
   if (!response.ok) {
     throw new Error(await getErrorMessage(response));
@@ -73,10 +87,24 @@ export async function login(password) {
   return payload.user;
 }
 
+export async function playerLogin(username, password) {
+  const payload = await api("/player/login", {
+    auth: "none",
+    method: "POST",
+    body: JSON.stringify({ username, password }),
+  });
+  setPlayerToken(payload.token);
+  return payload.user;
+}
+
 export async function logout() {
   try {
     await api("/auth/logout", { method: "POST" });
   } finally {
     setToken(null);
   }
+}
+
+export function playerLogout() {
+  setPlayerToken(null);
 }

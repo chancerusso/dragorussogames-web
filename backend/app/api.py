@@ -6,7 +6,15 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.auth import create_admin_token, require_admin as require_jwt_admin, validate_admin_password
+from app.auth import (
+    create_admin_token,
+    create_player_token,
+    hash_password,
+    require_admin as require_jwt_admin,
+    require_player,
+    validate_admin_password,
+    verify_password,
+)
 from app.config import settings
 from app.db.models import (
     AuditLog,
@@ -152,12 +160,14 @@ def campaign_payload(campaign: Campaign) -> dict:
 def player_payload(player: Player) -> dict:
     return {
         "id": player.id,
+        "username": player.username,
         "display_name": player.display_name or player.player_name,
         "player_name": player.player_name,
         "discord_user_id": player.discord_user_id,
         "email": player.email,
         "role": player.role,
         "status": player.status,
+        "active": player.active,
         "created_at": player.created_at,
         "updated_at": player.updated_at,
     }
@@ -330,6 +340,10 @@ def apply_player_fields(player: Player, data: dict) -> Player:
         player.role = validate_player_role(data["role"])
     if data.get("status"):
         player.status = validate_player_status(data["status"])
+        player.active = player.status == "active"
+    if "active" in data:
+        player.active = bool(data["active"])
+        player.status = "active" if player.active else "inactive"
     return player
 
 
@@ -343,6 +357,23 @@ def validate_player_status(status: str) -> str:
     if status not in {"active", "inactive"}:
         raise HTTPException(status_code=422, detail="status must be active or inactive.")
     return status
+
+
+def validate_username(username: Optional[str]) -> str:
+    value = (username or "").strip().lower()
+    if not value:
+        raise HTTPException(status_code=422, detail="username is required.")
+    if len(value) < 3 or len(value) > 80:
+        raise HTTPException(status_code=422, detail="username must be 3-80 characters.")
+    if not all(character.isalnum() or character in {"_", "-", "."} for character in value):
+        raise HTTPException(status_code=422, detail="username can only include letters, numbers, dots, dashes, and underscores.")
+    return value
+
+
+def ensure_unique_username(db: Session, username: str, player_id: int | None = None) -> None:
+    existing = db.scalar(select(Player).where(Player.username == username))
+    if existing and existing.id != player_id:
+        raise HTTPException(status_code=409, detail="username is already in use.")
 
 
 def validate_campaign_setting(setting: str) -> str:
@@ -373,6 +404,46 @@ def campaign_counts(db: Session, campaign_id: int) -> dict[str, int]:
         .where(VaultCharacter.campaign_id == campaign_id, VaultCharacter.status != "archived")
     ) or 0
     return {"player_count": player_count, "character_count": character_count}
+
+
+def campaign_detail_payload(db: Session, campaign: Campaign) -> dict:
+    payload = campaign_payload(campaign)
+    payload.update(campaign_counts(db, campaign.id))
+    memberships = db.scalars(select(CampaignPlayer).where(CampaignPlayer.campaign_id == campaign.id)).all()
+    players = {player.id: player for player in db.scalars(select(Player).where(Player.id.in_([m.user_id for m in memberships]))).all()} if memberships else {}
+    characters = [character_payload(character) for character in db.scalars(select(VaultCharacter).where(VaultCharacter.campaign_id == campaign.id)).all()]
+    stored_items = stored_items_for_campaign(db, campaign.id)
+    payload["players"] = [campaign_player_payload(membership, players.get(membership.user_id)) for membership in memberships]
+    payload["characters"] = characters
+    payload["active_characters"] = [character for character in characters if character["status"] == "active" and character["life_status"] == "alive"]
+    payload["inactive_characters"] = [character for character in characters if character["status"] != "active" or character["life_status"] != "alive"]
+    payload["safe_storage_locations"] = [
+        safe_storage_payload(
+            location,
+            [item for item in stored_items if item["storage_location"] == location.name],
+        )
+        for location in db.scalars(select(SafeStorageLocation).where(SafeStorageLocation.campaign_id == campaign.id, SafeStorageLocation.status != "archived").order_by(SafeStorageLocation.name)).all()
+    ]
+    payload["stored_items"] = stored_items
+    return payload
+
+
+def player_from_claims(db: Session, claims: dict) -> Player:
+    try:
+        player_id = int(claims["sub"])
+    except (KeyError, TypeError, ValueError):
+        raise HTTPException(status_code=401, detail="Invalid session.") from None
+    player = db.get(Player, player_id)
+    if player is None or not player.active:
+        raise HTTPException(status_code=401, detail="Player account is inactive.")
+    return player
+
+
+def ensure_player_campaign_member(db: Session, campaign_id: int, player_id: int) -> CampaignPlayer:
+    membership = db.get(CampaignPlayer, (campaign_id, player_id))
+    if membership is None:
+        raise HTTPException(status_code=404, detail="Campaign not found.")
+    return membership
 
 
 def stored_items_for_campaign(db: Session, campaign_id: int) -> list[dict]:
@@ -546,6 +617,46 @@ def admin_me(admin: dict = Depends(require_jwt_admin)) -> dict:
     return {"role": admin["role"], "display_name": "Admin", "expires_at": admin["exp"]}
 
 
+@router.post("/player/login")
+def player_login(data: dict, db: Session = Depends(get_db)) -> dict:
+    username = validate_username(data.get("username"))
+    player = db.scalar(select(Player).where(Player.username == username))
+    if player is None or not player.active or not verify_password(data.get("password"), player.password_hash):
+        raise HTTPException(status_code=401, detail="Invalid username or password.")
+    token = create_player_token(player.id, player.username or username, player.display_name or player.player_name)
+    return {"token": token, "user": player_payload(player)}
+
+
+@router.get("/player/me")
+def player_me(claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
+    return player_payload(player_from_claims(db, claims))
+
+
+@router.get("/player/campaigns")
+def list_player_campaigns(claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> list[dict]:
+    player = player_from_claims(db, claims)
+    memberships = db.scalars(select(CampaignPlayer).where(CampaignPlayer.user_id == player.id)).all()
+    campaigns = [db.get(Campaign, membership.campaign_id) for membership in memberships]
+    payloads = []
+    for campaign in campaigns:
+        if campaign is None or campaign.status == "archived":
+            continue
+        payload = campaign_detail_payload(db, campaign)
+        payload["my_character"] = next((character for character in payload["characters"] if character["user_id"] == player.id), None)
+        payloads.append(payload)
+    return payloads
+
+
+@router.get("/player/campaigns/{campaign_id}")
+def get_player_campaign(campaign_id: int, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
+    player = player_from_claims(db, claims)
+    ensure_player_campaign_member(db, campaign_id, player.id)
+    campaign = get_campaign_or_404(db, campaign_id)
+    payload = campaign_detail_payload(db, campaign)
+    payload["my_character"] = next((character for character in payload["characters"] if character["user_id"] == player.id), None)
+    return payload
+
+
 @router.get("/1e/rules-data")
 def vault_rules_data() -> dict:
     return {"races": RACES, "classes": CLASSES, "alignments": ALIGNMENTS}
@@ -554,37 +665,35 @@ def vault_rules_data() -> dict:
 @router.get("/1e/players")
 def list_vault_players(_: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> list[dict]:
     players = db.scalars(select(Player).order_by(Player.display_name, Player.player_name)).all()
-    return [player_payload(player) for player in players]
+    payloads = []
+    for player in players:
+        payload = player_payload(player)
+        payload["campaign_count"] = db.scalar(select(func.count()).select_from(CampaignPlayer).where(CampaignPlayer.user_id == player.id)) or 0
+        payload["character_count"] = db.scalar(select(func.count()).select_from(VaultCharacter).where(VaultCharacter.user_id == player.id, VaultCharacter.status != "archived")) or 0
+        payloads.append(payload)
+    return payloads
 
 
 @router.post("/1e/players")
 def create_vault_player(data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     role = validate_player_role(data.get("role") or "player")
-    status = validate_player_status(data.get("status") or "active")
+    active = bool(data.get("active", True))
+    status = validate_player_status(data.get("status") or ("active" if active else "inactive"))
     display_name = data.get("display_name") or data.get("player_name")
     if not display_name:
         raise HTTPException(status_code=422, detail="display_name is required.")
-    if data.get("discord_user_id"):
-        existing = db.scalar(select(Player).where(Player.discord_user_id == data["discord_user_id"]))
-    else:
-        existing = db.scalar(select(Player).where(Player.display_name == display_name))
-    if existing:
-        existing.display_name = display_name
-        existing.player_name = data.get("player_name") or display_name
-        existing.email = data.get("email")
-        existing.discord_user_id = data.get("discord_user_id")
-        existing.role = role
-        existing.status = status
-        db.commit()
-        db.refresh(existing)
-        return player_payload(existing)
+    username = validate_username(data.get("username"))
+    ensure_unique_username(db, username)
     player = Player(
         player_name=data.get("player_name") or display_name,
+        username=username,
+        password_hash=hash_password(data.get("password") or ""),
         display_name=display_name,
         email=data.get("email"),
         discord_user_id=data.get("discord_user_id"),
         role=role,
         status=status,
+        active=active and status == "active",
     )
     db.add(player)
     db.commit()
@@ -603,15 +712,31 @@ def update_vault_player(user_id: int, data: dict, _: dict = Depends(require_jwt_
     for field in ("display_name", "player_name", "email", "discord_user_id"):
         if field in data:
             setattr(player, field, data[field])
+    if "username" in data:
+        username = validate_username(data["username"])
+        ensure_unique_username(db, username, player.id)
+        player.username = username
     if "role" in data:
         player.role = validate_player_role(data["role"])
     if "status" in data:
         player.status = validate_player_status(data["status"])
+        player.active = player.status == "active"
+    if "active" in data:
+        player.active = bool(data["active"])
+        player.status = "active" if player.active else "inactive"
     if not player.player_name:
         player.player_name = player.display_name or f"Player {player.id}"
     db.commit()
     db.refresh(player)
     return player_payload(player)
+
+
+@router.post("/1e/players/{user_id}/reset-password")
+def reset_vault_player_password(user_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    player = get_player_or_404(db, user_id)
+    player.password_hash = hash_password(data.get("password") or "")
+    db.commit()
+    return {"ok": True}
 
 
 @router.get("/1e/equipment")
@@ -766,7 +891,7 @@ def create_vault_campaign(data: dict, _: dict = Depends(require_jwt_admin), db: 
         name=data["name"],
         description=data.get("description"),
         dm_user_id=data.get("dm_user_id"),
-        setting=validate_campaign_setting(data.get("setting") or "greyhawk"),
+        setting=validate_campaign_setting(data.get("setting") or "dragonlance"),
         schedule=data.get("schedule"),
         next_session_date=data.get("next_session_date"),
         session_number=int(data.get("session_number") or 1),
@@ -785,25 +910,7 @@ def create_vault_campaign(data: dict, _: dict = Depends(require_jwt_admin), db: 
 @router.get("/1e/campaigns/{campaign_id}")
 def get_vault_campaign(campaign_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     campaign = get_campaign_or_404(db, campaign_id)
-    payload = campaign_payload(campaign)
-    payload.update(campaign_counts(db, campaign.id))
-    memberships = db.scalars(select(CampaignPlayer).where(CampaignPlayer.campaign_id == campaign.id)).all()
-    players = {player.id: player for player in db.scalars(select(Player).where(Player.id.in_([m.user_id for m in memberships]))).all()} if memberships else {}
-    characters = [character_payload(character) for character in db.scalars(select(VaultCharacter).where(VaultCharacter.campaign_id == campaign.id)).all()]
-    stored_items = stored_items_for_campaign(db, campaign.id)
-    payload["players"] = [campaign_player_payload(membership, players.get(membership.user_id)) for membership in memberships]
-    payload["characters"] = characters
-    payload["active_characters"] = [character for character in characters if character["status"] == "active" and character["life_status"] == "alive"]
-    payload["inactive_characters"] = [character for character in characters if character["status"] != "active" or character["life_status"] != "alive"]
-    payload["safe_storage_locations"] = [
-        safe_storage_payload(
-            location,
-            [item for item in stored_items if item["storage_location"] == location.name],
-        )
-        for location in db.scalars(select(SafeStorageLocation).where(SafeStorageLocation.campaign_id == campaign.id, SafeStorageLocation.status != "archived").order_by(SafeStorageLocation.name)).all()
-    ]
-    payload["stored_items"] = stored_items
-    return payload
+    return campaign_detail_payload(db, campaign)
 
 
 @router.put("/1e/campaigns/{campaign_id}")
