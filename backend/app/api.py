@@ -1280,9 +1280,7 @@ def delete_vault_character(character_id: int, _: dict = Depends(require_jwt_admi
     return {"ok": True, "archived": True}
 
 
-@router.post("/1e/characters/{character_id}/inventory")
-def add_vault_inventory(character_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
-    character = get_vault_character_or_404(db, character_id)
+def add_inventory_record(character: VaultCharacter, data: dict, db: Session) -> dict:
     equipment = db.get(EquipmentCatalog, int(data["equipment_id"]))
     if equipment is None:
         raise HTTPException(status_code=404, detail="Equipment not found.")
@@ -1310,9 +1308,7 @@ def add_vault_inventory(character_id: int, data: dict, _: dict = Depends(require
     return character_payload(character)
 
 
-@router.put("/1e/characters/{character_id}/inventory/{inventory_id}")
-def update_vault_inventory(character_id: int, inventory_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
-    character = get_vault_character_or_404(db, character_id)
+def update_inventory_record(character: VaultCharacter, inventory_id: int, data: dict, db: Session) -> dict:
     item = db.get(CharacterInventory, inventory_id)
     if item is None or item.character_id != character.id:
         raise HTTPException(status_code=404, detail="Inventory item not found.")
@@ -1330,9 +1326,7 @@ def update_vault_inventory(character_id: int, inventory_id: int, data: dict, _: 
     return character_payload(character)
 
 
-@router.delete("/1e/characters/{character_id}/inventory/{inventory_id}")
-def delete_vault_inventory(character_id: int, inventory_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
-    character = get_vault_character_or_404(db, character_id)
+def delete_inventory_record(character: VaultCharacter, inventory_id: int, db: Session) -> dict:
     item = db.get(CharacterInventory, inventory_id)
     if item is None or item.character_id != character.id:
         raise HTTPException(status_code=404, detail="Inventory item not found.")
@@ -1342,6 +1336,45 @@ def delete_vault_inventory(character_id: int, inventory_id: int, _: dict = Depen
     db.commit()
     db.refresh(character)
     return character_payload(character)
+
+
+@router.post("/player/characters/{character_id}/inventory")
+def add_player_vault_inventory(character_id: int, data: dict, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
+    player = player_from_claims(db, claims)
+    character = player_character_or_404(db, character_id, player.id)
+    return add_inventory_record(character, data, db)
+
+
+@router.put("/player/characters/{character_id}/inventory/{inventory_id}")
+def update_player_vault_inventory(character_id: int, inventory_id: int, data: dict, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
+    player = player_from_claims(db, claims)
+    character = player_character_or_404(db, character_id, player.id)
+    return update_inventory_record(character, inventory_id, data, db)
+
+
+@router.delete("/player/characters/{character_id}/inventory/{inventory_id}")
+def delete_player_vault_inventory(character_id: int, inventory_id: int, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
+    player = player_from_claims(db, claims)
+    character = player_character_or_404(db, character_id, player.id)
+    return delete_inventory_record(character, inventory_id, db)
+
+
+@router.post("/1e/characters/{character_id}/inventory")
+def add_vault_inventory(character_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    character = get_vault_character_or_404(db, character_id)
+    return add_inventory_record(character, data, db)
+
+
+@router.put("/1e/characters/{character_id}/inventory/{inventory_id}")
+def update_vault_inventory(character_id: int, inventory_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    character = get_vault_character_or_404(db, character_id)
+    return update_inventory_record(character, inventory_id, data, db)
+
+
+@router.delete("/1e/characters/{character_id}/inventory/{inventory_id}")
+def delete_vault_inventory(character_id: int, inventory_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    character = get_vault_character_or_404(db, character_id)
+    return delete_inventory_record(character, inventory_id, db)
 
 
 @router.post("/1e/characters/{character_id}/spells")
@@ -1405,7 +1438,7 @@ def add_vault_weapon_proficiency(character_id: int, data: dict, _: dict = Depend
         raise HTTPException(status_code=422, detail="Weapon proficiency requires a catalog weapon.")
     allowed, reason = is_allowed_equipment(character.class_name, equipment_payload(equipment))
     if not allowed and not data.get("dm_override"):
-        raise HTTPException(status_code=422, detail=f"{character.class_name} cannot normally choose {equipment.name}. {reason}")
+        raise HTTPException(status_code=422, detail=f"Weapon proficiency requires DM review for {equipment.name}. {reason}")
     db.add(
         WeaponProficiency(
             character_id=character.id,

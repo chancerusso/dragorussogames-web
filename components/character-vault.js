@@ -147,7 +147,7 @@ const fallbackDragonlanceRaces = [
     advanced: true,
   },
 ];
-const state = { characters: [], equipment: [], spells: [], campaigns: [], players: [], dragonlanceRaces: [], dragonlanceClasses: [], campaign: null, rules: null, character: null, currentPlayer: null, step: 0, draft: null, hpRollMessage: "", inventoryFilter: "equipped", dmOverride: false, dmCharacterFilters: { campaign_id: "", user_id: "", status: "" }, equipmentFilters: { q: "", type: "" }, editEquipmentId: null, dmCampaignTab: "overview" };
+const state = { characters: [], equipment: [], spells: [], campaigns: [], players: [], dragonlanceRaces: [], dragonlanceClasses: [], campaign: null, rules: null, character: null, currentPlayer: null, step: 0, draft: null, hpRollMessage: "", moneyRollMessage: "", equipmentFeedback: {}, inventoryFilter: "equipped", dmOverride: false, dmCharacterFilters: { campaign_id: "", user_id: "", status: "" }, equipmentFilters: { q: "", type: "" }, editEquipmentId: null, dmCampaignTab: "overview" };
 const builderContext = detectBuilderContext();
 
 function h(value) {
@@ -648,7 +648,7 @@ function builderStep() {
     ${navButtons()}`;
   if (state.step === 4) return `${selectField("Alignment", "alignment", d.alignment, state.rules.alignments)}<div class="vault-card vault-wide">${raceClassWarnings(d)}<p><strong>${h(d.class_name)}:</strong> ${h((state.rules.classes[d.class_name] || {}).alignment || "Any alignment")}</p></div><p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/004-alignment/">Alignment</a>.</p>${navButtons()}`;
   if (state.step === 5) return `${hitPointsStepHtml(d)}${navButtons()}`;
-  if (state.step === 6) return `${coins.map((coin) => field(title(coin), `coins.${coin}`, d.coins[coin], "number")).join("")}<div class="vault-card vault-wide"><h3>Coin Load</h3><p>${coinCount(d.coins)} coins, ${coinWeight(d.coins)} lb.</p></div><p class="vault-rules vault-full">Rules: <a href="/1e/equipment/">Coins weigh 10 per lb</a></p>${navButtons()}`;
+  if (state.step === 6) return `${moneyStepHtml(d)}${navButtons()}`;
   if (state.step === 7) return equipmentManager() + navButtons();
   if (state.step === 8) return proficiencyManager() + navButtons();
   if (state.step === 9) return spellManager() + navButtons();
@@ -712,6 +712,24 @@ function hitPointsStepHtml(d) {
     <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/007-hit-points/">Hit Points</a></p>`;
 }
 
+function moneyStepHtml(d) {
+  const formula = startingWealthFormula(d.class_name);
+  return `
+    <div class="vault-card vault-full">
+      <div class="vault-kicker">Money</div>
+      <h3>Starting Gold</h3>
+      <div class="vault-compact-list">
+        <span><strong>Class</strong>${h(d.class_name || "Choose class")}</span>
+        <span><strong>Formula</strong>${h(formula || "Review with DM")}</span>
+      </div>
+      <div class="vault-actions"><button class="vault-button" type="button" data-roll-gold ${formula ? "" : "disabled"}>Roll Starting Gold</button></div>
+      ${state.moneyRollMessage ? `<p class="vault-success-text">${h(state.moneyRollMessage)}</p>` : ""}
+    </div>
+    ${coins.map((coin) => field(title(coin), `coins.${coin}`, d.coins[coin], "number")).join("")}
+    <div class="vault-card vault-wide"><h3>Coin Load</h3><p>${coinCount(d.coins)} coins, ${coinWeight(d.coins)} lb.</p></div>
+    <p class="vault-rules vault-full">Rules: <a href="/1e/equipment/">Coins weigh 10 per lb</a></p>`;
+}
+
 function formatSigned(value) {
   return Number(value) >= 0 ? `+${Number(value)}` : String(Number(value));
 }
@@ -731,7 +749,7 @@ function equipmentManager() {
       <label class="vault-check"><input type="checkbox" name="dm_override"> DM override equip restrictions</label>
     </div>
     <table class="vault-table"><thead><tr><th>Item</th><th>Type</th><th>Wt</th><th>Cost</th><th>Use</th><th></th></tr></thead><tbody data-equipment-results>${equipmentRows(classAwareEquipment().slice(0, 40))}</tbody></table>
-    ${state.character?.inventory?.length ? `<h3>Character Inventory</h3>${inventoryTable(state.character.inventory, state.character.weapon_proficiencies || [])}` : ""}
+    <h3>Character Inventory</h3>${state.character?.inventory?.length ? inventoryTable(state.character.inventory, state.character.weapon_proficiencies || []) : `<p class="vault-muted">No equipment added yet.</p>`}
     <p class="vault-rules">Rules: <a href="/1e/equipment/">OSRIC equipment catalog</a>. Free-typed player equipment is intentionally blocked.</p>
   </div>`;
 }
@@ -742,8 +760,18 @@ function equipmentRows(items) {
       : item.type === "armor" || item.type === "shield" ? `AC ${item.armor_class_value ?? ""}, adjustment ${item.armor_class_adjustment ?? ""}`
       : item.rules_reference || "";
     const allowed = classAllowsEquipment(state.draft?.class_name, item);
-    return `<tr class="${allowed.allowed ? "" : "vault-warn-row"}"><td><strong>${h(item.name)}</strong><br><span class="vault-mini">${h(displayReference(detail))}</span></td><td>${h(labelize(item.type))}</td><td>${h(item.weight)}</td><td>${h(item.cost_amount ?? "")} ${h(item.cost_coin ?? "")}</td><td>${allowed.allowed ? "Allowed" : "Blocked"}<br><span class="vault-mini">${h(allowed.reason)}</span></td><td><button class="vault-button secondary" type="button" data-add-equipment="${item.id}" data-status="carried">Add</button> <button class="vault-button secondary" type="button" data-add-equipment="${item.id}" data-status="equipped" ${!allowed.allowed && !state.dmOverride ? "disabled" : ""}>Equip</button></td></tr>`;
+    const inventoryItem = inventoryItemForEquipment(item.id);
+    const feedback = state.equipmentFeedback[item.id];
+    const added = Boolean(inventoryItem);
+    const equipped = inventoryItem?.status === "equipped";
+    const equipLabel = equipped ? "Equipped ✓" : feedback === "equipped" ? "Equipped ✓" : "Equip";
+    const addLabel = added || feedback === "added" ? "Added ✓" : "Add";
+    return `<tr class="${allowed.allowed ? "" : "vault-warn-row"}"><td><strong>${h(item.name)}</strong><br><span class="vault-mini">${h(displayReference(detail))}</span></td><td>${h(labelize(item.type))}</td><td>${h(item.weight)}</td><td>${h(item.cost_amount ?? "")} ${h(item.cost_coin ?? "")}</td><td>${allowed.allowed ? "Allowed" : "Blocked"}<br><span class="vault-mini">${h(allowed.reason)}</span></td><td><button class="vault-button secondary" type="button" data-add-equipment="${item.id}" data-status="carried" ${added ? "disabled" : ""}>${addLabel}</button> <button class="vault-button secondary" type="button" data-add-equipment="${item.id}" data-status="equipped" ${equipped || (!allowed.allowed && !state.dmOverride) ? "disabled" : ""}>${equipLabel}</button>${equipped ? ` <button class="vault-button secondary" type="button" data-inventory-action="${inventoryItem.id}:carried">Unequip</button>` : ""}</td></tr>`;
   }).join("");
+}
+
+function inventoryItemForEquipment(equipmentId) {
+  return (state.character?.inventory || []).find((item) => Number(item.equipment_id) === Number(equipmentId)) || null;
 }
 
 function proficiencyManager() {
@@ -1091,13 +1119,28 @@ function bindBuilderActions() {
     state.hpRollMessage = `Rolled ${roll.detail} ${formatConEquation(conMod)} CON = ${hp} HP`;
     renderBuilder();
   });
+  document.querySelector("[data-roll-gold]")?.addEventListener("click", () => {
+    syncDraft();
+    const formula = startingWealthFormula(state.draft.class_name);
+    const roll = rollStartingWealth(formula);
+    if (!roll) {
+      state.moneyRollMessage = "Starting gold formula needs DM review.";
+    } else {
+      state.draft.coins ||= {};
+      coins.forEach((coin) => { state.draft.coins[coin] ||= 0; });
+      state.draft.coins[roll.coin] = roll.total;
+      state.moneyRollMessage = roll.message;
+    }
+    renderBuilder();
+  });
   document.querySelectorAll("[data-add-equipment]").forEach((button) => button.addEventListener("click", async (event) => {
     event.preventDefault();
-    const character = await ensureSaved();
-    state.character = await api(`/characters/${character.id}/inventory`, { method: "POST", body: JSON.stringify({ equipment_id: Number(button.dataset.addEquipment), quantity: 1, status: button.dataset.status || "carried", dm_override: state.dmOverride }) });
-    state.character = await api(`/characters/${state.character.id}`);
+    const equipmentId = Number(button.dataset.addEquipment);
+    const status = button.dataset.status || "carried";
+    await addOrUpdateInventoryItem(equipmentId, status);
+    state.equipmentFeedback[equipmentId] = status === "equipped" ? "equipped" : "added";
     state.draft = initialDraft();
-    toast(button.dataset.status === "equipped" ? "Equipped." : "Added.");
+    toast(status === "equipped" ? "Equipped." : "Added.", "success");
     renderBuilder();
   }));
   document.querySelectorAll("[data-add-spell]").forEach((button) => button.addEventListener("click", async () => {
@@ -1151,6 +1194,44 @@ function setPath(object, path, value) {
 async function ensureSaved() {
   if (state.character?.id) return state.character;
   return saveDraft(false);
+}
+
+async function characterApi(path, options = {}) {
+  return isPlayerCharacterMode()
+    ? rootApi(`/player/characters${path}`, { ...options, headers: { ...playerAuthHeaders(), ...(options.headers || {}) } })
+    : api(`/characters${path}`, options);
+}
+
+async function inventoryApi(inventoryId, options = {}) {
+  if (!state.character?.id) throw new Error("Save the character before editing inventory.");
+  return characterApi(`/${state.character.id}/inventory/${inventoryId}`, options);
+}
+
+async function addOrUpdateInventoryItem(equipmentId, status = "carried") {
+  const character = await ensureSaved();
+  const existing = (character.inventory || []).find((item) => Number(item.equipment_id) === Number(equipmentId));
+  if (existing) {
+    state.character = await characterApi(`/${character.id}/inventory/${existing.id}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        status,
+        storage_location: status === "stored" ? character.safe_storage_location || "Personal Storage Location" : null,
+        dm_override: state.dmOverride,
+      }),
+    });
+    return state.character;
+  }
+  state.character = await characterApi(`/${character.id}/inventory`, {
+    method: "POST",
+    body: JSON.stringify({
+      equipment_id: Number(equipmentId),
+      quantity: 1,
+      status,
+      storage_location: status === "stored" ? character.safe_storage_location || "Personal Storage Location" : null,
+      dm_override: state.dmOverride,
+    }),
+  });
+  return state.character;
 }
 
 async function saveDraft(navigate = true) {
@@ -1278,10 +1359,7 @@ function proficiencyCount(className, level) {
 }
 
 function raceClassWarnings(d) {
-  const warnings = [];
-  const cls = state.rules?.classes?.[d.class_name] || {};
-  if (cls.allowed_alignments?.length && !cls.allowed_alignments.includes(d.alignment)) warnings.push(`${d.class_name} alignment restriction: ${cls.alignment}.`);
-  return warnings.length ? `<div class="vault-warning">${warnings.map((warning) => `<p>${h(warning)}</p>`).join("")}</div>` : `<p class="vault-muted">All standard classes are allowed for all races. Ask your DM about campaign-specific exceptions.</p>`;
+  return `<p class="vault-muted">All standard classes are allowed for all races. Ask your DM about campaign-specific exceptions.</p>`;
 }
 
 function coinCount(values = {}) {
@@ -1350,6 +1428,7 @@ function renderSheet() {
   bindInventoryActions(() => renderSheet());
   document.querySelectorAll("[data-rules-link]").forEach((button) => button.addEventListener("click", () => openRulesModal(button.dataset.rulesTitle, button.dataset.rulesLink)));
   document.querySelector("[data-quick-edit-open]")?.addEventListener("click", () => openQuickEditModal(state.character));
+  document.querySelector("[data-level-up-placeholder]")?.addEventListener("click", () => toast("Level Up tools coming soon."));
   document.querySelectorAll("[data-spell-action]").forEach((button) => button.addEventListener("click", async (event) => {
     event.preventDefault();
     const [id, action] = button.dataset.spellAction.split(":");
@@ -1373,9 +1452,9 @@ function bindInventoryActions(afterAction) {
     const [id, status] = button.dataset.inventoryAction.split(":");
     try {
       if (status === "delete") {
-        state.character = await api(`/characters/${state.character.id}/inventory/${id}`, { method: "DELETE" });
+        state.character = await inventoryApi(id, { method: "DELETE" });
       } else {
-        state.character = await api(`/characters/${state.character.id}/inventory/${id}`, {
+        state.character = await inventoryApi(id, {
           method: "PUT",
           body: JSON.stringify({
             status,
@@ -1383,9 +1462,8 @@ function bindInventoryActions(afterAction) {
           }),
         });
       }
-      state.character = await api(`/characters/${state.character.id}`);
       state.draft = initialDraft();
-      toast(inventoryActionMessage(status));
+      toast(inventoryActionMessage(status), "success");
       afterAction();
     } catch (error) {
       toast(readableError(error));
@@ -1398,7 +1476,7 @@ function inventoryActionMessage(status) {
     equipped: "Equipped.",
     carried: "Unequipped.",
     stored: "Stored.",
-    delete: "Deleted.",
+    delete: "Dropped.",
   };
   return messages[status] || "Saved.";
 }
@@ -1490,7 +1568,7 @@ function sheetHeaderHtml(c) {
     </div>
     ${abilityStripHtml(c)}
     ${warningsHtml(c)}
-    <div class="vault-actions"><button class="vault-button secondary" type="button" data-quick-edit-open>Quick Edit</button><a class="vault-button secondary" href="${characterEditHref(c.id || "")}">Full Edit</a></div>
+    <div class="vault-actions"><button class="vault-button secondary" type="button" data-quick-edit-open>Quick Edit</button><a class="vault-button secondary" href="${characterEditHref(c.id || "")}">Full Edit</a><button class="vault-button secondary" type="button" data-level-up-placeholder>Level Up</button></div>
   </section>`;
 }
 
@@ -1535,15 +1613,18 @@ function inventoryHtml(c) {
 }
 
 function inventoryTable(items) {
-  return `<table class="vault-table"><thead><tr><th>Item</th><th>Type</th><th>Wt</th><th>Actions</th></tr></thead><tbody>${items.map((item) => inventoryRow(item)).join("")}</tbody></table>`;
+  return `<table class="vault-table"><thead><tr><th>Item</th><th>Type</th><th>Weight</th><th>Cost</th><th>Status</th><th>Actions</th></tr></thead><tbody>${items.map((item) => inventoryRow(item)).join("")}</tbody></table>`;
 }
 
 function inventoryRow(item, proficiencies = []) {
   const equipment = item.equipment || {};
   const isEquipped = item.status === "equipped";
+  const isStored = item.status === "stored";
   const damage = equipment.type === "weapon" ? [equipment.damage_small_medium, equipment.damage_large].filter(Boolean).join(" / ") : "";
   const proficiency = equipment.type === "weapon" ? weaponProficiencyLabel(equipment.id, proficiencies) : "";
-  return `<tr><td>${h(item.quantity)} x <strong>${h(equipment.name)}</strong><br><span class="vault-mini">${h(labelize(item.status))}${item.status === "stored" && item.storage_location ? ` at ${h(item.storage_location)}` : ""}${damage ? ` / Damage ${h(damage)}` : ""}${proficiency ? ` / ${h(proficiency)}` : ""}</span></td><td>${h(labelize(equipment.type))}</td><td>${h(((equipment.weight || 0) * item.quantity).toFixed(2))}</td><td>${isEquipped ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Unequip</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:equipped">Equip</button>`} <button type="button" class="vault-button secondary" data-inventory-action="${item.id}:stored">Store</button> <button type="button" class="vault-button secondary" data-inventory-action="${item.id}:delete">Delete</button></td></tr>`;
+  const cost = equipment.cost_amount != null ? `${equipment.cost_amount} ${equipment.cost_coin || ""}` : "";
+  const status = isStored && item.storage_location ? `${labelize(item.status)} at ${item.storage_location}` : labelize(item.status);
+  return `<tr><td>${h(item.quantity)} x <strong>${h(equipment.name)}</strong><br><span class="vault-mini">${damage ? `Damage ${h(damage)}` : ""}${damage && proficiency ? " / " : ""}${proficiency ? h(proficiency) : ""}</span></td><td>${h(labelize(equipment.type))}</td><td>${h(((equipment.weight || 0) * item.quantity).toFixed(2))}</td><td>${h(cost)}</td><td>${h(status)}</td><td>${isEquipped ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Unequip</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:equipped">Equip</button>`} ${isStored ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Carry</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:stored">Store</button>`} <button type="button" class="vault-button secondary" data-inventory-action="${item.id}:delete">Drop</button></td></tr>`;
 }
 
 function savingThrowsHtml(c) {
@@ -2095,6 +2176,46 @@ function isAmmunition(item = {}) {
     "bullet, dozen",
     "stone, dozen",
   ].some((term) => name.includes(term));
+}
+
+function startingWealthFormula(className) {
+  const dragonlanceClass = dragonlanceClassProfile(className);
+  if (dragonlanceClass?.wealth) return dragonlanceClass.wealth;
+  const baseClass = dragonlanceClass?.base_class;
+  const aliases = {
+    "Knight of Solamnia": "Fighter",
+    "Knight of the Crown": "Fighter",
+    "Knight of the Sword": "Fighter",
+    "Knight of the Rose": "Fighter",
+    "Thief / Handler": "Thief",
+    "Robe Order Wizard": "Magic-User",
+    Tinker: "Magic-User",
+  };
+  return state.rules?.classes?.[className]?.wealth
+    || state.rules?.classes?.[baseClass]?.wealth
+    || state.rules?.classes?.[aliases[className]]?.wealth
+    || state.rules?.classes?.[aliases[baseClass]]?.wealth
+    || "";
+}
+
+function rollStartingWealth(formula) {
+  const normalized = String(formula || "").replace(/×/g, "x");
+  const match = normalized.match(/\(?\s*(\d+)d(\d+)(?:\s*([+-])\s*(\d+))?\s*\)?\s*(?:x\s*(\d+))?\s*(pp|gp|ep|sp|cp)?/i);
+  if (!match) return null;
+  const count = Number(match[1]);
+  const sides = Number(match[2]);
+  const modifier = match[3] ? Number(`${match[3]}${match[4]}`) : 0;
+  const multiplier = Number(match[5] || 1);
+  const coin = (match[6] || "gp").toLowerCase();
+  const rolls = Array.from({ length: count }, () => Math.floor(Math.random() * sides) + 1);
+  const subtotal = rolls.reduce((sum, roll) => sum + roll, 0) + modifier;
+  const total = Math.max(0, subtotal * multiplier);
+  const formulaDetail = `${rolls.join(" + ")}${modifier ? ` ${modifier > 0 ? "+" : "-"} ${Math.abs(modifier)}` : ""}`;
+  return {
+    total,
+    coin,
+    message: multiplier === 1 ? `Rolled ${formulaDetail} = ${total} ${coin}` : `Rolled ${formulaDetail} x ${multiplier} = ${total} ${coin}`,
+  };
 }
 
 function roll4d6DropLowest() {

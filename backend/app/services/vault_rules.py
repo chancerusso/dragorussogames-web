@@ -426,8 +426,6 @@ def is_allowed_equipment(class_name: str, equipment: dict) -> tuple[bool, str]:
 
 def character_warnings(race: str, class_name: str, alignment: str) -> list[str]:
     warnings = []
-    if not race_allows_class(race, class_name):
-        warnings.append(f"{race} cannot normally choose {class_name} as a single class.")
     if not class_allows_alignment(class_name, alignment):
         warnings.append(f"{class_name} alignment restriction: {CLASSES.get(class_name, {}).get('alignment')}.")
     warnings.extend(CLASSES.get(class_name, {}).get("manual_review") or [])
