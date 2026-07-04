@@ -310,7 +310,7 @@ def character_payload(character: VaultCharacter) -> dict:
         },
         "warnings": character_warnings(character.race, character.class_name, character.alignment),
         "class_details": {
-            **(CLASSES.get(character.class_name, {})),
+            **(CLASSES.get(spell_rules_class_name(character.class_name), CLASSES.get(character.class_name, {}))),
             "proficiency_count": proficiency_count(character.class_name, character.level),
         },
         "race_details": RACES.get(character.race, {}),
@@ -327,7 +327,7 @@ def character_payload(character: VaultCharacter) -> dict:
             for prof in character.proficiencies
         ],
         "spells": spell_entries,
-        "spell_slots": spell_slot_summary(character.class_name, character.level, spell_entries),
+        "spell_slots": spell_slot_summary(spell_rules_class_name(character.class_name), character.level, spell_entries),
         "rules": {
             "ability_scores": "/1e/character-creation/001-ability-scores/",
             "race": f"/1e/races/{character.race.lower().replace(' ', '-').replace('half-', 'half-')}/",
@@ -582,8 +582,25 @@ def character_spell_entries(character: VaultCharacter, exclude_id: int | None = 
     return entries
 
 
+def spell_rules_class_name(class_name: str) -> str:
+    if class_name in {"White Robe Wizard", "Red Robe Wizard", "Black Robe Wizard"}:
+        return "Magic-User"
+    return class_name
+
+
+def spell_has_available_slot(class_name: str, level: int, spell: SpellsCatalog) -> bool:
+    rules_class = spell_rules_class_name(class_name)
+    slots = spell_slot_summary(rules_class, level, [])["slots"]
+    level_key = str(spell.spell_level)
+    if rules_class == "Ranger":
+        matching_lists = set(spell.class_list or [])
+        return any(int(levels.get(level_key) or 0) > 0 for bucket, levels in slots.items() if bucket in matching_lists)
+    return int(slots.get(level_key) or 0) > 0
+
+
 def validate_spell_preparation(character: VaultCharacter, spell: SpellsCatalog, data: dict, exclude_id: int | None = None) -> None:
-    class_info = CLASSES.get(character.class_name, {})
+    rules_class = spell_rules_class_name(character.class_name)
+    class_info = CLASSES.get(rules_class, {})
     class_lists = class_info.get("spell_lists") or []
     if not class_lists:
         raise HTTPException(status_code=422, detail=f"{character.class_name} does not have normal spell preparation.")
@@ -593,21 +610,23 @@ def validate_spell_preparation(character: VaultCharacter, spell: SpellsCatalog, 
     matching_lists = set(class_lists).intersection(set(spell.class_list or []))
     if not matching_lists:
         raise HTTPException(status_code=422, detail=f"{spell.name} is not on the {character.class_name} spell list.")
+    if data.get("known", True) and not spell_has_available_slot(character.class_name, character.level, spell):
+        raise HTTPException(status_code=422, detail=f"{character.class_name} cannot use level {spell.spell_level} spells at level {character.level}.")
     prepared = bool(data.get("prepared", False))
     memorized_count = int(data.get("memorized_count") or (1 if prepared else 0))
     if memorized_count < 0:
         raise HTTPException(status_code=422, detail="Memorized count cannot be negative.")
     if prepared or memorized_count > 0:
-        if character.class_name in {"Magic-User", "Illusionist"} and not (data.get("known") or data.get("in_spellbook")):
-            raise HTTPException(status_code=422, detail=f"{character.class_name} can only prepare spells recorded as known/in spellbook.")
+        if not (data.get("known") or data.get("in_spellbook")):
+            raise HTTPException(status_code=422, detail=f"{character.class_name} can only prepare known spells.")
         candidate = {
             "spell": spell_payload(spell),
             "prepared": prepared,
             "memorized_count": memorized_count,
         }
-        summary = spell_slot_summary(character.class_name, character.level, character_spell_entries(character, exclude_id, candidate))
+        summary = spell_slot_summary(rules_class, character.level, character_spell_entries(character, exclude_id, candidate))
         remaining = summary["remaining"]
-        if character.class_name == "Ranger":
+        if rules_class == "Ranger":
             buckets = [name for name in ("druid", "magic-user") if name in matching_lists]
             if not any(remaining.get(bucket, {}).get(str(spell.spell_level), 0) >= 0 for bucket in buckets):
                 raise HTTPException(status_code=422, detail=f"No remaining level {spell.spell_level} spell slots.")
@@ -617,6 +636,65 @@ def validate_spell_preparation(character: VaultCharacter, spell: SpellsCatalog, 
             level_key = str(spell.spell_level)
             if summary["used"].get(level_key, 0) > summary["slots"].get(level_key, 0):
                 raise HTTPException(status_code=422, detail=f"No remaining level {spell.spell_level} spell slots.")
+
+
+def add_spell_record(character: VaultCharacter, data: dict, db: Session) -> dict:
+    spell = db.get(SpellsCatalog, int(data["spell_id"]))
+    if spell is None:
+        raise HTTPException(status_code=404, detail="Spell not found.")
+    existing = db.scalar(select(CharacterSpell).where(CharacterSpell.character_id == character.id, CharacterSpell.spell_id == spell.id))
+    validate_spell_preparation(character, spell, data, existing.id if existing else None)
+    if existing:
+        existing.known = bool(data.get("known", existing.known))
+        existing.in_spellbook = bool(data.get("in_spellbook", existing.in_spellbook))
+        existing.prepared = bool(data.get("prepared", existing.prepared))
+        existing.memorized_count = int(data.get("memorized_count", existing.memorized_count) or 0)
+        existing.notes = data.get("notes", existing.notes)
+    else:
+        character_spell = CharacterSpell(
+            character_id=character.id,
+            spell_id=spell.id,
+            known=bool(data.get("known", True)),
+            in_spellbook=bool(data.get("in_spellbook", False)),
+            prepared=bool(data.get("prepared", False)),
+            memorized_count=int(data.get("memorized_count") or 0),
+            notes=data.get("notes"),
+        )
+        db.add(character_spell)
+    db.commit()
+    db.refresh(character)
+    return character_payload(character)
+
+
+def update_spell_record(character: VaultCharacter, character_spell_id: int, data: dict, db: Session) -> dict:
+    character_spell = db.get(CharacterSpell, character_spell_id)
+    if character_spell is None or character_spell.character_id != character.id:
+        raise HTTPException(status_code=404, detail="Character spell not found.")
+    merged = {
+        "known": character_spell.known,
+        "in_spellbook": character_spell.in_spellbook,
+        "prepared": character_spell.prepared,
+        "memorized_count": character_spell.memorized_count,
+        "notes": character_spell.notes,
+        **data,
+    }
+    validate_spell_preparation(character, character_spell.spell, merged, character_spell.id)
+    for field in ("known", "in_spellbook", "prepared", "memorized_count", "notes"):
+        if field in data:
+            setattr(character_spell, field, data[field])
+    db.commit()
+    db.refresh(character)
+    return character_payload(character)
+
+
+def delete_spell_record(character: VaultCharacter, character_spell_id: int, db: Session) -> dict:
+    character_spell = db.get(CharacterSpell, character_spell_id)
+    if character_spell is None or character_spell.character_id != character.id:
+        raise HTTPException(status_code=404, detail="Character spell not found.")
+    db.delete(character_spell)
+    db.commit()
+    db.refresh(character)
+    return character_payload(character)
 
 
 @router.get("/health", response_model=HealthResponse)
@@ -1359,6 +1437,27 @@ def delete_player_vault_inventory(character_id: int, inventory_id: int, claims: 
     return delete_inventory_record(character, inventory_id, db)
 
 
+@router.post("/player/characters/{character_id}/spells")
+def add_player_vault_character_spell(character_id: int, data: dict, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
+    player = player_from_claims(db, claims)
+    character = player_character_or_404(db, character_id, player.id)
+    return add_spell_record(character, data, db)
+
+
+@router.put("/player/characters/{character_id}/spells/{character_spell_id}")
+def update_player_vault_character_spell(character_id: int, character_spell_id: int, data: dict, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
+    player = player_from_claims(db, claims)
+    character = player_character_or_404(db, character_id, player.id)
+    return update_spell_record(character, character_spell_id, data, db)
+
+
+@router.delete("/player/characters/{character_id}/spells/{character_spell_id}")
+def delete_player_vault_character_spell(character_id: int, character_spell_id: int, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
+    player = player_from_claims(db, claims)
+    character = player_character_or_404(db, character_id, player.id)
+    return delete_spell_record(character, character_spell_id, db)
+
+
 @router.post("/1e/characters/{character_id}/inventory")
 def add_vault_inventory(character_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     character = get_vault_character_or_404(db, character_id)
@@ -1380,54 +1479,19 @@ def delete_vault_inventory(character_id: int, inventory_id: int, _: dict = Depen
 @router.post("/1e/characters/{character_id}/spells")
 def add_vault_character_spell(character_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     character = get_vault_character_or_404(db, character_id)
-    spell = db.get(SpellsCatalog, int(data["spell_id"]))
-    if spell is None:
-        raise HTTPException(status_code=404, detail="Spell not found.")
-    existing = db.scalar(select(CharacterSpell).where(CharacterSpell.character_id == character.id, CharacterSpell.spell_id == spell.id))
-    validate_spell_preparation(character, spell, data, existing.id if existing else None)
-    if existing:
-        existing.known = bool(data.get("known", existing.known))
-        existing.in_spellbook = bool(data.get("in_spellbook", existing.in_spellbook))
-        existing.prepared = bool(data.get("prepared", existing.prepared))
-        existing.memorized_count = int(data.get("memorized_count", existing.memorized_count) or 0)
-        existing.notes = data.get("notes", existing.notes)
-    else:
-        character_spell = CharacterSpell(
-            character_id=character.id,
-            spell_id=spell.id,
-            known=bool(data.get("known", True)),
-            in_spellbook=bool(data.get("in_spellbook", False)),
-            prepared=bool(data.get("prepared", False)),
-            memorized_count=int(data.get("memorized_count") or 0),
-            notes=data.get("notes"),
-        )
-        db.add(character_spell)
-    db.commit()
-    db.refresh(character)
-    return character_payload(character)
+    return add_spell_record(character, data, db)
 
 
 @router.put("/1e/characters/{character_id}/spells/{character_spell_id}")
 def update_vault_character_spell(character_id: int, character_spell_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     character = get_vault_character_or_404(db, character_id)
-    character_spell = db.get(CharacterSpell, character_spell_id)
-    if character_spell is None or character_spell.character_id != character.id:
-        raise HTTPException(status_code=404, detail="Character spell not found.")
-    merged = {
-        "known": character_spell.known,
-        "in_spellbook": character_spell.in_spellbook,
-        "prepared": character_spell.prepared,
-        "memorized_count": character_spell.memorized_count,
-        "notes": character_spell.notes,
-        **data,
-    }
-    validate_spell_preparation(character, character_spell.spell, merged, character_spell.id)
-    for field in ("known", "in_spellbook", "prepared", "memorized_count", "notes"):
-        if field in data:
-            setattr(character_spell, field, data[field])
-    db.commit()
-    db.refresh(character)
-    return character_payload(character)
+    return update_spell_record(character, character_spell_id, data, db)
+
+
+@router.delete("/1e/characters/{character_id}/spells/{character_spell_id}")
+def delete_vault_character_spell(character_id: int, character_spell_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    character = get_vault_character_or_404(db, character_id)
+    return delete_spell_record(character, character_spell_id, db)
 
 
 @router.post("/1e/characters/{character_id}/weapon-proficiencies")

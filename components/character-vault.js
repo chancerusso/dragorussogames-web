@@ -780,23 +780,104 @@ function proficiencyManager() {
 }
 
 function spellManager() {
-  const classKey = (state.draft.class_name || "").toLowerCase().replace(" ", "-");
-  const caster = (state.rules.classes[state.draft.class_name] || {}).spellcaster;
-  const starts = (state.rules.classes[state.draft.class_name] || {}).spellcasting_starts_level || 1;
-  const spells = state.spells.filter((spell) => !classKey || spell.class_list.includes(classKey)).slice(0, 90);
-  if (!caster) return `<div class="vault-full"><p>${h(state.draft.class_name)} has no normal spell preparation.</p><p class="vault-rules">Rules: <a href="/1e/how-to-play/magic/">Magic</a></p></div>`;
+  const className = state.draft.class_name;
+  const classKeys = spellListKeysForClass(className);
+  const classInfo = state.rules.classes[spellRulesClassName(className)] || {};
+  const starts = classInfo.spellcasting_starts_level || 1;
+  const spells = spellsForCurrentClass().slice(0, 90);
+  if (!classInfo.spellcaster || !classKeys.length || Number(state.draft.level || 1) < starts) return `<div class="vault-full"><p>This class has no spells at this level.</p><p class="vault-rules">Rules: <a href="/1e/how-to-play/magic/">Magic</a></p></div>`;
   const savedSlots = state.character?.class_name === state.draft.class_name && Number(state.character?.level) === Number(state.draft.level) ? spellSlotsHtml(state.character) : "";
+  const known = knownSpells();
+  const prepared = preparedSpells();
   return `<div class="vault-full">
     <div class="vault-actions"><input name="spell_search" placeholder="Search spells"><select name="spell_class"><option value="">${h(state.draft.class_name)} list</option><option value="cleric">Cleric</option><option value="druid">Druid</option><option value="magic-user">Magic-User</option><option value="illusionist">Illusionist</option></select><select name="spell_level"><option value="">All levels</option>${[1,2,3,4,5,6,7,8,9].map((n) => `<option value="${n}">${n}</option>`).join("")}</select></div>
-    <p class="vault-muted">${h(state.draft.class_name)} spellcasting starts at level ${starts}. Preparation is enforced when spells are saved to a character.</p>
+    <p class="vault-muted">${h(state.draft.class_name)} spellcasting starts at level ${starts}. Add known spells first, then prepare from that known list.</p>
     ${savedSlots}
-    <table class="vault-table"><thead><tr><th>Spell</th><th>Level</th><th>Range</th><th>Duration</th><th>Area/Effect</th><th></th></tr></thead><tbody data-spell-results>${spellRows(spells)}</tbody></table>
+    <h3>Known Spells</h3>
+    ${known.length ? spellBookTable(known, false) : `<p class="vault-muted">No known spells recorded.</p>`}
+    <h3>Prepared Spells</h3>
+    ${prepared.length ? spellBookTable(prepared, true) : `<p class="vault-muted">None prepared.</p>`}
+    <h3>Spell Catalog</h3>
+    ${spells.length ? `<table class="vault-table"><thead><tr><th>Spell</th><th>Level</th><th>Range</th><th>Duration</th><th>Area/Effect</th><th>Status</th><th></th></tr></thead><tbody data-spell-results>${spellRows(spells)}</tbody></table>` : `<p class="vault-muted">This class has no spells at this level.</p>`}
     <p class="vault-rules">Rules: <a href="/1e/how-to-play/magic/">Magic</a> and spell reference pages.</p>
   </div>`;
 }
 
 function spellRows(spells) {
-  return spells.map((spell) => `<tr><td><strong>${h(spell.name)}</strong><br><a class="vault-mini" href="${h(spell.rules_reference)}">Rules</a></td><td>${spell.spell_level}<br><span class="vault-mini">${h(spell.class_list.join(", "))}</span></td><td>${h(spell.range || "")}</td><td>${h(spell.duration || "")}</td><td>${h(spell.area_of_effect || "")}</td><td><button class="vault-button secondary" type="button" data-add-spell="${spell.id}">Add/Prepare</button></td></tr>`).join("");
+  return spells.map((spell) => {
+    const entry = knownSpellEntry(spell.id);
+    const prepared = entry && (entry.prepared || Number(entry.memorized_count || 0) > 0);
+    return `<tr><td><strong>${h(spell.name)}</strong><br><a class="vault-mini" href="${h(spell.rules_reference)}">Rules</a></td><td>${spell.spell_level}<br><span class="vault-mini">${h(spell.class_list.join(", "))}</span></td><td>${h(spell.range || "")}</td><td>${h(spell.duration || "")}</td><td>${h(spell.area_of_effect || "")}</td><td>${entry ? "Known" : "Not known"}${prepared ? "<br><span class=\"vault-mini\">Prepared</span>" : ""}</td><td><button class="vault-button secondary" type="button" data-add-known-spell="${spell.id}" ${entry ? "disabled" : ""}>${entry ? "Known ✓" : "Add Known"}</button></td></tr>`;
+  }).join("");
+}
+
+function spellBookTable(entries, preparedOnly = false) {
+  return `<table class="vault-table"><thead><tr><th>Spell</th><th>Level</th><th>Range</th><th>Duration</th><th>Area</th><th>Count</th><th></th></tr></thead><tbody>${entries.map((entry) => spellBookRow(entry, preparedOnly)).join("")}</tbody></table>`;
+}
+
+function spellBookRow(entry, preparedOnly = false) {
+  const prepared = entry.prepared || Number(entry.memorized_count || 0) > 0;
+  const removeButton = !prepared ? ` <button class="vault-button secondary" type="button" data-spell-action="${entry.id}:remove">Remove Known</button>` : "";
+  const action = preparedOnly
+    ? `<button class="vault-button secondary" type="button" data-spell-action="${entry.id}:unprepare">Unprepare</button>`
+    : `<button class="vault-button secondary" type="button" data-spell-action="${entry.id}:prepare">Prepare</button>${removeButton}`;
+  return `<tr><td><strong>${h(entry.spell.name)}</strong><br>${spellBadges(entry)}<br><a class="vault-mini" href="${h(entry.spell.rules_reference)}">Rules</a></td><td>${h(entry.spell.spell_level)}<br><span class="vault-mini">${h((entry.spell.class_list || []).join(", "))}</span></td><td>${h(entry.spell.range || "")}</td><td>${h(entry.spell.duration || "")}</td><td>${h(entry.spell.area_of_effect || "")}</td><td>${h(entry.memorized_count || 0)}</td><td>${action}</td></tr>`;
+}
+
+function knownSpells() {
+  return (state.character?.spells || []).filter((entry) => entry.known || entry.in_spellbook);
+}
+
+function preparedSpells() {
+  return knownSpells().filter((entry) => entry.prepared || Number(entry.memorized_count || 0) > 0);
+}
+
+function knownSpellEntry(spellId) {
+  return knownSpells().find((entry) => Number(entry.spell_id) === Number(spellId)) || null;
+}
+
+function spellRulesClassName(className) {
+  if (["White Robe Wizard", "Red Robe Wizard", "Black Robe Wizard"].includes(className)) return "Magic-User";
+  if (state.rules?.classes?.[className]) return className;
+  const profile = dragonlanceClassProfile(className);
+  const base = `${profile?.base_class || ""} ${profile?.name || className}`.toLowerCase();
+  if (base.includes("cleric")) return "Cleric";
+  if (base.includes("druid")) return "Druid";
+  if (base.includes("illusionist")) return "Illusionist";
+  if (base.includes("magic-user") || base.includes("wizard")) return "Magic-User";
+  return className;
+}
+
+function spellListKeysForClass(className) {
+  const classInfo = state.rules?.classes?.[spellRulesClassName(className)] || {};
+  return classInfo.spell_lists || [];
+}
+
+function arcaneSpellbookClass(className) {
+  return ["Magic-User", "Illusionist"].includes(spellRulesClassName(className));
+}
+
+function spellsForCurrentClass() {
+  const classKeys = spellListKeysForClass(state.draft.class_name);
+  return state.spells.filter((spell) => spellMatchesClass(spell, classKeys) && spellAllowedAtCurrentLevel(spell));
+}
+
+function spellMatchesClass(spell, classKeys = spellListKeysForClass(state.draft.class_name)) {
+  return classKeys.some((key) => (spell.class_list || []).includes(key));
+}
+
+function spellAllowedAtCurrentLevel(spell) {
+  const level = Number(state.draft.level || 1);
+  const starts = Number((state.rules?.classes?.[spellRulesClassName(state.draft.class_name)] || {}).spellcasting_starts_level || 1);
+  if (level < starts) return false;
+  const summary = state.character?.class_name === state.draft.class_name && Number(state.character?.level) === level ? state.character.spell_slots : null;
+  if (!summary?.slots) return Number(spell.spell_level) === 1;
+  const levelKey = String(spell.spell_level);
+  const nested = Object.values(summary.slots).some((value) => value && typeof value === "object" && !Array.isArray(value));
+  if (nested) {
+    return Object.entries(summary.slots).some(([bucket, levels]) => (spell.class_list || []).includes(bucket) && Number(levels?.[levelKey] || 0) > 0);
+  }
+  return Number(summary.slots[levelKey] || 0) > 0;
 }
 
 function choiceStepHeader(kind, titleText, selected, description) {
@@ -1143,10 +1224,22 @@ function bindBuilderActions() {
     toast(status === "equipped" ? "Equipped." : "Added.", "success");
     renderBuilder();
   }));
-  document.querySelectorAll("[data-add-spell]").forEach((button) => button.addEventListener("click", async () => {
+  document.querySelectorAll("[data-add-known-spell]").forEach((button) => button.addEventListener("click", async (event) => {
+    event.preventDefault();
     const character = await ensureSaved();
-    state.character = await api(`/characters/${character.id}/spells`, { method: "POST", body: JSON.stringify({ spell_id: Number(button.dataset.addSpell), known: true, prepared: true, memorized_count: 1, in_spellbook: state.draft.class_name === "Magic-User" }) });
-    toast("Saved.");
+    state.character = await characterApi(`/${character.id}/spells`, {
+      method: "POST",
+      body: JSON.stringify({
+        spell_id: Number(button.dataset.addKnownSpell),
+        known: true,
+        prepared: false,
+        memorized_count: 0,
+        in_spellbook: arcaneSpellbookClass(state.draft.class_name),
+      }),
+    });
+    state.draft = initialDraft();
+    toast("Known spell added.", "success");
+    renderBuilder();
   }));
   document.querySelectorAll("[data-prof]").forEach((button) => button.addEventListener("click", async () => {
     const character = await ensureSaved();
@@ -1161,6 +1254,7 @@ function bindBuilderActions() {
   document.querySelector("[name='spell_search']")?.addEventListener("input", () => filterSpells());
   document.querySelector("[name='spell_class']")?.addEventListener("change", () => filterSpells());
   document.querySelector("[name='spell_level']")?.addEventListener("change", () => filterSpells());
+  bindSpellActions(() => renderBuilder());
 }
 
 function syncDraft() {
@@ -1205,6 +1299,11 @@ async function characterApi(path, options = {}) {
 async function inventoryApi(inventoryId, options = {}) {
   if (!state.character?.id) throw new Error("Save the character before editing inventory.");
   return characterApi(`/${state.character.id}/inventory/${inventoryId}`, options);
+}
+
+async function spellApi(characterSpellId, options = {}) {
+  if (!state.character?.id) throw new Error("Save the character before editing spells.");
+  return characterApi(`/${state.character.id}/spells/${characterSpellId}`, options);
 }
 
 async function addOrUpdateInventoryItem(equipmentId, status = "carried") {
@@ -1316,11 +1415,8 @@ function filterSpells() {
   const q = document.querySelector("[name='spell_search']")?.value || "";
   const level = document.querySelector("[name='spell_level']")?.value || "";
   const list = document.querySelector("[name='spell_class']")?.value || "";
-  const classKey = (state.draft.class_name || "").toLowerCase().replace(" ", "-");
-  const rows = state.spells.filter((spell) => {
-    const classFilter = list || classKey;
-    return (!classFilter || spell.class_list.includes(classFilter)) && (!q || spell.name.toLowerCase().includes(q.toLowerCase())) && (!level || String(spell.spell_level) === level);
-  }).slice(0, 90);
+  const classKeys = list ? [list] : spellListKeysForClass(state.draft.class_name);
+  const rows = state.spells.filter((spell) => spellMatchesClass(spell, classKeys) && spellAllowedAtCurrentLevel(spell) && (!q || spell.name.toLowerCase().includes(q.toLowerCase())) && (!level || String(spell.spell_level) === level)).slice(0, 90);
   document.querySelector("[data-spell-results]").innerHTML = spellRows(rows);
   bindBuilderActions();
 }
@@ -1429,18 +1525,30 @@ function renderSheet() {
   document.querySelectorAll("[data-rules-link]").forEach((button) => button.addEventListener("click", () => openRulesModal(button.dataset.rulesTitle, button.dataset.rulesLink)));
   document.querySelector("[data-quick-edit-open]")?.addEventListener("click", () => openQuickEditModal(state.character));
   document.querySelector("[data-level-up-placeholder]")?.addEventListener("click", () => toast("Level Up tools coming soon."));
+  bindSpellActions(() => renderSheet());
+}
+
+function bindSpellActions(afterAction) {
   document.querySelectorAll("[data-spell-action]").forEach((button) => button.addEventListener("click", async (event) => {
     event.preventDefault();
     const [id, action] = button.dataset.spellAction.split(":");
-    const spell = state.character.spells.find((entry) => String(entry.id) === id);
-    const next = action === "prepare" ? { prepared: true, memorized_count: Math.max(1, Number(spell.memorized_count || 0)) } : { prepared: false, memorized_count: 0 };
+    const spell = (state.character?.spells || []).find((entry) => String(entry.id) === id);
+    if (!spell) return;
     try {
-      state.character = await api(`/characters/${state.character.id}/spells/${id}`, { method: "PUT", body: JSON.stringify(next) });
-      state.character = await api(`/characters/${state.character.id}`);
-      toast("Saved.");
-      renderSheet();
+      if (action === "remove") {
+        state.character = await spellApi(id, { method: "DELETE" });
+        toast("Known spell removed.", "success");
+      } else {
+        const next = action === "prepare"
+          ? { known: true, in_spellbook: spell.in_spellbook, prepared: true, memorized_count: Math.max(1, Number(spell.memorized_count || 0)) }
+          : { prepared: false, memorized_count: 0 };
+        state.character = await spellApi(id, { method: "PUT", body: JSON.stringify(next) });
+        toast("Spell updated.", "success");
+      }
+      state.draft = initialDraft();
+      afterAction?.();
     } catch (error) {
-      toast("Spell slot limit reached or spell is not eligible.");
+      toast(error?.message || "Spell slot limit reached or spell is not eligible.");
     }
   }));
 }
@@ -1651,11 +1759,10 @@ function armorHtml(c) {
 function spellsHtml(c) {
   const spells = c.spells || [];
   const slots = spellSlotsHtml(c);
-  if (!spells.length) return `${slots}<p>No spells recorded.</p>`;
-  const prepared = spells.filter((spell) => spell.prepared || spell.memorized_count > 0);
-  const known = spells.filter((spell) => !spell.prepared && spell.memorized_count <= 0);
-  const row = (s, preparedRow = false) => `<tr><td><strong>${h(s.spell.name)}</strong><br>${spellBadges(s)}<br><a class="vault-mini" href="${h(s.spell.rules_reference)}">Rules</a></td><td>${h(s.spell.spell_level)}<br><span class="vault-mini">${h((s.spell.class_list || []).join(", "))}</span></td><td>${h(s.spell.range || "")}</td><td>${h(s.spell.duration || "")}</td><td>${h(s.spell.area_of_effect || "")}</td><td>${h(s.spell.components || "")}</td><td>${h((s.spell.description || "").slice(0, 180))}</td><td>${h(s.memorized_count)}</td><td><button class="vault-button secondary" type="button" data-spell-action="${s.id}:${preparedRow ? "unprepare" : "prepare"}">${preparedRow ? "Unprepare" : "Prepare"}</button></td></tr>`;
-  return `${slots}<h3>Prepared / Memorized</h3>${prepared.length ? `<table class="vault-table"><thead><tr><th>Spell</th><th>Lvl</th><th>Range</th><th>Duration</th><th>Area</th><th>Comp</th><th>Detail</th><th>Count</th><th></th></tr></thead><tbody>${prepared.map((spell) => row(spell, true)).join("")}</tbody></table>` : "<p>None prepared.</p>"}<h3>Known / Spellbook</h3>${known.length ? `<table class="vault-table"><tbody>${known.map((spell) => row(spell, false)).join("")}</tbody></table>` : "<p>None separate from prepared spells.</p>"}`;
+  const known = spells.filter((spell) => spell.known || spell.in_spellbook);
+  const prepared = known.filter((spell) => spell.prepared || Number(spell.memorized_count || 0) > 0);
+  if (!known.length) return `${slots}<p>No known spells recorded.</p>`;
+  return `${slots}<h3>Known Spells</h3>${spellBookTable(known, false)}<h3>Prepared Spells</h3>${prepared.length ? spellBookTable(prepared, true) : "<p>None prepared.</p>"}`;
 }
 
 function spellBadges(s) {
