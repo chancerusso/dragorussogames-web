@@ -14,6 +14,7 @@ from app.auth import (
     hash_password,
     require_admin as require_jwt_admin,
     require_player,
+    require_player_or_admin,
     validate_admin_password,
     verify_password,
 )
@@ -730,13 +731,28 @@ def admin_me(admin: dict = Depends(require_jwt_admin)) -> dict:
 
 
 @router.post("/player/login")
-def player_login(data: dict, db: Session = Depends(get_db)) -> dict:
+def player_login(data: dict, response: Response, db: Session = Depends(get_db)) -> dict:
     username = validate_username(data.get("username"))
     player = db.scalar(select(Player).where(Player.username == username))
     if player is None or not player.active or not verify_password(data.get("password"), player.password_hash):
         raise HTTPException(status_code=401, detail="Invalid username or password.")
     token = create_player_token(player.id, player.username or username, player.display_name or player.player_name)
+    response.set_cookie(
+        key="drg_player_session",
+        value=token,
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        max_age=60 * 60 * 12,
+        path="/",
+    )
     return {"token": token, "user": player_payload(player)}
+
+
+@router.post("/player/logout")
+def player_logout(response: Response) -> dict:
+    response.delete_cookie(key="drg_player_session", path="/")
+    return {"ok": True}
 
 
 @router.get("/player/me")
@@ -770,7 +786,7 @@ def get_player_campaign(campaign_id: int, claims: dict = Depends(require_player)
 
 
 @router.get("/1e/rules-data")
-def vault_rules_data() -> dict:
+def vault_rules_data(_: dict = Depends(require_player_or_admin)) -> dict:
     return {"races": RACES, "classes": CLASSES, "alignments": ALIGNMENTS}
 
 
@@ -860,9 +876,12 @@ def list_vault_equipment(
     campaign_id: Optional[int] = None,
     allowed_only: bool = False,
     include_archived: bool = False,
+    actor: dict = Depends(require_player_or_admin),
     db: Session = Depends(get_db),
 ) -> list[dict]:
     ensure_vault_seeded(db)
+    if actor.get("role") != "admin":
+        include_archived = False
     statement = select(EquipmentCatalog).order_by(EquipmentCatalog.name)
     items = db.scalars(statement).all()
     filtered = []
@@ -967,6 +986,7 @@ def list_vault_spells(
     q: Optional[str] = None,
     class_name: Optional[str] = None,
     spell_level: Optional[int] = None,
+    _: dict = Depends(require_player_or_admin),
     db: Session = Depends(get_db),
 ) -> list[dict]:
     ensure_vault_seeded(db)

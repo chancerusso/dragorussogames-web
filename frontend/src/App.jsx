@@ -126,8 +126,8 @@ function AuthProvider({ children }) {
         await logout();
         setTokenState(null);
       },
-      signOutPlayer: () => {
-        playerLogout();
+      signOutPlayer: async () => {
+        await playerLogout();
         setPlayerTokenState(null);
       },
     }),
@@ -254,7 +254,7 @@ function PlayerShell({ children }) {
   const classic = isClassicHost();
 
   async function signOut() {
-    auth.signOutPlayer();
+    await auth.signOutPlayer();
     navigate(classic ? "/login" : "/portal/login");
   }
 
@@ -354,7 +354,8 @@ function PlayerLoginPage() {
     try {
       await playerLogin(username, password);
       auth.refreshPlayer();
-      navigate(location.state?.from || (classic ? "/" : "/portal"));
+      const params = new URLSearchParams(location.search);
+      navigate(params.get("next") || location.state?.from || (classic ? "/" : "/portal"));
     } catch (err) {
       setError(err.message);
     } finally {

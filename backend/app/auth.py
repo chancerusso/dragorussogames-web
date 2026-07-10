@@ -89,11 +89,37 @@ def require_admin(
     return verify_admin_token(token)
 
 
-def require_player(authorization: Optional[str] = Header(default=None)) -> dict[str, Any]:
-    token = None
+def require_player(
+    authorization: Optional[str] = Header(default=None),
+    drg_player_session: Optional[str] = Cookie(default=None),
+) -> dict[str, Any]:
+    token = drg_player_session
     if authorization and authorization.lower().startswith("bearer "):
         token = authorization.split(" ", 1)[1].strip()
     return verify_player_token(token)
+
+
+def require_player_or_admin(
+    authorization: Optional[str] = Header(default=None),
+    drg_admin_session: Optional[str] = Cookie(default=None),
+    drg_player_session: Optional[str] = Cookie(default=None),
+) -> dict[str, Any]:
+    candidates: list[tuple[Optional[str], str]] = [
+        (drg_admin_session, "admin"),
+        (drg_player_session, "player"),
+    ]
+    if authorization and authorization.lower().startswith("bearer "):
+        bearer = authorization.split(" ", 1)[1].strip()
+        candidates.extend([(bearer, "player"), (bearer, "admin")])
+
+    for token, role in candidates:
+        if not token:
+            continue
+        try:
+            return verify_token(token, role)
+        except HTTPException:
+            continue
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required.")
 
 
 def validate_admin_password(password: Optional[str]) -> None:

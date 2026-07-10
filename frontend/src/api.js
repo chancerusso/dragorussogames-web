@@ -109,6 +109,10 @@ export async function logout() {
   }
 }
 
-export function playerLogout() {
-  setPlayerToken(null);
+export async function playerLogout() {
+  try {
+    await api("/player/logout", { auth: "player", method: "POST" });
+  } finally {
+    setPlayerToken(null);
+  }
 }
