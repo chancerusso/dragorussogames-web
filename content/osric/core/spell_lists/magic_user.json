@@ -1,0 +1,40 @@
+{
+  "id": "osric.spell_list.magic_user",
+  "type": "spell_list",
+  "name": "Magic-User Spell List",
+  "display_name": "Magic-User Spell List",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "Magic-user spell list",
+    "internal_only": true
+  },
+  "review": {
+    "status": "draft",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": [
+      "Structural placeholder only."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "placeholder"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "class_id": "osric.class.magic_user",
+  "entries": [
+    {
+      "spell_id": "osric.spell.magic_missile",
+      "level": 1
+    }
+  ],
+  "description": "Structural placeholder for the magic-user spell list."
+}

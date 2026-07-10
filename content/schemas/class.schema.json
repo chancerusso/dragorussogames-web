@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "class.schema.json",
+  "title": "Class",
+  "allOf": [{ "$ref": "shared/metadata.schema.json" }],
+  "type": "object",
+  "required": ["hit_die", "prime_requisites", "ability_minimums", "alignment_restrictions", "armor_permissions", "weapon_permissions", "spellcasting", "progression_ref", "saving_throw_ref", "attack_progression_ref", "class_abilities", "description"],
+  "properties": {
+    "type": { "const": "class" },
+    "hit_die": { "type": ["string", "null"] },
+    "prime_requisites": { "type": "array", "items": { "type": "string" } },
+    "ability_minimums": { "type": "object" },
+    "alignment_restrictions": { "type": "array", "items": { "type": "string" } },
+    "armor_permissions": { "type": "array", "items": { "type": "string" } },
+    "weapon_permissions": { "type": "array", "items": { "type": "string" } },
+    "spellcasting": { "type": ["object", "null"] },
+    "progression_ref": { "type": ["string", "null"] },
+    "saving_throw_ref": { "type": ["string", "null"] },
+    "attack_progression_ref": { "type": ["string", "null"] },
+    "class_abilities": { "type": "array", "items": { "type": "string" } },
+    "description": { "type": "string" }
+  }
+}

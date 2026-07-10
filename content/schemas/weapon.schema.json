@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "weapon.schema.json",
+  "title": "Weapon",
+  "allOf": [{ "$ref": "shared/metadata.schema.json" }],
+  "type": "object",
+  "required": ["item_base", "damage", "range", "rate_of_fire", "properties", "description"],
+  "properties": {
+    "type": { "const": "weapon" },
+    "item_base": { "type": "object" },
+    "damage": { "type": "object" },
+    "range": { "type": ["object", "null"] },
+    "rate_of_fire": { "type": ["string", "null"] },
+    "properties": { "type": "array", "items": { "type": "string" } },
+    "description": { "type": "string" }
+  }
+}

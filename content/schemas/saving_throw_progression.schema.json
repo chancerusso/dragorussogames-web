@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "saving_throw_progression.schema.json",
+  "title": "Saving throw progression",
+  "allOf": [{ "$ref": "shared/metadata.schema.json" }],
+  "type": "object",
+  "required": ["categories", "rows"],
+  "properties": {
+    "type": { "const": "saving_throw_progression" },
+    "categories": { "type": "array", "items": { "type": "string" } },
+    "rows": { "type": "array", "items": { "type": "object" } }
+  }
+}

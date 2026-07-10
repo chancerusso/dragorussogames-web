@@ -1,0 +1,13 @@
+{
+  "id": "dragolance.extension.magic_user.high_sorcery",
+  "type": "extension_rule",
+  "campaign_profile_id": "campaign_profile.dragolance",
+  "target_id": "osric.class.magic_user",
+  "extension_kind": "class_option",
+  "adds": {
+    "organization_choices": ["dragolance.order.white_robes"],
+    "moon_relationships": ["dragolance.moon.solinari"],
+    "requires_review": true
+  },
+  "notes": "Structural placeholder for Dragolance magic-user extension. Not complete rules content."
+}

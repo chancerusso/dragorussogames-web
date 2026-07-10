@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "availability_rule.schema.json",
+  "title": "Availability rule",
+  "type": "object",
+  "required": ["id", "type", "campaign_profile_id", "record_id", "available", "scope", "notes"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+$" },
+    "type": { "const": "availability_rule" },
+    "campaign_profile_id": { "type": "string" },
+    "record_id": { "type": "string" },
+    "available": { "type": "boolean" },
+    "scope": { "type": "array", "items": { "type": "string" } },
+    "notes": { "type": "string" }
+  },
+  "additionalProperties": false
+}

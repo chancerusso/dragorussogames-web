@@ -1,4 +1,6 @@
 content/1e/source/osric_core_rules.pdf
+docs/sources/*.pdf
+private-reference/sources/*.pdf
 discord-bot/node_modules/
 discord-bot/dist/
 frontend/node_modules/

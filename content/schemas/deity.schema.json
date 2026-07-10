@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "deity.schema.json",
+  "title": "Deity",
+  "allOf": [{ "$ref": "shared/metadata.schema.json" }],
+  "type": "object",
+  "required": ["alignment", "domains_or_spheres", "allowed_cleric_alignments", "cleric_extensions", "holy_symbol", "description"],
+  "properties": {
+    "type": { "const": "deity" },
+    "alignment": { "type": ["string", "null"] },
+    "domains_or_spheres": { "type": "array", "items": { "type": "string" } },
+    "allowed_cleric_alignments": { "type": "array", "items": { "type": "string" } },
+    "cleric_extensions": { "type": "array", "items": { "type": "string" } },
+    "holy_symbol": { "type": ["string", "null"] },
+    "description": { "type": "string" }
+  }
+}

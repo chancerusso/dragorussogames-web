@@ -73,6 +73,11 @@ VITE_API_BASE_URL=https://dm.dragorussogames.com/api npm run build
 sudo rsync -a --delete dist/ /var/www/dm.dragorussogames.com/
 ```
 
+Private reference PDFs must never be copied into a served web root. Keep
+`private-reference/sources/*.pdf`, `docs/sources/*.pdf`, and legacy
+`content/1e/source/*.pdf` out of frontend builds, static roots, Nginx roots,
+and public API/static mounts.
+
 ## systemd
 
 Example backend unit: `/etc/systemd/system/russo-backend.service`
@@ -152,6 +157,16 @@ server {
     location / {
         try_files $uri /index.html;
     }
+
+    location ^~ /private-reference/ {
+        deny all;
+        return 404;
+    }
+
+    location ^~ /docs/sources/ {
+        deny all;
+        return 404;
+    }
 }
 ```
 
@@ -173,6 +188,16 @@ server {
 
     location / {
         try_files $uri /index.html;
+    }
+
+    location ^~ /private-reference/ {
+        deny all;
+        return 404;
+    }
+
+    location ^~ /docs/sources/ {
+        deny all;
+        return 404;
     }
 }
 ```

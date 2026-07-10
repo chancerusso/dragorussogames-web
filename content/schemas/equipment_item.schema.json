@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "equipment_item.schema.json",
+  "title": "Equipment item",
+  "allOf": [{ "$ref": "shared/metadata.schema.json" }],
+  "type": "object",
+  "required": ["item_base", "container", "description"],
+  "properties": {
+    "type": { "const": "equipment_item" },
+    "item_base": { "type": "object" },
+    "container": { "type": ["object", "null"] },
+    "description": { "type": "string" }
+  }
+}

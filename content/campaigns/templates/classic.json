@@ -1,0 +1,10 @@
+{
+  "id": "campaign_profile.classic",
+  "type": "campaign_profile",
+  "name": "Classic",
+  "rules_engine": "osric",
+  "availability_sets": ["classic.availability.core_examples"],
+  "restriction_sets": [],
+  "extension_sets": [],
+  "description": "Standard approved OSRIC availability profile. Structural placeholder only."
+}

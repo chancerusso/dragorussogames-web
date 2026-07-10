@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "restriction_rule.schema.json",
+  "title": "Restriction rule",
+  "type": "object",
+  "required": ["id", "type", "campaign_profile_id", "target_type", "target_id", "rule", "notes"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+$" },
+    "type": { "const": "restriction_rule" },
+    "campaign_profile_id": { "type": "string" },
+    "target_type": { "type": "string" },
+    "target_id": { "type": "string" },
+    "rule": { "type": "object" },
+    "notes": { "type": "string" }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,13 @@
+{
+  "id": "osric",
+  "type": "source_library",
+  "title": "OSRIC",
+  "source_type": "rulebook",
+  "designation": "osric",
+  "rules_engine": "osric",
+  "license_status": "open_game_content_review_required",
+  "private_reference": false,
+  "player_visible": true,
+  "review_status": "verified",
+  "notes": "Canonical OSRIC source metadata. Player-facing text must still be reviewed before publication."
+}

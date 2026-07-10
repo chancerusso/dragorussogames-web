@@ -1,0 +1,30 @@
+{
+  "id": "osric.class.magic_user",
+  "type": "class",
+  "name": "Magic-User",
+  "display_name": "Magic-User",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": { "page": null, "section": "Magic-User", "internal_only": true },
+  "review": { "status": "needs_review", "reviewed_by": null, "reviewed_at": null, "notes": ["Structural placeholder only; not a complete class record."] },
+  "visibility": { "player_visible": true, "dm_only": false, "description_status": "original" },
+  "tags": ["placeholder"],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "hit_die": "d4",
+  "prime_requisites": ["intelligence"],
+  "ability_minimums": {},
+  "alignment_restrictions": [],
+  "armor_permissions": [],
+  "weapon_permissions": ["limited"],
+  "spellcasting": {
+    "spell_list_ref": "osric.spell_list.magic_user",
+    "spell_slots_ref": "osric.spell_slots.magic_user"
+  },
+  "progression_ref": "osric.progression.class.magic_user",
+  "saving_throw_ref": "osric.saves.magic_user",
+  "attack_progression_ref": "osric.attack.magic_user",
+  "class_abilities": [],
+  "description": "A structural OSRIC magic-user record for validation."
+}

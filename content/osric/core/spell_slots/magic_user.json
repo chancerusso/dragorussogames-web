@@ -1,0 +1,35 @@
+{
+  "id": "osric.spell_slots.magic_user",
+  "type": "spell_slot_progression",
+  "name": "Magic-User Spell Slots",
+  "display_name": "Magic-User Spell Slots",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "Magic-user spell progression",
+    "internal_only": true
+  },
+  "review": {
+    "status": "draft",
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "notes": [
+      "Structural placeholder only."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "placeholder"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "class_id": "osric.class.magic_user",
+  "levels": [],
+  "description": "Structural placeholder for magic-user spell slots."
+}

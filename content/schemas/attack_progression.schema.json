@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "attack_progression.schema.json",
+  "title": "Attack progression",
+  "allOf": [{ "$ref": "shared/metadata.schema.json" }],
+  "type": "object",
+  "required": ["method", "rows"],
+  "properties": {
+    "type": { "const": "attack_progression" },
+    "method": { "type": "string" },
+    "rows": { "type": "array", "items": { "type": "object" } }
+  }
+}

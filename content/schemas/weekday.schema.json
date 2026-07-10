@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "weekday.schema.json",
+  "title": "Weekday",
+  "allOf": [{ "$ref": "shared/metadata.schema.json" }],
+  "type": "object",
+  "required": ["calendar_id", "order", "description"],
+  "properties": {
+    "type": { "const": "weekday" },
+    "calendar_id": { "type": "string" },
+    "order": { "type": "integer" },
+    "description": { "type": "string" }
+  }
+}

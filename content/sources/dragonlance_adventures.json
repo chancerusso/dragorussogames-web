@@ -1,0 +1,13 @@
+{
+  "id": "dragonlance_adventures",
+  "type": "source_library",
+  "title": "Dragonlance Adventures",
+  "source_type": "rulebook",
+  "designation": "dla_1e",
+  "rules_engine": "osric",
+  "license_status": "private_reference",
+  "private_reference": true,
+  "player_visible": false,
+  "review_status": "needs_review",
+  "notes": "Private verification source only. Do not expose source text, artwork, page references, or PDFs to players."
+}

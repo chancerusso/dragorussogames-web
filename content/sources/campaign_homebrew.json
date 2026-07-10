@@ -1,0 +1,13 @@
+{
+  "id": "campaign_homebrew",
+  "type": "source_library",
+  "title": "Campaign Homebrew",
+  "source_type": "campaign",
+  "designation": "campaign_homebrew",
+  "rules_engine": "osric",
+  "license_status": "original_internal",
+  "private_reference": false,
+  "player_visible": false,
+  "review_status": "draft",
+  "notes": "Campaign-specific draft material. Promote through review before canonical publication."
+}

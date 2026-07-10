@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     russo_default_campaign: str = "DRG"
     secret_key: str = "change-me-in-production"
     admin_password: Optional[str] = None
+    canonical_content_enabled: bool = False
     cors_origins: str = (
         "https://www.dragorussogames.com,"
         "https://dragorussogames.com,"

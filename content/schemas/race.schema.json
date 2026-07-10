@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "race.schema.json",
+  "title": "Race",
+  "allOf": [{ "$ref": "shared/metadata.schema.json" }],
+  "type": "object",
+  "required": ["ability_adjustments", "ability_minimums", "ability_maximums", "movement", "vision", "languages", "racial_abilities", "class_access", "level_limits", "size", "description"],
+  "properties": {
+    "type": { "const": "race" },
+    "ability_adjustments": { "type": "object" },
+    "ability_minimums": { "type": "object" },
+    "ability_maximums": { "type": "object" },
+    "movement": { "type": ["integer", "null"] },
+    "vision": { "type": "array", "items": { "type": "string" } },
+    "languages": { "type": "array", "items": { "type": "string" } },
+    "racial_abilities": { "type": "array", "items": { "type": "string" } },
+    "class_access": { "type": "array", "items": { "type": "string" } },
+    "level_limits": { "type": "array", "items": { "type": "object" } },
+    "size": { "type": ["string", "null"] },
+    "description": { "type": "string" }
+  }
+}

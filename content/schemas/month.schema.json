@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "month.schema.json",
+  "title": "Month",
+  "allOf": [{ "$ref": "shared/metadata.schema.json" }],
+  "type": "object",
+  "required": ["calendar_id", "order", "days", "description"],
+  "properties": {
+    "type": { "const": "month" },
+    "calendar_id": { "type": "string" },
+    "order": { "type": "integer" },
+    "days": { "type": ["integer", "null"] },
+    "description": { "type": "string" }
+  }
+}

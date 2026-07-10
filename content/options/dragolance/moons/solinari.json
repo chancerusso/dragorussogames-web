@@ -1,0 +1,19 @@
+{
+  "id": "dragolance.moon.solinari",
+  "type": "moon",
+  "name": "Solinari",
+  "display_name": "Solinari",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": { "page": null, "section": "Moons", "internal_only": true },
+  "review": { "status": "needs_review", "reviewed_by": null, "reviewed_at": null, "notes": ["Structural placeholder only; verify cycle data before play use."] },
+  "visibility": { "player_visible": true, "dm_only": false, "description_status": "original" },
+  "tags": ["dragolance", "moon", "placeholder"],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "cycle_days": null,
+  "phases": [],
+  "affects": ["dragolance.order.white_robes"],
+  "description": "A structural Dragolance moon record for validation."
+}

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "language.schema.json",
+  "title": "Language",
+  "allOf": [{ "$ref": "shared/metadata.schema.json" }],
+  "type": "object",
+  "required": ["script", "availability_notes", "description"],
+  "properties": {
+    "type": { "const": "language" },
+    "script": { "type": ["string", "null"] },
+    "availability_notes": { "type": "array", "items": { "type": "string" } },
+    "description": { "type": "string" }
+  }
+}

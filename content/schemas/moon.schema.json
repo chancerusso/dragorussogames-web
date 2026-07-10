@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "moon.schema.json",
+  "title": "Moon",
+  "allOf": [{ "$ref": "shared/metadata.schema.json" }],
+  "type": "object",
+  "required": ["cycle_days", "phases", "affects", "description"],
+  "properties": {
+    "type": { "const": "moon" },
+    "cycle_days": { "type": ["integer", "null"] },
+    "phases": { "type": "array", "items": { "type": "string" } },
+    "affects": { "type": "array", "items": { "type": "string" } },
+    "description": { "type": "string" }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "id": "drago_original",
+  "type": "source_library",
+  "title": "Drago Russo Original Content",
+  "source_type": "internal",
+  "designation": "drago_original",
+  "rules_engine": "osric",
+  "license_status": "original_internal",
+  "private_reference": false,
+  "player_visible": true,
+  "review_status": "verified",
+  "notes": "Original Classic Drago platform and campaign content."
+}

@@ -1,0 +1,25 @@
+{
+  "id": "osric.spell.magic_missile",
+  "type": "spell",
+  "name": "Magic Missile",
+  "display_name": "Magic Missile",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": { "page": null, "section": "Magic missile", "internal_only": true },
+  "review": { "status": "needs_review", "reviewed_by": null, "reviewed_at": null, "notes": ["Structural placeholder only; not a full spell record."] },
+  "visibility": { "player_visible": true, "dm_only": false, "description_status": "original" },
+  "tags": ["placeholder"],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "classes": [{ "class_id": "osric.class.magic_user", "level": 1 }],
+  "range": null,
+  "duration": null,
+  "area": null,
+  "components": [],
+  "saving_throw": null,
+  "description": {
+    "player": "A structural placeholder for an OSRIC magic-user spell.",
+    "dm": null
+  }
+}

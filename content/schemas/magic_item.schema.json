@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "magic_item.schema.json",
+  "title": "Magic item",
+  "allOf": [{ "$ref": "shared/metadata.schema.json" }],
+  "type": "object",
+  "required": ["base_item_ref", "magic_properties", "charges", "identification", "dm_only", "description"],
+  "properties": {
+    "type": { "const": "magic_item" },
+    "base_item_ref": { "type": ["string", "null"] },
+    "magic_properties": { "type": "array", "items": { "type": "object" } },
+    "charges": { "type": ["object", "null"] },
+    "identification": { "type": "object" },
+    "dm_only": { "type": "object" },
+    "description": { "type": "string" }
+  }
+}

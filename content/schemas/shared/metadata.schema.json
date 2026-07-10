@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "shared/metadata.schema.json",
+  "title": "Canonical shared metadata",
+  "type": "object",
+  "required": [
+    "id",
+    "type",
+    "name",
+    "display_name",
+    "rules_engine",
+    "source_library_id",
+    "source_ref",
+    "review",
+    "visibility",
+    "tags",
+    "version",
+    "deprecated",
+    "replaces"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+$"
+    },
+    "type": { "type": "string" },
+    "name": { "type": "string" },
+    "display_name": { "type": "string" },
+    "rules_engine": { "type": "string", "enum": ["osric"] },
+    "source_library_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)*$"
+    },
+    "source_ref": {
+      "type": "object",
+      "required": ["page", "section", "internal_only"],
+      "properties": {
+        "page": { "type": ["integer", "string", "null"] },
+        "section": { "type": ["string", "null"] },
+        "internal_only": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "review": {
+      "type": "object",
+      "required": ["status", "reviewed_by", "reviewed_at", "notes"],
+      "properties": {
+        "status": { "type": "string", "enum": ["draft", "needs_review", "verified", "deprecated"] },
+        "reviewed_by": { "type": ["string", "null"] },
+        "reviewed_at": { "type": ["string", "null"] },
+        "notes": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "visibility": {
+      "type": "object",
+      "required": ["player_visible", "dm_only", "description_status"],
+      "properties": {
+        "player_visible": { "type": "boolean" },
+        "dm_only": { "type": "boolean" },
+        "description_status": { "type": "string", "enum": ["original", "licensed", "internal_only"] }
+      },
+      "additionalProperties": false
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "version": { "type": "integer", "minimum": 1 },
+    "deprecated": { "type": "boolean" },
+    "replaces": {
+      "type": ["string", "null"],
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+$"
+    }
+  },
+  "additionalProperties": true
+}

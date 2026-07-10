@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "source_library.schema.json",
+  "title": "Source library",
+  "type": "object",
+  "required": [
+    "id",
+    "type",
+    "title",
+    "source_type",
+    "designation",
+    "rules_engine",
+    "license_status",
+    "private_reference",
+    "player_visible",
+    "review_status",
+    "notes"
+  ],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)*$" },
+    "type": { "const": "source_library" },
+    "title": { "type": "string" },
+    "source_type": { "type": "string", "enum": ["rulebook", "adventure", "homebrew", "internal", "campaign"] },
+    "designation": { "type": "string" },
+    "rules_engine": { "type": "string", "enum": ["osric"] },
+    "license_status": { "type": "string" },
+    "private_reference": { "type": "boolean" },
+    "player_visible": { "type": "boolean" },
+    "review_status": { "type": "string", "enum": ["draft", "needs_review", "verified"] },
+    "notes": { "type": "string" }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "spell.schema.json",
+  "title": "Spell",
+  "allOf": [{ "$ref": "shared/metadata.schema.json" }],
+  "type": "object",
+  "required": ["classes", "range", "duration", "area", "components", "saving_throw", "description"],
+  "properties": {
+    "type": { "const": "spell" },
+    "classes": { "type": "array", "items": { "type": "object" } },
+    "range": { "type": ["string", "null"] },
+    "duration": { "type": ["string", "null"] },
+    "area": { "type": ["string", "null"] },
+    "components": { "type": "array", "items": { "type": "string" } },
+    "saving_throw": { "type": ["string", "null"] },
+    "description": { "type": "object" }
+  }
+}

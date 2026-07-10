@@ -1,0 +1,28 @@
+{
+  "id": "osric.weapon.long_sword",
+  "type": "weapon",
+  "name": "Long Sword",
+  "display_name": "Long Sword",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": { "page": null, "section": "Weapons", "internal_only": true },
+  "review": { "status": "needs_review", "reviewed_by": null, "reviewed_at": null, "notes": ["Structural placeholder only; combat values not populated."] },
+  "visibility": { "player_visible": true, "dm_only": false, "description_status": "original" },
+  "tags": ["placeholder"],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "item_base": {
+    "category": "weapon",
+    "cost": null,
+    "weight": null
+  },
+  "damage": {
+    "small_medium": null,
+    "large": null
+  },
+  "range": null,
+  "rate_of_fire": null,
+  "properties": [],
+  "description": "A structural OSRIC weapon record for validation."
+}

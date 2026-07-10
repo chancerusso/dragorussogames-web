@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "organization.schema.json",
+  "title": "Organization",
+  "allOf": [{ "$ref": "shared/metadata.schema.json" }],
+  "type": "object",
+  "required": ["category", "membership_requirements", "class_extensions", "description"],
+  "properties": {
+    "type": { "const": "organization" },
+    "category": { "type": "string" },
+    "membership_requirements": { "type": "array", "items": { "type": "object" } },
+    "class_extensions": { "type": "array", "items": { "type": "string" } },
+    "description": { "type": "string" }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "spell_slot_progression.schema.json",
+  "title": "Spell slot progression",
+  "allOf": [{ "$ref": "shared/metadata.schema.json" }],
+  "type": "object",
+  "required": ["class_id", "levels"],
+  "properties": {
+    "type": { "const": "spell_slot_progression" },
+    "class_id": { "type": "string" },
+    "levels": { "type": "array", "items": { "type": "object" } }
+  }
+}

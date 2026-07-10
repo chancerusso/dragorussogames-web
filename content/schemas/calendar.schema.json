@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "calendar.schema.json",
+  "title": "Calendar",
+  "allOf": [{ "$ref": "shared/metadata.schema.json" }],
+  "type": "object",
+  "required": ["months", "weekdays", "moons", "days_per_year", "description"],
+  "properties": {
+    "type": { "const": "calendar" },
+    "months": { "type": "array", "items": { "type": "string" } },
+    "weekdays": { "type": "array", "items": { "type": "string" } },
+    "moons": { "type": "array", "items": { "type": "string" } },
+    "days_per_year": { "type": ["integer", "null"] },
+    "description": { "type": "string" }
+  }
+}

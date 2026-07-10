@@ -1,0 +1,19 @@
+{
+  "id": "dragolance.order.white_robes",
+  "type": "organization",
+  "name": "White Robes",
+  "display_name": "White Robes",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": { "page": null, "section": "Orders of High Sorcery", "internal_only": true },
+  "review": { "status": "needs_review", "reviewed_by": null, "reviewed_at": null, "notes": ["Structural placeholder only; verify before play use."] },
+  "visibility": { "player_visible": true, "dm_only": false, "description_status": "original" },
+  "tags": ["dragolance", "wizard_order", "placeholder"],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "category": "wizard_order",
+  "membership_requirements": [],
+  "class_extensions": ["dragolance.extension.magic_user.high_sorcery"],
+  "description": "A structural order record for validation."
+}

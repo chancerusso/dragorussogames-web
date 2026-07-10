@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "monster.schema.json",
+  "title": "Monster",
+  "allOf": [{ "$ref": "shared/metadata.schema.json" }],
+  "type": "object",
+  "required": ["hit_dice", "armor_class", "movement", "attacks", "damage", "special", "saves_as", "morale", "treasure", "xp", "description"],
+  "properties": {
+    "type": { "const": "monster" },
+    "hit_dice": { "type": ["string", "null"] },
+    "armor_class": { "type": ["integer", "null"] },
+    "movement": { "type": ["integer", "null"] },
+    "attacks": { "type": "array", "items": { "type": "object" } },
+    "damage": { "type": "array", "items": { "type": "string" } },
+    "special": { "type": "array", "items": { "type": "string" } },
+    "saves_as": { "type": ["string", "null"] },
+    "morale": { "type": ["integer", "null"] },
+    "treasure": { "type": ["string", "null"] },
+    "xp": { "type": ["integer", "null"] },
+    "description": { "type": "string" }
+  }
+}

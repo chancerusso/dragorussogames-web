@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "campaign_profile.schema.json",
+  "title": "Campaign profile",
+  "type": "object",
+  "required": ["id", "type", "name", "rules_engine", "availability_sets", "restriction_sets", "extension_sets", "description"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^campaign_profile\\.[a-z0-9_]+$" },
+    "type": { "const": "campaign_profile" },
+    "name": { "type": "string" },
+    "rules_engine": { "type": "string", "enum": ["osric"] },
+    "availability_sets": { "type": "array", "items": { "type": "string" } },
+    "restriction_sets": { "type": "array", "items": { "type": "string" } },
+    "extension_sets": { "type": "array", "items": { "type": "string" } },
+    "description": { "type": "string" }
+  },
+  "additionalProperties": false
+}

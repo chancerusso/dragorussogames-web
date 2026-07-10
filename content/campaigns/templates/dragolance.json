@@ -1,0 +1,10 @@
+{
+  "id": "campaign_profile.dragolance",
+  "type": "campaign_profile",
+  "name": "Dragolance",
+  "rules_engine": "osric",
+  "availability_sets": ["dragolance.availability.dragolance_examples"],
+  "restriction_sets": [],
+  "extension_sets": ["dragolance.extension.magic_user.high_sorcery"],
+  "description": "OSRIC plus approved Dragolance additions, restrictions, relationships, and extensions. Structural placeholder only."
+}

@@ -1,0 +1,18 @@
+{
+  "id": "osric.language.common",
+  "type": "language",
+  "name": "Common",
+  "display_name": "Common",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": { "page": null, "section": "Languages", "internal_only": true },
+  "review": { "status": "needs_review", "reviewed_by": null, "reviewed_at": null, "notes": ["Structural placeholder only."] },
+  "visibility": { "player_visible": true, "dm_only": false, "description_status": "original" },
+  "tags": ["placeholder"],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "script": null,
+  "availability_notes": [],
+  "description": "A shared trade language used as a structural placeholder."
+}

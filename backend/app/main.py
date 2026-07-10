@@ -9,7 +9,8 @@ from urllib.parse import quote
 
 from app.api import router
 from app.auth import require_admin, verify_admin_token, verify_player_token
-from app.config import cors_origin_list
+from app.config import cors_origin_list, settings
+from app.services.canonical_content import get_canonical_content
 
 app = FastAPI(title="RUSSO Backend", version="0.1.0")
 app.add_middleware(
@@ -22,6 +23,14 @@ app.add_middleware(
 app.include_router(router)
 
 SITE_ROOT = Path(__file__).resolve().parents[2]
+
+
+@app.on_event("startup")
+def load_canonical_content_if_enabled() -> None:
+    if settings.canonical_content_enabled:
+        canonical_content = get_canonical_content()
+        canonical_content.enabled = True
+        canonical_content.load_all()
 
 
 def authenticated_role(request: Request) -> str | None:
@@ -121,6 +130,11 @@ def dm_equipment_route(_: dict = Depends(require_admin)) -> FileResponse:
 
 @app.get("/docs/sources/{source_path:path}", include_in_schema=False)
 def deny_source_material(source_path: str) -> None:
+    raise HTTPException(status_code=404, detail="Not found.")
+
+
+@app.get("/private-reference/{source_path:path}", include_in_schema=False)
+def deny_private_reference(source_path: str) -> None:
     raise HTTPException(status_code=404, detail="Not found.")
 
 

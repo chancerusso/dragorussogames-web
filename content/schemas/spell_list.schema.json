@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "spell_list.schema.json",
+  "title": "Spell list",
+  "allOf": [{ "$ref": "shared/metadata.schema.json" }],
+  "type": "object",
+  "required": ["class_id", "entries"],
+  "properties": {
+    "type": { "const": "spell_list" },
+    "class_id": { "type": "string" },
+    "entries": { "type": "array", "items": { "type": "object" } }
+  }
+}

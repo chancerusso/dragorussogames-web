@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "shield.schema.json",
+  "title": "Shield",
+  "allOf": [{ "$ref": "shared/metadata.schema.json" }],
+  "type": "object",
+  "required": ["item_base", "armor_class_bonus", "material", "description"],
+  "properties": {
+    "type": { "const": "shield" },
+    "item_base": { "type": "object" },
+    "armor_class_bonus": { "type": ["integer", "null"] },
+    "material": { "type": ["string", "null"] },
+    "description": { "type": "string" }
+  }
+}
