@@ -1,0 +1,113 @@
+{
+  "id": "dragolance.race.silvanesti_elf",
+  "type": "race",
+  "name": "Silvanesti Elf",
+  "display_name": "Silvanesti Elf",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 61,
+    "section": "Silvanesti Elves Game Statistics",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Structured from Silvanesti Elves Game Statistics in the private Dragonlance Adventures source."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "race"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "ability_adjustments": {
+    "constitution": -1,
+    "dexterity": 1
+  },
+  "ability_minimums": {
+    "strength": 3,
+    "intelligence": 10,
+    "wisdom": 6,
+    "dexterity": 7,
+    "constitution": 6,
+    "charisma": 12
+  },
+  "ability_maximums": {
+    "strength": 18,
+    "intelligence": 18,
+    "wisdom": 18,
+    "dexterity": 19,
+    "constitution": 18,
+    "charisma": 18
+  },
+  "movement": 120,
+  "vision": [
+    "Uses elven vision abilities pending OSRIC reconciliation."
+  ],
+  "languages": [
+    "osric.language.common",
+    "osric.language.elven",
+    "dragolance.language.silvanesti"
+  ],
+  "racial_abilities": [
+    "Uses elven racial framework with Silvanesti-specific ability requirements and class limits."
+  ],
+  "class_access": [
+    "osric.class.paladin",
+    "osric.class.fighter",
+    "osric.class.ranger",
+    "osric.class.magic_user",
+    "osric.class.cleric"
+  ],
+  "level_limits": [
+    {
+      "class_name": "Paladin",
+      "maximum_level": "12",
+      "source_status": "verified"
+    },
+    {
+      "class_name": "Fighter",
+      "maximum_level": "10",
+      "source_status": "verified"
+    },
+    {
+      "class_name": "Ranger",
+      "maximum_level": "Unlimited",
+      "source_status": "verified"
+    },
+    {
+      "class_name": "Wizard of High Sorcery",
+      "maximum_level": "Unlimited",
+      "source_status": "future_dragolance_extension"
+    },
+    {
+      "class_name": "Holy Orders of the Stars",
+      "maximum_level": "Unlimited",
+      "source_status": "future_dragolance_class"
+    }
+  ],
+  "size": "medium",
+  "base_osric_race_ref": "osric.race.elf",
+  "saving_throw_modifiers": [],
+  "combat_modifiers": [],
+  "restrictions": [
+    "Several OSRIC and Dragonlance class options are not eligible by source class-limit table."
+  ],
+  "needs_review_fields": [
+    "high_sorcery_class_extension",
+    "holy_orders_class_extension"
+  ],
+  "legacy_source_directory": "content/settings/dragonlance/races",
+  "source_class_limits_complete": true,
+  "description": "Silvanesti elves are a Dragolance elven people with high Intelligence and Charisma requirements."
+}

@@ -1,0 +1,88 @@
+{
+  "id": "dragolance.race.tinker_gnome",
+  "type": "race",
+  "name": "Tinker Gnome",
+  "display_name": "Tinker Gnome",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 58,
+    "section": "Tinker Gnomes Game Statistics",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Structured from Tinker Gnomes Game Statistics in the private Dragonlance Adventures source."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "race"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "ability_adjustments": {
+    "strength": -1,
+    "dexterity": 2
+  },
+  "ability_minimums": {
+    "strength": 6,
+    "intelligence": 8,
+    "wisdom": 3,
+    "dexterity": 8,
+    "constitution": 8,
+    "charisma": 3
+  },
+  "ability_maximums": {
+    "strength": 18,
+    "intelligence": 18,
+    "wisdom": 12,
+    "dexterity": 18,
+    "constitution": 18,
+    "charisma": 18
+  },
+  "movement": 60,
+  "vision": [
+    "Uses regular gnome vision abilities pending OSRIC reconciliation."
+  ],
+  "languages": [
+    "osric.language.common",
+    "osric.language.gnomish",
+    "dragolance.language.gnomish_technical"
+  ],
+  "racial_abilities": [
+    "Has regular gnome special abilities.",
+    "Tinker technology is handled through the future tinker class record."
+  ],
+  "class_access": [],
+  "level_limits": [
+    {
+      "class_name": "Tinker",
+      "maximum_level": "Unlimited",
+      "source_status": "future_dragolance_class"
+    }
+  ],
+  "size": "small",
+  "base_osric_race_ref": "osric.race.gnome",
+  "saving_throw_modifiers": [],
+  "combat_modifiers": [],
+  "restrictions": [
+    "In Krynn, tinker gnomes are limited to the tinker class by source; tinker class is not canonicalized yet."
+  ],
+  "needs_review_fields": [
+    "dragolance.class.tinker",
+    "regular_gnome_ability_reconciliation"
+  ],
+  "legacy_source_directory": "content/settings/dragonlance/races",
+  "source_class_limits_complete": true,
+  "description": "Tinker gnomes are Krynn gnomes whose character access depends on the future tinker class record."
+}

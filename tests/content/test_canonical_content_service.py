@@ -76,12 +76,19 @@ class CanonicalContentServiceTests(unittest.TestCase):
     def test_source_lookup_works(self) -> None:
         service = self.service().load_all()
         source_records = service.list_by_source("dragonlance_adventures")
-        self.assertEqual({"dragolance.race.kender", "dragolance.order.white_robes", "dragolance.moon.solinari"}, {record["id"] for record in source_records})
+        source_ids = {record["id"] for record in source_records}
+        self.assertIn("dragolance.race.kender", source_ids)
+        self.assertIn("dragolance.race.minotaur", source_ids)
+        self.assertIn("dragolance.order.white_robes", source_ids)
+        self.assertIn("dragolance.moon.solinari", source_ids)
 
     def test_campaign_availability_works(self) -> None:
         service = self.service().load_all()
         available = service.get_available_records("campaign_profile.dragolance", "race")
-        self.assertEqual(["dragolance.race.kender"], [record["id"] for record in available])
+        available_ids = {record["id"] for record in available}
+        self.assertIn("dragolance.race.kender", available_ids)
+        self.assertIn("dragolance.race.hill_dwarf", available_ids)
+        self.assertIn("dragolance.race.minotaur", available_ids)
 
     def test_dragolance_extension_resolution_works(self) -> None:
         service = self.service().load_all()
@@ -90,7 +97,11 @@ class CanonicalContentServiceTests(unittest.TestCase):
 
     def test_restriction_lookup_works(self) -> None:
         service = self.service().load_all()
-        self.assertEqual([], service.get_restrictions("campaign_profile.dragolance"))
+        restrictions = service.get_restrictions("campaign_profile.dragolance")
+        self.assertEqual(
+            {"dragolance.restriction.race.halfling_unavailable", "dragolance.restriction.race.half_orc_unavailable"},
+            {record["id"] for record in restrictions},
+        )
 
     def test_legacy_string_mapping_resolves_exact_matches(self) -> None:
         service = self.service()

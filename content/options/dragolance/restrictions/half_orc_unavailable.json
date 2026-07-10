@@ -1,0 +1,12 @@
+{
+  "id": "dragolance.restriction.race.half_orc_unavailable",
+  "type": "restriction_rule",
+  "campaign_profile_id": "campaign_profile.dragolance",
+  "target_type": "race",
+  "target_id": "osric.race.half_orc",
+  "rule": {
+    "available": false,
+    "reason": "Source says half-orcs are not native to Krynn because orcs are absent."
+  },
+  "notes": "Dragolance campaign race restriction from the private source; no runtime behavior changes in this unit."
+}

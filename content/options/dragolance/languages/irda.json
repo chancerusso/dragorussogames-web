@@ -1,0 +1,38 @@
+{
+  "id": "dragolance.language.irda",
+  "type": "language",
+  "name": "Irda",
+  "display_name": "Irda",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 51,
+    "section": "The Races of Krynn",
+    "internal_only": true
+  },
+  "review": {
+    "status": "needs_review",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Irda language; script details need review."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "language"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "description": "Irda language; script details need review.",
+  "script": null,
+  "availability_notes": [
+    "Referenced by Unit 3 Dragolance race records; detailed literacy/script rules remain for later content work."
+  ]
+}

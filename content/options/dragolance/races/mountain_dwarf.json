@@ -1,0 +1,115 @@
+{
+  "id": "dragolance.race.mountain_dwarf",
+  "type": "race",
+  "name": "Mountain Dwarf",
+  "display_name": "Mountain Dwarf",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 69,
+    "section": "Mountain Dwarf Game Statistics",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Structured from Mountain Dwarf Game Statistics in the private Dragonlance Adventures source."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "race"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "ability_adjustments": {
+    "charisma": -1,
+    "constitution": 1
+  },
+  "ability_minimums": {
+    "strength": 8,
+    "intelligence": 3,
+    "wisdom": 3,
+    "dexterity": 3,
+    "constitution": 12,
+    "charisma": 3
+  },
+  "ability_maximums": {
+    "strength": 18,
+    "intelligence": 18,
+    "wisdom": 18,
+    "dexterity": 17,
+    "constitution": 19,
+    "charisma": 16
+  },
+  "movement": 90,
+  "vision": [
+    "Uses dwarf vision abilities pending OSRIC reconciliation."
+  ],
+  "languages": [
+    "osric.language.common",
+    "osric.language.dwarfish"
+  ],
+  "racial_abilities": [
+    "Uses dwarf racial framework with Mountain Dwarf ability requirements and class limits."
+  ],
+  "class_access": [
+    "osric.class.paladin",
+    "osric.class.fighter",
+    "osric.class.thief",
+    "osric.class.cleric"
+  ],
+  "level_limits": [
+    {
+      "class_name": "Cavalier",
+      "maximum_level": "8",
+      "source_status": "unsupported_class"
+    },
+    {
+      "class_name": "Paladin",
+      "maximum_level": "8",
+      "source_status": "verified"
+    },
+    {
+      "class_name": "Fighter",
+      "maximum_level": "Unlimited",
+      "source_status": "verified"
+    },
+    {
+      "class_name": "Thief",
+      "maximum_level": "8",
+      "source_status": "verified"
+    },
+    {
+      "class_name": "Thief/Acrobat",
+      "maximum_level": "10",
+      "source_status": "unsupported_class"
+    },
+    {
+      "class_name": "Holy Orders of the Stars",
+      "maximum_level": "10",
+      "source_status": "future_dragolance_class"
+    }
+  ],
+  "size": "small",
+  "base_osric_race_ref": "osric.race.dwarf",
+  "saving_throw_modifiers": [],
+  "combat_modifiers": [],
+  "restrictions": [
+    "Ranger, barbarian, arcane classes, heathen cleric/druid, and knightly orders are not eligible by source class-limit table."
+  ],
+  "needs_review_fields": [
+    "holy_orders_class_extension"
+  ],
+  "legacy_source_directory": "content/settings/dragonlance/races",
+  "source_class_limits_complete": true,
+  "description": "Mountain dwarves are Dragolance dwarves with broader Charisma maximum than hill dwarves and specific class limits."
+}

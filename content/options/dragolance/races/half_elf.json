@@ -1,0 +1,148 @@
+{
+  "id": "dragolance.race.half_elf",
+  "type": "race",
+  "name": "Dragolance Half-Elf",
+  "display_name": "Dragolance Half-Elf",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 65,
+    "section": "Half-Elves Game Statistics",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Structured from Half-Elves Game Statistics in the private Dragonlance Adventures source."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "race"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "ability_adjustments": {
+    "dexterity": 2
+  },
+  "ability_minimums": {
+    "strength": 3,
+    "intelligence": 4,
+    "wisdom": 3,
+    "dexterity": 6,
+    "constitution": 6,
+    "charisma": 3
+  },
+  "ability_maximums": {
+    "strength": 18,
+    "intelligence": 18,
+    "wisdom": 18,
+    "dexterity": 18,
+    "constitution": 18,
+    "charisma": 18
+  },
+  "movement": 120,
+  "vision": [
+    "Uses half-elf vision abilities pending OSRIC reconciliation."
+  ],
+  "languages": [
+    "osric.language.common",
+    "osric.language.elven"
+  ],
+  "racial_abilities": [
+    "Uses half-elf racial framework with Dragolance-specific ability adjustment and class limits."
+  ],
+  "class_access": [
+    "osric.class.fighter",
+    "osric.class.ranger",
+    "osric.class.magic_user",
+    "osric.class.thief",
+    "osric.class.cleric",
+    "osric.class.druid"
+  ],
+  "level_limits": [
+    {
+      "class_name": "Knight of the Crown",
+      "maximum_level": "10",
+      "source_status": "future_dragolance_class"
+    },
+    {
+      "class_name": "Knight of the Sword",
+      "maximum_level": "10",
+      "source_status": "future_dragolance_class"
+    },
+    {
+      "class_name": "Knight of the Rose",
+      "maximum_level": "10",
+      "source_status": "future_dragolance_class"
+    },
+    {
+      "class_name": "Fighter",
+      "maximum_level": "9",
+      "source_status": "verified"
+    },
+    {
+      "class_name": "Ranger",
+      "maximum_level": "11",
+      "source_status": "verified"
+    },
+    {
+      "class_name": "Magic-User (Renegade)",
+      "maximum_level": "7",
+      "source_status": "legacy_name_only"
+    },
+    {
+      "class_name": "Wizard of High Sorcery",
+      "maximum_level": "10",
+      "source_status": "future_dragolance_extension"
+    },
+    {
+      "class_name": "Thief",
+      "maximum_level": "Unlimited",
+      "source_status": "verified"
+    },
+    {
+      "class_name": "Thief/Acrobat",
+      "maximum_level": "Unlimited",
+      "source_status": "unsupported_class"
+    },
+    {
+      "class_name": "Cleric (Heathen)",
+      "maximum_level": "5",
+      "source_status": "verified"
+    },
+    {
+      "class_name": "Druid (Heathen)",
+      "maximum_level": "Unlimited",
+      "source_status": "verified"
+    },
+    {
+      "class_name": "Holy Orders of the Stars",
+      "maximum_level": "Unlimited",
+      "source_status": "future_dragolance_class"
+    }
+  ],
+  "size": "medium",
+  "base_osric_race_ref": "osric.race.half_elf",
+  "saving_throw_modifiers": [],
+  "combat_modifiers": [],
+  "restrictions": [
+    "Cavalier, paladin, and barbarian are not eligible by source class-limit table."
+  ],
+  "needs_review_fields": [
+    "knight_order_class_records",
+    "high_sorcery_class_extension",
+    "holy_orders_class_extension"
+  ],
+  "legacy_source_directory": "content/settings/dragonlance/races",
+  "source_class_limits_complete": true,
+  "description": "Dragolance half-elves use a campaign-specific Dexterity adjustment and class-limit table."
+}

@@ -1,0 +1,13 @@
+{
+  "id": "dragolance.extension.race.human",
+  "type": "extension_rule",
+  "campaign_profile_id": "campaign_profile.dragolance",
+  "target_id": "osric.race.human",
+  "extension_kind": "race_campaign_context",
+  "adds": {
+    "campaign_notes": [
+      "Humans remain the OSRIC human race in Dragolance unless a later campaign restriction applies."
+    ]
+  },
+  "notes": "Dragolance uses the OSRIC race record and adds campaign context without duplicating the OSRIC record."
+}

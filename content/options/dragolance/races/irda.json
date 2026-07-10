@@ -1,0 +1,132 @@
+{
+  "id": "dragolance.race.irda",
+  "type": "race",
+  "name": "Irda",
+  "display_name": "Irda",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 71,
+    "section": "Irda Game Statistics",
+    "internal_only": true
+  },
+  "review": {
+    "status": "needs_review",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Structured from Irda Game Statistics in the private Dragonlance Adventures source.",
+      "One or more OCR-uncertain or source-ambiguous fields remains marked for manual review."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "race"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "ability_adjustments": {
+    "constitution": -2,
+    "dexterity": 2,
+    "intelligence": 2,
+    "charisma": 2
+  },
+  "ability_minimums": {
+    "strength": 12,
+    "intelligence": null,
+    "wisdom": 10,
+    "dexterity": 8,
+    "constitution": 12,
+    "charisma": null
+  },
+  "ability_maximums": {
+    "strength": 18,
+    "intelligence": 20,
+    "wisdom": 18,
+    "dexterity": 20,
+    "constitution": 16,
+    "charisma": 20
+  },
+  "movement": 120,
+  "vision": [],
+  "languages": [
+    "osric.language.common",
+    "dragolance.language.irda"
+  ],
+  "racial_abilities": [
+    "Only race that can learn shapechanging as a proficiency.",
+    "Clerics or wizards gain one additional spell of the highest spell level they can cast."
+  ],
+  "class_access": [
+    "osric.class.paladin",
+    "osric.class.fighter",
+    "osric.class.ranger",
+    "osric.class.magic_user",
+    "osric.class.thief",
+    "osric.class.cleric"
+  ],
+  "level_limits": [
+    {
+      "class_name": "Cavalier",
+      "maximum_level": "Unlimited",
+      "source_status": "unsupported_class"
+    },
+    {
+      "class_name": "Paladin",
+      "maximum_level": "Unlimited",
+      "source_status": "verified"
+    },
+    {
+      "class_name": "Fighter",
+      "maximum_level": "Unlimited",
+      "source_status": "verified"
+    },
+    {
+      "class_name": "Ranger",
+      "maximum_level": "Unlimited",
+      "source_status": "verified"
+    },
+    {
+      "class_name": "Wizard of High Sorcery",
+      "maximum_level": "Unlimited",
+      "source_status": "future_dragolance_extension"
+    },
+    {
+      "class_name": "Thief",
+      "maximum_level": "Unlimited",
+      "source_status": "verified"
+    },
+    {
+      "class_name": "Thief/Acrobat",
+      "maximum_level": "Unlimited",
+      "source_status": "unsupported_class"
+    },
+    {
+      "class_name": "Holy Orders of the Stars",
+      "maximum_level": "Unlimited",
+      "source_status": "future_dragolance_class"
+    }
+  ],
+  "size": "medium",
+  "base_osric_race_ref": null,
+  "saving_throw_modifiers": [],
+  "combat_modifiers": [],
+  "restrictions": [
+    "Barbarian, renegade magic-user, renegade illusionist, heathen cleric/druid, and knightly orders are not eligible by source class-limit table."
+  ],
+  "needs_review_fields": [
+    "irda_intelligence_minimum",
+    "irda_charisma_minimum",
+    "shapechange_proficiency_record",
+    "highest_spell_bonus_rule"
+  ],
+  "legacy_source_directory": "content/settings/dragonlance/races",
+  "source_class_limits_complete": true,
+  "description": "Irda are a rare Dragolance race with strong magical aptitude and a shapechanging proficiency option."
+}

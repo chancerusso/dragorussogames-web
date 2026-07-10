@@ -1,0 +1,114 @@
+{
+  "id": "dragolance.race.minotaur",
+  "type": "race",
+  "name": "Krynn Minotaur",
+  "display_name": "Krynn Minotaur",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 72,
+    "section": "Krynn Minotaur Game Statistics",
+    "internal_only": true
+  },
+  "review": {
+    "status": "needs_review",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Structured from Krynn Minotaur Game Statistics in the private Dragonlance Adventures source.",
+      "One or more OCR-uncertain or source-ambiguous fields remains marked for manual review."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "race"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "ability_adjustments": {
+    "wisdom": -2,
+    "charisma": -2,
+    "strength": 2,
+    "constitution": 2
+  },
+  "ability_minimums": {
+    "strength": 12,
+    "intelligence": null,
+    "wisdom": 3,
+    "dexterity": 8,
+    "constitution": 12,
+    "charisma": 3
+  },
+  "ability_maximums": {
+    "strength": 20,
+    "intelligence": 18,
+    "wisdom": 16,
+    "dexterity": 18,
+    "constitution": 20,
+    "charisma": 16
+  },
+  "movement": 120,
+  "vision": [],
+  "languages": [
+    "osric.language.common",
+    "dragolance.language.minotaur"
+  ],
+  "racial_abilities": [
+    "Large humanoid race with Strength and Constitution bonuses."
+  ],
+  "class_access": [
+    "osric.class.fighter",
+    "osric.class.ranger",
+    "osric.class.magic_user",
+    "osric.class.cleric"
+  ],
+  "level_limits": [
+    {
+      "class_name": "Fighter",
+      "maximum_level": "Unlimited",
+      "source_status": "verified"
+    },
+    {
+      "class_name": "Barbarian",
+      "maximum_level": "Unlimited",
+      "source_status": "unsupported_class"
+    },
+    {
+      "class_name": "Ranger",
+      "maximum_level": "8",
+      "source_status": "verified"
+    },
+    {
+      "class_name": "Wizard of High Sorcery",
+      "maximum_level": "14",
+      "source_status": "future_dragolance_extension"
+    },
+    {
+      "class_name": "Holy Orders of the Stars",
+      "maximum_level": "10",
+      "source_status": "future_dragolance_class"
+    }
+  ],
+  "size": "large",
+  "base_osric_race_ref": null,
+  "saving_throw_modifiers": [],
+  "combat_modifiers": [],
+  "restrictions": [
+    "Cavalier, paladin, knightly orders, renegade arcane classes, thief, thief/acrobat, heathen cleric, and druid are not eligible by source class-limit table."
+  ],
+  "needs_review_fields": [
+    "minotaur_intelligence_minimum",
+    "size_rules_confirmation",
+    "high_sorcery_class_extension",
+    "holy_orders_class_extension"
+  ],
+  "legacy_source_directory": "content/settings/dragonlance/races",
+  "source_class_limits_complete": true,
+  "description": "Krynn minotaurs are a large Dragolance race with strong physical adjustments and narrow class access."
+}

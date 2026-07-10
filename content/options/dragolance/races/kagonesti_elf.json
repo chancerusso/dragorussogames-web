@@ -1,13 +1,13 @@
 {
-  "id": "dragolance.race.kender",
+  "id": "dragolance.race.kagonesti_elf",
   "type": "race",
-  "name": "Kender",
-  "display_name": "Kender",
+  "name": "Kagonesti Elf",
+  "display_name": "Kagonesti Elf",
   "rules_engine": "osric",
   "source_library_id": "dragonlance_adventures",
   "source_ref": {
-    "page": 55,
-    "section": "Kender Game Statistics",
+    "page": 63,
+    "section": "Kagonesti Elves Game Statistics",
     "internal_only": true
   },
   "review": {
@@ -15,7 +15,7 @@
     "reviewed_by": "Codex",
     "reviewed_at": "2026-07-10",
     "notes": [
-      "Structured from Kender Game Statistics in the private Dragonlance Adventures source."
+      "Structured from Kagonesti Elves Game Statistics in the private Dragonlance Adventures source."
     ]
   },
   "visibility": {
@@ -31,61 +31,59 @@
   "deprecated": false,
   "replaces": null,
   "ability_adjustments": {
-    "strength": -1,
-    "dexterity": 2
+    "strength": 1,
+    "constitution": 1,
+    "dexterity": 2,
+    "intelligence": -3
   },
   "ability_minimums": {
-    "strength": 6,
-    "intelligence": 6,
-    "wisdom": 3,
+    "strength": 8,
+    "intelligence": 3,
+    "wisdom": 8,
     "dexterity": 8,
-    "constitution": 10,
-    "charisma": 6
+    "constitution": 8,
+    "charisma": 8
   },
   "ability_maximums": {
-    "strength": 16,
-    "intelligence": 18,
-    "wisdom": 16,
+    "strength": 18,
+    "intelligence": 12,
+    "wisdom": 18,
     "dexterity": 19,
     "constitution": 18,
     "charisma": 18
   },
-  "movement": 90,
+  "movement": 120,
   "vision": [
-    "Infravision 30 ft"
+    "Uses elven vision abilities pending OSRIC reconciliation."
   ],
   "languages": [
     "osric.language.common",
-    "dragolance.language.kenderspeak"
+    "osric.language.elven",
+    "dragolance.language.kagonesti"
   ],
   "racial_abilities": [
-    "Taunt affects intelligent creatures that understand the kender.",
-    "Fearlessness grants immunity to natural and magical fear.",
-    "Kender pockets require DM-managed handling.",
-    "Non-thief kender have fixed baseline chances for most thieving skills.",
-    "Standard halfling-like abilities apply where compatible."
+    "Uses elven racial framework with Kagonesti ability adjustments and class limits."
   ],
   "class_access": [
     "osric.class.fighter",
     "osric.class.ranger",
     "osric.class.thief",
-    "osric.class.cleric",
-    "osric.class.druid"
+    "osric.class.cleric"
   ],
   "level_limits": [
     {
       "class_name": "Fighter",
-      "maximum_level": "5; 6 with Strength 17; 7 with Strength 18",
+      "maximum_level": "Unlimited",
       "source_status": "verified"
     },
     {
       "class_name": "Barbarian",
-      "maximum_level": "10; 11 with Strength 17; 12 with Strength 18",
+      "maximum_level": "Unlimited",
       "source_status": "unsupported_class"
     },
     {
       "class_name": "Ranger",
-      "maximum_level": "5",
+      "maximum_level": "Unlimited",
       "source_status": "verified"
     },
     {
@@ -99,32 +97,23 @@
       "source_status": "unsupported_class"
     },
     {
-      "class_name": "Cleric (Heathen)",
-      "maximum_level": "6",
-      "source_status": "verified"
-    },
-    {
-      "class_name": "Druid (Heathen)",
-      "maximum_level": "5",
-      "source_status": "verified"
-    },
-    {
       "class_name": "Holy Orders of the Stars",
-      "maximum_level": "12",
+      "maximum_level": "7",
       "source_status": "future_dragolance_class"
     }
   ],
-  "size": "small",
-  "base_osric_race_ref": null,
+  "size": "medium",
+  "base_osric_race_ref": "osric.race.elf",
   "saving_throw_modifiers": [],
   "combat_modifiers": [],
   "restrictions": [
-    "Cannot learn magic-user or illusionist spells.",
-    "Cannot become assassins or monks.",
-    "No evil kender are known to exist."
+    "Arcane classes, heathen cleric/druid, paladin, cavalier, and knightly orders are not eligible by source class-limit table."
   ],
-  "needs_review_fields": [],
+  "needs_review_fields": [
+    "barbarian_scope_decision",
+    "holy_orders_class_extension"
+  ],
   "legacy_source_directory": "content/settings/dragonlance/races",
   "source_class_limits_complete": true,
-  "description": "Kender are a small Dragolance race with fearlessness, taunting, and handling/pocket mechanics."
+  "description": "Kagonesti elves are a Dragolance wild-elf people with physical ability bonuses and reduced Intelligence maximum."
 }

@@ -1,0 +1,12 @@
+{
+  "id": "dragolance.restriction.race.halfling_unavailable",
+  "type": "restriction_rule",
+  "campaign_profile_id": "campaign_profile.dragolance",
+  "target_type": "race",
+  "target_id": "osric.race.halfling",
+  "rule": {
+    "available": false,
+    "reason": "Source says halflings are not native to Krynn; use kender treatment if imported from another world."
+  },
+  "notes": "Dragolance campaign race restriction from the private source; no runtime behavior changes in this unit."
+}
