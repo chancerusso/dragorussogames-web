@@ -23,6 +23,23 @@ source is available to players. Internal source references and page numbers may
 be visible to authorized administrators, but must not be emitted in
 player-facing APIs or player pages.
 
+## Data Authority
+
+For OSRIC, prefer the existing implementation already in the repository:
+`backend/app/services/vault_rules.py`, current spell and equipment catalogs,
+database seed expectations, `content/1e`, and builder logic where it reflects
+implemented mechanics. Use `private-reference/sources/osric_core_rules.pdf`
+only to verify gaps, resolve conflicts, confirm tables, and fill missing
+structured fields.
+
+For Dragonlance-specific content, use existing `content/settings/dragonlance`
+JSON as legacy implementation data for names, IDs, mappings, and current
+builder support. Use
+`private-reference/sources/Dragonlance_Adventures_1e.pdf` as the authoritative
+private reference for Dragonlance mechanics. Dragonlance records should extend
+or override OSRIC through canonical extension records instead of copying OSRIC
+classes, races, or progressions solely because Dragonlance uses them.
+
 ## Separate Schemas
 
 Each major content type has its own schema under `content/schemas/`. Shared
@@ -96,3 +113,17 @@ of Phase 2 Unit 1.
 Private PDFs belong under `private-reference/sources/`. They must be excluded
 from production deployment, static serving, Vite builds, FastAPI mounts, Nginx
 serving, and public APIs.
+
+## Dragonlance Verification
+
+Dragonlance-specific records must be verified against the private
+`private-reference/sources/Dragonlance_Adventures_1e.pdf` reference before they
+are promoted from placeholder or draft status. The existing
+`content/settings/dragonlance` JSON is legacy implementation data, not the
+authority for final canonical content.
+
+Use the private PDF to verify structured game data such as race requirements,
+class legality, progression, deities, orders, moons, calendar data, spells, and
+equipment. Do not copy protected prose, artwork, maps, layout, or tables into
+player-facing output. Internal page and section references may be retained for
+admin review and must be stripped from player-facing APIs and pages.
