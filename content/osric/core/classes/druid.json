@@ -1,0 +1,113 @@
+{
+  "id": "osric.class.druid",
+  "type": "class",
+  "name": "Druid",
+  "display_name": "Druid",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "Druid",
+    "internal_only": true
+  },
+  "review": {
+    "status": "needs_review",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Canonicalized from backend/app/services/vault_rules.py CLASSES.",
+      "Wooden shield material is not represented in the core shield catalog.",
+      "Druid +2 saves vs fire/lightning is situational and displayed as a note.",
+      "XP progression and attack progression still require verification because they are not encoded in current runtime data."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "osric",
+    "legacy-canonicalized"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "hit_die": "d8",
+  "hit_die_numeric": 8,
+  "prime_requisites": [
+    "wisdom",
+    "charisma"
+  ],
+  "ability_minimums": {},
+  "alignment_restrictions": [
+    "True Neutral"
+  ],
+  "alignment_rule_text": "Neutral only",
+  "armor_permissions": [
+    "Leather"
+  ],
+  "armor_rule_text": "Leather armor only. Wooden shields only.",
+  "shield_permissions": {
+    "allowed": true,
+    "note": "Wooden shield only; catalog shield material is Manual DM Review."
+  },
+  "weapon_permissions": [
+    "list"
+  ],
+  "weapon_rule_text": "Club, dagger, dart, hammer, oil, scimitar, sling, spear, staff.",
+  "allowed_weapon_terms": [
+    "club",
+    "dagger",
+    "dart",
+    "hammer",
+    "oil",
+    "scimitar",
+    "sling",
+    "spear",
+    "staff"
+  ],
+  "spellcasting": {
+    "spell_lists": [
+      "druid"
+    ],
+    "starts_at_level": 1,
+    "spell_slot_progression_ref": "osric.spell_slots.druid",
+    "prepared_spell_rules_status": "needs_review",
+    "known_spell_rules_status": "needs_review"
+  },
+  "progression_ref": "osric.progression.class.druid",
+  "saving_throw_ref": "osric.saves.druid",
+  "attack_progression_ref": "osric.attack.druid",
+  "class_abilities": [
+    "Knowledge, wilderness movement",
+    "Fey charm immunity, shapeshift",
+    "High Druid",
+    "Archdruid",
+    "Supreme Druid; class ceiling"
+  ],
+  "starting_wealth": "3d6 x 10 gp",
+  "proficiencies": {
+    "initial": 2,
+    "additional_every_levels": 3,
+    "non_proficiency_penalty": -4
+  },
+  "restrictions": [
+    "Wooden shield material is not represented in the core shield catalog.",
+    "Druid +2 saves vs fire/lightning is situational and displayed as a note."
+  ],
+  "race_compatibility": [
+    "osric.race.halfling",
+    "osric.race.human"
+  ],
+  "completion_status": {
+    "xp_progression": "complete",
+    "hit_die_progression": "complete",
+    "attack_progression": "partial",
+    "saving_throws": "complete",
+    "spell_slots": "complete"
+  },
+  "description": "Druid canonical record matching the class permissions and flags currently implemented in the Classic character vault.",
+  "availability_status": "active_first_implementation",
+  "first_implementation_available": true
+}

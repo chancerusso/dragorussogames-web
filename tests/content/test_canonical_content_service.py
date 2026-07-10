@@ -9,7 +9,9 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
+sys.path.insert(0, str(REPO_ROOT / "backend"))
 
+from backend.app.services import vault_rules  # noqa: E402
 from backend.app.services.canonical_content import CanonicalContentError, CanonicalContentService  # noqa: E402
 
 
@@ -65,7 +67,11 @@ class CanonicalContentServiceTests(unittest.TestCase):
 
     def test_type_lookup_works(self) -> None:
         service = self.service().load_all()
-        self.assertEqual({"osric.class.fighter", "osric.class.magic_user"}, {record["id"] for record in service.list_by_type("class")})
+        expected = {
+            f"osric.class.{class_name.lower().replace('-', '_').replace(' ', '_')}"
+            for class_name in vault_rules.CLASSES
+        }
+        self.assertEqual(expected, {record["id"] for record in service.list_by_type("class")})
 
     def test_source_lookup_works(self) -> None:
         service = self.service().load_all()

@@ -1,0 +1,87 @@
+{
+  "id": "osric.class.bard",
+  "type": "class",
+  "name": "Bard",
+  "display_name": "Bard",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "Bard",
+    "internal_only": true
+  },
+  "review": {
+    "status": "conflict",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Bard is present in current app content but is not complete as an OSRIC core class in approved sources.",
+      "Excluded from the first Classic OSRIC implementation by scope decision; retained for legacy compatibility."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "inactive",
+    "legacy",
+    "legacy-canonicalized",
+    "osric",
+    "out-of-scope-first-implementation"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "hit_die": "d6 after Bard entry",
+  "hit_die_numeric": 6,
+  "prime_requisites": [],
+  "ability_minimums": {},
+  "alignment_restrictions": [],
+  "alignment_rule_text": "Manual DM Review",
+  "armor_permissions": [],
+  "armor_rule_text": "Manual DM Review: Bard is not a normal starting class and depends on prior class path.",
+  "shield_permissions": {
+    "allowed": false,
+    "note": null
+  },
+  "weapon_permissions": [
+    "manual"
+  ],
+  "weapon_rule_text": "Manual DM Review",
+  "allowed_weapon_terms": [],
+  "spellcasting": {
+    "spell_lists": [],
+    "starts_at_level": 1,
+    "spell_slot_progression_ref": "osric.spell_slots.bard",
+    "prepared_spell_rules_status": "needs_review",
+    "known_spell_rules_status": "needs_review"
+  },
+  "progression_ref": "osric.progression.class.bard",
+  "saving_throw_ref": "osric.saves.bard",
+  "attack_progression_ref": "osric.attack.bard",
+  "class_abilities": [],
+  "starting_wealth": "Use the starting class before Bard entry",
+  "proficiencies": {
+    "initial": null,
+    "additional_every_levels": null,
+    "non_proficiency_penalty": null
+  },
+  "restrictions": [
+    "Bard entry path, equipment, spellcasting, and saves require campaign confirmation."
+  ],
+  "race_compatibility": [
+    "osric.race.human"
+  ],
+  "completion_status": {
+    "xp_progression": "missing",
+    "hit_die_progression": "missing",
+    "attack_progression": "missing",
+    "saving_throws": "missing",
+    "spell_slots": "missing"
+  },
+  "description": "Bard canonical record matching the class permissions and flags currently implemented in the Classic character vault.",
+  "availability_status": "inactive_legacy",
+  "first_implementation_available": false
+}

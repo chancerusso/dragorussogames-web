@@ -45,7 +45,7 @@
       "type": "object",
       "required": ["status", "reviewed_by", "reviewed_at", "notes"],
       "properties": {
-        "status": { "type": "string", "enum": ["draft", "needs_review", "verified", "deprecated"] },
+        "status": { "type": "string", "enum": ["draft", "needs_review", "verified", "conflict", "deprecated"] },
         "reviewed_by": { "type": ["string", "null"] },
         "reviewed_at": { "type": ["string", "null"] },
         "notes": {

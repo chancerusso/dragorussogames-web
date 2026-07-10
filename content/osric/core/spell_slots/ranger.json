@@ -1,0 +1,374 @@
+{
+  "id": "osric.spell_slots.ranger",
+  "type": "spell_slot_progression",
+  "name": "Ranger Spell Slots",
+  "display_name": "Ranger Spell Slots",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "Ranger spell progression",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Canonicalized from current vault_rules spell-slot tables and matching content/1e advancement rows."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "osric",
+    "legacy-canonicalized"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "class_id": "osric.class.ranger",
+  "levels": [
+    {
+      "level": 1,
+      "slots_by_list": {
+        "druid": {
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "magic-user": {
+          "1": 0,
+          "2": 0
+        }
+      }
+    },
+    {
+      "level": 2,
+      "slots_by_list": {
+        "druid": {
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "magic-user": {
+          "1": 0,
+          "2": 0
+        }
+      }
+    },
+    {
+      "level": 3,
+      "slots_by_list": {
+        "druid": {
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "magic-user": {
+          "1": 0,
+          "2": 0
+        }
+      }
+    },
+    {
+      "level": 4,
+      "slots_by_list": {
+        "druid": {
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "magic-user": {
+          "1": 0,
+          "2": 0
+        }
+      }
+    },
+    {
+      "level": 5,
+      "slots_by_list": {
+        "druid": {
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "magic-user": {
+          "1": 0,
+          "2": 0
+        }
+      }
+    },
+    {
+      "level": 6,
+      "slots_by_list": {
+        "druid": {
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "magic-user": {
+          "1": 0,
+          "2": 0
+        }
+      }
+    },
+    {
+      "level": 7,
+      "slots_by_list": {
+        "druid": {
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "magic-user": {
+          "1": 0,
+          "2": 0
+        }
+      }
+    },
+    {
+      "level": 8,
+      "slots_by_list": {
+        "druid": {
+          "1": 1,
+          "2": 0,
+          "3": 0
+        },
+        "magic-user": {
+          "1": 0,
+          "2": 0
+        }
+      }
+    },
+    {
+      "level": 9,
+      "slots_by_list": {
+        "druid": {
+          "1": 1,
+          "2": 0,
+          "3": 0
+        },
+        "magic-user": {
+          "1": 1,
+          "2": 0
+        }
+      }
+    },
+    {
+      "level": 10,
+      "slots_by_list": {
+        "druid": {
+          "1": 2,
+          "2": 0,
+          "3": 0
+        },
+        "magic-user": {
+          "1": 1,
+          "2": 0
+        }
+      }
+    },
+    {
+      "level": 11,
+      "slots_by_list": {
+        "druid": {
+          "1": 2,
+          "2": 0,
+          "3": 0
+        },
+        "magic-user": {
+          "1": 2,
+          "2": 0
+        }
+      }
+    },
+    {
+      "level": 12,
+      "slots_by_list": {
+        "druid": {
+          "1": 2,
+          "2": 1,
+          "3": 0
+        },
+        "magic-user": {
+          "1": 2,
+          "2": 0
+        }
+      }
+    },
+    {
+      "level": 13,
+      "slots_by_list": {
+        "druid": {
+          "1": 2,
+          "2": 1,
+          "3": 0
+        },
+        "magic-user": {
+          "1": 2,
+          "2": 1
+        }
+      }
+    },
+    {
+      "level": 14,
+      "slots_by_list": {
+        "druid": {
+          "1": 2,
+          "2": 2,
+          "3": 0
+        },
+        "magic-user": {
+          "1": 2,
+          "2": 1
+        }
+      }
+    },
+    {
+      "level": 15,
+      "slots_by_list": {
+        "druid": {
+          "1": 2,
+          "2": 2,
+          "3": 0
+        },
+        "magic-user": {
+          "1": 2,
+          "2": 2
+        }
+      }
+    },
+    {
+      "level": 16,
+      "slots_by_list": {
+        "druid": {
+          "1": 2,
+          "2": 2,
+          "3": 1
+        },
+        "magic-user": {
+          "1": 2,
+          "2": 2
+        }
+      }
+    },
+    {
+      "level": 17,
+      "slots_by_list": {
+        "druid": {
+          "1": 2,
+          "2": 2,
+          "3": 2
+        },
+        "magic-user": {
+          "1": 2,
+          "2": 2
+        }
+      }
+    },
+    {
+      "level": 18,
+      "slots_by_list": {
+        "druid": {
+          "1": 3,
+          "2": 2,
+          "3": 2
+        },
+        "magic-user": {
+          "1": 2,
+          "2": 2
+        }
+      }
+    },
+    {
+      "level": 19,
+      "slots_by_list": {
+        "druid": {
+          "1": 3,
+          "2": 2,
+          "3": 2
+        },
+        "magic-user": {
+          "1": 3,
+          "2": 2
+        }
+      }
+    },
+    {
+      "level": 20,
+      "slots_by_list": {
+        "druid": {
+          "1": 3,
+          "2": 3,
+          "3": 2
+        },
+        "magic-user": {
+          "1": 3,
+          "2": 2
+        }
+      }
+    },
+    {
+      "level": 21,
+      "slots_by_list": {
+        "druid": {
+          "1": 3,
+          "2": 3,
+          "3": 2
+        },
+        "magic-user": {
+          "1": 3,
+          "2": 3
+        }
+      }
+    },
+    {
+      "level": 22,
+      "slots_by_list": {
+        "druid": {
+          "1": 3,
+          "2": 3,
+          "3": 3
+        },
+        "magic-user": {
+          "1": 3,
+          "2": 3
+        }
+      }
+    },
+    {
+      "level": 23,
+      "slots_by_list": {
+        "druid": {
+          "1": 4,
+          "2": 3,
+          "3": 3
+        },
+        "magic-user": {
+          "1": 3,
+          "2": 3
+        }
+      }
+    },
+    {
+      "level": 24,
+      "slots_by_list": {
+        "druid": {
+          "1": 4,
+          "2": 3,
+          "3": 3
+        },
+        "magic-user": {
+          "1": 4,
+          "2": 3
+        }
+      }
+    }
+  ],
+  "progression_status": "complete",
+  "description": "Ranger spell slot progression from the current implementation."
+}

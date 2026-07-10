@@ -1,0 +1,101 @@
+{
+  "id": "osric.class.assassin",
+  "type": "class",
+  "name": "Assassin",
+  "display_name": "Assassin",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "Assassin",
+    "internal_only": true
+  },
+  "review": {
+    "status": "needs_review",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Canonicalized from backend/app/services/vault_rules.py CLASSES.",
+      "Scroll use begins at 12th level and remains referee-adjudicated.",
+      "XP progression and attack progression still require verification because they are not encoded in current runtime data."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "osric",
+    "legacy-canonicalized"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "hit_die": "d6",
+  "hit_die_numeric": 6,
+  "prime_requisites": [
+    "strength",
+    "dexterity"
+  ],
+  "ability_minimums": {},
+  "alignment_restrictions": [
+    "Lawful Evil",
+    "Neutral Evil",
+    "Chaotic Evil"
+  ],
+  "alignment_rule_text": "Any evil alignment",
+  "armor_permissions": [
+    "Leather",
+    "Studded"
+  ],
+  "armor_rule_text": "Leather or studded leather; shields allowed.",
+  "shield_permissions": {
+    "allowed": true,
+    "note": null
+  },
+  "weapon_permissions": [
+    "any"
+  ],
+  "weapon_rule_text": "Any weapon",
+  "allowed_weapon_terms": [],
+  "spellcasting": null,
+  "progression_ref": "osric.progression.class.assassin",
+  "saving_throw_ref": "osric.saves.assassin",
+  "attack_progression_ref": "osric.attack.assassin",
+  "class_abilities": [
+    "May recruit assassin henchmen",
+    "May recruit thief henchmen",
+    "Master Assassin",
+    "May recruit henchmen of any class",
+    "Guildmaster",
+    "Grandmaster Assassin; class ceiling"
+  ],
+  "starting_wealth": "2d6 x 10 gp",
+  "proficiencies": {
+    "initial": 3,
+    "additional_every_levels": 4,
+    "non_proficiency_penalty": -3
+  },
+  "restrictions": [
+    "Scroll use begins at 12th level and remains referee-adjudicated."
+  ],
+  "race_compatibility": [
+    "osric.race.dwarf",
+    "osric.race.elf",
+    "osric.race.gnome",
+    "osric.race.half_elf",
+    "osric.race.half_orc",
+    "osric.race.human"
+  ],
+  "completion_status": {
+    "xp_progression": "complete",
+    "hit_die_progression": "complete",
+    "attack_progression": "partial",
+    "saving_throws": "complete",
+    "spell_slots": "not_applicable"
+  },
+  "description": "Assassin canonical record matching the class permissions and flags currently implemented in the Classic character vault.",
+  "availability_status": "active_first_implementation",
+  "first_implementation_available": true
+}

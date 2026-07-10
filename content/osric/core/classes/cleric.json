@@ -1,0 +1,102 @@
+{
+  "id": "osric.class.cleric",
+  "type": "class",
+  "name": "Cleric",
+  "display_name": "Cleric",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "Cleric",
+    "internal_only": true
+  },
+  "review": {
+    "status": "needs_review",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Canonicalized from backend/app/services/vault_rules.py CLASSES.",
+      "XP progression and attack progression still require verification because they are not encoded in current runtime data."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "osric",
+    "legacy-canonicalized"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "hit_die": "d8",
+  "hit_die_numeric": 8,
+  "prime_requisites": [
+    "wisdom"
+  ],
+  "ability_minimums": {},
+  "alignment_restrictions": [],
+  "alignment_rule_text": "Any alignment",
+  "armor_permissions": [
+    "any"
+  ],
+  "armor_rule_text": "Any armor and any shield.",
+  "shield_permissions": {
+    "allowed": true,
+    "note": null
+  },
+  "weapon_permissions": [
+    "list"
+  ],
+  "weapon_rule_text": "Blunt weapons only: club, flail, hammer, mace, oil, staff.",
+  "allowed_weapon_terms": [
+    "club",
+    "flail",
+    "hammer",
+    "mace",
+    "oil",
+    "staff"
+  ],
+  "spellcasting": {
+    "spell_lists": [
+      "cleric"
+    ],
+    "starts_at_level": 1,
+    "spell_slot_progression_ref": "osric.spell_slots.cleric",
+    "prepared_spell_rules_status": "needs_review",
+    "known_spell_rules_status": "needs_review"
+  },
+  "progression_ref": "osric.progression.class.cleric",
+  "saving_throw_ref": "osric.saves.cleric",
+  "attack_progression_ref": "osric.attack.cleric",
+  "class_abilities": [
+    "High Priest or Priestess"
+  ],
+  "starting_wealth": "3d6 x 10 gp",
+  "proficiencies": {
+    "initial": 2,
+    "additional_every_levels": 3,
+    "non_proficiency_penalty": -3
+  },
+  "restrictions": [],
+  "race_compatibility": [
+    "osric.race.dwarf",
+    "osric.race.elf",
+    "osric.race.gnome",
+    "osric.race.half_elf",
+    "osric.race.half_orc",
+    "osric.race.human"
+  ],
+  "completion_status": {
+    "xp_progression": "complete",
+    "hit_die_progression": "complete",
+    "attack_progression": "partial",
+    "saving_throws": "complete",
+    "spell_slots": "complete"
+  },
+  "description": "Cleric canonical record matching the class permissions and flags currently implemented in the Classic character vault.",
+  "availability_status": "active_first_implementation",
+  "first_implementation_available": true
+}

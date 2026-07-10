@@ -1,0 +1,13 @@
+{
+  "id": "classic.availability.class.monk.inactive_legacy",
+  "type": "availability_rule",
+  "campaign_profile_id": "campaign_profile.classic",
+  "record_id": "osric.class.monk",
+  "available": false,
+  "scope": [
+    "character_builder",
+    "rules_reference",
+    "character_vault"
+  ],
+  "notes": "Monk is preserved as a legacy record but excluded from the first Classic OSRIC implementation."
+}

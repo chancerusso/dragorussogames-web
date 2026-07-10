@@ -1,0 +1,129 @@
+{
+  "id": "osric.progression.class.assassin",
+  "type": "class_progression",
+  "name": "Assassin Class Progression",
+  "display_name": "Assassin Class Progression",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "content/1e/classes/assassin.md Advancement",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "XP thresholds and hit-dice progression canonicalized from content/1e class advancement table."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "osric",
+    "needs-review"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "class_id": "osric.class.assassin",
+  "levels": [
+    {
+      "level": 1,
+      "xp_threshold": 0,
+      "hit_dice": "1d6",
+      "notes": ""
+    },
+    {
+      "level": 2,
+      "xp_threshold": 1600,
+      "hit_dice": "2d6",
+      "notes": ""
+    },
+    {
+      "level": 3,
+      "xp_threshold": 3000,
+      "hit_dice": "3d6",
+      "notes": ""
+    },
+    {
+      "level": 4,
+      "xp_threshold": 5750,
+      "hit_dice": "4d6",
+      "notes": "May recruit assassin henchmen"
+    },
+    {
+      "level": 5,
+      "xp_threshold": 12250,
+      "hit_dice": "5d6",
+      "notes": ""
+    },
+    {
+      "level": 6,
+      "xp_threshold": 24750,
+      "hit_dice": "6d6",
+      "notes": ""
+    },
+    {
+      "level": 7,
+      "xp_threshold": 50000,
+      "hit_dice": "7d6",
+      "notes": ""
+    },
+    {
+      "level": 8,
+      "xp_threshold": 99000,
+      "hit_dice": "8d6",
+      "notes": "May recruit thief henchmen"
+    },
+    {
+      "level": 9,
+      "xp_threshold": 200500,
+      "hit_dice": "9d6",
+      "notes": "Master Assassin"
+    },
+    {
+      "level": 10,
+      "xp_threshold": 300000,
+      "hit_dice": "10d6",
+      "notes": ""
+    },
+    {
+      "level": 11,
+      "xp_threshold": 400000,
+      "hit_dice": "11d6",
+      "notes": ""
+    },
+    {
+      "level": 12,
+      "xp_threshold": 600000,
+      "hit_dice": "12d6",
+      "notes": "May recruit henchmen of any class"
+    },
+    {
+      "level": 13,
+      "xp_threshold": 750000,
+      "hit_dice": "13d6",
+      "notes": ""
+    },
+    {
+      "level": 14,
+      "xp_threshold": 1000000,
+      "hit_dice": "14d6",
+      "notes": "Guildmaster"
+    },
+    {
+      "level": 15,
+      "xp_threshold": 1500000,
+      "hit_dice": "15d6",
+      "notes": "Grandmaster Assassin; class ceiling"
+    }
+  ],
+  "xp_progression_status": "complete",
+  "hit_die_progression_status": "complete",
+  "description": "Assassin progression placeholder preserving the canonical reference until verified advancement tables are populated."
+}

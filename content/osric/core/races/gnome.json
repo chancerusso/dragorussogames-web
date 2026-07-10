@@ -1,0 +1,84 @@
+{
+  "id": "osric.race.gnome",
+  "type": "race",
+  "name": "Gnome",
+  "display_name": "Gnome",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "Gnome",
+    "internal_only": true
+  },
+  "review": {
+    "status": "needs_review",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Canonicalized from backend/app/services/vault_rules.py RACES.",
+      "Level limits are preserved from current implementation as review text; structured per-class limits still need verification."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "osric",
+    "legacy-canonicalized"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "ability_adjustments": {},
+  "ability_minimums": {},
+  "ability_maximums": {},
+  "movement": 90,
+  "vision": [
+    "Infravision 60 ft"
+  ],
+  "languages": [
+    "osric.language.common",
+    "osric.language.dwarfish",
+    "osric.language.gnomish",
+    "osric.language.goblin",
+    "osric.language.halfling",
+    "osric.language.kobold"
+  ],
+  "racial_abilities": [
+    "Constitution-based saves against magic and poison.",
+    "Bonuses against kobolds and goblins.",
+    "Underground detection.",
+    "Communication with normal burrowing animals."
+  ],
+  "class_access": [
+    "osric.class.assassin",
+    "osric.class.cleric",
+    "osric.class.fighter",
+    "osric.class.illusionist",
+    "osric.class.thief"
+  ],
+  "level_limits": [
+    {
+      "status": "needs_review",
+      "legacy_text": "Check gnome class level limits on the race page."
+    }
+  ],
+  "size": "needs_review",
+  "saving_throw_modifiers": [
+    "Constitution-based saves against magic and poison."
+  ],
+  "combat_modifiers": [
+    "Bonuses against kobolds and goblins."
+  ],
+  "restrictions": [],
+  "needs_review_fields": [
+    "ability_minimums",
+    "ability_maximums",
+    "size",
+    "level_limits"
+  ],
+  "legacy_source": "vault_rules.RACES",
+  "description": "Gnome canonical record matching the race data currently implemented in the Classic character vault."
+}

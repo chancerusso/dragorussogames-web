@@ -1,0 +1,40 @@
+{
+  "id": "osric.attack.monk",
+  "type": "attack_progression",
+  "name": "Monk Attack Progression",
+  "display_name": "Monk Attack Progression",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "Monk attack progression",
+    "internal_only": true
+  },
+  "review": {
+    "status": "conflict",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Monk exists in current class list, but no repository attack table or OSRIC PDF class table was found."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "osric",
+    "needs-review"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "method": "table",
+  "rows": [],
+  "progression_status": "missing",
+  "description": "Monk attack progression placeholder until verified combat tables are populated.",
+  "conflicts": [
+    "No verified attack progression available in approved sources."
+  ]
+}

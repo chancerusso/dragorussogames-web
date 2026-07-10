@@ -1,0 +1,40 @@
+{
+  "id": "osric.attack.bard",
+  "type": "attack_progression",
+  "name": "Bard Attack Progression",
+  "display_name": "Bard Attack Progression",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "Bard attack progression",
+    "internal_only": true
+  },
+  "review": {
+    "status": "conflict",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Bard exists in current class list, but no repository attack table or OSRIC PDF class table was found."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "osric",
+    "needs-review"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "method": "table",
+  "rows": [],
+  "progression_status": "missing",
+  "description": "Bard attack progression placeholder until verified combat tables are populated.",
+  "conflicts": [
+    "No verified attack progression available in approved sources."
+  ]
+}

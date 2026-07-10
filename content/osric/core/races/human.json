@@ -5,22 +5,75 @@
   "display_name": "Human",
   "rules_engine": "osric",
   "source_library_id": "osric",
-  "source_ref": { "page": null, "section": "Races", "internal_only": true },
-  "review": { "status": "needs_review", "reviewed_by": null, "reviewed_at": null, "notes": ["Structural placeholder only; not a complete rules record."] },
-  "visibility": { "player_visible": true, "dm_only": false, "description_status": "original" },
-  "tags": ["placeholder"],
+  "source_ref": {
+    "page": null,
+    "section": "Human",
+    "internal_only": true
+  },
+  "review": {
+    "status": "needs_review",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Canonicalized from backend/app/services/vault_rules.py RACES.",
+      "Level limits are preserved from current implementation as review text; structured per-class limits still need verification."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "osric",
+    "legacy-canonicalized"
+  ],
   "version": 1,
   "deprecated": false,
   "replaces": null,
   "ability_adjustments": {},
   "ability_minimums": {},
   "ability_maximums": {},
-  "movement": null,
-  "vision": [],
-  "languages": ["osric.language.common"],
-  "racial_abilities": [],
-  "class_access": ["osric.class.fighter", "osric.class.magic_user"],
-  "level_limits": [],
+  "movement": 120,
+  "vision": [
+    "Normal vision"
+  ],
+  "languages": [
+    "osric.language.common",
+    "osric.language.alignment_language"
+  ],
+  "racial_abilities": [
+    "No racial special abilities; widest class freedom."
+  ],
+  "class_access": [
+    "osric.class.assassin",
+    "osric.class.bard",
+    "osric.class.cleric",
+    "osric.class.druid",
+    "osric.class.fighter",
+    "osric.class.illusionist",
+    "osric.class.magic_user",
+    "osric.class.monk",
+    "osric.class.paladin",
+    "osric.class.ranger",
+    "osric.class.thief"
+  ],
+  "level_limits": [
+    {
+      "status": "needs_review",
+      "legacy_text": "No race-based class limit for most classes; assassin and druid use class-specific limits."
+    }
+  ],
   "size": "medium",
-  "description": "A structural OSRIC human record for validation."
+  "saving_throw_modifiers": [],
+  "combat_modifiers": [],
+  "restrictions": [],
+  "needs_review_fields": [
+    "ability_minimums",
+    "ability_maximums",
+    "size",
+    "level_limits"
+  ],
+  "legacy_source": "vault_rules.RACES",
+  "description": "Human canonical record matching the race data currently implemented in the Classic character vault."
 }

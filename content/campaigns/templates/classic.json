@@ -3,7 +3,19 @@
   "type": "campaign_profile",
   "name": "Classic",
   "rules_engine": "osric",
-  "availability_sets": ["classic.availability.core_examples"],
+  "availability_sets": [
+    "classic.availability.class.assassin",
+    "classic.availability.class.cleric",
+    "classic.availability.class.druid",
+    "classic.availability.class.fighter",
+    "classic.availability.class.illusionist",
+    "classic.availability.class.magic_user",
+    "classic.availability.class.paladin",
+    "classic.availability.class.ranger",
+    "classic.availability.class.thief",
+    "classic.availability.class.bard.inactive_legacy",
+    "classic.availability.class.monk.inactive_legacy"
+  ],
   "restriction_sets": [],
   "extension_sets": [],
   "description": "Standard approved OSRIC availability profile. Structural placeholder only."

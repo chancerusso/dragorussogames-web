@@ -1,21 +1,21 @@
 {
   "id": "osric.progression.class.fighter",
   "type": "class_progression",
-  "name": "Fighter Progression",
-  "display_name": "Fighter Progression",
+  "name": "Fighter Class Progression",
+  "display_name": "Fighter Class Progression",
   "rules_engine": "osric",
   "source_library_id": "osric",
   "source_ref": {
     "page": null,
-    "section": "Fighter advancement",
+    "section": "content/1e/classes/fighter.md Advancement",
     "internal_only": true
   },
   "review": {
-    "status": "draft",
-    "reviewed_by": null,
-    "reviewed_at": null,
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
     "notes": [
-      "Structural placeholder only."
+      "XP thresholds and hit-dice progression canonicalized from content/1e class advancement table."
     ]
   },
   "visibility": {
@@ -24,12 +24,82 @@
     "description_status": "original"
   },
   "tags": [
-    "placeholder"
+    "osric",
+    "needs-review"
   ],
   "version": 1,
   "deprecated": false,
   "replaces": null,
   "class_id": "osric.class.fighter",
-  "levels": [],
-  "description": "Structural placeholder for fighter advancement data."
+  "levels": [
+    {
+      "level": 1,
+      "xp_threshold": 0,
+      "hit_dice": "1d10",
+      "notes": ""
+    },
+    {
+      "level": 2,
+      "xp_threshold": 1900,
+      "hit_dice": "2d10",
+      "notes": ""
+    },
+    {
+      "level": 3,
+      "xp_threshold": 4250,
+      "hit_dice": "3d10",
+      "notes": ""
+    },
+    {
+      "level": 4,
+      "xp_threshold": 7750,
+      "hit_dice": "4d10",
+      "notes": ""
+    },
+    {
+      "level": 5,
+      "xp_threshold": 16000,
+      "hit_dice": "5d10",
+      "notes": ""
+    },
+    {
+      "level": 6,
+      "xp_threshold": 35000,
+      "hit_dice": "6d10",
+      "notes": ""
+    },
+    {
+      "level": 7,
+      "xp_threshold": 75000,
+      "hit_dice": "7d10",
+      "notes": "Bonus attacks improve"
+    },
+    {
+      "level": 8,
+      "xp_threshold": 125000,
+      "hit_dice": "8d10",
+      "notes": ""
+    },
+    {
+      "level": 9,
+      "xp_threshold": 250000,
+      "hit_dice": "9d10",
+      "notes": "Lord or Lady"
+    },
+    {
+      "level": 10,
+      "xp_threshold": 500000,
+      "hit_dice": "9d10+3",
+      "notes": ""
+    },
+    {
+      "level": 11,
+      "xp_threshold": 750000,
+      "hit_dice": "9d10+6",
+      "notes": ""
+    }
+  ],
+  "xp_progression_status": "complete",
+  "hit_die_progression_status": "complete",
+  "description": "Fighter progression placeholder preserving the canonical reference until verified advancement tables are populated."
 }

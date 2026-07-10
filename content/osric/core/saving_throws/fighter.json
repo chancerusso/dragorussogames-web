@@ -7,15 +7,15 @@
   "source_library_id": "osric",
   "source_ref": {
     "page": null,
-    "section": "Saving throws",
+    "section": "Fighter saving throws",
     "internal_only": true
   },
   "review": {
-    "status": "draft",
-    "reviewed_by": null,
-    "reviewed_at": null,
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
     "notes": [
-      "Structural placeholder only."
+      "Canonicalized from vault_rules.SAVING_THROW_TABLES and cross-checked against current class reference data where available."
     ]
   },
   "visibility": {
@@ -24,12 +24,131 @@
     "description_status": "original"
   },
   "tags": [
-    "placeholder"
+    "osric",
+    "legacy-canonicalized"
   ],
   "version": 1,
   "deprecated": false,
   "replaces": null,
-  "categories": [],
-  "rows": [],
-  "description": "Structural placeholder for fighter saving throw data."
+  "categories": [
+    "aimed_magic_items",
+    "breath_weapons",
+    "death_paralysis_poison",
+    "petrifaction_polymorph",
+    "spells"
+  ],
+  "rows": [
+    {
+      "level_min": 1,
+      "level_max": 2,
+      "values": {
+        "aimed_magic_items": 16,
+        "breath_weapons": 17,
+        "death_paralysis_poison": 14,
+        "petrifaction_polymorph": 15,
+        "spells": 17
+      }
+    },
+    {
+      "level_min": 3,
+      "level_max": 4,
+      "values": {
+        "aimed_magic_items": 15,
+        "breath_weapons": 16,
+        "death_paralysis_poison": 13,
+        "petrifaction_polymorph": 14,
+        "spells": 16
+      }
+    },
+    {
+      "level_min": 5,
+      "level_max": 6,
+      "values": {
+        "aimed_magic_items": 13,
+        "breath_weapons": 13,
+        "death_paralysis_poison": 11,
+        "petrifaction_polymorph": 12,
+        "spells": 14
+      }
+    },
+    {
+      "level_min": 7,
+      "level_max": 8,
+      "values": {
+        "aimed_magic_items": 12,
+        "breath_weapons": 12,
+        "death_paralysis_poison": 10,
+        "petrifaction_polymorph": 11,
+        "spells": 13
+      }
+    },
+    {
+      "level_min": 9,
+      "level_max": 10,
+      "values": {
+        "aimed_magic_items": 10,
+        "breath_weapons": 9,
+        "death_paralysis_poison": 8,
+        "petrifaction_polymorph": 9,
+        "spells": 11
+      }
+    },
+    {
+      "level_min": 11,
+      "level_max": 12,
+      "values": {
+        "aimed_magic_items": 9,
+        "breath_weapons": 8,
+        "death_paralysis_poison": 7,
+        "petrifaction_polymorph": 8,
+        "spells": 10
+      }
+    },
+    {
+      "level_min": 13,
+      "level_max": 14,
+      "values": {
+        "aimed_magic_items": 7,
+        "breath_weapons": 5,
+        "death_paralysis_poison": 5,
+        "petrifaction_polymorph": 6,
+        "spells": 8
+      }
+    },
+    {
+      "level_min": 15,
+      "level_max": 16,
+      "values": {
+        "aimed_magic_items": 6,
+        "breath_weapons": 4,
+        "death_paralysis_poison": 4,
+        "petrifaction_polymorph": 5,
+        "spells": 7
+      }
+    },
+    {
+      "level_min": 17,
+      "level_max": 18,
+      "values": {
+        "aimed_magic_items": 5,
+        "breath_weapons": 4,
+        "death_paralysis_poison": 3,
+        "petrifaction_polymorph": 4,
+        "spells": 6
+      }
+    },
+    {
+      "level_min": 19,
+      "level_max": null,
+      "values": {
+        "aimed_magic_items": 4,
+        "breath_weapons": 3,
+        "death_paralysis_poison": 2,
+        "petrifaction_polymorph": 3,
+        "spells": 5
+      }
+    }
+  ],
+  "progression_status": "complete",
+  "description": "Fighter saving throw progression from the current implementation."
 }

@@ -1,0 +1,398 @@
+{
+  "id": "osric.spell_slots.illusionist",
+  "type": "spell_slot_progression",
+  "name": "Illusionist Spell Slots",
+  "display_name": "Illusionist Spell Slots",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "Illusionist spell progression",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Canonicalized from current vault_rules spell-slot tables and matching content/1e advancement rows."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "osric",
+    "legacy-canonicalized"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "class_id": "osric.class.illusionist",
+  "levels": [
+    {
+      "level": 1,
+      "slots": {
+        "1": 1,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "illusionist"
+      ]
+    },
+    {
+      "level": 2,
+      "slots": {
+        "1": 2,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "illusionist"
+      ]
+    },
+    {
+      "level": 3,
+      "slots": {
+        "1": 2,
+        "2": 1,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "illusionist"
+      ]
+    },
+    {
+      "level": 4,
+      "slots": {
+        "1": 3,
+        "2": 2,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "illusionist"
+      ]
+    },
+    {
+      "level": 5,
+      "slots": {
+        "1": 4,
+        "2": 3,
+        "3": 1,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "illusionist"
+      ]
+    },
+    {
+      "level": 6,
+      "slots": {
+        "1": 4,
+        "2": 3,
+        "3": 2,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "illusionist"
+      ]
+    },
+    {
+      "level": 7,
+      "slots": {
+        "1": 4,
+        "2": 3,
+        "3": 2,
+        "4": 1,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "illusionist"
+      ]
+    },
+    {
+      "level": 8,
+      "slots": {
+        "1": 4,
+        "2": 3,
+        "3": 2,
+        "4": 2,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "illusionist"
+      ]
+    },
+    {
+      "level": 9,
+      "slots": {
+        "1": 5,
+        "2": 3,
+        "3": 3,
+        "4": 2,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "illusionist"
+      ]
+    },
+    {
+      "level": 10,
+      "slots": {
+        "1": 5,
+        "2": 4,
+        "3": 3,
+        "4": 2,
+        "5": 1,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "illusionist"
+      ]
+    },
+    {
+      "level": 11,
+      "slots": {
+        "1": 5,
+        "2": 4,
+        "3": 3,
+        "4": 3,
+        "5": 2,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "illusionist"
+      ]
+    },
+    {
+      "level": 12,
+      "slots": {
+        "1": 5,
+        "2": 5,
+        "3": 4,
+        "4": 3,
+        "5": 2,
+        "6": 1,
+        "7": 0
+      },
+      "spell_lists": [
+        "illusionist"
+      ]
+    },
+    {
+      "level": 13,
+      "slots": {
+        "1": 5,
+        "2": 5,
+        "3": 4,
+        "4": 3,
+        "5": 2,
+        "6": 2,
+        "7": 0
+      },
+      "spell_lists": [
+        "illusionist"
+      ]
+    },
+    {
+      "level": 14,
+      "slots": {
+        "1": 5,
+        "2": 5,
+        "3": 4,
+        "4": 3,
+        "5": 2,
+        "6": 2,
+        "7": 1
+      },
+      "spell_lists": [
+        "illusionist"
+      ]
+    },
+    {
+      "level": 15,
+      "slots": {
+        "1": 5,
+        "2": 5,
+        "3": 4,
+        "4": 4,
+        "5": 2,
+        "6": 2,
+        "7": 2
+      },
+      "spell_lists": [
+        "illusionist"
+      ]
+    },
+    {
+      "level": 16,
+      "slots": {
+        "1": 5,
+        "2": 5,
+        "3": 5,
+        "4": 4,
+        "5": 3,
+        "6": 2,
+        "7": 2
+      },
+      "spell_lists": [
+        "illusionist"
+      ]
+    },
+    {
+      "level": 17,
+      "slots": {
+        "1": 6,
+        "2": 5,
+        "3": 5,
+        "4": 4,
+        "5": 3,
+        "6": 3,
+        "7": 2
+      },
+      "spell_lists": [
+        "illusionist"
+      ]
+    },
+    {
+      "level": 18,
+      "slots": {
+        "1": 6,
+        "2": 6,
+        "3": 5,
+        "4": 4,
+        "5": 4,
+        "6": 3,
+        "7": 2
+      },
+      "spell_lists": [
+        "illusionist"
+      ]
+    },
+    {
+      "level": 19,
+      "slots": {
+        "1": 6,
+        "2": 6,
+        "3": 5,
+        "4": 5,
+        "5": 5,
+        "6": 3,
+        "7": 2
+      },
+      "spell_lists": [
+        "illusionist"
+      ]
+    },
+    {
+      "level": 20,
+      "slots": {
+        "1": 6,
+        "2": 6,
+        "3": 6,
+        "4": 5,
+        "5": 5,
+        "6": 4,
+        "7": 2
+      },
+      "spell_lists": [
+        "illusionist"
+      ]
+    },
+    {
+      "level": 21,
+      "slots": {
+        "1": 6,
+        "2": 6,
+        "3": 6,
+        "4": 6,
+        "5": 5,
+        "6": 4,
+        "7": 3
+      },
+      "spell_lists": [
+        "illusionist"
+      ]
+    },
+    {
+      "level": 22,
+      "slots": {
+        "1": 6,
+        "2": 6,
+        "3": 6,
+        "4": 6,
+        "5": 5,
+        "6": 5,
+        "7": 3
+      },
+      "spell_lists": [
+        "illusionist"
+      ]
+    },
+    {
+      "level": 23,
+      "slots": {
+        "1": 6,
+        "2": 6,
+        "3": 6,
+        "4": 6,
+        "5": 6,
+        "6": 5,
+        "7": 4
+      },
+      "spell_lists": [
+        "illusionist"
+      ]
+    },
+    {
+      "level": 24,
+      "slots": {
+        "1": 6,
+        "2": 6,
+        "3": 6,
+        "4": 6,
+        "5": 6,
+        "6": 6,
+        "7": 5
+      },
+      "spell_lists": [
+        "illusionist"
+      ]
+    }
+  ],
+  "progression_status": "complete",
+  "description": "Illusionist spell slot progression from the current implementation."
+}

@@ -5,23 +5,88 @@
   "display_name": "Fighter",
   "rules_engine": "osric",
   "source_library_id": "osric",
-  "source_ref": { "page": null, "section": "Fighter", "internal_only": true },
-  "review": { "status": "needs_review", "reviewed_by": null, "reviewed_at": null, "notes": ["Structural placeholder only; not a complete class record."] },
-  "visibility": { "player_visible": true, "dm_only": false, "description_status": "original" },
-  "tags": ["placeholder"],
+  "source_ref": {
+    "page": null,
+    "section": "Fighter",
+    "internal_only": true
+  },
+  "review": {
+    "status": "needs_review",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Canonicalized from backend/app/services/vault_rules.py CLASSES.",
+      "Weapon specialization is optional campaign policy.",
+      "XP progression and attack progression still require verification because they are not encoded in current runtime data."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "osric",
+    "legacy-canonicalized"
+  ],
   "version": 1,
   "deprecated": false,
   "replaces": null,
   "hit_die": "d10",
-  "prime_requisites": ["strength"],
+  "hit_die_numeric": 10,
+  "prime_requisites": [
+    "strength"
+  ],
   "ability_minimums": {},
   "alignment_restrictions": [],
-  "armor_permissions": ["any"],
-  "weapon_permissions": ["any"],
+  "alignment_rule_text": "Any alignment",
+  "armor_permissions": [
+    "any"
+  ],
+  "armor_rule_text": "Any armor and any shield.",
+  "shield_permissions": {
+    "allowed": true,
+    "note": null
+  },
+  "weapon_permissions": [
+    "any"
+  ],
+  "weapon_rule_text": "Any weapon",
+  "allowed_weapon_terms": [],
   "spellcasting": null,
   "progression_ref": "osric.progression.class.fighter",
   "saving_throw_ref": "osric.saves.fighter",
   "attack_progression_ref": "osric.attack.fighter",
-  "class_abilities": [],
-  "description": "A structural OSRIC fighter record for validation."
+  "class_abilities": [
+    "Bonus attacks improve",
+    "Lord or Lady"
+  ],
+  "starting_wealth": "(3d6 + 2) x 10 gp",
+  "proficiencies": {
+    "initial": 4,
+    "additional_every_levels": 2,
+    "non_proficiency_penalty": -2
+  },
+  "restrictions": [
+    "Weapon specialization is optional campaign policy."
+  ],
+  "race_compatibility": [
+    "osric.race.dwarf",
+    "osric.race.elf",
+    "osric.race.gnome",
+    "osric.race.half_elf",
+    "osric.race.half_orc",
+    "osric.race.halfling",
+    "osric.race.human"
+  ],
+  "completion_status": {
+    "xp_progression": "complete",
+    "hit_die_progression": "complete",
+    "attack_progression": "partial",
+    "saving_throws": "complete",
+    "spell_slots": "not_applicable"
+  },
+  "description": "Fighter canonical record matching the class permissions and flags currently implemented in the Classic character vault.",
+  "availability_status": "active_first_implementation",
+  "first_implementation_available": true
 }

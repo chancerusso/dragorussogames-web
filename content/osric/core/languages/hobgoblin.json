@@ -1,0 +1,38 @@
+{
+  "id": "osric.language.hobgoblin",
+  "type": "language",
+  "name": "Hobgoblin",
+  "display_name": "Hobgoblin",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "Race languages",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Canonicalized from language names currently used by vault_rules.RACES."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "osric",
+    "language"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "description": "Hobgoblin is a language currently referenced by implemented OSRIC race data.",
+  "script": null,
+  "availability_notes": [
+    "Referenced by currently implemented OSRIC race language data; script details need review before player-facing expansion."
+  ]
+}

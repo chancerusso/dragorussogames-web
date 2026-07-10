@@ -19,6 +19,7 @@ def main() -> int:
     by_review: Counter[str] = Counter()
     draft_records: list[str] = []
     needs_review_records: list[str] = []
+    conflict_records: list[str] = []
     deprecated_records: list[str] = []
     missing_descriptions: list[str] = []
     missing_source_refs: list[str] = []
@@ -44,6 +45,8 @@ def main() -> int:
             draft_records.append(record_id)
         if review_status == "needs_review":
             needs_review_records.append(record_id)
+        if review_status == "conflict":
+            conflict_records.append(record_id)
         if data.get("deprecated"):
             deprecated_records.append(record_id)
         if record_type not in {"source_library", "availability_rule", "restriction_rule", "extension_rule"} and not data.get("description"):
@@ -71,6 +74,9 @@ def main() -> int:
         print(f"  - {record_id}")
     print(f"Needs-review records: {len(needs_review_records)}")
     for record_id in sorted(needs_review_records):
+        print(f"  - {record_id}")
+    print(f"Conflict records: {len(conflict_records)}")
+    for record_id in sorted(conflict_records):
         print(f"  - {record_id}")
     print(f"Deprecated records: {len(deprecated_records)}")
     for record_id in sorted(deprecated_records):

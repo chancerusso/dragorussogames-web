@@ -1,0 +1,46 @@
+{
+  "id": "osric.saves.bard",
+  "type": "saving_throw_progression",
+  "name": "Bard Saving Throws",
+  "display_name": "Bard Saving Throws",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "Bard saving throws",
+    "internal_only": true
+  },
+  "review": {
+    "status": "conflict",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Bard has no saving throw table in current runtime data, content/1e, or OSRIC core class tables."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "osric",
+    "legacy-canonicalized"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "categories": [
+    "aimed_magic_items",
+    "breath_weapons",
+    "death_paralysis_poison",
+    "petrifaction_polymorph",
+    "spells"
+  ],
+  "rows": [],
+  "progression_status": "missing",
+  "description": "Bard saving throw progression is not encoded in the current implementation.",
+  "conflicts": [
+    "Approved OSRIC sources do not provide this class saving throw table."
+  ]
+}

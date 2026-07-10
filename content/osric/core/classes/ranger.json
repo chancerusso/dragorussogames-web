@@ -1,0 +1,102 @@
+{
+  "id": "osric.class.ranger",
+  "type": "class",
+  "name": "Ranger",
+  "display_name": "Ranger",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "Ranger",
+    "internal_only": true
+  },
+  "review": {
+    "status": "needs_review",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Canonicalized from backend/app/services/vault_rules.py CLASSES.",
+      "XP progression and attack progression still require verification because they are not encoded in current runtime data."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "osric",
+    "legacy-canonicalized"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "hit_die": "2d8 at 1st level, then d8",
+  "hit_die_numeric": 8,
+  "prime_requisites": [
+    "strength",
+    "intelligence",
+    "wisdom",
+    "constitution"
+  ],
+  "ability_minimums": {},
+  "alignment_restrictions": [
+    "Lawful Good",
+    "Neutral Good",
+    "Chaotic Good"
+  ],
+  "alignment_rule_text": "Any good alignment",
+  "armor_permissions": [
+    "any"
+  ],
+  "armor_rule_text": "Any armor and any shield.",
+  "shield_permissions": {
+    "allowed": true,
+    "note": null
+  },
+  "weapon_permissions": [
+    "any"
+  ],
+  "weapon_rule_text": "Any weapon",
+  "allowed_weapon_terms": [],
+  "spellcasting": {
+    "spell_lists": [
+      "druid",
+      "magic-user"
+    ],
+    "starts_at_level": 8,
+    "spell_slot_progression_ref": "osric.spell_slots.ranger",
+    "prepared_spell_rules_status": "needs_review",
+    "known_spell_rules_status": "needs_review"
+  },
+  "progression_ref": "osric.progression.class.ranger",
+  "saving_throw_ref": "osric.saves.ranger",
+  "attack_progression_ref": "osric.attack.ranger",
+  "class_abilities": [
+    "May employ followers",
+    "Bonus attacks",
+    "Ranger Lord or Lady",
+    "Bonus attacks improve"
+  ],
+  "starting_wealth": "(3d6 + 2) x 10 gp",
+  "proficiencies": {
+    "initial": 3,
+    "additional_every_levels": 2,
+    "non_proficiency_penalty": -2
+  },
+  "restrictions": [],
+  "race_compatibility": [
+    "osric.race.half_elf",
+    "osric.race.human"
+  ],
+  "completion_status": {
+    "xp_progression": "complete",
+    "hit_die_progression": "complete",
+    "attack_progression": "partial",
+    "saving_throws": "complete",
+    "spell_slots": "complete"
+  },
+  "description": "Ranger canonical record matching the class permissions and flags currently implemented in the Classic character vault.",
+  "availability_status": "active_first_implementation",
+  "first_implementation_available": true
+}

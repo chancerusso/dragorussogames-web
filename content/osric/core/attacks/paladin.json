@@ -1,0 +1,63 @@
+{
+  "id": "osric.attack.paladin",
+  "type": "attack_progression",
+  "name": "Paladin Attack Progression",
+  "display_name": "Paladin Attack Progression",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "Paladin attack progression",
+    "internal_only": true
+  },
+  "review": {
+    "status": "needs_review",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Current repository provides starting attack references and, for fighter-types, extra-attack cadence; full attack matrix still needs PDF/table normalization."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "osric",
+    "needs-review"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "method": "starting-reference-plus-extra-attacks",
+  "rows": [
+    {
+      "level_min": 1,
+      "level_max": 1,
+      "source": "content/1e starting attack reference",
+      "rolls_to_hit": {
+        "ac_10": 10,
+        "ac_5": 15,
+        "ac_0": 20
+      }
+    },
+    {
+      "level_min": 1,
+      "level_max": 7,
+      "attacks": "1 attack per round"
+    },
+    {
+      "level_min": 8,
+      "level_max": 14,
+      "attacks": "3 attacks every 2 rounds"
+    },
+    {
+      "level_min": 15,
+      "level_max": null,
+      "attacks": "2 attacks per round"
+    }
+  ],
+  "progression_status": "partial",
+  "description": "Paladin attack progression placeholder until verified combat tables are populated."
+}

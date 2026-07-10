@@ -1,0 +1,41 @@
+{
+  "id": "osric.progression.class.monk",
+  "type": "class_progression",
+  "name": "Monk Class Progression",
+  "display_name": "Monk Class Progression",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "Monk advancement",
+    "internal_only": true
+  },
+  "review": {
+    "status": "conflict",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Monk exists in the current class list, but content/1e and OSRIC core PDF do not provide a complete OSRIC advancement table."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "osric",
+    "needs-review"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "class_id": "osric.class.monk",
+  "levels": [],
+  "xp_progression_status": "missing",
+  "hit_die_progression_status": "missing",
+  "description": "Monk progression placeholder preserving the canonical reference until verified advancement tables are populated.",
+  "conflicts": [
+    "No verified OSRIC core advancement table available for this class in approved sources."
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "id": "osric.race.dwarf",
+  "type": "race",
+  "name": "Dwarf",
+  "display_name": "Dwarf",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "Dwarf",
+    "internal_only": true
+  },
+  "review": {
+    "status": "needs_review",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Canonicalized from backend/app/services/vault_rules.py RACES.",
+      "Level limits are preserved from current implementation as review text; structured per-class limits still need verification."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "osric",
+    "legacy-canonicalized"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "ability_adjustments": {
+    "constitution": 1,
+    "charisma": -1
+  },
+  "ability_minimums": {},
+  "ability_maximums": {},
+  "movement": 90,
+  "vision": [
+    "Infravision 60 ft"
+  ],
+  "languages": [
+    "osric.language.common",
+    "osric.language.alignment_language",
+    "osric.language.dwarfish",
+    "osric.language.gnomish",
+    "osric.language.goblin",
+    "osric.language.kobold",
+    "osric.language.orcish"
+  ],
+  "racial_abilities": [
+    "Constitution-based saves against magic and poison.",
+    "Stonework detection.",
+    "Bonuses against goblin/orc enemies.",
+    "Harder for large giant-type foes to hit."
+  ],
+  "class_access": [
+    "osric.class.assassin",
+    "osric.class.cleric",
+    "osric.class.fighter",
+    "osric.class.thief"
+  ],
+  "level_limits": [
+    {
+      "status": "needs_review",
+      "legacy_text": "Check dwarf class level limits on the race page; fighter limit depends on Strength."
+    }
+  ],
+  "size": "needs_review",
+  "saving_throw_modifiers": [
+    "Constitution-based saves against magic and poison."
+  ],
+  "combat_modifiers": [
+    "Bonuses against goblin/orc enemies.",
+    "Harder for large giant-type foes to hit."
+  ],
+  "restrictions": [],
+  "needs_review_fields": [
+    "ability_minimums",
+    "ability_maximums",
+    "size",
+    "level_limits"
+  ],
+  "legacy_source": "vault_rules.RACES",
+  "description": "Dwarf canonical record matching the race data currently implemented in the Classic character vault."
+}

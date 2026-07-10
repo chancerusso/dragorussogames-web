@@ -1,0 +1,85 @@
+{
+  "id": "osric.class.monk",
+  "type": "class",
+  "name": "Monk",
+  "display_name": "Monk",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "Monk",
+    "internal_only": true
+  },
+  "review": {
+    "status": "conflict",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Monk is present in current app content but is not complete as an OSRIC core class in approved sources.",
+      "Excluded from the first Classic OSRIC implementation by scope decision; retained for legacy compatibility."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "inactive",
+    "legacy",
+    "legacy-canonicalized",
+    "osric",
+    "out-of-scope-first-implementation"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "hit_die": "Manual DM Review",
+  "hit_die_numeric": 4,
+  "prime_requisites": [],
+  "ability_minimums": {},
+  "alignment_restrictions": [
+    "Lawful Good",
+    "Lawful Neutral",
+    "Lawful Evil"
+  ],
+  "alignment_rule_text": "Lawful only",
+  "armor_permissions": [],
+  "armor_rule_text": "No armor.",
+  "shield_permissions": {
+    "allowed": false,
+    "note": null
+  },
+  "weapon_permissions": [
+    "manual"
+  ],
+  "weapon_rule_text": "Restricted monk weapon list; referee-approved.",
+  "allowed_weapon_terms": [],
+  "spellcasting": null,
+  "progression_ref": "osric.progression.class.monk",
+  "saving_throw_ref": "osric.saves.monk",
+  "attack_progression_ref": "osric.attack.monk",
+  "class_abilities": [],
+  "starting_wealth": "5d4 gp",
+  "proficiencies": {
+    "initial": null,
+    "additional_every_levels": null,
+    "non_proficiency_penalty": null
+  },
+  "restrictions": [
+    "Monk hit dice, AC progression, saves, and weapon list need full class table encoding."
+  ],
+  "race_compatibility": [
+    "osric.race.human"
+  ],
+  "completion_status": {
+    "xp_progression": "missing",
+    "hit_die_progression": "missing",
+    "attack_progression": "missing",
+    "saving_throws": "missing",
+    "spell_slots": "not_applicable"
+  },
+  "description": "Monk canonical record matching the class permissions and flags currently implemented in the Classic character vault.",
+  "availability_status": "inactive_legacy",
+  "first_implementation_available": false
+}

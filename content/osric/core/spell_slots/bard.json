@@ -1,0 +1,40 @@
+{
+  "id": "osric.spell_slots.bard",
+  "type": "spell_slot_progression",
+  "name": "Bard Spell Slots",
+  "display_name": "Bard Spell Slots",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "Bard spell progression",
+    "internal_only": true
+  },
+  "review": {
+    "status": "conflict",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Bard is present as a special path in current content but OSRIC core sources do not provide a verified Bard spell-slot table."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "osric",
+    "legacy-canonicalized"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "class_id": "osric.class.bard",
+  "levels": [],
+  "progression_status": "missing",
+  "description": "Bard spell slot progression is not encoded in the current implementation.",
+  "conflicts": [
+    "No verified Bard spell-slot progression available in approved OSRIC sources."
+  ]
+}

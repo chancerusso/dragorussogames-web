@@ -1,0 +1,154 @@
+{
+  "id": "osric.saves.paladin",
+  "type": "saving_throw_progression",
+  "name": "Paladin Saving Throws",
+  "display_name": "Paladin Saving Throws",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "Paladin saving throws",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Canonicalized from vault_rules.SAVING_THROW_TABLES and cross-checked against current class reference data where available."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "osric",
+    "legacy-canonicalized"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "categories": [
+    "aimed_magic_items",
+    "breath_weapons",
+    "death_paralysis_poison",
+    "petrifaction_polymorph",
+    "spells"
+  ],
+  "rows": [
+    {
+      "level_min": 1,
+      "level_max": 2,
+      "values": {
+        "aimed_magic_items": 14,
+        "breath_weapons": 15,
+        "death_paralysis_poison": 12,
+        "petrifaction_polymorph": 13,
+        "spells": 15
+      }
+    },
+    {
+      "level_min": 3,
+      "level_max": 4,
+      "values": {
+        "aimed_magic_items": 13,
+        "breath_weapons": 14,
+        "death_paralysis_poison": 11,
+        "petrifaction_polymorph": 12,
+        "spells": 14
+      }
+    },
+    {
+      "level_min": 5,
+      "level_max": 6,
+      "values": {
+        "aimed_magic_items": 11,
+        "breath_weapons": 11,
+        "death_paralysis_poison": 9,
+        "petrifaction_polymorph": 10,
+        "spells": 12
+      }
+    },
+    {
+      "level_min": 7,
+      "level_max": 8,
+      "values": {
+        "aimed_magic_items": 10,
+        "breath_weapons": 10,
+        "death_paralysis_poison": 8,
+        "petrifaction_polymorph": 9,
+        "spells": 11
+      }
+    },
+    {
+      "level_min": 9,
+      "level_max": 10,
+      "values": {
+        "aimed_magic_items": 8,
+        "breath_weapons": 7,
+        "death_paralysis_poison": 6,
+        "petrifaction_polymorph": 7,
+        "spells": 9
+      }
+    },
+    {
+      "level_min": 11,
+      "level_max": 12,
+      "values": {
+        "aimed_magic_items": 7,
+        "breath_weapons": 6,
+        "death_paralysis_poison": 5,
+        "petrifaction_polymorph": 6,
+        "spells": 8
+      }
+    },
+    {
+      "level_min": 13,
+      "level_max": 14,
+      "values": {
+        "aimed_magic_items": 5,
+        "breath_weapons": 3,
+        "death_paralysis_poison": 3,
+        "petrifaction_polymorph": 4,
+        "spells": 6
+      }
+    },
+    {
+      "level_min": 15,
+      "level_max": 16,
+      "values": {
+        "aimed_magic_items": 4,
+        "breath_weapons": 2,
+        "death_paralysis_poison": 2,
+        "petrifaction_polymorph": 3,
+        "spells": 5
+      }
+    },
+    {
+      "level_min": 17,
+      "level_max": 18,
+      "values": {
+        "aimed_magic_items": 3,
+        "breath_weapons": 2,
+        "death_paralysis_poison": 2,
+        "petrifaction_polymorph": 2,
+        "spells": 4
+      }
+    },
+    {
+      "level_min": 19,
+      "level_max": null,
+      "values": {
+        "aimed_magic_items": 2,
+        "breath_weapons": 2,
+        "death_paralysis_poison": 2,
+        "petrifaction_polymorph": 2,
+        "spells": 3
+      }
+    }
+  ],
+  "progression_status": "complete",
+  "description": "Paladin saving throw progression from the current implementation."
+}

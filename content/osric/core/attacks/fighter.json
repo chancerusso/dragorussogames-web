@@ -7,15 +7,15 @@
   "source_library_id": "osric",
   "source_ref": {
     "page": null,
-    "section": "Attack progression",
+    "section": "Fighter attack progression",
     "internal_only": true
   },
   "review": {
-    "status": "draft",
-    "reviewed_by": null,
-    "reviewed_at": null,
+    "status": "needs_review",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
     "notes": [
-      "Structural placeholder only."
+      "Current repository provides starting attack references and, for fighter-types, extra-attack cadence; full attack matrix still needs PDF/table normalization."
     ]
   },
   "visibility": {
@@ -24,12 +24,40 @@
     "description_status": "original"
   },
   "tags": [
-    "placeholder"
+    "osric",
+    "needs-review"
   ],
   "version": 1,
   "deprecated": false,
   "replaces": null,
-  "method": "table",
-  "rows": [],
-  "description": "Structural placeholder for fighter attack progression data."
+  "method": "starting-reference-plus-extra-attacks",
+  "rows": [
+    {
+      "level_min": 1,
+      "level_max": 1,
+      "source": "content/1e starting attack reference",
+      "rolls_to_hit": {
+        "ac_10": 10,
+        "ac_5": 15,
+        "ac_0": 20
+      }
+    },
+    {
+      "level_min": 1,
+      "level_max": 6,
+      "attacks": "1 attack per round"
+    },
+    {
+      "level_min": 7,
+      "level_max": 12,
+      "attacks": "3 attacks every 2 rounds"
+    },
+    {
+      "level_min": 13,
+      "level_max": null,
+      "attacks": "2 attacks per round"
+    }
+  ],
+  "progression_status": "partial",
+  "description": "Fighter attack progression placeholder until verified combat tables are populated."
 }

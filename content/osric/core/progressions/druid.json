@@ -1,0 +1,137 @@
+{
+  "id": "osric.progression.class.druid",
+  "type": "class_progression",
+  "name": "Druid Class Progression",
+  "display_name": "Druid Class Progression",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "content/1e/classes/druid.md Advancement",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "XP thresholds and hit-dice progression canonicalized from content/1e class advancement table."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "osric",
+    "needs-review"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "class_id": "osric.class.druid",
+  "levels": [
+    {
+      "level": 1,
+      "xp_threshold": 0,
+      "hit_dice": "1d8",
+      "notes": "",
+      "spell_slots_text": "2/-/-/-/-/-/-"
+    },
+    {
+      "level": 2,
+      "xp_threshold": 2000,
+      "hit_dice": "2d8",
+      "notes": "",
+      "spell_slots_text": "2/1/-/-/-/-/-"
+    },
+    {
+      "level": 3,
+      "xp_threshold": 4000,
+      "hit_dice": "3d8",
+      "notes": "Knowledge, wilderness movement",
+      "spell_slots_text": "3/2/1/-/-/-/-"
+    },
+    {
+      "level": 4,
+      "xp_threshold": 8000,
+      "hit_dice": "4d8",
+      "notes": "",
+      "spell_slots_text": "4/2/2/-/-/-/-"
+    },
+    {
+      "level": 5,
+      "xp_threshold": 12000,
+      "hit_dice": "5d8",
+      "notes": "",
+      "spell_slots_text": "4/3/2/-/-/-/-"
+    },
+    {
+      "level": 6,
+      "xp_threshold": 20000,
+      "hit_dice": "6d8",
+      "notes": "",
+      "spell_slots_text": "4/3/2/1/-/-/-"
+    },
+    {
+      "level": 7,
+      "xp_threshold": 35000,
+      "hit_dice": "7d8",
+      "notes": "Fey charm immunity, shapeshift",
+      "spell_slots_text": "4/4/3/1/-/-/-"
+    },
+    {
+      "level": 8,
+      "xp_threshold": 60000,
+      "hit_dice": "8d8",
+      "notes": "",
+      "spell_slots_text": "4/4/3/2/-/-/-"
+    },
+    {
+      "level": 9,
+      "xp_threshold": 90000,
+      "hit_dice": "9d8",
+      "notes": "",
+      "spell_slots_text": "5/4/3/2/1/-/-"
+    },
+    {
+      "level": 10,
+      "xp_threshold": 125000,
+      "hit_dice": "10d8",
+      "notes": "",
+      "spell_slots_text": "5/4/3/3/2/-/-"
+    },
+    {
+      "level": 11,
+      "xp_threshold": 200000,
+      "hit_dice": "11d8",
+      "notes": "",
+      "spell_slots_text": "5/5/3/3/2/1/-"
+    },
+    {
+      "level": 12,
+      "xp_threshold": 300000,
+      "hit_dice": "12d8",
+      "notes": "High Druid",
+      "spell_slots_text": "5/5/4/4/3/2/1"
+    },
+    {
+      "level": 13,
+      "xp_threshold": 750000,
+      "hit_dice": "13d8",
+      "notes": "Archdruid",
+      "spell_slots_text": "6/5/5/5/4/3/2"
+    },
+    {
+      "level": 14,
+      "xp_threshold": 1500000,
+      "hit_dice": "14d8",
+      "notes": "Supreme Druid; class ceiling",
+      "spell_slots_text": "6/6/6/6/5/4/3"
+    }
+  ],
+  "xp_progression_status": "complete",
+  "hit_die_progression_status": "complete",
+  "description": "Druid progression placeholder preserving the canonical reference until verified advancement tables are populated."
+}

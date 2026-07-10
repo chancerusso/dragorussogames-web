@@ -1,21 +1,21 @@
 {
   "id": "osric.progression.class.magic_user",
   "type": "class_progression",
-  "name": "Magic-User Progression",
-  "display_name": "Magic-User Progression",
+  "name": "Magic-User Class Progression",
+  "display_name": "Magic-User Class Progression",
   "rules_engine": "osric",
   "source_library_id": "osric",
   "source_ref": {
     "page": null,
-    "section": "Magic-user advancement",
+    "section": "content/1e/classes/magic-user.md Advancement",
     "internal_only": true
   },
   "review": {
-    "status": "draft",
-    "reviewed_by": null,
-    "reviewed_at": null,
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
     "notes": [
-      "Structural placeholder only."
+      "XP thresholds and hit-dice progression canonicalized from content/1e class advancement table."
     ]
   },
   "visibility": {
@@ -24,12 +24,184 @@
     "description_status": "original"
   },
   "tags": [
-    "placeholder"
+    "osric",
+    "needs-review"
   ],
   "version": 1,
   "deprecated": false,
   "replaces": null,
   "class_id": "osric.class.magic_user",
-  "levels": [],
-  "description": "Structural placeholder for magic-user advancement data."
+  "levels": [
+    {
+      "level": 1,
+      "xp_threshold": 0,
+      "hit_dice": "1d4",
+      "notes": "",
+      "spell_slots_text": "1/-/-/-/-/-/-/-/-"
+    },
+    {
+      "level": 2,
+      "xp_threshold": 2400,
+      "hit_dice": "2d4",
+      "notes": "",
+      "spell_slots_text": "2/-/-/-/-/-/-/-/-"
+    },
+    {
+      "level": 3,
+      "xp_threshold": 4800,
+      "hit_dice": "3d4",
+      "notes": "",
+      "spell_slots_text": "2/1/-/-/-/-/-/-/-"
+    },
+    {
+      "level": 4,
+      "xp_threshold": 10250,
+      "hit_dice": "4d4",
+      "notes": "",
+      "spell_slots_text": "3/2/-/-/-/-/-/-/-"
+    },
+    {
+      "level": 5,
+      "xp_threshold": 22000,
+      "hit_dice": "5d4",
+      "notes": "",
+      "spell_slots_text": "4/2/1/-/-/-/-/-/-"
+    },
+    {
+      "level": 6,
+      "xp_threshold": 40000,
+      "hit_dice": "6d4",
+      "notes": "",
+      "spell_slots_text": "4/3/2/-/-/-/-/-/-"
+    },
+    {
+      "level": 7,
+      "xp_threshold": 60000,
+      "hit_dice": "7d4",
+      "notes": "Eldritch Craft",
+      "spell_slots_text": "4/3/2/1/-/-/-/-/-"
+    },
+    {
+      "level": 8,
+      "xp_threshold": 80000,
+      "hit_dice": "8d4",
+      "notes": "",
+      "spell_slots_text": "4/3/3/2/-/-/-/-/-"
+    },
+    {
+      "level": 9,
+      "xp_threshold": 140000,
+      "hit_dice": "9d4",
+      "notes": "",
+      "spell_slots_text": "4/4/3/2/1/-/-/-/-"
+    },
+    {
+      "level": 10,
+      "xp_threshold": 250000,
+      "hit_dice": "10d4",
+      "notes": "",
+      "spell_slots_text": "4/4/3/2/2/-/-/-/-"
+    },
+    {
+      "level": 11,
+      "xp_threshold": 375000,
+      "hit_dice": "11d4",
+      "notes": "Wizard",
+      "spell_slots_text": "4/4/4/3/3/-/-/-/-"
+    },
+    {
+      "level": 12,
+      "xp_threshold": 750000,
+      "hit_dice": "11d4+1",
+      "notes": "Eldritch Power",
+      "spell_slots_text": "5/4/4/3/3/1/-/-/-"
+    },
+    {
+      "level": 13,
+      "xp_threshold": 1125000,
+      "hit_dice": "11d4+2",
+      "notes": "",
+      "spell_slots_text": "5/5/4/3/3/2/-/-/-"
+    },
+    {
+      "level": 14,
+      "xp_threshold": 1500000,
+      "hit_dice": "11d4+3",
+      "notes": "",
+      "spell_slots_text": "5/5/5/4/4/2/1/-/-"
+    },
+    {
+      "level": 15,
+      "xp_threshold": 1875000,
+      "hit_dice": "11d4+4",
+      "notes": "",
+      "spell_slots_text": "5/5/5/4/4/3/2/-/-"
+    },
+    {
+      "level": 16,
+      "xp_threshold": 2250000,
+      "hit_dice": "11d4+5",
+      "notes": "Mage",
+      "spell_slots_text": "5/5/5/4/4/3/2/1/-"
+    },
+    {
+      "level": 17,
+      "xp_threshold": 2625000,
+      "hit_dice": "11d4+6",
+      "notes": "",
+      "spell_slots_text": "5/5/5/5/5/4/3/2/-"
+    },
+    {
+      "level": 18,
+      "xp_threshold": 3000000,
+      "hit_dice": "11d4+7",
+      "notes": "Archmage",
+      "spell_slots_text": "5/5/5/5/5/4/3/2/1"
+    },
+    {
+      "level": 19,
+      "xp_threshold": 3375000,
+      "hit_dice": "11d4+8",
+      "notes": "",
+      "spell_slots_text": "5/5/5/5/5/5/4/3/1"
+    },
+    {
+      "level": 20,
+      "xp_threshold": 3750000,
+      "hit_dice": "11d4+9",
+      "notes": "",
+      "spell_slots_text": "5/5/5/5/5/5/4/3/2"
+    },
+    {
+      "level": 21,
+      "xp_threshold": 4125000,
+      "hit_dice": "11d4+10",
+      "notes": "",
+      "spell_slots_text": "6/6/5/5/5/5/4/4/2"
+    },
+    {
+      "level": 22,
+      "xp_threshold": 4500000,
+      "hit_dice": "11d4+11",
+      "notes": "",
+      "spell_slots_text": "6/6/6/6/5/5/5/4/2"
+    },
+    {
+      "level": 23,
+      "xp_threshold": 4875000,
+      "hit_dice": "11d4+12",
+      "notes": "",
+      "spell_slots_text": "6/6/6/6/6/6/5/4/3"
+    },
+    {
+      "level": 24,
+      "xp_threshold": 5250000,
+      "hit_dice": "11d4+13",
+      "notes": "",
+      "spell_slots_text": "6/6/6/6/6/6/6/5/3"
+    }
+  ],
+  "xp_progression_status": "complete",
+  "hit_die_progression_status": "complete",
+  "description": "Magic-User progression placeholder preserving the canonical reference until verified advancement tables are populated."
 }

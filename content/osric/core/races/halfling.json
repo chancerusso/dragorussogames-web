@@ -1,0 +1,85 @@
+{
+  "id": "osric.race.halfling",
+  "type": "race",
+  "name": "Halfling",
+  "display_name": "Halfling",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "Halfling",
+    "internal_only": true
+  },
+  "review": {
+    "status": "needs_review",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Canonicalized from backend/app/services/vault_rules.py RACES.",
+      "Level limits are preserved from current implementation as review text; structured per-class limits still need verification."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "osric",
+    "legacy-canonicalized"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "ability_adjustments": {
+    "strength": -1,
+    "dexterity": 1
+  },
+  "ability_minimums": {},
+  "ability_maximums": {},
+  "movement": 90,
+  "vision": [
+    "Infravision 60 ft"
+  ],
+  "languages": [
+    "osric.language.common",
+    "osric.language.dwarfish",
+    "osric.language.gnomish",
+    "osric.language.goblin",
+    "osric.language.halfling",
+    "osric.language.orcish"
+  ],
+  "racial_abilities": [
+    "Constitution-based saves against magic and poison.",
+    "Bonus with bow or sling.",
+    "Improved surprise when scouting in appropriate conditions."
+  ],
+  "class_access": [
+    "osric.class.druid",
+    "osric.class.fighter",
+    "osric.class.thief"
+  ],
+  "level_limits": [
+    {
+      "status": "needs_review",
+      "legacy_text": "Check halfling class level limits on the race page."
+    }
+  ],
+  "size": "needs_review",
+  "saving_throw_modifiers": [
+    "Constitution-based saves against magic and poison."
+  ],
+  "combat_modifiers": [
+    "Bonus with bow or sling.",
+    "Improved surprise when scouting in appropriate conditions."
+  ],
+  "restrictions": [],
+  "needs_review_fields": [
+    "ability_minimums",
+    "ability_maximums",
+    "size",
+    "level_limits"
+  ],
+  "legacy_source": "vault_rules.RACES",
+  "description": "Halfling canonical record matching the race data currently implemented in the Classic character vault."
+}

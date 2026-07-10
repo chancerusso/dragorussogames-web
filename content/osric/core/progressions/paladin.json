@@ -1,0 +1,231 @@
+{
+  "id": "osric.progression.class.paladin",
+  "type": "class_progression",
+  "name": "Paladin Class Progression",
+  "display_name": "Paladin Class Progression",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "content/1e/classes/paladin.md Advancement",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "XP thresholds and hit-dice progression canonicalized from content/1e class advancement table."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "osric",
+    "needs-review"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "class_id": "osric.class.paladin",
+  "levels": [
+    {
+      "level": 1,
+      "xp_threshold": 0,
+      "hit_dice": "1d10",
+      "notes": "",
+      "effective_spell_level": 0,
+      "spell_slots_text": "-/-/-/-"
+    },
+    {
+      "level": 2,
+      "xp_threshold": 2550,
+      "hit_dice": "2d10",
+      "notes": "",
+      "effective_spell_level": 0,
+      "spell_slots_text": "-/-/-/-"
+    },
+    {
+      "level": 3,
+      "xp_threshold": 5500,
+      "hit_dice": "3d10",
+      "notes": "Turn undead",
+      "effective_spell_level": 0,
+      "spell_slots_text": "-/-/-/-"
+    },
+    {
+      "level": 4,
+      "xp_threshold": 12500,
+      "hit_dice": "4d10",
+      "notes": "Warhorse",
+      "effective_spell_level": 0,
+      "spell_slots_text": "-/-/-/-"
+    },
+    {
+      "level": 5,
+      "xp_threshold": 25000,
+      "hit_dice": "5d10",
+      "notes": "",
+      "effective_spell_level": 0,
+      "spell_slots_text": "-/-/-/-"
+    },
+    {
+      "level": 6,
+      "xp_threshold": 45000,
+      "hit_dice": "6d10",
+      "notes": "",
+      "effective_spell_level": 0,
+      "spell_slots_text": "-/-/-/-"
+    },
+    {
+      "level": 7,
+      "xp_threshold": 95000,
+      "hit_dice": "7d10",
+      "notes": "",
+      "effective_spell_level": 0,
+      "spell_slots_text": "-/-/-/-"
+    },
+    {
+      "level": 8,
+      "xp_threshold": 175000,
+      "hit_dice": "8d10",
+      "notes": "Bonus attacks",
+      "effective_spell_level": 0,
+      "spell_slots_text": "-/-/-/-"
+    },
+    {
+      "level": 9,
+      "xp_threshold": 325000,
+      "hit_dice": "9d10",
+      "notes": "Knight",
+      "effective_spell_level": 1,
+      "spell_slots_text": "1/-/-/-"
+    },
+    {
+      "level": 10,
+      "xp_threshold": 600000,
+      "hit_dice": "9d10+3",
+      "notes": "",
+      "effective_spell_level": 2,
+      "spell_slots_text": "2/-/-/-"
+    },
+    {
+      "level": 11,
+      "xp_threshold": 1000000,
+      "hit_dice": "9d10+6",
+      "notes": "",
+      "effective_spell_level": 3,
+      "spell_slots_text": "2/1/-/-"
+    },
+    {
+      "level": 12,
+      "xp_threshold": 1350000,
+      "hit_dice": "9d10+9",
+      "notes": "",
+      "effective_spell_level": 4,
+      "spell_slots_text": "2/2/-/-"
+    },
+    {
+      "level": 13,
+      "xp_threshold": 1700000,
+      "hit_dice": "9d10+12",
+      "notes": "",
+      "effective_spell_level": 5,
+      "spell_slots_text": "2/2/1/-"
+    },
+    {
+      "level": 14,
+      "xp_threshold": 2050000,
+      "hit_dice": "9d10+15",
+      "notes": "",
+      "effective_spell_level": 6,
+      "spell_slots_text": "3/2/1/-"
+    },
+    {
+      "level": 15,
+      "xp_threshold": 2400000,
+      "hit_dice": "9d10+18",
+      "notes": "",
+      "effective_spell_level": 7,
+      "spell_slots_text": "3/2/1/1"
+    },
+    {
+      "level": 16,
+      "xp_threshold": 2750000,
+      "hit_dice": "9d10+21",
+      "notes": "",
+      "effective_spell_level": 8,
+      "spell_slots_text": "3/3/1/1"
+    },
+    {
+      "level": 17,
+      "xp_threshold": 3100000,
+      "hit_dice": "9d10+24",
+      "notes": "",
+      "effective_spell_level": 8,
+      "spell_slots_text": "3/3/2/1"
+    },
+    {
+      "level": 18,
+      "xp_threshold": 3450000,
+      "hit_dice": "9d10+27",
+      "notes": "",
+      "effective_spell_level": 8,
+      "spell_slots_text": "3/3/3/1"
+    },
+    {
+      "level": 19,
+      "xp_threshold": 3800000,
+      "hit_dice": "9d10+30",
+      "notes": "",
+      "effective_spell_level": 8,
+      "spell_slots_text": "3/3/3/2"
+    },
+    {
+      "level": 20,
+      "xp_threshold": 4150000,
+      "hit_dice": "9d10+33",
+      "notes": "",
+      "effective_spell_level": 8,
+      "spell_slots_text": "3/3/3/3"
+    },
+    {
+      "level": 21,
+      "xp_threshold": 4500000,
+      "hit_dice": "9d10+36",
+      "notes": "",
+      "effective_spell_level": 8,
+      "spell_slots_text": "4/3/3/3"
+    },
+    {
+      "level": 22,
+      "xp_threshold": 4850000,
+      "hit_dice": "9d10+39",
+      "notes": "",
+      "effective_spell_level": 8,
+      "spell_slots_text": "4/4/3/3"
+    },
+    {
+      "level": 23,
+      "xp_threshold": 5200000,
+      "hit_dice": "9d10+42",
+      "notes": "",
+      "effective_spell_level": 8,
+      "spell_slots_text": "4/4/4/3"
+    },
+    {
+      "level": 24,
+      "xp_threshold": 5550000,
+      "hit_dice": "9d10+45",
+      "notes": "",
+      "effective_spell_level": 8,
+      "spell_slots_text": "4/4/4/4"
+    }
+  ],
+  "xp_progression_status": "complete",
+  "hit_die_progression_status": "complete",
+  "description": "Paladin progression placeholder preserving the canonical reference until verified advancement tables are populated."
+}

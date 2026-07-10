@@ -1,0 +1,111 @@
+{
+  "id": "osric.progression.class.thief",
+  "type": "class_progression",
+  "name": "Thief Class Progression",
+  "display_name": "Thief Class Progression",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "content/1e/classes/thief.md Advancement",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "XP thresholds and hit-dice progression canonicalized from content/1e class advancement table."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "osric",
+    "needs-review"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "class_id": "osric.class.thief",
+  "levels": [
+    {
+      "level": 1,
+      "xp_threshold": 0,
+      "hit_dice": "1d6",
+      "notes": ""
+    },
+    {
+      "level": 2,
+      "xp_threshold": 1250,
+      "hit_dice": "2d6",
+      "notes": ""
+    },
+    {
+      "level": 3,
+      "xp_threshold": 2500,
+      "hit_dice": "3d6",
+      "notes": ""
+    },
+    {
+      "level": 4,
+      "xp_threshold": 5000,
+      "hit_dice": "4d6",
+      "notes": ""
+    },
+    {
+      "level": 5,
+      "xp_threshold": 10000,
+      "hit_dice": "5d6",
+      "notes": "Backstab damage improves"
+    },
+    {
+      "level": 6,
+      "xp_threshold": 20000,
+      "hit_dice": "6d6",
+      "notes": ""
+    },
+    {
+      "level": 7,
+      "xp_threshold": 40000,
+      "hit_dice": "7d6",
+      "notes": ""
+    },
+    {
+      "level": 8,
+      "xp_threshold": 70000,
+      "hit_dice": "8d6",
+      "notes": ""
+    },
+    {
+      "level": 9,
+      "xp_threshold": 110000,
+      "hit_dice": "9d6",
+      "notes": "Backstab damage improves"
+    },
+    {
+      "level": 10,
+      "xp_threshold": 160000,
+      "hit_dice": "10d6",
+      "notes": "Master Thief; may read scrolls"
+    },
+    {
+      "level": 11,
+      "xp_threshold": 220000,
+      "hit_dice": "10d6+2",
+      "notes": ""
+    },
+    {
+      "level": 12,
+      "xp_threshold": 440000,
+      "hit_dice": "10d6+4",
+      "notes": ""
+    }
+  ],
+  "xp_progression_status": "complete",
+  "hit_die_progression_status": "complete",
+  "description": "Thief progression placeholder preserving the canonical reference until verified advancement tables are populated."
+}

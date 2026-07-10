@@ -1,0 +1,99 @@
+{
+  "id": "osric.saves.druid",
+  "type": "saving_throw_progression",
+  "name": "Druid Saving Throws",
+  "display_name": "Druid Saving Throws",
+  "rules_engine": "osric",
+  "source_library_id": "osric",
+  "source_ref": {
+    "page": null,
+    "section": "Druid saving throws",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Canonicalized from vault_rules.SAVING_THROW_TABLES and cross-checked against current class reference data where available."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "osric",
+    "legacy-canonicalized"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "categories": [
+    "aimed_magic_items",
+    "breath_weapons",
+    "death_paralysis_poison",
+    "petrifaction_polymorph",
+    "spells"
+  ],
+  "rows": [
+    {
+      "level_min": 1,
+      "level_max": 3,
+      "values": {
+        "aimed_magic_items": 14,
+        "breath_weapons": 16,
+        "death_paralysis_poison": 10,
+        "petrifaction_polymorph": 13,
+        "spells": 15
+      }
+    },
+    {
+      "level_min": 4,
+      "level_max": 6,
+      "values": {
+        "aimed_magic_items": 13,
+        "breath_weapons": 15,
+        "death_paralysis_poison": 9,
+        "petrifaction_polymorph": 12,
+        "spells": 14
+      }
+    },
+    {
+      "level_min": 7,
+      "level_max": 9,
+      "values": {
+        "aimed_magic_items": 11,
+        "breath_weapons": 13,
+        "death_paralysis_poison": 7,
+        "petrifaction_polymorph": 10,
+        "spells": 12
+      }
+    },
+    {
+      "level_min": 10,
+      "level_max": 12,
+      "values": {
+        "aimed_magic_items": 10,
+        "breath_weapons": 12,
+        "death_paralysis_poison": 6,
+        "petrifaction_polymorph": 9,
+        "spells": 11
+      }
+    },
+    {
+      "level_min": 13,
+      "level_max": 14,
+      "values": {
+        "aimed_magic_items": 9,
+        "breath_weapons": 11,
+        "death_paralysis_poison": 5,
+        "petrifaction_polymorph": 8,
+        "spells": 10
+      }
+    }
+  ],
+  "progression_status": "complete",
+  "description": "Druid saving throw progression from the current implementation."
+}
