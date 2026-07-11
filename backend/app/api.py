@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import Optional
 
@@ -99,6 +100,7 @@ from app.services.expedition import (
 )
 
 router = APIRouter(prefix="/api")
+logger = logging.getLogger(__name__)
 DRAGONLANCE_RACE_DIR = Path(__file__).resolve().parents[2] / "content" / "settings" / "dragonlance" / "races"
 DRAGONLANCE_CLASS_DIR = Path(__file__).resolve().parents[2] / "content" / "settings" / "dragonlance" / "classes"
 
@@ -248,6 +250,33 @@ def safe_storage_payload(location: SafeStorageLocation, stored_items: list[dict]
     }
 
 
+def combat_runtime_error_payload() -> dict:
+    return {
+        "thac0": {"automation_status": "runtime_error"},
+        "attacks_per_round": {"automation_status": "runtime_error"},
+        "weapons": [],
+        "runtime_matrix": [],
+        "automation_status": "runtime_error",
+        "error": "Combat runtime unavailable. The rest of the character payload is preserved.",
+    }
+
+
+def character_combat_runtime(character_id: int, adjusted_scores: dict, inventory: list[dict], class_name: str, race: str, level: int, weapon_proficiencies: list[dict], exceptional_strength: int | None = None) -> dict:
+    try:
+        return combat_payload(
+            adjusted_scores,
+            inventory,
+            class_name,
+            race,
+            level,
+            weapon_proficiencies,
+            exceptional_strength,
+        )
+    except Exception:
+        logger.exception("Combat runtime generation failed for character %s", character_id)
+        return combat_runtime_error_payload()
+
+
 def character_payload(character: VaultCharacter) -> dict:
     abilities = character.abilities
     coins = character.coins
@@ -308,7 +337,8 @@ def character_payload(character: VaultCharacter) -> dict:
         character.level,
         abilities.exceptional_strength if abilities else None,
     ) if abilities else {}
-    combat_runtime = combat_payload(
+    combat_runtime = character_combat_runtime(
+        character.id,
         adjusted_scores,
         inventory,
         rules_class_name(character.class_name),
@@ -316,7 +346,7 @@ def character_payload(character: VaultCharacter) -> dict:
         character.level,
         weapon_proficiencies,
         abilities.exceptional_strength if abilities else None,
-    ) if abilities else {}
+    ) if abilities else combat_runtime_error_payload()
     return {
         "id": character.id,
         "user_id": character.user_id,

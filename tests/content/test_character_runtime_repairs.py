@@ -4,8 +4,10 @@ import os
 import sys
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from sqlalchemy import create_engine, func, select
+from sqlalchemy.pool import StaticPool
 from sqlalchemy.orm import sessionmaker
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -19,6 +21,8 @@ from app.api import (  # noqa: E402
     character_payload,
     create_vault_character_for_player,
     delete_inventory_record,
+    get_player_vault_character,
+    get_vault_character,
     remove_weapon_proficiency,
     update_inventory_record,
     upsert_weapon_proficiency,
@@ -27,13 +31,13 @@ from app.db.base import Base  # noqa: E402
 from app.db.models import EquipmentCatalog, Player, VaultCharacter, WeaponProficiency  # noqa: E402
 from app.services.vault_rules import seed_vault_catalogs  # noqa: E402
 from app.services.vault_rules import encumbrance  # noqa: E402
-from app.services.combat_runtime import combat_payload, weapon_combat  # noqa: E402
+from app.services.combat_runtime import combat_payload, load_attack_progression, weapon_combat  # noqa: E402
 import app.db.models  # noqa: E402,F401
 
 
 class CharacterRuntimeRepairTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.engine = create_engine("sqlite:///:memory:")
+        self.engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
         Base.metadata.create_all(self.engine)
         self.Session = sessionmaker(bind=self.engine)
         self.db = self.Session()
@@ -72,6 +76,37 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         item = self.db.scalar(select(EquipmentCatalog).where(EquipmentCatalog.name == name))
         self.assertIsNotNone(item)
         return item
+
+    def strong_knight_with_weapon(self) -> VaultCharacter:
+        character = create_vault_character_for_player(
+            {
+                "name": "Endpoint Runtime Knight",
+                "race": "Hill Dwarf",
+                "class_name": "Knight of the Crown",
+                "alignment": "Lawful Good",
+                "level": 1,
+                "abilities": {
+                    "strength": 18,
+                    "intelligence": 10,
+                    "wisdom": 12,
+                    "dexterity": 16,
+                    "constitution": 16,
+                    "charisma": 10,
+                },
+                "exceptional_strength": 77,
+                "combat": {"max_hp": 10, "current_hp": 10},
+                "coins": {"gold": 100},
+            },
+            self.player,
+            self.db,
+        )
+        model = self.db.get(VaultCharacter, character["id"])
+        sword = self.equipment("Sword, long")
+        add_inventory_record(model, {"equipment_id": sword.id, "status": "equipped"}, self.db)
+        self.db.refresh(model)
+        upsert_weapon_proficiency(model, {"equipment_id": sword.id, "proficient": True}, self.db)
+        self.db.refresh(model)
+        return model
 
     def test_knight_of_the_crown_inherits_fighter_saves_and_proficiency_rules(self) -> None:
         payload = character_payload(self.character_model)
@@ -201,6 +236,65 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertEqual(10, death_rows[0]["value"])
         self.assertEqual("Dwarf racial adjustment", death_rows[1]["label"])
         self.assertEqual(-4, death_rows[1]["modifier"])
+
+    def test_player_character_endpoint_includes_combat_runtime_shape(self) -> None:
+        model = self.strong_knight_with_weapon()
+
+        payload = get_player_vault_character(model.id, {"sub": str(self.player.id)}, self.db)
+
+        runtime = payload["combat"]["runtime"]
+        self.assertIn("thac0", runtime)
+        self.assertIn("attacks_per_round", runtime)
+        self.assertIn("weapons", runtime)
+        self.assertEqual(20, runtime["thac0"]["base_thac0"])
+        self.assertEqual("Sword, long", runtime["weapons"][0]["weapon"])
+        self.assertEqual(2, runtime["weapons"][0]["attack_modifiers"]["strength"])
+        self.assertEqual(4, runtime["weapons"][0]["damage"]["strength"])
+        self.assertIn("ability_breakdown", payload["combat"])
+        self.assertIn("armor_class_breakdown", payload["combat"])
+        self.assertIn("saving_throws", payload["combat"])
+        self.assertIn("encumbrance", payload["combat"])
+
+    def test_admin_character_endpoint_includes_same_combat_runtime_shape(self) -> None:
+        model = self.strong_knight_with_weapon()
+
+        payload = get_vault_character(model.id, {"sub": "admin", "role": "admin"}, self.db)
+
+        self.assertIn("runtime", payload["combat"])
+        self.assertEqual("osric.attack.fighter", payload["combat"]["runtime"]["thac0"]["attack_progression_ref"])
+        self.assertEqual("Sword, long", payload["combat"]["runtime"]["weapons"][0]["weapon"])
+
+    def test_character_endpoint_calls_combat_runtime_once(self) -> None:
+        model = self.strong_knight_with_weapon()
+
+        with patch("app.api.combat_payload", wraps=combat_payload) as wrapped:
+            payload = get_player_vault_character(model.id, {"sub": str(self.player.id)}, self.db)
+
+        self.assertIn("runtime", payload["combat"])
+        self.assertEqual(1, wrapped.call_count)
+
+    def test_attack_progression_is_cached_within_character_runtime(self) -> None:
+        model = self.strong_knight_with_weapon()
+        load_attack_progression.cache_clear()
+
+        payload = get_player_vault_character(model.id, {"sub": str(self.player.id)}, self.db)
+        cache = load_attack_progression.cache_info()
+
+        self.assertEqual("osric.attack.fighter", payload["combat"]["runtime"]["thac0"]["attack_progression_ref"])
+        self.assertEqual(1, cache.misses)
+        self.assertGreaterEqual(cache.hits, 1)
+
+    def test_combat_runtime_failure_is_logged_and_returned_structurally(self) -> None:
+        model = self.strong_knight_with_weapon()
+
+        with patch("app.api.combat_payload", side_effect=RuntimeError("boom")):
+            with self.assertLogs("app.api", level="ERROR") as logs:
+                payload = get_player_vault_character(model.id, {"sub": str(self.player.id)}, self.db)
+
+        runtime = payload["combat"]["runtime"]
+        self.assertEqual("runtime_error", runtime["automation_status"])
+        self.assertEqual([], runtime["weapons"])
+        self.assertIn("Combat runtime generation failed for character", "\n".join(logs.output))
 
     def test_weapon_proficiency_upserts_and_unmarks_by_equipment_id(self) -> None:
         hammer = self.equipment("Hammer, war, heavy")

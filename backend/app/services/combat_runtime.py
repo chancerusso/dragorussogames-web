@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -65,6 +66,7 @@ def attack_progression_id(class_name: str) -> str:
     return f"osric.attack.{key}"
 
 
+@lru_cache(maxsize=None)
 def load_attack_progression(class_name: str) -> dict[str, Any] | None:
     path = content_root() / "osric" / "core" / "attacks" / f"{attack_progression_id(class_name).split('.')[-1]}.json"
     if not path.exists():
