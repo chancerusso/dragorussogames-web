@@ -883,6 +883,8 @@
   border-collapse:collapse;
   margin-top:10px;
   font-size:.9rem;
+  background:#fffaf0;
+  color:#21140f;
 }
 
 .vault-table th,
@@ -894,10 +896,19 @@
 }
 
 .vault-table th{
-  color:#7a211b;
+  background:#f2dfbd;
+  color:#4b1b16;
   font-family:'Cinzel',serif;
   font-size:.72rem;
   text-transform:uppercase;
+}
+
+.vault-table tbody tr{
+  background:#fffaf0;
+}
+
+.vault-table tbody tr:nth-child(even){
+  background:#f8ecd5;
 }
 
 .vault-saving-list{
@@ -1000,7 +1011,28 @@
 }
 
 .vault-warn-row td{
-  background:rgba(122,33,27,.07);
+  background:#f8e6d8;
+  color:#2e1d12;
+}
+
+.vault-equipped-row td,
+.vault-proficient-row td{
+  background:#edf7e8;
+}
+
+.vault-status-good{
+  color:#1f6d36;
+  font-weight:900;
+}
+
+.vault-status-review{
+  color:#795015;
+  font-weight:900;
+}
+
+.vault-status-blocked{
+  color:#8b211b;
+  font-weight:900;
 }
 
 .vault-badge{

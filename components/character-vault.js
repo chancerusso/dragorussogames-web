@@ -766,8 +766,18 @@ function equipmentRows(items) {
     const equipped = inventoryItem?.status === "equipped";
     const equipLabel = equipped ? "Equipped ✓" : feedback === "equipped" ? "Equipped ✓" : "Equip";
     const addLabel = added || feedback === "added" ? "Added ✓" : "Add";
-    return `<tr class="${allowed.allowed ? "" : "vault-warn-row"}"><td><strong>${h(item.name)}</strong><br><span class="vault-mini">${h(displayReference(detail))}</span></td><td>${h(labelize(item.type))}</td><td>${h(item.weight)}</td><td>${h(item.cost_amount ?? "")} ${h(item.cost_coin ?? "")}</td><td>${allowed.allowed ? "Allowed" : "Blocked"}<br><span class="vault-mini">${h(allowed.reason)}</span></td><td><button class="vault-button secondary" type="button" data-add-equipment="${item.id}" data-status="carried" ${added ? "disabled" : ""}>${addLabel}</button> <button class="vault-button secondary" type="button" data-add-equipment="${item.id}" data-status="equipped" ${equipped || (!allowed.allowed && !state.dmOverride) ? "disabled" : ""}>${equipLabel}</button>${equipped ? ` <button class="vault-button secondary" type="button" data-inventory-action="${inventoryItem.id}:carried">Unequip</button>` : ""}</td></tr>`;
+    const status = equipmentUseStatus(allowed);
+    const restricted = !allowed.allowed && !state.dmOverride;
+    return `<tr class="${allowed.allowed ? "" : "vault-warn-row"}"><td><strong>${h(item.name)}</strong><br><span class="vault-mini">${h(displayReference(detail))}</span></td><td>${h(labelize(item.type))}</td><td>${h(item.weight)}</td><td>${h(item.cost_amount ?? "")} ${h(item.cost_coin ?? "")}</td><td><span class="${h(status.className)}">${h(status.label)}</span><br><span class="vault-mini">${h(status.reason)}</span></td><td><button class="vault-button secondary" type="button" data-add-equipment="${item.id}" data-status="carried" ${added || restricted ? "disabled" : ""}>${addLabel}</button> <button class="vault-button secondary" type="button" data-add-equipment="${item.id}" data-status="equipped" ${equipped || restricted ? "disabled" : ""}>${equipLabel}</button>${equipped ? ` <button class="vault-button secondary" type="button" data-inventory-action="${inventoryItem.id}:carried">Unequip</button>` : ""}</td></tr>`;
   }).join("");
+}
+
+function equipmentUseStatus(allowed) {
+  if (allowed.allowed) return { label: "Allowed", reason: allowed.reason || "Allowed", className: "vault-status-good" };
+  if (state.dmOverride) return { label: "DM Override Applied", reason: allowed.reason || "Override recorded on equip.", className: "vault-status-review" };
+  const reason = allowed.reason || "Ask your DM before using this item.";
+  if (/manual dm review/i.test(reason)) return { label: "Needs Review", reason, className: "vault-status-review" };
+  return { label: "DM Override Required", reason, className: "vault-status-blocked" };
 }
 
 function inventoryItemForEquipment(equipmentId) {
@@ -776,7 +786,12 @@ function inventoryItemForEquipment(equipmentId) {
 
 function proficiencyManager() {
   const weapons = state.equipment.filter((item) => item.type === "weapon" && !isAmmunition(item)).slice(0, 80);
-  return `<div class="vault-full"><table class="vault-table"><thead><tr><th>Weapon</th><th>Damage</th><th>Proficient</th></tr></thead><tbody>${weapons.map((weapon) => `<tr><td>${h(weapon.name)}</td><td>${h(weapon.damage_small_medium || "")}</td><td><button class="vault-button secondary" type="button" data-prof="${weapon.id}">Mark</button></td></tr>`).join("")}</tbody></table><p class="vault-rules">Rules: class proficiency counts and penalties are Manual DM Review.</p></div>`;
+  const classInfo = state.rules?.classes?.[rulesClassName(state.draft.class_name)] || {};
+  return `<div class="vault-full"><table class="vault-table"><thead><tr><th>Weapon</th><th>Damage</th><th>Status</th><th></th></tr></thead><tbody>${weapons.map((weapon) => {
+    const entry = weaponProficiencyEntry(weapon.id, state.character?.weapon_proficiencies || []);
+    const proficient = Boolean(entry?.proficient);
+    return `<tr class="${proficient ? "vault-proficient-row" : ""}"><td>${h(weapon.name)}</td><td>${h(weapon.damage_small_medium || "")}</td><td><span class="${proficient ? "vault-status-good" : "vault-muted"}">${proficient ? "Proficient" : "Non-proficient"}</span></td><td><button class="vault-button secondary" type="button" data-prof="${weapon.id}" data-prof-action="${proficient ? "unmark" : "mark"}">${proficient ? "Unmark" : "Mark"}</button></td></tr>`;
+  }).join("")}</tbody></table><p class="vault-rules">Rules: ${h(proficiencyCount(state.draft.class_name, state.draft.level) ?? "Needs Review")} allowed proficiencies at this level. Non-proficiency penalty: ${h(classInfo.non_proficiency_penalty ?? "Needs Review")}.</p></div>`;
 }
 
 function spellManager() {
@@ -837,14 +852,19 @@ function knownSpellEntry(spellId) {
 }
 
 function spellRulesClassName(className) {
-  if (["White Robe Wizard", "Red Robe Wizard", "Black Robe Wizard"].includes(className)) return "Magic-User";
+  return rulesClassName(className);
+}
+
+function rulesClassName(className) {
   if (state.rules?.classes?.[className]) return className;
   const profile = dragonlanceClassProfile(className);
   const base = `${profile?.base_class || ""} ${profile?.name || className}`.toLowerCase();
+  if (base.includes("knight of solamnia") || base.includes("knight of the crown") || base.includes("knight of the sword") || base.includes("knight of the rose")) return "Fighter";
   if (base.includes("cleric")) return "Cleric";
   if (base.includes("druid")) return "Druid";
   if (base.includes("illusionist")) return "Illusionist";
   if (base.includes("magic-user") || base.includes("wizard")) return "Magic-User";
+  if (base.includes("thief") || base.includes("handler")) return "Thief";
   return className;
 }
 
@@ -1242,9 +1262,21 @@ function bindBuilderActions() {
     renderBuilder();
   }));
   document.querySelectorAll("[data-prof]").forEach((button) => button.addEventListener("click", async () => {
-    const character = await ensureSaved();
-    state.character = await api(`/characters/${character.id}/weapon-proficiencies`, { method: "POST", body: JSON.stringify({ equipment_id: Number(button.dataset.prof), proficient: true }) });
-    toast("Saved.");
+    try {
+      const character = await ensureSaved();
+      const equipmentId = Number(button.dataset.prof);
+      if (button.dataset.profAction === "unmark") {
+        state.character = await weaponProficiencyApi(character.id, equipmentId, { method: "DELETE" });
+        toast("Proficiency unmarked.", "success");
+      } else {
+        state.character = await characterApi(`/${character.id}/weapon-proficiencies`, { method: "POST", body: JSON.stringify({ equipment_id: equipmentId, proficient: true, dm_override: state.dmOverride }) });
+        toast("Proficiency marked.", "success");
+      }
+      state.draft = initialDraft();
+      renderBuilder();
+    } catch (error) {
+      toast(readableError(error));
+    }
   }));
   bindInventoryActions(() => renderBuilder());
   document.querySelector("[name='equipment_search']")?.addEventListener("input", () => filterEquipment());
@@ -1304,6 +1336,10 @@ async function inventoryApi(inventoryId, options = {}) {
 async function spellApi(characterSpellId, options = {}) {
   if (!state.character?.id) throw new Error("Save the character before editing spells.");
   return characterApi(`/${state.character.id}/spells/${characterSpellId}`, options);
+}
+
+async function weaponProficiencyApi(characterId, equipmentId, options = {}) {
+  return characterApi(`/${characterId}/weapon-proficiencies/${equipmentId}`, options);
 }
 
 async function addOrUpdateInventoryItem(equipmentId, status = "carried") {
@@ -1426,7 +1462,7 @@ function classAwareEquipment() {
 }
 
 function classAllowsEquipment(className, item) {
-  const info = state.rules?.classes?.[className] || {};
+  const info = state.rules?.classes?.[rulesClassName(className)] || {};
   const name = (item.name || "").toLowerCase();
   if (item.type === "armor") {
     const armorTypes = info.armor_types || [];
@@ -1449,7 +1485,7 @@ function classAllowsEquipment(className, item) {
 }
 
 function proficiencyCount(className, level) {
-  const info = state.rules?.classes?.[className] || {};
+  const info = state.rules?.classes?.[rulesClassName(className)] || {};
   if (info.proficiency_initial == null || info.proficiency_every == null) return null;
   return Number(info.proficiency_initial) + Math.floor((Math.max(1, Number(level || 1)) - 1) / Number(info.proficiency_every));
 }
@@ -1649,8 +1685,9 @@ function openQuickEditModal(c) {
 function sheetHtml(c) {
   return `${sheetHeaderHtml(c)}<div class="vault-grid">
     <section class="vault-card">${sectionTitle("Saving Throws", "/1e/character-creation/003-class/")}${savingThrowsHtml(c)}</section>
+    <section class="vault-card">${sectionTitle("Armor Class", "/1e/equipment/")}${armorClassBreakdownHtml(c)}</section>
     <section class="vault-card">${sectionTitle("Movement & Encumbrance", "/1e/how-to-play/equipment-encumbrance/")}<div class="vault-compact-list"><span><strong>Move</strong>${h(c.combat?.movement_rate ?? 120)}</span><span><strong>Carried</strong>${h(c.combat?.carried_weight ?? 0)} lb</span><span><strong>Coins</strong>${coinWeight(c.coins)} lb</span><span><strong>Load</strong>${h(c.combat?.encumbrance_band ?? "Unencumbered")}</span></div></section>
-    <section class="vault-card">${sectionTitle("Race/Class Details", "/1e/character-creation/003-class/")}<p><strong>Hit Dice:</strong> ${h(hitDiceText(c))}</p><p><strong>Armor:</strong> ${h(c.class_details?.armor || "")}</p><p><strong>Weapons:</strong> ${h(c.class_details?.weapons || "")}</p><p><strong>Vision:</strong> ${h(c.race_details?.vision || "")}</p><p><strong>Languages:</strong> ${h((c.race_details?.languages || []).join(", "))}</p></section>
+    <section class="vault-card">${sectionTitle("Race/Class Details", "/1e/character-creation/003-class/")}${raceClassDetailsHtml(c)}</section>
     <section class="vault-panel">${sectionTitle("Weapons", "/1e/equipment/")}${weaponsHtml(c)}</section>
     <section class="vault-panel">${sectionTitle("Armor", "/1e/equipment/")}${armorHtml(c)}</section>
     <section class="vault-panel">${sectionTitle("Equipment", "/1e/equipment/")}${inventoryHtml(c)}</section>
@@ -1706,22 +1743,22 @@ function openRulesModal(titleText, reference) {
 function inventoryHtml(c) {
   const items = c.inventory || [];
   if (!items.length) return "<p>No inventory yet.</p>";
+  const proficiencies = c.weapon_proficiencies || [];
   const buckets = [
     ["equipped", "Equipped"],
     ["carried", "Carried"],
     ["stored", "Stored"],
-    ["treasure", "Treasure"],
+    ["dropped", "Dropped"],
     ["lost", "Lost / Destroyed"],
-    ["sold", "Not Carried"],
   ];
   return buckets.map(([status, label]) => {
     const bucket = items.filter((item) => item.status === status || (status === "lost" && ["lost", "destroyed"].includes(item.status)));
-    return `<h3>${label}</h3>${bucket.length ? inventoryTable(bucket) : `<p class="vault-muted">None.</p>`}`;
+    return `<h3>${label}</h3>${bucket.length ? inventoryTable(bucket, proficiencies) : `<p class="vault-muted">None.</p>`}`;
   }).join("");
 }
 
-function inventoryTable(items) {
-  return `<table class="vault-table"><thead><tr><th>Item</th><th>Type</th><th>Weight</th><th>Cost</th><th>Status</th><th>Actions</th></tr></thead><tbody>${items.map((item) => inventoryRow(item)).join("")}</tbody></table>`;
+function inventoryTable(items, proficiencies = []) {
+  return `<table class="vault-table"><thead><tr><th>Item</th><th>Type</th><th>Weight</th><th>Cost</th><th>Status</th><th>Actions</th></tr></thead><tbody>${items.map((item) => inventoryRow(item, proficiencies)).join("")}</tbody></table>`;
 }
 
 function inventoryRow(item, proficiencies = []) {
@@ -1732,13 +1769,52 @@ function inventoryRow(item, proficiencies = []) {
   const proficiency = equipment.type === "weapon" ? weaponProficiencyLabel(equipment.id, proficiencies) : "";
   const cost = equipment.cost_amount != null ? `${equipment.cost_amount} ${equipment.cost_coin || ""}` : "";
   const status = isStored && item.storage_location ? `${labelize(item.status)} at ${item.storage_location}` : labelize(item.status);
-  return `<tr><td>${h(item.quantity)} x <strong>${h(equipment.name)}</strong><br><span class="vault-mini">${damage ? `Damage ${h(damage)}` : ""}${damage && proficiency ? " / " : ""}${proficiency ? h(proficiency) : ""}</span></td><td>${h(labelize(equipment.type))}</td><td>${h(((equipment.weight || 0) * item.quantity).toFixed(2))}</td><td>${h(cost)}</td><td>${h(status)}</td><td>${isEquipped ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Unequip</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:equipped">Equip</button>`} ${isStored ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Carry</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:stored">Store</button>`} <button type="button" class="vault-button secondary" data-inventory-action="${item.id}:delete">Drop</button></td></tr>`;
+  const proficiencyClass = proficiency === "Proficient" ? "vault-status-good" : "vault-muted";
+  return `<tr class="${isEquipped ? "vault-equipped-row" : ""}"><td>${h(item.quantity)} x <strong>${h(equipment.name)}</strong><br><span class="vault-mini">${damage ? `Damage ${h(damage)}` : ""}${damage && proficiency ? " / " : ""}${proficiency ? `<span class="${proficiencyClass}">${h(proficiency)}</span>` : ""}</span></td><td>${h(labelize(equipment.type))}</td><td>${h(((equipment.weight || 0) * item.quantity).toFixed(2))}</td><td>${h(cost)}</td><td>${h(status)}</td><td>${isEquipped ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Unequip</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:equipped">Equip</button>`} ${isStored ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Carry</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:stored">Store</button>`} <button type="button" class="vault-button secondary" data-inventory-action="${item.id}:delete">Drop</button></td></tr>`;
 }
 
 function savingThrowsHtml(c) {
   const saves = c.combat?.saving_throws;
   if (!saves?.categories) return `<p>Manual DM Review: ${h(saves?.reason || "saving table not encoded")}</p>`;
   return `<p class="vault-muted">Level band ${h(saves.level_band)}. Roll this number or higher on d20.</p><div class="vault-saving-list">${Object.entries(saves.categories).map(([key, value]) => `<div class="vault-saving-row"><span>${h(saves.labels?.[key] || title(key))}</span><strong>${h(value)}</strong></div>`).join("")}</div>${(saves.notes || []).map((note) => `<p class="vault-muted">${h(note)}</p>`).join("")}`;
+}
+
+function armorClassBreakdownHtml(c) {
+  const equipped = (c.inventory || []).filter((item) => item.status === "equipped");
+  const armor = equipped
+    .filter((item) => item.equipment?.type === "armor" && item.equipment.armor_class_value != null)
+    .sort((a, b) => Number(a.equipment.armor_class_value) - Number(b.equipment.armor_class_value))[0];
+  const shield = equipped.find((item) => item.equipment?.type === "shield");
+  const baseAc = 10;
+  const armorAc = armor ? Number(armor.equipment.armor_class_value) : baseAc;
+  const armorAdjustment = armor ? armorAc - baseAc : 0;
+  const shieldAdjustment = shield ? -Math.abs(Number(shield.equipment.armor_class_adjustment || 1)) : 0;
+  const dexAdjustment = Number(c.combat?.dex_adjustment || 0);
+  return `<div class="vault-compact-list">
+    <span><strong>Base AC</strong>${baseAc}</span>
+    <span><strong>${h(armor?.equipment?.name || "No armor")}</strong>${formatSigned(armorAdjustment)}</span>
+    <span><strong>${h(shield?.equipment?.name || "No shield")}</strong>${formatSigned(shieldAdjustment)}</span>
+    <span><strong>Dexterity</strong>${formatSigned(dexAdjustment)}</span>
+    <span><strong>Final AC</strong>${h(c.combat?.armor_class ?? baseAc)}</span>
+  </div><p class="vault-muted">Only equipped armor and shields affect descending Armor Class.</p>`;
+}
+
+function raceClassDetailsHtml(c) {
+  const classDetails = c.class_details || {};
+  const raceDetails = c.race_details || {};
+  const profCount = classDetails.proficiency_count ?? proficiencyCount(c.class_name, c.level);
+  const fields = [
+    ["OSRIC Base", classDetails.rules_class_name || rulesClassName(c.class_name)],
+    ["Hit Dice", hitDiceText(c)],
+    ["Armor", classDetails.armor],
+    ["Weapons", classDetails.weapons],
+    ["Proficiencies", profCount == null ? "Needs Review" : profCount],
+    ["Non-Proficiency Penalty", classDetails.non_proficiency_penalty == null ? "Needs Review" : formatSigned(classDetails.non_proficiency_penalty)],
+    ["Vision", raceDetails.vision || raceDetails.infravision],
+    ["Languages", (raceDetails.languages || []).join(", ")],
+    ["Movement", raceDetails.movement ? `${raceDetails.movement} ft` : ""],
+  ];
+  return `<dl class="vault-detail-list">${fields.filter(([, value]) => value !== undefined && value !== null && value !== "").map(([label, value]) => `<div><dt>${h(label)}</dt><dd>${h(value)}</dd></div>`).join("")}</dl>`;
 }
 
 function warningsHtml(c) {
@@ -1753,7 +1829,7 @@ function weaponsHtml(c) {
 
 function armorHtml(c) {
   const armor = (c.inventory || []).filter((item) => ["armor", "shield"].includes(item.equipment.type));
-  return `${armor.length ? inventoryTable(armor) : "<p>No armor or shields in inventory.</p>"}<p class="vault-muted">${h(c.class_details?.armor || "")}</p>`;
+  return `${armor.length ? inventoryTable(armor, c.weapon_proficiencies || []) : "<p>No armor or shields in inventory.</p>"}<p class="vault-muted">${h(c.class_details?.armor || "")}</p>`;
 }
 
 function spellsHtml(c) {
@@ -2220,6 +2296,7 @@ function labelize(value) {
     carried: "Carried",
     equipped: "Equipped",
     stored: "Stored",
+    dropped: "Dropped",
     sold: "Not Carried",
     lost: "Lost",
     destroyed: "Destroyed",
@@ -2262,9 +2339,13 @@ function displayReference(value) {
 }
 
 function weaponProficiencyLabel(equipmentId, proficiencies = []) {
-  const proficiency = proficiencies.find((entry) => entry.equipment_id === equipmentId);
+  const proficiency = weaponProficiencyEntry(equipmentId, proficiencies);
   if (!proficiency) return "Non-proficient";
   return proficiency.proficient ? "Proficient" : "Non-proficient";
+}
+
+function weaponProficiencyEntry(equipmentId, proficiencies = []) {
+  return proficiencies.find((entry) => Number(entry.equipment_id) === Number(equipmentId)) || null;
 }
 
 function isAmmunition(item = {}) {

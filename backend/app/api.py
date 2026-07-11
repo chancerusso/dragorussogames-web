@@ -81,6 +81,7 @@ from app.services.characters import (
     move_equipment,
 )
 from app.services.ledger import build_initial_ledger, sync_active_status
+from app.services.advancement import AdvancementPreviewService, runtime_audit_payload
 from app.services.canonical_content import CanonicalContentError, CanonicalContentService
 from app.services.expedition import (
     get_order,
@@ -127,6 +128,15 @@ def load_dragonlance_class_names() -> set[str]:
 
 
 DRAGONLANCE_CLASS_NAMES = load_dragonlance_class_names()
+DRAGONLANCE_CLASS_PROFILES = {}
+try:
+    for file_name in json.loads((DRAGONLANCE_CLASS_DIR / "index.json").read_text()):
+        profile = json.loads((DRAGONLANCE_CLASS_DIR / file_name).read_text())
+        DRAGONLANCE_CLASS_PROFILES[profile.get("name")] = profile
+except OSError:
+    DRAGONLANCE_CLASS_PROFILES = {}
+
+VALID_INVENTORY_STATUSES = {"carried", "equipped", "stored", "dropped", "lost", "destroyed"}
 
 
 def ensure_vault_seeded(db: Session) -> None:
@@ -313,10 +323,11 @@ def character_payload(character: VaultCharacter) -> dict:
         },
         "warnings": character_warnings(character.race, character.class_name, character.alignment),
         "class_details": {
-            **(CLASSES.get(spell_rules_class_name(character.class_name), CLASSES.get(character.class_name, {}))),
-            "proficiency_count": proficiency_count(character.class_name, character.level),
+            **(CLASSES.get(rules_class_name(character.class_name), CLASSES.get(character.class_name, {}))),
+            "proficiency_count": proficiency_count(rules_class_name(character.class_name), character.level),
+            "rules_class_name": rules_class_name(character.class_name),
         },
-        "race_details": RACES.get(character.race, {}),
+        "race_details": RACES.get(rules_race_name(character.race), {}),
         "inventory": inventory,
         "weapon_proficiencies": [
             {
@@ -519,7 +530,7 @@ def recalculate_character(db: Session, character: VaultCharacter) -> None:
         "silver": character.coins.silver,
         "copper": character.coins.copper,
     }
-    stats = derived_stats(adjusted, inventory, coins, character.class_name, character.race, character.level)
+    stats = derived_stats(adjusted, inventory, coins, rules_class_name(character.class_name), rules_race_name(character.race), character.level)
     for field, value in stats.items():
         if hasattr(character.combat, field):
             setattr(character.combat, field, value)
@@ -562,7 +573,7 @@ def validate_equipped_inventory(character: VaultCharacter, item: CharacterInvent
         ]
         if equipped_shields:
             raise HTTPException(status_code=422, detail="Only one shield can be equipped.")
-    allowed, reason = is_allowed_equipment(character.class_name, equipment_payload(equipment))
+    allowed, reason = is_allowed_equipment(rules_class_name(character.class_name), equipment_payload(equipment))
     if not allowed:
         raise HTTPException(status_code=422, detail=f"{character.class_name} cannot equip {equipment.name}. {reason}")
 
@@ -586,9 +597,46 @@ def character_spell_entries(character: VaultCharacter, exclude_id: int | None = 
 
 
 def spell_rules_class_name(class_name: str) -> str:
-    if class_name in {"White Robe Wizard", "Red Robe Wizard", "Black Robe Wizard"}:
-        return "Magic-User"
-    return class_name
+    return rules_class_name(class_name)
+
+
+def rules_class_name(class_name: str) -> str:
+    if class_name in CLASSES:
+        return class_name
+    aliases = {
+        "Knight of Solamnia": "Fighter",
+        "Knight of the Crown": "Fighter",
+        "Knight of the Sword": "Fighter",
+        "Knight of the Rose": "Fighter",
+        "Robe Order Wizard": "Magic-User",
+        "Student Magic-User": "Magic-User",
+        "White Robe Wizard": "Magic-User",
+        "Red Robe Wizard": "Magic-User",
+        "Black Robe Wizard": "Magic-User",
+        "Thief / Handler": "Thief",
+    }
+    if class_name in aliases:
+        return aliases[class_name]
+    profile = DRAGONLANCE_CLASS_PROFILES.get(class_name) or {}
+    base_class = profile.get("base_class")
+    return aliases.get(base_class, base_class if base_class in CLASSES else class_name)
+
+
+def rules_race_name(race: str) -> str:
+    if race in RACES:
+        return race
+    lowered = (race or "").lower()
+    if "dwarf" in lowered:
+        return "Dwarf"
+    if "half-elf" in lowered or "half elf" in lowered:
+        return "Half-Elf"
+    if "elf" in lowered:
+        return "Elf"
+    if "gnome" in lowered:
+        return "Gnome"
+    if "kender" in lowered:
+        return "Halfling"
+    return race
 
 
 def spell_has_available_slot(class_name: str, level: int, spell: SpellsCatalog) -> bool:
@@ -851,6 +899,42 @@ def canonical_reference_record(record_id: str, _: dict = Depends(require_jwt_adm
         "summary": canonical_summary(record),
         "references": service.resolved_references(record_id),
     }
+
+
+def advancement_service() -> AdvancementPreviewService:
+    return AdvancementPreviewService(reference_service())
+
+
+@router.get("/1e/characters/{character_id}/advancement-preview")
+def preview_vault_character_advancement(
+    character_id: int,
+    target_level: Optional[int] = None,
+    class_track: Optional[str] = None,
+    proposed_xp: Optional[int] = None,
+    _: dict = Depends(require_jwt_admin),
+    db: Session = Depends(get_db),
+) -> dict:
+    character = get_vault_character_or_404(db, character_id)
+    return advancement_service().preview_advancement(character, target_level=target_level, class_track=class_track, proposed_xp=proposed_xp)
+
+
+@router.get("/player/characters/{character_id}/advancement-preview")
+def preview_player_character_advancement(
+    character_id: int,
+    target_level: Optional[int] = None,
+    class_track: Optional[str] = None,
+    proposed_xp: Optional[int] = None,
+    claims: dict = Depends(require_player),
+    db: Session = Depends(get_db),
+) -> dict:
+    player = player_from_claims(db, claims)
+    character = player_character_or_404(db, character_id, player.id)
+    return advancement_service().preview_advancement(character, target_level=target_level, class_track=class_track, proposed_xp=proposed_xp)
+
+
+@router.get("/1e/character-runtime-audit")
+def character_runtime_audit(_: dict = Depends(require_jwt_admin)) -> list[dict[str, str]]:
+    return runtime_audit_payload()
 
 
 @router.get("/1e/players")
@@ -1446,6 +1530,8 @@ def add_inventory_record(character: VaultCharacter, data: dict, db: Session) -> 
     if equipment is None:
         raise HTTPException(status_code=404, detail="Equipment not found.")
     status = data.get("status") or "carried"
+    if status not in VALID_INVENTORY_STATUSES:
+        raise HTTPException(status_code=422, detail="Invalid equipment status.")
     quantity = int(data.get("quantity") or 1)
     if quantity < 1:
         raise HTTPException(status_code=422, detail="Equipment quantity must be at least 1.")
@@ -1462,7 +1548,10 @@ def add_inventory_record(character: VaultCharacter, data: dict, db: Session) -> 
     )
     db.add(item)
     db.flush()
-    validate_equipped_inventory(character, item, bool(data.get("dm_override", False)))
+    override = bool(data.get("dm_override", False))
+    validate_equipped_inventory(character, item, override)
+    if override and status == "equipped":
+        item.notes = "DM Override Applied" if not item.notes else f"{item.notes}\nDM Override Applied"
     recalculate_character(db, character)
     db.commit()
     db.refresh(character)
@@ -1476,11 +1565,16 @@ def update_inventory_record(character: VaultCharacter, inventory_id: int, data: 
     for field in ("quantity", "status", "container_id", "storage_location", "notes"):
         if field in data:
             setattr(item, field, data[field])
+    if item.status not in VALID_INVENTORY_STATUSES:
+        raise HTTPException(status_code=422, detail="Invalid equipment status.")
     if item.quantity < 1:
         raise HTTPException(status_code=422, detail="Equipment quantity must be at least 1.")
     if item.status == "stored" and not (item.storage_location or character.safe_storage_location):
         raise HTTPException(status_code=422, detail="Stored equipment requires a storage location.")
-    validate_equipped_inventory(character, item, bool(data.get("dm_override", False)))
+    override = bool(data.get("dm_override", False))
+    validate_equipped_inventory(character, item, override)
+    if override and item.status == "equipped" and "DM Override Applied" not in (item.notes or ""):
+        item.notes = "DM Override Applied" if not item.notes else f"{item.notes}\nDM Override Applied"
     recalculate_character(db, character)
     db.commit()
     db.refresh(character)
@@ -1491,7 +1585,9 @@ def delete_inventory_record(character: VaultCharacter, inventory_id: int, db: Se
     item = db.get(CharacterInventory, inventory_id)
     if item is None or item.character_id != character.id:
         raise HTTPException(status_code=404, detail="Inventory item not found.")
-    db.delete(item)
+    item.status = "dropped"
+    item.container_id = None
+    item.storage_location = None
     db.flush()
     recalculate_character(db, character)
     db.commit()
@@ -1518,6 +1614,44 @@ def delete_player_vault_inventory(character_id: int, inventory_id: int, claims: 
     player = player_from_claims(db, claims)
     character = player_character_or_404(db, character_id, player.id)
     return delete_inventory_record(character, inventory_id, db)
+
+
+def upsert_weapon_proficiency(character: VaultCharacter, data: dict, db: Session) -> dict:
+    equipment = db.get(EquipmentCatalog, int(data["equipment_id"]))
+    if equipment is None or equipment.type != "weapon":
+        raise HTTPException(status_code=422, detail="Weapon proficiency requires a catalog weapon.")
+    allowed, reason = is_allowed_equipment(rules_class_name(character.class_name), equipment_payload(equipment))
+    if not allowed and not data.get("dm_override"):
+        raise HTTPException(status_code=422, detail=f"Weapon proficiency requires DM review for {equipment.name}. {reason}")
+    existing = db.scalar(
+        select(WeaponProficiency).where(
+            WeaponProficiency.character_id == character.id,
+            WeaponProficiency.equipment_id == equipment.id,
+        )
+    )
+    if existing is None:
+        existing = WeaponProficiency(character_id=character.id, equipment_id=equipment.id)
+        db.add(existing)
+    existing.proficient = bool(data.get("proficient", True))
+    existing.specialization = data.get("specialization")
+    existing.notes = data.get("notes")
+    db.commit()
+    db.refresh(character)
+    return character_payload(character)
+
+
+def remove_weapon_proficiency(character: VaultCharacter, equipment_id: int, db: Session) -> dict:
+    existing = db.scalar(
+        select(WeaponProficiency).where(
+            WeaponProficiency.character_id == character.id,
+            WeaponProficiency.equipment_id == equipment_id,
+        )
+    )
+    if existing is not None:
+        db.delete(existing)
+        db.commit()
+    db.refresh(character)
+    return character_payload(character)
 
 
 @router.post("/player/characters/{character_id}/spells")
@@ -1577,27 +1711,30 @@ def delete_vault_character_spell(character_id: int, character_spell_id: int, _: 
     return delete_spell_record(character, character_spell_id, db)
 
 
+@router.post("/player/characters/{character_id}/weapon-proficiencies")
+def add_player_vault_weapon_proficiency(character_id: int, data: dict, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
+    player = player_from_claims(db, claims)
+    character = player_character_or_404(db, character_id, player.id)
+    return upsert_weapon_proficiency(character, data, db)
+
+
+@router.delete("/player/characters/{character_id}/weapon-proficiencies/{equipment_id}")
+def delete_player_vault_weapon_proficiency(character_id: int, equipment_id: int, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
+    player = player_from_claims(db, claims)
+    character = player_character_or_404(db, character_id, player.id)
+    return remove_weapon_proficiency(character, equipment_id, db)
+
+
 @router.post("/1e/characters/{character_id}/weapon-proficiencies")
 def add_vault_weapon_proficiency(character_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     character = get_vault_character_or_404(db, character_id)
-    equipment = db.get(EquipmentCatalog, int(data["equipment_id"]))
-    if equipment is None or equipment.type != "weapon":
-        raise HTTPException(status_code=422, detail="Weapon proficiency requires a catalog weapon.")
-    allowed, reason = is_allowed_equipment(character.class_name, equipment_payload(equipment))
-    if not allowed and not data.get("dm_override"):
-        raise HTTPException(status_code=422, detail=f"Weapon proficiency requires DM review for {equipment.name}. {reason}")
-    db.add(
-        WeaponProficiency(
-            character_id=character.id,
-            equipment_id=equipment.id,
-            proficient=bool(data.get("proficient", True)),
-            specialization=data.get("specialization"),
-            notes=data.get("notes"),
-        )
-    )
-    db.commit()
-    db.refresh(character)
-    return character_payload(character)
+    return upsert_weapon_proficiency(character, data, db)
+
+
+@router.delete("/1e/characters/{character_id}/weapon-proficiencies/{equipment_id}")
+def delete_vault_weapon_proficiency(character_id: int, equipment_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    character = get_vault_character_or_404(db, character_id)
+    return remove_weapon_proficiency(character, equipment_id, db)
 
 
 @router.post("/characters", response_model=CharacterResponse)
