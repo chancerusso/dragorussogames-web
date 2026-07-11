@@ -10,8 +10,10 @@ const vaultCss = readFileSync(resolve(repoRoot, "styles", "character-vault.css")
 test("character sheet renders combat summary from runtime payload", () => {
   assert.match(vaultSource, /function combatSummaryHtml/);
   assert.match(vaultSource, /c\.combat\?\.runtime/);
-  assert.match(vaultSource, /attack_progression_ref/);
   assert.match(vaultSource, /Attacks\/Round/);
+  assert.match(vaultSource, /function combatStat/);
+  assert.doesNotMatch(vaultSource, /thac0_source/);
+  assert.doesNotMatch(vaultSource, /attack_progression_ref/);
 });
 
 test("ability, armor class, saves, and encumbrance render backend breakdown payloads", () => {
@@ -30,6 +32,8 @@ test("weapon cards expose runtime breakdown and illegal equipment state", () => 
   assert.match(vaultSource, /Illegal Equipment/);
   assert.match(vaultSource, /function modifierBreakdownHtml/);
   assert.match(vaultSource, /function damageBreakdownHtml/);
+  assert.match(vaultSource, /vault-weapon-stat-grid/);
+  assert.doesNotMatch(vaultSource, /Runtime derived/);
 });
 
 test("builder weapon preview requests backend combat runtime", () => {
@@ -44,8 +48,12 @@ test("spell slot table renders backend remaining values without fallback arithme
 });
 
 test("combat presentation has responsive readable styles", () => {
+  assert.match(vaultSource, /vault-sheet-layout/);
+  assert.match(vaultSource, /vault-sheet-card/);
   assert.match(vaultCss, /\.vault-combat-summary/);
+  assert.match(vaultCss, /\.vault-combat-panels/);
   assert.match(vaultCss, /\.vault-weapon-card/);
+  assert.match(vaultCss, /\.vault-weapon-stat-grid/);
   assert.match(vaultCss, /\.vault-breakdown-list/);
   assert.match(vaultCss, /\.vault-ability-mods/);
   assert.match(vaultCss, /\.vault-saving-row summary/);
