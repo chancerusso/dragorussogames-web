@@ -14,6 +14,7 @@ import silvanestiElfRace from "../../content/settings/dragonlance/races/silvanes
 import tinkerGnomeRace from "../../content/settings/dragonlance/races/tinker-gnome.json";
 import dragonlanceReference from "../../content/settings/dragonlance/reference/index.json";
 import { api, getPlayerToken, getToken, login, logout, playerLogin, playerLogout } from "./api.js";
+import { CLASSIC_PORTAL_URL, DM_NAV_ITEMS } from "./dmNavigation.js";
 import { filterReferenceItems, isCanonicalId, makeTypeOptions, recordTitle, reviewStatus, sourceLabel, titleize, typeLabel } from "./rulesReference.js";
 
 const AuthContext = createContext(null);
@@ -202,7 +203,7 @@ function PortalSwitcher({ mode }) {
     return (
       <div className="portal-switcher">
         <span>Portal</span>
-        <a href="https://classic.dragorussogames.com/">View Classic Portal</a>
+        <a href={CLASSIC_PORTAL_URL}>View Classic Portal</a>
       </div>
     );
   }
@@ -230,15 +231,7 @@ function Shell() {
         title="DM Portal"
         subtitle="Campaign Command"
         brandTo="/campaigns"
-        navItems={[
-          { label: "Command Center", to: "/campaigns" },
-          { label: "Campaigns", href: "/campaigns#active-campaigns" },
-          { label: "Rules & Settings", to: "/rules" },
-          { label: "Players", to: "/players" },
-          { label: "Characters", to: "/characters" },
-          { label: "Archive", to: "/archive" },
-          { label: "Settings", to: "/settings" },
-        ]}
+        navItems={DM_NAV_ITEMS}
         account={<small>DM Account</small>}
         onSignOut={signOut}
       />
