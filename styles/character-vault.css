@@ -721,6 +721,21 @@
   opacity:.72;
 }
 
+.vault-abilities .vault-ability-mods{
+  display:grid;
+  gap:2px;
+  margin:4px 0 0;
+  opacity:1;
+}
+
+.vault-ability-mods small{
+  color:#4b392f;
+  display:block;
+  font-size:.66rem;
+  line-height:1.25;
+  white-space:nowrap;
+}
+
 .vault-section-title{
   border:0;
   background:transparent;
@@ -918,16 +933,21 @@
 }
 
 .vault-saving-row{
-  align-items:center;
   border:1px solid rgba(75,47,31,.22);
   border-radius:6px;
   background:linear-gradient(180deg,#fff7e8,#ead8b8);
   color:#3a2415;
+  min-height:40px;
+  padding:8px 10px;
+}
+
+.vault-saving-row summary{
+  align-items:center;
+  cursor:pointer;
   display:flex;
   gap:14px;
   justify-content:space-between;
-  min-height:40px;
-  padding:8px 10px;
+  list-style:revert;
 }
 
 .vault-saving-row span{
@@ -946,6 +966,139 @@
   font-weight:900;
   min-width:3ch;
   text-align:right;
+}
+
+.vault-combat-summary,
+.vault-combat-grid{
+  display:grid;
+  gap:10px;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  margin:12px 0;
+}
+
+.vault-combat-summary span,
+.vault-combat-grid span{
+  border:1px solid rgba(75,47,31,.22);
+  border-radius:6px;
+  background:#fffaf0;
+  color:#21140f;
+  min-height:58px;
+  padding:9px 10px;
+}
+
+.vault-combat-summary strong,
+.vault-combat-grid strong{
+  color:#7c211a;
+  display:block;
+  font-family:'Cinzel',serif;
+  font-size:.68rem;
+  line-height:1.2;
+  text-transform:uppercase;
+}
+
+.vault-combat-summary em{
+  color:#6b5948;
+  display:block;
+  font-size:.74rem;
+  font-style:normal;
+  margin-top:4px;
+}
+
+.vault-weapon-card{
+  border:1px solid rgba(75,47,31,.28);
+  border-radius:8px;
+  background:linear-gradient(180deg,#fff8eb,#ead8b8);
+  box-shadow:0 10px 24px rgba(39,26,14,.10);
+  color:#21140f;
+  margin:12px 0;
+  padding:14px;
+}
+
+.vault-weapon-head{
+  align-items:flex-start;
+  display:flex;
+  gap:14px;
+  justify-content:space-between;
+}
+
+.vault-weapon-head h3{
+  margin:2px 0 4px;
+}
+
+.vault-weapon-head > strong{
+  border:1px solid rgba(124,33,26,.28);
+  border-radius:6px;
+  background:#fffaf0;
+  color:#7c211a;
+  font-family:'Cinzel',serif;
+  font-size:1.5rem;
+  min-width:62px;
+  padding:8px 10px;
+  text-align:center;
+}
+
+.vault-illegal-equipment{
+  border-color:rgba(124,33,26,.52);
+  background:#fff1e8;
+}
+
+.vault-breakdown{
+  border-top:1px solid rgba(75,47,31,.18);
+  margin-top:12px;
+  padding-top:10px;
+}
+
+.vault-breakdown summary{
+  color:#4b1b16;
+  cursor:pointer;
+  font-family:'Cinzel',serif;
+  font-weight:900;
+}
+
+.vault-breakdown h4{
+  color:#4b1b16;
+  font-family:'Cinzel',serif;
+  font-size:.78rem;
+  margin:12px 0 6px;
+  text-transform:uppercase;
+}
+
+.vault-breakdown-list{
+  display:grid;
+  gap:6px;
+}
+
+.vault-breakdown-list div{
+  align-items:center;
+  border-bottom:1px solid rgba(75,47,31,.12);
+  display:flex;
+  gap:12px;
+  justify-content:space-between;
+  padding:5px 0;
+}
+
+.vault-breakdown-list strong{
+  color:#21140f;
+}
+
+.vault-breakdown-list em{
+  color:#6d5a4a;
+  display:block;
+  font-family:'Libre Baskerville',serif;
+  font-size:.68rem;
+  font-style:normal;
+  font-weight:400;
+  margin-top:2px;
+  text-transform:none;
+}
+
+.vault-preview-row td{
+  background:#fff7e8;
+  padding:12px;
+}
+
+.vault-builder-preview .vault-weapon-card{
+  margin:6px 0 0;
 }
 
 .vault-list{
@@ -1120,6 +1273,13 @@
   }
   .vault-row{
     grid-template-columns:1fr;
+  }
+  .vault-weapon-head{
+    display:block;
+  }
+  .vault-weapon-head > strong{
+    display:inline-block;
+    margin-top:8px;
   }
   .vault-choice-grid{
     grid-template-columns:1fr;

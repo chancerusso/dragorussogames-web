@@ -69,6 +69,7 @@ from app.services.vault_rules import (
     spell_slot_summary,
     strength_display,
 )
+from app.services.combat_runtime import combat_payload, weapon_combat
 from app.services.characters import (
     activate_character,
     add_equipment,
@@ -277,6 +278,45 @@ def character_payload(character: VaultCharacter) -> dict:
         }
         for spell in character.spells
     ]
+    weapon_proficiencies = [
+        {
+            "id": prof.id,
+            "equipment_id": prof.equipment_id,
+            "equipment": equipment_payload(prof.equipment),
+            "proficient": prof.proficient,
+            "specialization": prof.specialization,
+            "notes": prof.notes,
+        }
+        for prof in character.proficiencies
+    ]
+    adjusted_scores = {
+        ability: getattr(abilities, f"racial_adjusted_{ability}") for ability in ABILITIES
+    } if abilities else {}
+    coins_payload = {
+        "platinum": coins.platinum if coins else 0,
+        "gold": coins.gold if coins else 0,
+        "electrum": coins.electrum if coins else 0,
+        "silver": coins.silver if coins else 0,
+        "copper": coins.copper if coins else 0,
+    }
+    derived = derived_stats(
+        adjusted_scores,
+        inventory,
+        coins_payload,
+        rules_class_name(character.class_name),
+        rules_race_name(character.race),
+        character.level,
+        abilities.exceptional_strength if abilities else None,
+    ) if abilities else {}
+    combat_runtime = combat_payload(
+        adjusted_scores,
+        inventory,
+        rules_class_name(character.class_name),
+        rules_race_name(character.race),
+        character.level,
+        weapon_proficiencies,
+        abilities.exceptional_strength if abilities else None,
+    ) if abilities else {}
     return {
         "id": character.id,
         "user_id": character.user_id,
@@ -297,50 +337,34 @@ def character_payload(character: VaultCharacter) -> dict:
         "notes": character.notes,
         "original_rolls": character.original_rolls or [],
         "abilities": {ability: getattr(abilities, ability) for ability in ABILITIES} if abilities else {},
-        "adjusted_abilities": {
-            ability: getattr(abilities, f"racial_adjusted_{ability}") for ability in ABILITIES
-        } if abilities else {},
+        "adjusted_abilities": adjusted_scores,
         "exceptional_strength": abilities.exceptional_strength if abilities else None,
         "strength_display": strength_display(
             abilities.racial_adjusted_strength if abilities else 10,
             abilities.exceptional_strength if abilities else None,
             rules_class_name(character.class_name),
         ),
-        "coins": {
-            "platinum": coins.platinum if coins else 0,
-            "gold": coins.gold if coins else 0,
-            "electrum": coins.electrum if coins else 0,
-            "silver": coins.silver if coins else 0,
-            "copper": coins.copper if coins else 0,
-        },
+        "coins": coins_payload,
         "combat": {
             "max_hp": combat.max_hp if combat else 1,
             "current_hp": combat.current_hp if combat else 1,
-            "armor_class": combat.armor_class if combat else 10,
-            "unarmored_ac": combat.unarmored_ac if combat else 10,
-            "shield_bonus": combat.shield_bonus if combat else 0,
-            "dex_adjustment": combat.dex_adjustment if combat else 0,
-            "movement_rate": combat.movement_rate if combat else 120,
-            "carried_weight": combat.carried_weight if combat else 0,
-            "encumbrance_band": combat.encumbrance_band if combat else "Unencumbered",
-            "encumbrance": derived_stats(
-                {ability: getattr(abilities, f"racial_adjusted_{ability}") for ability in ABILITIES},
-                inventory,
-                {
-                    "platinum": coins.platinum if coins else 0,
-                    "gold": coins.gold if coins else 0,
-                    "electrum": coins.electrum if coins else 0,
-                    "silver": coins.silver if coins else 0,
-                    "copper": coins.copper if coins else 0,
-                },
-                rules_class_name(character.class_name),
-                rules_race_name(character.race),
-                character.level,
-                abilities.exceptional_strength if abilities else None,
-            ).get("encumbrance") if abilities and coins else {},
-            "surprise_adjustment": combat.surprise_adjustment if combat else "Manual DM Review",
-            "initiative_adjustment": combat.initiative_adjustment if combat else "Manual DM Review",
-            "saving_throws": combat.saving_throws if combat else {"status": "Manual DM Review"},
+            "armor_class": derived.get("armor_class", combat.armor_class if combat else 10),
+            "unarmored_ac": derived.get("unarmored_ac", combat.unarmored_ac if combat else 10),
+            "shield_bonus": derived.get("shield_bonus", combat.shield_bonus if combat else 0),
+            "dex_adjustment": derived.get("dex_adjustment", combat.dex_adjustment if combat else 0),
+            "movement_rate": derived.get("movement_rate", combat.movement_rate if combat else 120),
+            "carried_weight": derived.get("carried_weight", combat.carried_weight if combat else 0),
+            "encumbrance_band": derived.get("encumbrance_band", combat.encumbrance_band if combat else "Unencumbered"),
+            "encumbrance": derived.get("encumbrance", {}),
+            "surprise_adjustment": derived.get("surprise_adjustment", combat.surprise_adjustment if combat else "Manual DM Review"),
+            "initiative_adjustment": derived.get("initiative_adjustment", combat.initiative_adjustment if combat else "Manual DM Review"),
+            "saving_throws": derived.get("saving_throws", combat.saving_throws if combat else {"status": "Manual DM Review"}),
+            "ability_modifiers": derived.get("ability_modifiers", {}),
+            "ability_breakdown": derived.get("ability_breakdown", {}),
+            "armor_class_breakdown": derived.get("armor_class_breakdown", {}),
+            "coin_weight": derived.get("coin_weight", 0),
+            "coin_count": derived.get("coin_count", 0),
+            "runtime": combat_runtime,
         },
         "warnings": character_warnings(character.race, character.class_name, character.alignment),
         "class_details": {
@@ -350,17 +374,7 @@ def character_payload(character: VaultCharacter) -> dict:
         },
         "race_details": RACES.get(rules_race_name(character.race), {}),
         "inventory": inventory,
-        "weapon_proficiencies": [
-            {
-                "id": prof.id,
-                "equipment_id": prof.equipment_id,
-                "equipment": equipment_payload(prof.equipment),
-                "proficient": prof.proficient,
-                "specialization": prof.specialization,
-                "notes": prof.notes,
-            }
-            for prof in character.proficiencies
-        ],
+        "weapon_proficiencies": weapon_proficiencies,
         "spells": spell_entries,
         "spell_slots": spell_slot_summary(spell_rules_class_name(character.class_name), character.level, spell_entries),
         "rules": {
@@ -372,6 +386,34 @@ def character_payload(character: VaultCharacter) -> dict:
             "magic": "/1e/how-to-play/magic/",
         },
     }
+
+
+def character_weapon_preview(character: VaultCharacter, equipment: EquipmentCatalog) -> dict:
+    if character.abilities is None:
+        raise HTTPException(status_code=422, detail="Character ability scores are required for combat preview.")
+    adjusted_scores = {
+        ability: getattr(character.abilities, f"racial_adjusted_{ability}") for ability in ABILITIES
+    }
+    proficiencies = [
+        {
+            "id": prof.id,
+            "equipment_id": prof.equipment_id,
+            "equipment": equipment_payload(prof.equipment),
+            "proficient": prof.proficient,
+            "specialization": prof.specialization,
+            "notes": prof.notes,
+        }
+        for prof in character.proficiencies
+    ]
+    return weapon_combat(
+        equipment_payload(equipment),
+        adjusted_scores,
+        rules_class_name(character.class_name),
+        rules_race_name(character.race),
+        character.level,
+        proficiencies,
+        character.abilities.exceptional_strength,
+    )
 
 
 def get_vault_character_or_404(db: Session, character_id: int) -> VaultCharacter:
@@ -1648,6 +1690,16 @@ def delete_player_vault_inventory(character_id: int, inventory_id: int, claims: 
     return delete_inventory_record(character, inventory_id, db)
 
 
+@router.get("/player/characters/{character_id}/combat-preview/{equipment_id}")
+def player_combat_preview(character_id: int, equipment_id: int, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
+    player = player_from_claims(db, claims)
+    character = player_character_or_404(db, character_id, player.id)
+    equipment = db.get(EquipmentCatalog, equipment_id)
+    if equipment is None or equipment.type != "weapon":
+        raise HTTPException(status_code=404, detail="Weapon not found.")
+    return character_weapon_preview(character, equipment)
+
+
 def upsert_weapon_proficiency(character: VaultCharacter, data: dict, db: Session) -> dict:
     equipment = db.get(EquipmentCatalog, int(data["equipment_id"]))
     if equipment is None or equipment.type != "weapon":
@@ -1723,6 +1775,15 @@ def update_vault_inventory(character_id: int, inventory_id: int, data: dict, _: 
 def delete_vault_inventory(character_id: int, inventory_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     character = get_vault_character_or_404(db, character_id)
     return delete_inventory_record(character, inventory_id, db)
+
+
+@router.get("/1e/characters/{character_id}/combat-preview/{equipment_id}")
+def admin_combat_preview(character_id: int, equipment_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    character = get_vault_character_or_404(db, character_id)
+    equipment = db.get(EquipmentCatalog, equipment_id)
+    if equipment is None or equipment.type != "weapon":
+        raise HTTPException(status_code=404, detail="Weapon not found.")
+    return character_weapon_preview(character, equipment)
 
 
 @router.post("/1e/characters/{character_id}/spells")

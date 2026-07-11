@@ -147,7 +147,7 @@ const fallbackDragonlanceRaces = [
     advanced: true,
   },
 ];
-const state = { characters: [], equipment: [], spells: [], campaigns: [], players: [], dragonlanceRaces: [], dragonlanceClasses: [], campaign: null, rules: null, character: null, currentPlayer: null, step: 0, draft: null, hpRollMessage: "", moneyRollMessage: "", equipmentFeedback: {}, inventoryFilter: "equipped", dmOverride: false, dmCharacterFilters: { campaign_id: "", user_id: "", status: "" }, equipmentFilters: { q: "", type: "" }, editEquipmentId: null, dmCampaignTab: "overview" };
+const state = { characters: [], equipment: [], spells: [], campaigns: [], players: [], dragonlanceRaces: [], dragonlanceClasses: [], campaign: null, rules: null, character: null, currentPlayer: null, step: 0, draft: null, hpRollMessage: "", moneyRollMessage: "", equipmentFeedback: {}, equipmentPreviews: {}, inventoryFilter: "equipped", dmOverride: false, dmCharacterFilters: { campaign_id: "", user_id: "", status: "" }, equipmentFilters: { q: "", type: "" }, editEquipmentId: null, dmCampaignTab: "overview" };
 const builderContext = detectBuilderContext();
 
 function h(value) {
@@ -782,7 +782,9 @@ function equipmentRows(items) {
     const addLabel = added || feedback === "added" ? "Added ✓" : "Add";
     const status = equipmentUseStatus(allowed);
     const restricted = !allowed.allowed && !state.dmOverride;
-    return `<tr class="${allowed.allowed ? "" : "vault-warn-row"}"><td><strong>${h(item.name)}</strong><br><span class="vault-mini">${h(displayReference(detail))}</span></td><td>${h(labelize(item.type))}</td><td>${h(item.weight)}</td><td>${h(item.cost_amount ?? "")} ${h(item.cost_coin ?? "")}</td><td><span class="${h(status.className)}">${h(status.label)}</span><br><span class="vault-mini">${h(status.reason)}</span></td><td><button class="vault-button secondary" type="button" data-add-equipment="${item.id}" data-status="carried" ${added || restricted ? "disabled" : ""}>${addLabel}</button> <button class="vault-button secondary" type="button" data-add-equipment="${item.id}" data-status="equipped" ${equipped || restricted ? "disabled" : ""}>${equipLabel}</button>${equipped ? ` <button class="vault-button secondary" type="button" data-inventory-action="${inventoryItem.id}:carried">Unequip</button>` : ""}</td></tr>`;
+    const preview = state.equipmentPreviews[item.id];
+    const previewButton = item.type === "weapon" ? ` <button class="vault-button secondary" type="button" data-preview-equipment="${item.id}">Preview</button>` : "";
+    return `<tr class="${allowed.allowed ? "" : "vault-warn-row"}"><td><strong>${h(item.name)}</strong><br><span class="vault-mini">${h(displayReference(detail))}</span></td><td>${h(labelize(item.type))}</td><td>${h(item.weight)}</td><td>${h(item.cost_amount ?? "")} ${h(item.cost_coin ?? "")}</td><td><span class="${h(status.className)}">${h(status.label)}</span><br><span class="vault-mini">${h(status.reason)}</span></td><td><button class="vault-button secondary" type="button" data-add-equipment="${item.id}" data-status="carried" ${added || restricted ? "disabled" : ""}>${addLabel}</button> <button class="vault-button secondary" type="button" data-add-equipment="${item.id}" data-status="equipped" ${equipped || restricted ? "disabled" : ""}>${equipLabel}</button>${previewButton}${equipped ? ` <button class="vault-button secondary" type="button" data-inventory-action="${inventoryItem.id}:carried">Unequip</button>` : ""}</td></tr>${preview ? `<tr class="vault-preview-row"><td colspan="6">${builderWeaponPreviewHtml(preview)}</td></tr>` : ""}`;
   }).join("");
 }
 
@@ -1263,6 +1265,12 @@ function bindBuilderActions() {
     toast(status === "equipped" ? "Equipped." : "Added.", "success");
     renderBuilder();
   }));
+  document.querySelectorAll("[data-preview-equipment]").forEach((button) => button.addEventListener("click", async (event) => {
+    event.preventDefault();
+    const equipmentId = Number(button.dataset.previewEquipment);
+    state.equipmentPreviews[equipmentId] = await combatPreviewApi(equipmentId);
+    renderBuilder();
+  }));
   document.querySelectorAll("[data-add-known-spell]").forEach((button) => button.addEventListener("click", async (event) => {
     event.preventDefault();
     const character = await ensureSaved();
@@ -1359,6 +1367,11 @@ async function spellApi(characterSpellId, options = {}) {
 
 async function weaponProficiencyApi(characterId, equipmentId, options = {}) {
   return characterApi(`/${characterId}/weapon-proficiencies/${equipmentId}`, options);
+}
+
+async function combatPreviewApi(equipmentId) {
+  const character = await ensureSaved();
+  return characterApi(`/${character.id}/combat-preview/${equipmentId}`);
 }
 
 async function addOrUpdateInventoryItem(equipmentId, status = "carried") {
@@ -1704,6 +1717,7 @@ function openQuickEditModal(c) {
 
 function sheetHtml(c) {
   return `${sheetHeaderHtml(c)}<div class="vault-grid">
+    <section class="vault-panel vault-full">${sectionTitle("Combat", "/1e/how-to-play/combat/")}${combatSummaryHtml(c)}</section>
     <section class="vault-card">${sectionTitle("Saving Throws", "/1e/character-creation/003-class/")}${savingThrowsHtml(c)}</section>
     <section class="vault-card">${sectionTitle("Armor Class", "/1e/equipment/")}${armorClassBreakdownHtml(c)}</section>
     <section class="vault-card">${sectionTitle("Movement & Encumbrance", "/1e/how-to-play/equipment-encumbrance/")}${movementEncumbranceHtml(c)}</section>
@@ -1729,7 +1743,7 @@ function sheetHeaderHtml(c) {
       <span><strong>Move</strong>${h(c.combat?.movement_rate ?? 120)}</span>
       <span><strong>Load</strong>${h(c.combat?.encumbrance_band ?? "Unencumbered")}</span>
       <span><strong>XP</strong>${h(c.xp ?? 0)}</span>
-      <span><strong>Coins</strong>${coinCount(c.coins)} / ${coinWeight(c.coins)} lb</span>
+      <span><strong>Coins</strong>${h(c.combat?.coin_count ?? coinCount(c.coins))} / ${h(c.combat?.coin_weight ?? "Review")} lb</span>
     </div>
     ${abilityStripHtml(c)}
     ${warningsHtml(c)}
@@ -1738,31 +1752,55 @@ function sheetHeaderHtml(c) {
 }
 
 function abilityStripHtml(c) {
+  const breakdown = c.combat?.ability_breakdown || {};
   return `<div class="vault-abilities">${abilities.map((ability) => {
     const base = c.abilities?.[ability] ?? 10;
     const adjusted = c.adjusted_abilities?.[ability] ?? base;
     const changed = Number(base) !== Number(adjusted);
-    const display = ability === "strength" ? (c.strength_display || adjusted) : adjusted;
-    return `<span><strong>${abilityLabels[ability]}</strong>${h(display)}${changed ? `<em>${h(base)}</em>` : ""}</span>`;
+    const runtime = breakdown[ability] || {};
+    const display = runtime.display || (ability === "strength" ? (c.strength_display || adjusted) : adjusted);
+    return `<span><strong>${abilityLabels[ability]}</strong>${h(display)}${changed ? `<em>${h(base)}</em>` : ""}${abilityModifierSummaryHtml(ability, runtime)}</span>`;
   }).join("")}</div>`;
+}
+
+function abilityModifierSummaryHtml(ability, runtime = {}) {
+  const fields = {
+    strength: [["Melee Hit", runtime.melee_to_hit, true], ["Damage", runtime.melee_damage, true], ["Carry", runtime.carry_adjustment, true]],
+    dexterity: [["Missile", runtime.missile_to_hit, true], ["AC", runtime.armor_class_adjustment, true], ["React", runtime.reaction_initiative, true]],
+    constitution: [["HP/Die", runtime.hit_point_adjustment, true]],
+    wisdom: [["Mental Save", runtime.mental_save_bonus, true]],
+    intelligence: [["Languages", runtime.additional_languages, false]],
+    charisma: [["Henchmen", runtime.max_henchmen, false]],
+  }[ability] || [];
+  const rendered = fields
+    .filter(([, value]) => value !== undefined && value !== null && value !== "")
+    .map(([label, value, signed]) => `<small>${h(label)} ${h(signed ? formatSigned(value) : value)}</small>`)
+    .join("");
+  return rendered ? `<em class="vault-ability-mods">${rendered}</em>` : "";
 }
 
 function movementEncumbranceHtml(c) {
   const enc = c.combat?.encumbrance || {};
-  const armor = equippedArmor(c);
-  const armorLimit = enc.armor_move_limit || armor?.equipment?.properties?.max_move || "";
   return `<div class="vault-compact-list">
     <span><strong>Move</strong>${h(c.combat?.movement_rate ?? 120)}</span>
     <span><strong>Load</strong>${h(c.combat?.encumbrance_band ?? "Unencumbered")}</span>
-    <span><strong>Armor Limit</strong>${armorLimit ? `${h(armor.equipment.name)} - ${h(armorLimit)} ft` : "None"}</span>
+    <span><strong>Carried Weight</strong>${h(c.combat?.carried_weight ?? 0)} lb</span>
+    <span><strong>Equipment Weight</strong>${h(enc.equipment_weight ?? 0)} lb</span>
+    <span><strong>Coin Weight</strong>${h(enc.coin_weight ?? c.combat?.coin_weight ?? 0)} lb</span>
     <span><strong>Carried</strong>${h(c.combat?.carried_weight ?? 0)} lb / ${h(enc.max_carried ?? "")} lb</span>
-    <span><strong>Coins</strong>${coinWeight(c.coins)} lb</span>
+    <span><strong>Weight Move</strong>${h(enc.weight_movement ?? "")} ft</span>
+    <span><strong>Armor Cap</strong>${enc.armor_move_limit ? `${h(enc.armor_move_source || "Armor")} - ${h(enc.armor_move_limit)} ft` : "None"}</span>
+    <span><strong>Final Move</strong>${h(enc.movement ?? c.combat?.movement_rate ?? "")} ft</span>
     <span><strong>Next Encumbrance</strong>${enc.next_encumbrance ? `${h(enc.next_encumbrance)} lb` : "None"}</span>
-  </div>`;
-}
-
-function equippedArmor(c) {
-  return (c.inventory || []).find((item) => item.status === "equipped" && item.equipment?.type === "armor") || null;
+  </div><details class="vault-breakdown"><summary>Movement Breakdown</summary>
+    <div class="vault-breakdown-list">
+      <div><span>Race Movement</span><strong>${h(enc.race_movement ?? "")} ft</strong></div>
+      <div><span>Unencumbered Through</span><strong>${h(enc.unencumbered_through ?? "")} lb</strong></div>
+      <div><span>Maximum Load</span><strong>${h(enc.max_carried ?? "")} lb</strong></div>
+      <div><span>Strength Adjustment</span><strong>${h(formatSigned(enc.strength_adjustment || 0))} lb</strong></div>
+    </div>
+    <p class="vault-muted">${h(enc.source || "Backend-derived encumbrance")}</p>
+  </details>`;
 }
 
 function sectionTitle(label, reference) {
@@ -1815,27 +1853,36 @@ function inventoryRow(item, proficiencies = []) {
 function savingThrowsHtml(c) {
   const saves = c.combat?.saving_throws;
   if (!saves?.categories) return `<p>Manual DM Review: ${h(saves?.reason || "saving table not encoded")}</p>`;
-  return `<p class="vault-muted">Level band ${h(saves.level_band)}. Roll this number or higher on d20.</p><div class="vault-saving-list">${Object.entries(saves.categories).map(([key, value]) => `<div class="vault-saving-row"><span>${h(saves.labels?.[key] || title(key))}</span><strong>${h(value)}</strong></div>`).join("")}</div>${(saves.notes || []).map((note) => `<p class="vault-muted">${h(note)}</p>`).join("")}`;
+  return `<p class="vault-muted">Level band ${h(saves.level_band)}. Roll this number or higher on d20. Source: ${h(saves.source || "Backend saving throw runtime")}.</p><div class="vault-saving-list">${Object.entries(saves.categories).map(([key, value]) => `<details class="vault-saving-row"><summary><span>${h(saves.labels?.[key] || title(key))}</span><strong>${h(value)}</strong></summary>${saveBreakdownHtml(saves.breakdown?.[key] || [])}</details>`).join("")}</div>${(saves.notes || []).map((note) => `<p class="vault-muted">${h(note)}</p>`).join("")}`;
+}
+
+function saveBreakdownHtml(rows = []) {
+  if (!rows.length) return `<p class="vault-muted">No breakdown available.</p>`;
+  return `<div class="vault-breakdown-list">${rows.map((row) => `<div><span>${h(row.label)}${row.source ? `<em>${h(row.source)}</em>` : ""}</span><strong>${row.value !== undefined ? h(row.value) : h(formatSigned(row.modifier || 0))}</strong></div>`).join("")}</div>`;
 }
 
 function armorClassBreakdownHtml(c) {
-  const equipped = (c.inventory || []).filter((item) => item.status === "equipped");
-  const armor = equipped
-    .filter((item) => item.equipment?.type === "armor" && item.equipment.armor_class_value != null)
-    .sort((a, b) => Number(a.equipment.armor_class_value) - Number(b.equipment.armor_class_value))[0];
-  const shield = equipped.find((item) => item.equipment?.type === "shield");
-  const baseAc = 10;
-  const armorAc = armor ? Number(armor.equipment.armor_class_value) : baseAc;
-  const armorAdjustment = armor ? armorAc - baseAc : 0;
-  const shieldAdjustment = shield ? -Math.abs(Number(shield.equipment.armor_class_adjustment || 1)) : 0;
-  const dexAdjustment = Number(c.combat?.dex_adjustment || 0);
+  const ac = c.combat?.armor_class_breakdown || {};
+  const baseAc = ac.base?.value ?? 10;
   return `<div class="vault-compact-list">
-    <span><strong>Base AC</strong>${baseAc}</span>
-    <span><strong>${h(armor?.equipment?.name || "No armor")}</strong>${formatSigned(armorAdjustment)}</span>
-    <span><strong>${h(shield?.equipment?.name || "No shield")}</strong>${formatSigned(shieldAdjustment)}</span>
-    <span><strong>Dexterity</strong>${formatSigned(dexAdjustment)}</span>
-    <span><strong>Final AC</strong>${h(c.combat?.armor_class ?? baseAc)}</span>
-  </div><p class="vault-muted">Only equipped armor and shields affect descending Armor Class.</p>`;
+    <span><strong>${h(ac.base?.label || "Base AC")}</strong>${h(baseAc)}</span>
+    <span><strong>${h(ac.armor?.label || "No armor")}</strong>${h(formatSigned(ac.armor?.value || 0))}</span>
+    <span><strong>${h(ac.shield?.label || "No shield")}</strong>${h(formatSigned(ac.shield?.value || 0))}</span>
+    <span><strong>${h(ac.dexterity?.label || "Dexterity")}</strong>${h(formatSigned(ac.dexterity?.value || 0))}</span>
+    <span><strong>${h(ac.magical?.label || "Magic")}</strong>${h(formatSigned(ac.magical?.value || 0))}</span>
+    <span><strong>${h(ac.miscellaneous?.label || "Miscellaneous")}</strong>${h(formatSigned(ac.miscellaneous?.value || 0))}</span>
+    <span><strong>Final AC</strong>${h(ac.final ?? c.combat?.armor_class ?? baseAc)}</span>
+  </div><details class="vault-breakdown"><summary>Armor Class Breakdown</summary>
+    <div class="vault-breakdown-list">
+      <div><span>${h(ac.base?.label || "Base AC")}</span><strong>${h(baseAc)}</strong></div>
+      <div><span>${h(ac.armor?.label || "No armor")}</span><strong>${h(formatSigned(ac.armor?.value || 0))}</strong></div>
+      <div><span>${h(ac.shield?.label || "No shield")}</span><strong>${h(formatSigned(ac.shield?.value || 0))}</strong></div>
+      <div><span>Dexterity</span><strong>${h(formatSigned(ac.dexterity?.value || 0))}</strong></div>
+      <div><span>Final AC</span><strong>${h(ac.final ?? c.combat?.armor_class ?? baseAc)}</strong></div>
+    </div>
+    ${(ac.notes || []).map((note) => `<p class="vault-muted">${h(note)}</p>`).join("")}
+    <p class="vault-muted">Source: ${h(ac.source || "Backend-derived Armor Class runtime")}.</p>
+  </details>`;
 }
 
 function raceClassDetailsHtml(c) {
@@ -1860,10 +1907,84 @@ function warningsHtml(c) {
   return (c.warnings || []).length ? `<div class="vault-warning">${c.warnings.map((warning) => `<p>${h(warning)}</p>`).join("")}</div>` : "";
 }
 
+function combatSummaryHtml(c) {
+  const runtime = c.combat?.runtime || {};
+  const thac0 = runtime.thac0 || {};
+  return `<div class="vault-combat-summary">
+    <span><strong>THAC0</strong>${h(thac0.final_thac0 ?? "Review")}<em>${h(thac0.attack_progression_ref || "No source")}</em></span>
+    <span><strong>Armor Class</strong>${h(c.combat?.armor_class ?? 10)}<em>Armor, shield, Dexterity</em></span>
+    <span><strong>Movement</strong>${h(c.combat?.movement_rate ?? 120)} ft<em>${h(c.combat?.encumbrance_band ?? "Unencumbered")}</em></span>
+    <span><strong>Encumbrance</strong>${h(c.combat?.carried_weight ?? 0)} lb<em>${h(c.combat?.encumbrance?.max_carried ?? "")} lb max</em></span>
+    <span><strong>Attacks/Round</strong>${h(runtime.attacks_per_round?.value || "1 attack per round")}<em>Separate from missile RoF</em></span>
+    <span><strong>Initiative</strong>${h(c.combat?.initiative_adjustment || "Manual DM Review")}<em>Backend note</em></span>
+  </div>${thac0.notes?.length ? `<p class="vault-muted">${h(thac0.notes.join(" "))}</p>` : ""}${savingThrowsHtml(c)}`;
+}
+
 function weaponsHtml(c) {
   const weapons = (c.inventory || []).filter((item) => item.equipment.type === "weapon");
   const profs = c.weapon_proficiencies || [];
-  return `${weapons.length ? `<table class="vault-table"><thead><tr><th>Weapon</th><th>Type</th><th>Wt</th><th>Actions</th></tr></thead><tbody>${weapons.map((item) => inventoryRow(item, profs)).join("")}</tbody></table>` : "<p>No weapons carried.</p>"}<p class="vault-muted">Allowed proficiencies at this level: ${h(c.class_details?.proficiency_count ?? "Manual DM Review")}. Non-proficiency penalty: ${h(c.class_details?.non_proficiency_penalty ?? "Manual DM Review")}.</p>`;
+  const runtimeWeapons = c.combat?.runtime?.weapons || [];
+  const runtimeByEquipment = new Map(runtimeWeapons.map((entry) => [Number(entry.equipment_id), entry]));
+  const weaponCards = weapons.filter((item) => item.status === "equipped").map((item) => {
+    const runtime = runtimeByEquipment.get(Number(item.equipment_id));
+    return runtime ? weaponCardHtml(runtime, item.equipment, weaponProficiencyLabel(item.equipment_id, profs)) : "";
+  }).filter(Boolean).join("");
+  return `${weaponCards || `<p class="vault-muted">No equipped weapons. Equip a weapon to show combat cards.</p>`}${weapons.length ? `<h3>Weapon Inventory</h3><table class="vault-table"><thead><tr><th>Weapon</th><th>Type</th><th>Wt</th><th>Actions</th></tr></thead><tbody>${weapons.map((item) => inventoryRow(item, profs)).join("")}</tbody></table>` : "<p>No weapons carried.</p>"}<p class="vault-muted">Allowed proficiencies at this level: ${h(c.class_details?.proficiency_count ?? "Manual DM Review")}. Non-proficiency penalty: ${h(c.class_details?.non_proficiency_penalty ?? "Manual DM Review")}.</p>`;
+}
+
+function weaponCardHtml(runtime, equipment = {}, proficiencyLabel = "") {
+  if (runtime.calculations_disabled || runtime.legal === false) {
+    return `<article class="vault-weapon-card vault-illegal-equipment"><div class="vault-weapon-head"><div><div class="vault-kicker">Illegal Equipment</div><h3>${h(runtime.weapon || equipment.name)}</h3></div><strong>Disabled</strong></div><p><strong>Reason:</strong> ${h(runtime.legality_reason || "Class restriction")}</p><p>Combat calculations disabled until corrected.</p></article>`;
+  }
+  const damage = runtime.damage || {};
+  const range = runtime.range || {};
+  return `<article class="vault-weapon-card">
+    <div class="vault-weapon-head">
+      <div><div class="vault-kicker">${h(labelize(runtime.mode || equipment.subtype || "weapon"))}</div><h3>${h(runtime.weapon || equipment.name)}</h3><p>${h(proficiencyLabel || (runtime.proficiency?.proficient ? "Proficient" : "Non-proficient"))}</p></div>
+      <strong>${h(runtime.final_attack_value ?? "Review")}</strong>
+    </div>
+    <div class="vault-combat-grid">
+      <span><strong>Base THAC0</strong>${h(runtime.base_thac0 ?? "Review")}</span>
+      <span><strong>Final Attack</strong>${h(runtime.final_attack_value ?? "Review")}</span>
+      <span><strong>Damage</strong>${h(damage.final_small_medium || damage.base_small_medium || "Review")}</span>
+      <span><strong>Attacks/Round</strong>${h(runtime.attacks_per_round?.value || "1 attack per round")}</span>
+      ${runtime.rate_of_fire ? `<span><strong>Rate of Fire</strong>${h(runtime.rate_of_fire)}</span>` : ""}
+      ${range.raw ? `<span><strong>Range</strong>S ${h(range.short)} / M ${h(range.medium)} / L ${h(range.long)}</span>` : ""}
+      <span><strong>Weight</strong>${h(runtime.weight ?? equipment.weight ?? "")} lb</span>
+      <span><strong>Size</strong>${h(runtime.size || equipment.properties?.size || "Manual DM Review")}</span>
+      <span><strong>Speed</strong>${h(runtime.weapon_speed || equipment.properties?.speed || "Manual DM Review")}</span>
+      <span><strong>Damage Type</strong>${h(runtime.damage_type || equipment.properties?.damage_type || "Manual DM Review")}</span>
+    </div>
+    <details class="vault-breakdown"><summary>Breakdown</summary>
+      <h4>Attack Bonus</h4>${modifierBreakdownHtml(runtime.attack_modifiers || {}, runtime.racial_modifiers)}
+      <h4>Damage</h4>${damageBreakdownHtml(damage)}
+      <h4>Source</h4><p>${h(runtime.thac0_source?.attack_progression_ref || runtime.thac0_source?.source || "Runtime derived")}</p>
+      ${(runtime.notes || []).map((note) => `<p class="vault-muted">${h(note)}</p>`).join("")}
+    </details>
+  </article>`;
+}
+
+function modifierBreakdownHtml(modifiers, racial = {}) {
+  const rows = Object.entries(modifiers).map(([key, value]) => {
+    const label = key === "racial" && racial.applied?.length ? racial.applied.map((entry) => entry.label).join(", ") : labelize(key);
+    return `<div><span>${h(label)}</span><strong>${formatSigned(Number(value || 0))}</strong></div>`;
+  }).join("");
+  return `<div class="vault-breakdown-list">${rows}</div>`;
+}
+
+function damageBreakdownHtml(damage = {}) {
+  const rows = [
+    ["Base", damage.base_small_medium || "Review"],
+    ["Strength", formatSigned(Number(damage.strength || 0))],
+    ["Magic", formatSigned(Number(damage.magical || 0))],
+    ["Miscellaneous", formatSigned(Number(damage.miscellaneous || 0))],
+    ["Final", damage.final_small_medium || "Review"],
+  ];
+  return `<div class="vault-breakdown-list">${rows.map(([label, value]) => `<div><span>${h(label)}</span><strong>${h(value)}</strong></div>`).join("")}</div>`;
+}
+
+function builderWeaponPreviewHtml(runtime) {
+  return `<div class="vault-builder-preview"><div class="vault-kicker">Attack Preview</div>${weaponCardHtml(runtime, runtime, runtime.proficiency?.proficient ? "Proficient" : "Non-proficient")}</div>`;
 }
 
 function armorHtml(c) {
@@ -1901,9 +2022,9 @@ function spellSlotsHtml(c) {
 function spellSlotTable(slots, used, remaining) {
   return `<table class="vault-table"><thead><tr><th>Level</th><th>Slots</th><th>Prepared</th><th>Remaining</th></tr></thead><tbody>${Object.entries(slots).map(([level, count]) => {
     const usedCount = Number(used[level] || 0);
-    const remainingCount = Number(remaining[level] ?? Math.max(0, Number(count) - usedCount));
-    const full = Number(count) > 0 && remainingCount <= 0;
-    return `<tr class="${full ? "vault-warn-row" : ""}"><td>${h(level)}</td><td>${h(count)}</td><td>${h(usedCount)}</td><td>${h(remainingCount)}</td></tr>`;
+    const remainingValue = remaining[level];
+    const full = Number(count) > 0 && remainingValue !== undefined && Number(remainingValue) <= 0;
+    return `<tr class="${full ? "vault-warn-row" : ""}"><td>${h(level)}</td><td>${h(count)}</td><td>${h(usedCount)}</td><td>${remainingValue === undefined ? "Review" : h(remainingValue)}</td></tr>`;
   }).join("")}</tbody></table>`;
 }
 

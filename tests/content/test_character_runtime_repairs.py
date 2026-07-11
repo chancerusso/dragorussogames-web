@@ -15,6 +15,7 @@ os.environ.setdefault("DATABASE_URL", "sqlite:////private/tmp/drg1e-runtime-repa
 
 from app.api import (  # noqa: E402
     add_inventory_record,
+    character_weapon_preview,
     character_payload,
     create_vault_character_for_player,
     delete_inventory_record,
@@ -26,6 +27,7 @@ from app.db.base import Base  # noqa: E402
 from app.db.models import EquipmentCatalog, Player, VaultCharacter, WeaponProficiency  # noqa: E402
 from app.services.vault_rules import seed_vault_catalogs  # noqa: E402
 from app.services.vault_rules import encumbrance  # noqa: E402
+from app.services.combat_runtime import combat_payload, weapon_combat  # noqa: E402
 import app.db.models  # noqa: E402,F401
 
 
@@ -128,6 +130,39 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertEqual(135, payload["combat"]["encumbrance"]["unencumbered_through"])
         self.assertEqual(136, payload["combat"]["encumbrance"]["next_encumbrance"])
         self.assertEqual(60, payload["combat"]["encumbrance"]["armor_move_limit"])
+        self.assertEqual("Splint", payload["combat"]["encumbrance"]["armor_move_source"])
+        self.assertEqual(10, payload["combat"]["encumbrance"]["coin_weight"])
+        self.assertEqual(80, payload["combat"]["encumbrance"]["equipment_weight"])
+        self.assertEqual(135, payload["combat"]["encumbrance"]["thresholds"]["unencumbered"])
+        self.assertEqual(90, payload["combat"]["encumbrance"]["weight_movement"])
+
+    def test_ability_breakdown_exposes_backend_modifiers(self) -> None:
+        character = create_vault_character_for_player(
+            {
+                "name": "Ability Runtime",
+                "race": "Human",
+                "class_name": "Fighter",
+                "alignment": "Lawful Good",
+                "level": 1,
+                "abilities": {"strength": 18, "intelligence": 12, "wisdom": 16, "dexterity": 16, "constitution": 17, "charisma": 15},
+                "exceptional_strength": 77,
+                "combat": {"max_hp": 10, "current_hp": 10},
+                "coins": {},
+            },
+            self.player,
+            self.db,
+        )
+        payload = character_payload(self.db.get(VaultCharacter, character["id"]))
+        abilities = payload["combat"]["ability_breakdown"]
+
+        self.assertEqual("18/77", abilities["strength"]["display"])
+        self.assertEqual(2, abilities["strength"]["melee_to_hit"])
+        self.assertEqual(4, abilities["strength"]["melee_damage"])
+        self.assertEqual(150, abilities["strength"]["carry_adjustment"])
+        self.assertEqual(1, abilities["dexterity"]["missile_to_hit"])
+        self.assertEqual(-2, abilities["dexterity"]["armor_class_adjustment"])
+        self.assertEqual(3, abilities["constitution"]["hit_point_adjustment"])
+        self.assertEqual(2, abilities["wisdom"]["mental_save_bonus"])
 
     def test_plain_strength_18_shifts_all_encumbrance_thresholds(self) -> None:
         band, movement = encumbrance(90, None, 90, 18)
@@ -142,6 +177,31 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertEqual("dropped", dropped["inventory"][0]["status"])
         self.assertEqual(10, dropped["combat"]["armor_class"])
 
+    def test_armor_class_breakdown_excludes_unequipped_armor_and_applies_shield(self) -> None:
+        payload = add_inventory_record(self.character_model, {"equipment_id": self.equipment("Splint").id, "status": "carried"}, self.db)
+        self.assertEqual(10, payload["combat"]["armor_class"])
+        self.assertEqual("No armor", payload["combat"]["armor_class_breakdown"]["armor"]["label"])
+
+        self.db.refresh(self.character_model)
+        payload = add_inventory_record(self.character_model, {"equipment_id": self.equipment("Shield, large").id, "status": "equipped"}, self.db)
+        ac = payload["combat"]["armor_class_breakdown"]
+        self.assertEqual(-1, ac["shield"]["value"])
+        self.assertEqual(9, ac["final"])
+        self.assertIn("Only equipped, legal armor", " ".join(ac["notes"]))
+
+    def test_saving_throw_breakdown_reports_knight_fighter_source_and_dwarf_adjustment(self) -> None:
+        payload = character_payload(self.character_model)
+        saves = payload["combat"]["saving_throws"]
+        death_rows = saves["breakdown"]["death_paralysis_poison"]
+
+        self.assertEqual("Fighter", saves["class_source"])
+        self.assertEqual("Dwarf", saves["race_source"])
+        self.assertEqual(6, saves["categories"]["death_paralysis_poison"])
+        self.assertEqual("Base Fighter Save", death_rows[0]["label"])
+        self.assertEqual(10, death_rows[0]["value"])
+        self.assertEqual("Dwarf racial adjustment", death_rows[1]["label"])
+        self.assertEqual(-4, death_rows[1]["modifier"])
+
     def test_weapon_proficiency_upserts_and_unmarks_by_equipment_id(self) -> None:
         hammer = self.equipment("Hammer, war, heavy")
         marked = upsert_weapon_proficiency(self.character_model, {"equipment_id": hammer.id, "proficient": True}, self.db)
@@ -154,6 +214,241 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
 
         unmarked = remove_weapon_proficiency(self.character_model, hammer.id, self.db)
         self.assertEqual([], unmarked["weapon_proficiencies"])
+
+    def test_fighter_thac0_is_derived_from_canonical_attack_progression(self) -> None:
+        sword = self.equipment("Sword, long")
+        payload = add_inventory_record(self.character_model, {"equipment_id": sword.id, "status": "carried"}, self.db)
+
+        runtime = payload["combat"]["runtime"]
+        self.assertEqual(20, runtime["thac0"]["base_thac0"])
+        self.assertEqual("osric.attack.fighter", runtime["thac0"]["attack_progression_ref"])
+        self.assertEqual("3 attacks every 2 rounds", runtime["attacks_per_round"]["value"])
+
+    def test_knight_of_the_crown_uses_fighter_combat_runtime(self) -> None:
+        payload = character_payload(self.character_model)
+
+        self.assertEqual("osric.attack.fighter", payload["combat"]["runtime"]["thac0"]["attack_progression_ref"])
+        self.assertEqual("3 attacks every 2 rounds", payload["combat"]["runtime"]["attacks_per_round"]["value"])
+
+    def test_magic_user_and_cleric_combat_sources_are_separate(self) -> None:
+        magic_user = create_vault_character_for_player(
+            {
+                "name": "M-U Runtime",
+                "race": "Human",
+                "class_name": "Magic-User",
+                "alignment": "Neutral Good",
+                "level": 1,
+                "abilities": {"strength": 10, "intelligence": 15, "wisdom": 10, "dexterity": 10, "constitution": 10, "charisma": 10},
+                "combat": {"max_hp": 4, "current_hp": 4},
+                "coins": {},
+            },
+            self.player,
+            self.db,
+        )
+        cleric = create_vault_character_for_player(
+            {
+                "name": "Cleric Runtime",
+                "race": "Human",
+                "class_name": "Cleric",
+                "alignment": "Lawful Good",
+                "level": 1,
+                "abilities": {"strength": 10, "intelligence": 10, "wisdom": 15, "dexterity": 10, "constitution": 10, "charisma": 10},
+                "combat": {"max_hp": 8, "current_hp": 8},
+                "coins": {},
+            },
+            self.player,
+            self.db,
+        )
+
+        self.assertEqual("osric.attack.magic_user", character_payload(self.db.get(VaultCharacter, magic_user["id"]))["combat"]["runtime"]["thac0"]["attack_progression_ref"])
+        self.assertEqual("osric.attack.cleric", character_payload(self.db.get(VaultCharacter, cleric["id"]))["combat"]["runtime"]["thac0"]["attack_progression_ref"])
+
+    def test_ranger_elf_longbow_applies_dexterity_and_racial_bonus(self) -> None:
+        bow = self.equipment("Bow, long")
+        result = weapon_combat(
+            {
+                "id": bow.id,
+                "name": bow.name,
+                "type": bow.type,
+                "subtype": bow.subtype,
+                "damage_small_medium": bow.damage_small_medium,
+                "damage_large": bow.damage_large,
+                "rate_of_fire": bow.rate_of_fire,
+                "range": bow.range,
+                "properties": bow.properties,
+            },
+            {"strength": 12, "dexterity": 16, "constitution": 10, "intelligence": 10, "wisdom": 10, "charisma": 10},
+            "Ranger",
+            "Elf",
+            1,
+            [{"equipment_id": bow.id, "proficient": True}],
+        )
+
+        self.assertEqual("missile", result["mode"])
+        self.assertEqual(1, result["attack_modifiers"]["dexterity_missile"])
+        self.assertEqual(1, result["attack_modifiers"]["racial"])
+        self.assertEqual(0, result["damage"]["strength"])
+        self.assertEqual("2", result["rate_of_fire"])
+        self.assertEqual({"short": 70, "medium": 140, "long": 210, "raw": "70 ft"}, result["range"])
+
+    def test_exceptional_strength_and_nonproficiency_modify_melee_attack(self) -> None:
+        sword = self.equipment("Sword, long")
+        result = weapon_combat(
+            {
+                "id": sword.id,
+                "name": sword.name,
+                "type": sword.type,
+                "subtype": sword.subtype,
+                "damage_small_medium": sword.damage_small_medium,
+                "damage_large": sword.damage_large,
+                "rate_of_fire": sword.rate_of_fire,
+                "range": sword.range,
+                "properties": sword.properties,
+            },
+            {"strength": 18, "dexterity": 10, "constitution": 10, "intelligence": 10, "wisdom": 10, "charisma": 10},
+            "Fighter",
+            "Human",
+            1,
+            [],
+            exceptional_strength=91,
+        )
+
+        self.assertEqual("melee", result["mode"])
+        self.assertEqual(2, result["attack_modifiers"]["strength"])
+        self.assertEqual(5, result["damage"]["strength"])
+        self.assertEqual(-2, result["attack_modifiers"]["proficiency"])
+        self.assertEqual(0, result["total_attack_bonus"])
+        self.assertEqual(20, result["final_attack_value"])
+        self.assertEqual("1d8+5", result["damage"]["final_small_medium"])
+
+    def test_thrown_weapon_uses_dexterity_to_hit_and_strength_to_damage(self) -> None:
+        dagger = self.equipment("Dagger")
+        result = weapon_combat(
+            {
+                "id": dagger.id,
+                "name": dagger.name,
+                "type": dagger.type,
+                "subtype": dagger.subtype,
+                "damage_small_medium": dagger.damage_small_medium,
+                "damage_large": dagger.damage_large,
+                "rate_of_fire": dagger.rate_of_fire,
+                "range": dagger.range,
+                "properties": dagger.properties,
+            },
+            {"strength": 17, "dexterity": 16, "constitution": 10, "intelligence": 10, "wisdom": 10, "charisma": 10},
+            "Fighter",
+            "Human",
+            1,
+            [{"equipment_id": dagger.id, "proficient": True}],
+        )
+
+        self.assertEqual("thrown", result["mode"])
+        self.assertEqual(1, result["attack_modifiers"]["dexterity_missile"])
+        self.assertEqual(0, result["attack_modifiers"]["strength"])
+        self.assertEqual(1, result["damage"]["strength"])
+        self.assertEqual("1d4+1", result["damage"]["final_small_medium"])
+
+    def test_magical_weapon_properties_modify_attack_and_damage(self) -> None:
+        sword = self.equipment("Sword, long")
+        sword.properties = {"magic_bonus": 1}
+        self.db.flush()
+        result = weapon_combat(
+            {
+                "id": sword.id,
+                "name": sword.name,
+                "type": sword.type,
+                "subtype": sword.subtype,
+                "damage_small_medium": sword.damage_small_medium,
+                "damage_large": sword.damage_large,
+                "rate_of_fire": sword.rate_of_fire,
+                "range": sword.range,
+                "properties": sword.properties,
+            },
+            {"strength": 10, "dexterity": 10, "constitution": 10, "intelligence": 10, "wisdom": 10, "charisma": 10},
+            "Fighter",
+            "Human",
+            1,
+            [{"equipment_id": sword.id, "proficient": True}],
+        )
+
+        self.assertEqual(1, result["attack_modifiers"]["magical"])
+        self.assertEqual(1, result["damage"]["magical"])
+        self.assertEqual(19, result["final_attack_value"])
+        self.assertEqual("1d8+1", result["damage"]["final_small_medium"])
+
+    def test_illegal_weapon_selection_is_blocked_for_magic_user(self) -> None:
+        sword = self.equipment("Sword, long")
+        magic_user = create_vault_character_for_player(
+            {
+                "name": "Illegal Sword Wizard",
+                "race": "Human",
+                "class_name": "Magic-User",
+                "alignment": "Neutral Good",
+                "level": 1,
+                "abilities": {"strength": 10, "intelligence": 15, "wisdom": 10, "dexterity": 10, "constitution": 10, "charisma": 10},
+                "combat": {"max_hp": 4, "current_hp": 4},
+                "coins": {},
+            },
+            self.player,
+            self.db,
+        )
+        model = self.db.get(VaultCharacter, magic_user["id"])
+
+        with self.assertRaises(Exception):
+            add_inventory_record(model, {"equipment_id": sword.id, "status": "equipped"}, self.db)
+
+    def test_illegal_weapon_runtime_disables_calculations(self) -> None:
+        bow = self.equipment("Bow, long")
+        result = weapon_combat(
+            {
+                "id": bow.id,
+                "name": bow.name,
+                "type": bow.type,
+                "subtype": bow.subtype,
+                "damage_small_medium": bow.damage_small_medium,
+                "damage_large": bow.damage_large,
+                "rate_of_fire": bow.rate_of_fire,
+                "range": bow.range,
+                "weight": bow.weight,
+                "properties": bow.properties,
+            },
+            {"strength": 10, "dexterity": 10, "constitution": 10, "intelligence": 15, "wisdom": 10, "charisma": 10},
+            "Magic-User",
+            "Human",
+            1,
+            [],
+        )
+
+        self.assertFalse(result["legal"])
+        self.assertTrue(result["calculations_disabled"])
+        self.assertEqual("disabled_illegal_equipment", result["automation_status"])
+        self.assertIsNone(result["final_attack_value"])
+        self.assertIsNone(result["damage"]["final_small_medium"])
+
+    def test_character_weapon_preview_uses_backend_runtime_shape(self) -> None:
+        sword = self.equipment("Sword, long")
+        preview = character_weapon_preview(self.character_model, sword)
+
+        self.assertEqual("Sword, long", preview["weapon"])
+        self.assertIn("attack_modifiers", preview)
+        self.assertIn("damage", preview)
+        self.assertIn("range", preview)
+        self.assertIn("attacks_per_round", preview)
+
+    def test_combat_runtime_matrix_is_exposed(self) -> None:
+        payload = combat_payload(
+            {"strength": 10, "dexterity": 10, "constitution": 10, "intelligence": 10, "wisdom": 10, "charisma": 10},
+            [],
+            "Fighter",
+            "Human",
+            1,
+            [],
+        )
+
+        calculations = {row["calculation"] for row in payload["runtime_matrix"]}
+        self.assertIn("THAC0", calculations)
+        self.assertIn("weapon proficiency", calculations)
+        self.assertIn("missile rate of fire", calculations)
 
 
 if __name__ == "__main__":

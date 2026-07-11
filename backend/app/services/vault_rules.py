@@ -219,6 +219,38 @@ def strength_display(strength: int, exceptional_strength: int | None = None, cla
     return f"18/{percentile:02d}"
 
 
+def strength_attack_damage(strength: int, exceptional_strength: int | None = None, qualifies_exceptional: bool = False) -> dict[str, int]:
+    strength = int(strength or 10)
+    if strength <= 3:
+        return {"attack": -3, "damage": -1}
+    if strength <= 5:
+        return {"attack": -2, "damage": -1}
+    if strength <= 7:
+        return {"attack": -1, "damage": 0}
+    if strength <= 16:
+        return {"attack": 0, "damage": 0}
+    if strength == 17:
+        return {"attack": 1, "damage": 1}
+    if strength == 18 and qualifies_exceptional:
+        percentile = 100 if int(exceptional_strength or 0) == 0 else int(exceptional_strength or 0)
+        if percentile <= 0:
+            return {"attack": 1, "damage": 2}
+        if percentile <= 50:
+            return {"attack": 1, "damage": 3}
+        if percentile <= 75:
+            return {"attack": 2, "damage": 3}
+        if percentile <= 90:
+            return {"attack": 2, "damage": 4}
+        if percentile <= 99:
+            return {"attack": 2, "damage": 5}
+        return {"attack": 3, "damage": 6}
+    if strength == 18:
+        return {"attack": 1, "damage": 2}
+    if strength == 19:
+        return {"attack": 3, "damage": 7}
+    return {"attack": 3, "damage": 7}
+
+
 def ability_modifiers(scores: dict[str, int], class_name: str = "") -> dict:
     dexterity = int(scores.get("dexterity", 10))
     constitution = int(scores.get("constitution", 10))
@@ -238,6 +270,56 @@ def ability_modifiers(scores: dict[str, int], class_name: str = "") -> dict:
     }
 
 
+def ability_score_breakdown(scores: dict[str, int], class_name: str = "", exceptional_strength: int | None = None) -> dict:
+    strength = int(scores.get("strength", 10))
+    qualifies_exceptional = qualifies_for_exceptional_strength(class_name, strength)
+    strength_mods = strength_attack_damage(strength, exceptional_strength, qualifies_exceptional)
+    modifiers = ability_modifiers(scores, class_name)
+    carry_adjustment = strength_encumbrance_adjustment(strength, exceptional_strength, class_name)
+    return {
+        "strength": {
+            "display": strength_display(strength, exceptional_strength, class_name),
+            "melee_to_hit": strength_mods["attack"],
+            "melee_damage": strength_mods["damage"],
+            "carry_adjustment": carry_adjustment,
+            "source": "OSRIC Strength and exceptional Strength tables",
+            "automation_status": "derived",
+        },
+        "dexterity": {
+            "display": str(int(scores.get("dexterity", 10))),
+            "missile_to_hit": modifiers["dexterity"]["missile_to_hit"],
+            "armor_class_adjustment": modifiers["dexterity"]["ac_adjustment"],
+            "reaction_initiative": modifiers["dexterity"]["surprise_bonus"],
+            "source": "OSRIC Dexterity adjustment table",
+            "automation_status": "derived",
+        },
+        "constitution": {
+            "display": str(int(scores.get("constitution", 10))),
+            "hit_point_adjustment": modifiers["constitution"]["hp_adjustment"],
+            "source": "OSRIC Constitution hit point adjustment table",
+            "automation_status": "derived",
+        },
+        "wisdom": {
+            "display": str(int(scores.get("wisdom", 10))),
+            "mental_save_bonus": modifiers["wisdom"]["mental_save_bonus"],
+            "source": "OSRIC Wisdom mental attack save adjustment",
+            "automation_status": "derived",
+        },
+        "intelligence": {
+            "display": str(int(scores.get("intelligence", 10))),
+            "additional_languages": modifiers["intelligence"]["additional_languages"],
+            "source": "OSRIC Intelligence language adjustment",
+            "automation_status": "derived",
+        },
+        "charisma": {
+            "display": str(int(scores.get("charisma", 10))),
+            "max_henchmen": modifiers["charisma"]["max_henchmen"],
+            "source": "OSRIC Charisma henchmen table",
+            "automation_status": "derived",
+        },
+    }
+
+
 def coin_weight(coins: dict[str, int]) -> float:
     return sum(max(0, int(coins.get(coin, 0) or 0)) for coin in ("platinum", "gold", "electrum", "silver", "copper")) / 10
 
@@ -249,6 +331,9 @@ def encumbrance_details(
     strength: int = 10,
     exceptional_strength: int | None = None,
     class_name: str = "",
+    coin_load: float = 0,
+    equipment_load: float | None = None,
+    armor_move_source: str | None = None,
 ) -> dict:
     adjustment = strength_encumbrance_adjustment(strength, exceptional_strength, class_name)
     thresholds = [35 + adjustment, 70 + adjustment, 105 + adjustment, 150 + adjustment]
@@ -277,10 +362,22 @@ def encumbrance_details(
         "movement": move,
         "weight_movement": weight_move,
         "armor_move_limit": armor_move_limit,
+        "armor_move_source": armor_move_source,
+        "base_movement": 120,
+        "race_movement": base_movement,
+        "coin_weight": round(coin_load, 2),
+        "equipment_weight": round(total_weight - coin_load, 2) if equipment_load is None else round(equipment_load, 2),
+        "thresholds": {
+            "unencumbered": thresholds[0],
+            "light": thresholds[1],
+            "heavy": thresholds[2],
+            "severe": thresholds[3],
+        },
         "max_carried": maximum,
         "unencumbered_through": thresholds[0],
         "next_encumbrance": next_threshold,
         "strength_adjustment": adjustment,
+        "source": "OSRIC encumbrance bands with Strength adjustment, racial movement, and armor movement cap",
     }
 
 
@@ -327,18 +424,46 @@ def saving_throws(class_name: str, level: int, race: str = "Human", constitution
             values = row
             band = f"{low}-{high}" if high < 99 else f"{low}+"
             break
-    categories = {category: value for category, value in zip(SAVE_CATEGORIES, values)}
+    base_categories = {category: value for category, value in zip(SAVE_CATEGORIES, values)}
+    categories = dict(base_categories)
+    modifiers = {category: [] for category in SAVE_CATEGORIES}
     notes = ["Druid +2 bonus vs fire/lightning is situational and not applied to the base table."] if class_name == "Druid" else []
     if race == "Dwarf":
         bonus = constitution_save_bonus(constitution)
         for category in ("aimed_magic_items", "death_paralysis_poison", "spells"):
+            before = categories[category]
             categories[category] = max(2, categories[category] - bonus)
+            modifiers[category].append({
+                "label": "Dwarf racial adjustment",
+                "modifier": categories[category] - before,
+                "source": "OSRIC Dwarf Constitution save adjustment against magic and poison",
+            })
         notes.append(f"Dwarf Constitution save adjustment applied: +{bonus} against magic and poison.")
+    breakdown = {}
+    for category in SAVE_CATEGORIES:
+        rows = [
+            {
+                "label": f"Base {class_name} Save",
+                "value": base_categories[category],
+                "source": f"OSRIC {class_name} saving throw table",
+            }
+        ]
+        rows.extend(modifiers[category])
+        rows.append({"label": "Miscellaneous", "modifier": 0, "source": "No miscellaneous save modifier currently applied"})
+        rows.append({"label": "Final Save", "value": categories[category]})
+        breakdown[category] = rows
     return {
         "level_band": band,
+        "level_source": level,
+        "class_source": class_name,
+        "race_source": race,
         "categories": categories,
+        "base_categories": base_categories,
+        "breakdown": breakdown,
         "labels": SAVE_LABELS,
         "notes": notes,
+        "source": f"OSRIC {class_name} saving throw table",
+        "automation_status": "derived",
     }
 
 
@@ -502,26 +627,82 @@ def derived_stats(
     level: int = 1,
     exceptional_strength: int | None = None,
 ) -> dict:
-    carried_weight = coin_weight(coins)
+    coin_load = coin_weight(coins)
+    carried_weight = coin_load
+    equipment_weight = 0.0
     armor_ac = 10
     armor_move_limit = None
+    armor_name = None
+    armor_legal = True
+    armor_reason = ""
     shield_bonus = 0
+    shield_name = None
+    shield_legal = True
+    shield_reason = ""
     for item in inventory:
         status = item.get("status", "carried")
         equipment = item.get("equipment") or {}
         quantity = max(1, int(item.get("quantity", 1) or 1))
         if status in {"carried", "equipped"}:
-            carried_weight += float(equipment.get("weight") or 0) * quantity
+            item_weight = float(equipment.get("weight") or 0) * quantity
+            equipment_weight += item_weight
+            carried_weight += item_weight
         if status == "equipped":
             if equipment.get("type") == "armor" and equipment.get("armor_class_value"):
-                armor_ac = min(armor_ac, int(equipment["armor_class_value"]))
-                max_move = (equipment.get("properties") or {}).get("max_move")
-                if max_move:
-                    armor_move_limit = int(max_move)
+                allowed, reason = is_allowed_equipment(class_name, equipment)
+                if allowed and int(equipment["armor_class_value"]) < armor_ac:
+                    armor_ac = int(equipment["armor_class_value"])
+                    armor_name = equipment.get("name")
+                    armor_reason = reason
+                    max_move = (equipment.get("properties") or {}).get("max_move")
+                    if max_move:
+                        armor_move_limit = int(max_move)
+                elif not allowed:
+                    armor_legal = False
+                    armor_name = equipment.get("name")
+                    armor_reason = reason
             if equipment.get("type") == "shield":
-                shield_bonus = max(shield_bonus, 1)
+                allowed, reason = is_allowed_equipment(class_name, equipment)
+                if allowed:
+                    shield_bonus = max(shield_bonus, 1)
+                    shield_name = equipment.get("name")
+                    shield_reason = reason
+                else:
+                    shield_legal = False
+                    shield_name = equipment.get("name")
+                    shield_reason = reason
     dex_adjustment = dex_ac_adjustment(int(abilities.get("dexterity", 10)))
     armor_class = armor_ac - shield_bonus + dex_adjustment
+    armor_adjustment = armor_ac - 10
+    shield_adjustment = -shield_bonus
+    ac_notes = ["Only equipped, legal armor and shields affect descending Armor Class."]
+    if not armor_legal:
+        ac_notes.append(f"Illegal armor ignored for AC: {armor_reason}")
+    if not shield_legal:
+        ac_notes.append(f"Illegal shield ignored for AC: {shield_reason}")
+    armor_class_breakdown = {
+        "source": "OSRIC descending Armor Class from armor, shield, and Dexterity",
+        "base": {"label": "Base AC", "value": 10},
+        "armor": {
+            "label": armor_name or "No armor",
+            "value": armor_adjustment,
+            "armor_class_value": armor_ac,
+            "legal": armor_legal,
+            "reason": armor_reason,
+        },
+        "shield": {
+            "label": shield_name or "No shield",
+            "value": shield_adjustment,
+            "legal": shield_legal,
+            "reason": shield_reason,
+        },
+        "dexterity": {"label": "Dexterity", "value": dex_adjustment, "source": "OSRIC Dexterity AC adjustment"},
+        "magical": {"label": "Magic", "value": 0, "automation_status": "not_modeled"},
+        "miscellaneous": {"label": "Miscellaneous", "value": 0},
+        "final": armor_class,
+        "notes": ac_notes,
+        "automation_status": "derived",
+    }
     encumbrance = encumbrance_details(
         carried_weight,
         armor_move_limit,
@@ -529,6 +710,9 @@ def derived_stats(
         int(abilities.get("strength", 10)),
         exceptional_strength,
         class_name,
+        coin_load,
+        equipment_weight,
+        armor_name,
     )
     surprise = ability_modifiers(abilities, class_name)["dexterity"]["surprise_bonus"]
     return {
@@ -545,7 +729,9 @@ def derived_stats(
         "initiative_adjustment": "Manual DM Review: OSRIC Dexterity does not modify melee initiative, but may modify missile initiative.",
         "saving_throws": saving_throws(class_name, level, race, int(abilities.get("constitution", 10))),
         "ability_modifiers": ability_modifiers(abilities, class_name),
-        "coin_weight": round(coin_weight(coins), 2),
+        "ability_breakdown": ability_score_breakdown(abilities, class_name, exceptional_strength),
+        "armor_class_breakdown": armor_class_breakdown,
+        "coin_weight": round(coin_load, 2),
         "coin_count": sum(max(0, int(coins.get(coin, 0) or 0)) for coin in ("platinum", "gold", "electrum", "silver", "copper")),
         "warnings": character_warnings(race, class_name, ""),
     }
