@@ -13,9 +13,9 @@
   "review": {
     "status": "verified",
     "reviewed_by": "Codex",
-    "reviewed_at": "2026-07-10",
+    "reviewed_at": "2026-07-11",
     "notes": [
-      "Structured from Dimernesti Elves Game Statistics in the private Dragonlance Adventures source."
+      "Verified against the rendered Dimernesti/Dargonesti sea-elf game-statistics table and footnotes in the private Dragonlance Adventures source."
     ]
   },
   "visibility": {
@@ -104,11 +104,7 @@
   "restrictions": [
     "Land/sea environment changes effective maximum levels for some classes."
   ],
-  "needs_review_fields": [
-    "environmental_level_limit_rules",
-    "high_sorcery_class_extension",
-    "holy_orders_class_extension"
-  ],
+  "needs_review_fields": [],
   "legacy_source_directory": "content/settings/dragonlance/races",
   "source_class_limits_complete": true,
   "description": "Dimernesti elves are sea elves with air/water breathing and a sea-otter shapechange ability."

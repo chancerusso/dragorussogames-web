@@ -30,8 +30,6 @@ DRAGOLANCE_RACE_IDS = {
 }
 
 VERIFIED_RACE_IDS = DRAGOLANCE_RACE_IDS - {
-    "dragolance.race.dargonesti_elf",
-    "dragolance.race.irda",
     "dragolance.race.minotaur",
 }
 
@@ -65,13 +63,13 @@ class DragolanceRaceCanonicalizationTests(unittest.TestCase):
             self.assertTrue(record["level_limits"], record_id)
             self.assertIsNotNone(record["movement"], record_id)
 
-    def test_uncertain_ocr_values_remain_needs_review(self) -> None:
-        for record_id in ("dragolance.race.irda", "dragolance.race.minotaur"):
-            record = self.records[record_id]
-            self.assertEqual("needs_review", record["review"]["status"])
-            self.assertIn("needs_review_fields", record)
-        self.assertIn("irda_intelligence_minimum", self.records["dragolance.race.irda"]["needs_review_fields"])
-        self.assertIn("minotaur_intelligence_minimum", self.records["dragolance.race.minotaur"]["needs_review_fields"])
+    def test_precise_unresolved_race_fields_remain_needs_review(self) -> None:
+        record = self.records["dragolance.race.minotaur"]
+        self.assertEqual("needs_review", record["review"]["status"])
+        self.assertIn("needs_review_fields", record)
+        self.assertEqual(["size_rules_confirmation"], record["needs_review_fields"])
+        self.assertEqual(5, record["ability_minimums"]["intelligence"])
+        self.assertEqual("verified", self.records["dragolance.race.irda"]["review"]["status"])
 
     def test_dragolance_race_references_resolve(self) -> None:
         for record_id in DRAGOLANCE_RACE_IDS:

@@ -12,8 +12,23 @@ import mountainDwarfRace from "../../content/settings/dragonlance/races/mountain
 import qualinestiElfRace from "../../content/settings/dragonlance/races/qualinesti-elf.json";
 import silvanestiElfRace from "../../content/settings/dragonlance/races/silvanesti-elf.json";
 import tinkerGnomeRace from "../../content/settings/dragonlance/races/tinker-gnome.json";
-import dragonlanceReference from "../../content/settings/dragonlance/reference/index.json";
 import { api, getPlayerToken, getToken, login, logout, playerLogin, playerLogout } from "./api.js";
+import {
+  classReference,
+  deityGroups,
+  deityRecord,
+  dragolanceIntroContent,
+  dragonlanceFlatPages,
+  dragonlanceIa,
+  dragonlancePageFor,
+  godsReference,
+  presentationOnlyRacePages,
+  raceOverviewPages,
+  racePresentation,
+  raceRecords,
+  relatedTopics,
+  sourceBadges,
+} from "./dragonlanceReference.js";
 import { CLASSIC_PORTAL_URL, DM_NAV_ITEMS } from "./dmNavigation.js";
 import { filterReferenceItems, isCanonicalId, makeTypeOptions, recordSummary, recordTitle, reviewStatus, safeDisplayText, sourceLabel, titleize, typeLabel } from "./rulesReference.js";
 
@@ -271,8 +286,8 @@ function PlayerShell({ children }) {
             { label: "My Campaigns", to: classic ? "/campaigns" : "/portal/campaigns", end: true },
             { label: "My Characters", to: classic ? "/characters" : "/portal/characters" },
             { label: "Create Character", href: "/1e/characters/new/" },
-            { label: "1e Rules", href: "/1e/" },
-            { label: "Dragonlance Guide", to: classic ? "/dragonlance" : "/portal/dragonlance" },
+            { label: "OSRIC Reference", href: "/1e/" },
+            { label: "Dragolance Reference", to: classic ? "/dragonlance" : "/portal/dragonlance" },
           ]}
           account={
             <div className="account-card">
@@ -1047,10 +1062,10 @@ function ClassicPlayerHomepage() {
             </section>
             <section className="panel home-panel">
               <p className="eyebrow">Sourcebook</p>
-              <h2>Dragonlance Guide</h2>
-              <p className="portal-copy">Read the player-safe Krynn reference before choosing a race, class, deity, or order.</p>
+              <h2>Dragolance Reference</h2>
+              <p className="portal-copy">Read our player-safe Krynn reference before choosing a race, class, deity, or order.</p>
               <div className="form-actions">
-                <Link className="secondary-button" to="/dragonlance">Open Guide</Link>
+                <Link className="secondary-button" to="/dragonlance">Open Reference</Link>
               </div>
             </section>
           </div>
@@ -1411,7 +1426,7 @@ function PlayerCharacterBuilderPage() {
       {!loading && !error ? (
         <>
           <div className="builder-intro panel">
-            <p className="eyebrow">Dragonlance Character Builder</p>
+            <p className="eyebrow">Dragolance Character Builder</p>
             <h2>Your legend begins here.</h2>
             <p>Choose a race to stage your character foundation. Full class, abilities, equipment, and saving flow will come later.</p>
             {selectedRace ? <strong>Selected Race: {selectedRace}</strong> : <span className="muted">No race selected yet.</span>}
@@ -1472,7 +1487,7 @@ function RaceCard({ race, selected, onSelect }) {
 function PlayerRosterTab({ campaign }) {
   return (
     <>
-      <h2 className="section-title">Dragonlance Party</h2>
+      <h2 className="section-title">Dragolance Party</h2>
       <DataTable
         columns={["Player", "Campaign Role", "Character", "Class", "Level", "Status"]}
         rows={(campaign.players || []).map((entry) => {
@@ -1502,10 +1517,10 @@ function PlayerRulesTab({ campaign }) {
         <h2>Rules Library</h2>
         <p>Open the shared classic First Edition rules reference.</p>
       </a>
-      <Link className={`panel rule-card ${dragonlance ? "" : "muted-card"}`} to={dragonlance ? "/dragonlance" : "#"}>
+      <Link className={`panel rule-card ${dragonlance ? "" : "muted-card"}`} to={dragonlance ? dragonlanceBasePath() : "#"}>
         <p className="eyebrow">{titleCase(setting)}</p>
-        <h2>{dragonlance ? "Dragonlance Guide" : "Campaign Rules"}</h2>
-        <p>{dragonlance ? "Open the player-safe Krynn sourcebook reference." : "Setting-specific sourcebook rules will appear here as the library expands."}</p>
+        <h2>{dragonlance ? "Dragolance Reference" : "Campaign Rules"}</h2>
+        <p>{dragonlance ? "Open our player-safe Krynn campaign reference." : "Setting-specific sourcebook rules will appear here as the library expands."}</p>
       </Link>
       <div className="panel rule-card muted-card">
         <p className="eyebrow">Sourcebook</p>
@@ -1527,184 +1542,705 @@ function ReadOnlyPlaceholder({ title, copy }) {
 }
 
 function DragonlanceGuidePage() {
-  const ref = dragonlanceReference;
+  const params = useParams();
+  const path = (params["*"] || "").replace(/^\/+|\/+$/g, "");
+  const basePath = dragonlanceBasePath();
+  const currentPage = dragonlancePageFor(path);
+  const deityPage = dragonlanceDeityPage(path);
+  const navPage = currentPage || deityPage || { label: "Source Pending", path };
+  const previousNext = dragonlancePreviousNext(path);
+
   return (
     <section className="player-portal-page dragonlance-guide-page">
       <PlayerHero
-        eyebrow="Sourcebook"
-        title={ref.title}
-        copy="A player-safe Krynn reference for Classic campaigns."
+        eyebrow="Campaign Setting"
+        title="Dragolance Reference"
+        copy="Our interpretation of Krynn using the original AD&D 1st Edition rules and Dragonlance Adventures as the canonical foundation."
       />
-      <nav className="guide-nav" aria-label="Dragonlance guide sections">
-        {ref.navigation.map((item) => <a key={item.id} href={`#${item.id}`}>{item.label}</a>)}
-      </nav>
-      <GuideIntroSection section={ref.guide} />
-      <GuideDeities section={ref.deities} />
-      <GuideClassSection section={ref.classes} />
-      <GuideEntrySection section={ref.high_sorcery} />
-      <GuideEntrySection section={ref.solamnia} />
-      <GuideEquipment section={ref.equipment} />
-      <GuideRaceSection section={ref.races} />
-      <GuideEntrySection section={ref.timeline} />
-      <GuideEntrySection section={ref.geography} />
-      <GuideEntrySection section={ref.organizations} />
-      <GuideEntrySection section={ref.languages} />
-      <section className="panel guide-source-panel">
-        <p className="eyebrow">Source Reviewed</p>
-        <h2>PDF Sections</h2>
-        <ul className="guide-list">
-          {ref.source_pages_reviewed.map((page) => <li key={page}>{page}</li>)}
-        </ul>
-        <p className="portal-copy">{ref.forbidden_content_policy}</p>
-      </section>
-    </section>
-  );
-}
-
-function GuideIntroSection({ section }) {
-  return (
-    <section className="panel guide-section" id={section.id}>
-      <p className="eyebrow">{section.eyebrow}</p>
-      <h2>{section.heading}</h2>
-      <p className="portal-copy">{section.summary}</p>
-      <div className="guide-card-grid">
-        {section.cards.map((card) => <GuideCard key={card.title} title={card.title} body={card.body} />)}
+      <div className="reference-return-row">
+        <Link className="secondary-button" to={isClassicHost() ? "/" : "/portal"}>Return to Player Portal</Link>
+        <a className="secondary-button" href="/1e/">OSRIC Reference</a>
       </div>
-      <h3>Before Building</h3>
-      <ul className="guide-list">
-        {section.before_building.map((item) => <li key={item}>{item}</li>)}
-      </ul>
+      <div className="dragonlance-reader">
+        <aside className="dragonlance-tree" aria-label="Dragolance reference navigation">
+          <Link className={!path ? "active" : ""} to={basePath}>Dragolance Reference</Link>
+          <DragonlanceTree items={dragonlanceIa} basePath={basePath} currentPath={path} />
+        </aside>
+        <article className="panel dragonlance-article" id="top">
+          <DragonlanceBreadcrumb page={navPage} basePath={basePath} />
+          <SourceBadge badge={badgeForReferencePage(path)} />
+          <DragonlanceArticleContent path={path} currentPage={currentPage} deityPage={deityPage} basePath={basePath} />
+          <RelatedTopics path={path} basePath={basePath} />
+          <DragonlanceReaderNav previousNext={previousNext} page={navPage} basePath={basePath} />
+        </article>
+      </div>
     </section>
   );
 }
 
-function GuideDeities({ section }) {
+function dragonlanceBasePath() {
+  return isClassicHost() ? "/dragonlance" : "/portal/dragonlance";
+}
+
+function DragonlanceTree({ items, basePath, currentPath }) {
   return (
-    <section className="panel guide-section" id={section.id}>
-      <p className="eyebrow">Faith</p>
-      <h2>{section.heading}</h2>
-      <p className="portal-copy">{section.summary}</p>
-      {section.groups.map((group) => (
-        <div className="guide-subsection" key={group.title}>
-          <h3>{group.title}</h3>
-          <div className="guide-card-grid compact-guide-grid">
-            {group.entries.map((entry) => (
-              <article className="guide-card" key={entry.name}>
-                <p className="eyebrow">{entry.alignment}</p>
-                <h4>{entry.name}</h4>
-                <p>{entry.description}</p>
-                <dl className="guide-details">
-                  <div><dt>Role</dt><dd>{entry.portfolio}</dd></div>
-                  <div><dt>Holy Symbol</dt><dd>{entry.holy_symbol}</dd></div>
-                  <div><dt>Cleric / Druid Relevance</dt><dd>{entry.cleric_relevance}</dd></div>
-                </dl>
-              </article>
-            ))}
-          </div>
-        </div>
+    <ul>
+      {items.map((item) => (
+        <li key={item.path}>
+          <Link className={currentPath === item.path ? "active" : ""} to={`${basePath}/${item.path}`}>{item.label}</Link>
+          {item.children?.length ? <DragonlanceTree items={item.children} basePath={basePath} currentPath={currentPath} /> : null}
+        </li>
       ))}
-    </section>
+    </ul>
   );
 }
 
-function GuideClassSection({ section }) {
+function DragonlanceBreadcrumb({ page, basePath }) {
+  const crumbs = dragonlanceBreadcrumbs(page?.path || "");
   return (
-    <section className="panel guide-section" id={section.id}>
-      <p className="eyebrow">Characters</p>
-      <h2>{section.heading}</h2>
-      <p className="portal-copy">{section.summary}</p>
-      <GuideClassGroup title="Starting Classes" classes={section.starting} />
-      <GuideClassGroup title="Progression Paths" classes={section.progression} />
-    </section>
+    <nav className="reference-breadcrumbs" aria-label="Breadcrumb">
+      <Link to={basePath}>Dragolance</Link>
+      {crumbs.map((crumb) => (
+        <Link key={crumb.path || "home"} to={crumb.path ? `${basePath}/${crumb.path}` : basePath}>{crumb.label}</Link>
+      ))}
+    </nav>
   );
 }
 
-function GuideClassGroup({ title, classes }) {
+function dragonlanceBreadcrumbs(path) {
+  if (!path) return [];
+  const segments = path.split("/");
+  const crumbs = [];
+  for (let index = 0; index < segments.length; index += 1) {
+    const partial = segments.slice(0, index + 1).join("/");
+    const page = dragonlancePageFor(partial);
+    if (page) crumbs.push(page);
+  }
+  if (path.startsWith("gods/") && segments.length === 3) {
+    crumbs.push({ label: titleCase(segments[2]), path });
+  }
+  return crumbs;
+}
+
+function badgeForReferencePage(path) {
+  if (!path || path === "what-is-dragonlance") return sourceBadges.campaign;
+  if (path === "world-of-krynn") return sourceBadges.mixed;
+  if (path.startsWith("races/") || path === "races") return sourceBadges.mixed;
+  if (classReference[path]) return classReference[path].badge || sourceBadges.mixed;
+  if (godsReference[path] || path.startsWith("gods/")) return sourceBadges.mixed;
+  return sourceBadges.setting;
+}
+
+function SourceBadge({ badge }) {
+  if (!badge) return null;
   return (
-    <div className="guide-subsection">
-      <h3>{title}</h3>
-      <div className="guide-card-grid">
-        {classes.map((item) => (
-          <article className="guide-card" key={item.name}>
-            <p className="eyebrow">{item.progression_note}</p>
-            <h4>{item.name}</h4>
-            <p>{item.overview}</p>
-            <dl className="guide-details">
-              <div><dt>Hit Die</dt><dd>{item.hit_die}</dd></div>
-              <div><dt>Prime Ability</dt><dd>{item.prime_ability}</dd></div>
-              <div><dt>Spell Table</dt><dd>{item.spell_table}</dd></div>
-              <div><dt>Advancement</dt><dd>{item.advancement_notes}</dd></div>
-              <div><dt>Campaign Restrictions</dt><dd>{item.campaign_restrictions}</dd></div>
-            </dl>
-          </article>
-        ))}
-      </div>
+    <div className="source-badge">
+      <strong>{badge.type}</strong>
+      <span>{badge.label}</span>
     </div>
   );
 }
 
-function GuideEquipment({ section }) {
+function RelatedTopics({ path, basePath }) {
+  const topics = relatedTopics[path] || relatedTopics[path?.split("/").slice(0, 2).join("/")] || [];
+  if (!topics.length) return null;
   return (
-    <section className="panel guide-section" id={section.id}>
-      <p className="eyebrow">Equipment</p>
-      <h2>{section.heading}</h2>
-      <div className="guide-banner">{section.banner}</div>
-      <p className="portal-copy">{section.summary}</p>
-      <div className="guide-card-grid compact-guide-grid">
-        {section.items.map((item) => <GuideCard key={item.name} title={item.name} eyebrow={item.type} body={item.description} />)}
+    <section className="related-topics" aria-label="Related topics">
+      <h2>Related Topics</h2>
+      <div>
+        {topics.map((topic) => topic.path
+          ? <Link key={topic.label} to={`${basePath}/${topic.path}`}>{topic.label}</Link>
+          : topic.href
+            ? <a key={topic.label} href={topic.href}>{topic.label}</a>
+            : <span key={topic.label}>{topic.label}</span>)}
       </div>
-      <p className="portal-copy">{section.omission_note}</p>
     </section>
   );
 }
 
-function GuideRaceSection({ section }) {
+function DragonlanceArticleContent({ path, currentPage, deityPage, basePath }) {
+  if (!path) return <DragonlanceHub basePath={basePath} />;
+  if (deityPage) return <DragonlanceDeityPage deityPage={deityPage} />;
+  if (!currentPage) return <SourcePendingPage title="Source Pending" />;
+  if (path === "what-is-dragonlance") return <DragolanceIntroPage />;
+  if (path === "world-of-krynn") return <DragonlanceWorldPage basePath={basePath} />;
+  if (raceOverviewPages[path]) return <DragonlanceRaceOverview path={path} basePath={basePath} />;
+  if (presentationOnlyRacePages[path]) return <DragonlancePresentationOnlyRacePage path={path} basePath={basePath} />;
+  if (path.startsWith("races/")) return <DragonlanceRacePage path={path} title={currentPage.label} />;
+  if (path === "classes") return <DragonlanceClassPage reference={classReference.classes} basePath={basePath} />;
+  if (path.startsWith("classes/")) return <DragonlanceClassPage reference={classReference[path]} />;
+  if (godsReference[path]) return <DragonlanceGodReferencePage reference={godsReference[path]} basePath={basePath} />;
+  if (path === "gods") return <DragonlanceGodReferencePage reference={godsReference.gods} basePath={basePath} />;
+  if (path === "gods/good" || path === "gods/neutrality" || path === "gods/evil") return <DragonlanceGodGroup groupKey={path.split("/")[1]} basePath={basePath} />;
+  return <SourcePendingPage title={currentPage.label} />;
+}
+
+function DragonlanceHub({ basePath }) {
   return (
-    <section className="panel guide-section" id={section.id}>
-      <p className="eyebrow">Peoples</p>
-      <h2>{section.heading}</h2>
-      <p className="portal-copy">{section.summary}</p>
-      <div className="guide-card-grid">
-        {section.entries.map((race) => (
-          <article className="guide-card" key={race.name}>
-            <p className="eyebrow">{race.campaign_note}</p>
-            <h4>{race.name}</h4>
-            <p>{race.culture}</p>
-            <dl className="guide-details">
-              <div><dt>Ability Adjustments</dt><dd>{race.ability_adjustments}</dd></div>
-              <div><dt>Movement</dt><dd>{race.movement}</dd></div>
-              <div><dt>Languages</dt><dd>{race.languages}</dd></div>
-              <div><dt>Alignment</dt><dd>{race.alignment}</dd></div>
-              <div><dt>Roleplaying Notes</dt><dd>{race.roleplaying}</dd></div>
-            </dl>
-          </article>
+    <>
+      <p className="eyebrow">Player Reference</p>
+      <h1>Dragolance Reference</h1>
+      <p className="portal-copy">Dragolance is our campaign branch for the shared OSRIC rules engine: an interpretation of Krynn grounded in Dragonlance Adventures and built for our table.</p>
+      <div className="reference-hub-grid">
+        {dragonlanceIa.map((item) => (
+          <Link className="guide-card" key={item.path} to={`${basePath}/${item.path}`}>
+            <h4>{item.label}</h4>
+            <p>{dragonlanceHubCopy(item.path)}</p>
+          </Link>
         ))}
       </div>
-    </section>
+    </>
   );
 }
 
-function GuideEntrySection({ section }) {
+function dragonlanceHubCopy(path) {
+  const copy = {
+    "what-is-dragonlance": "An introduction to Dragolance, our interpretation of Krynn.",
+    "world-of-krynn": "A player introduction to Krynn, the Balance, and the choices that shape the setting.",
+    races: "Krynn-specific peoples. Humans remain in the OSRIC Reference.",
+    classes: "Only Knights of Solamnia, Wizards of High Sorcery, and Tinkers.",
+    gods: "Player-facing deity reference organized by Good, Neutral, and Evil.",
+  };
+  return copy[path] || "Open this section.";
+}
+
+function PlaceholderReferencePage({ title }) {
   return (
-    <section className="panel guide-section" id={section.id}>
-      <p className="eyebrow">Reference</p>
-      <h2>{section.heading}</h2>
-      <p className="portal-copy">{section.summary}</p>
-      <div className="guide-card-grid compact-guide-grid">
-        {section.entries.map((entry) => <GuideCard key={entry.title || entry.name} title={entry.title || entry.name} body={entry.body || entry.description} />)}
+    <>
+      <p className="eyebrow">Placeholder Content</p>
+      <h1>{title}</h1>
+      <div className="source-pending-box">
+        <strong>REPLACE THIS NARRATIVE</strong>
+        <p>This page is intentionally placeholder-only. Final prose will be rewritten by the DRG team from the campaign source, without adding mechanics or copying unavailable source text.</p>
       </div>
+    </>
+  );
+}
+
+function DragolanceIntroPage() {
+  return (
+    <section className="dragolance-intro-page">
+      <p className="eyebrow">{dragolanceIntroContent.eyebrow}</p>
+      <h1>{dragolanceIntroContent.title}</h1>
+      {dragolanceIntroContent.body.map((entry, index) => <DragolanceIntroBlock key={`${entry.type}-${index}`} entry={entry} />)}
     </section>
   );
 }
 
-function GuideCard({ eyebrow, title, body }) {
+function DragolanceIntroBlock({ entry }) {
+  if (entry.type === "credo") return <div className="dragolance-credo">{entry.text}</div>;
+  if (entry.type === "signature") return <p className="dragolance-signature">{entry.text}</p>;
+  return <p>{entry.text}</p>;
+}
+
+function DragonlanceWorldPage({ basePath }) {
   return (
-    <article className="guide-card">
-      {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
-      <h4>{title}</h4>
-      <p>{body}</p>
-    </article>
+    <>
+      <p className="eyebrow">Player Introduction</p>
+      <h1>The World of Krynn</h1>
+
+      <section className="rulebook-section">
+        <h2>The Birth of Krynn</h2>
+        <p>Before kingdoms rose, before dragons flew across the skies, and before the first mortal drew breath, only the eternal powers existed. From beyond the mortal world came the three great principles that would shape all existence: Good, Evil, and Neutrality.</p>
+        <p>The forging of creation began when Chaos was restrained and order emerged from the void. The stars were kindled, the heavens were formed, and the spirits of future life awakened. Yet these spirits possessed neither bodies nor purpose. The gods debated what role they should play in the new creation.</p>
+        <p>The Gods of Good wished to nurture these spirits through compassion, justice, and wisdom. The Gods of Evil desired obedient servants who would strengthen their dominion. The Gods of Neutrality believed every soul should possess the freedom to choose its own path.</p>
+        <p>Rather than allow one philosophy to triumph over the others, the High God established Balance. The gods would share the world of Krynn, each influencing creation according to their divine nature, while every mortal would retain the freedom to determine their own destiny.</p>
+        <p>Thus the world of Krynn was born-a place where destiny is never predetermined, where every choice carries meaning, and where the struggle between Good, Evil, and Neutrality shapes history itself.</p>
+      </section>
+
+      <section className="rulebook-section">
+        <h2>The Balance</h2>
+        <p>The universe of Krynn is founded upon a delicate Balance between the three divine alignments: Good, Evil, and Neutrality. None exist in isolation. Each represents a fundamental truth about existence, and together they create the order that governs the world.</p>
+        <p>Unlike many fantasy settings where alignment serves only as a character label, alignment in Dragonlance is woven into the fabric of creation itself. The gods actively guide the world according to their philosophies, while mortals continually influence the Balance through the choices they make.</p>
+        <p>Every adventure set on Krynn exists within this ongoing struggle. Kingdoms rise and fall, heroes emerge, and legends are written because ordinary people choose what they believe is worth fighting for.</p>
+      </section>
+
+      <section className="rulebook-section">
+        <h2>The Peoples of Krynn</h2>
+        <p>When the first spirits entered the mortal world, they became the peoples of Krynn. Each race reflects different aspects of creation and contributes its own culture, traditions, and outlook to the world.</p>
+        <p>Humans remain the most adaptable of all peoples, capable of embracing any path and earning the attention of every pantheon. Elves embody grace, tradition, and ancient wisdom. Dwarves value honor, craftsmanship, and endurance. Kender view the world with fearless curiosity, while gnomes pursue knowledge through invention and endless experimentation. The mysterious Irda preserve ancient magic, and the proud minotaurs build societies founded upon honor and personal achievement.</p>
+        <p>Many of these peoples differ significantly from their counterparts found in other fantasy worlds. Their histories, cultures, and even their game mechanics are unique to Dragonlance.</p>
+        <p className="rulebook-link-intro">Learn more:</p>
+        <nav className="reference-link-row" aria-label="Krynn people references">
+          <Link to={`${basePath}/races`}>Races of Krynn</Link>
+          <Link to={`${basePath}/classes`}>Classes</Link>
+          <Link to={`${basePath}/gods`}>Gods</Link>
+        </nav>
+      </section>
+
+      <section className="rulebook-section">
+        <h2>The Law of Consequence</h2>
+        <p>One of the defining themes of Dragonlance is that actions have consequences.</p>
+        <p>The philosophies of the three alignments shape every decision made by both mortals and the gods.</p>
+        <h3>The Law of Redemption</h3>
+        <p>The powers of Good believe that justice, compassion, sacrifice, and truth ultimately strengthen both individuals and the world. Even those who have fallen may find redemption through courage and selfless action.</p>
+        <h3>The Law of Dominion</h3>
+        <p>The powers of Evil believe strength is the highest virtue. Power belongs to those capable of claiming and holding it, while weakness naturally yields to the strong.</p>
+        <h3>The Doctrine of Balance</h3>
+        <p>The Gods of Neutrality preserve the Balance itself. Neither Good nor Evil should achieve absolute victory, for without opposition neither philosophy can truly exist.</p>
+        <h3>The Law of Consequence</h3>
+        <p>Above all stands the final law established by the High God:</p>
+        <p>Every choice matters.</p>
+        <p>Acts of courage inspire hope.</p>
+        <p>Acts of cruelty spread suffering.</p>
+        <p>Justice may not come immediately, but eventually every decision echoes throughout Krynn.</p>
+        <p>For this reason, Dragonlance has always been a world where heroes can change history-not because they are destined to, but because they choose to.</p>
+      </section>
+
+      <section className="rulebook-callout">
+        <h2>Our Campaign Philosophy</h2>
+        <p>At our table we embrace one of the central themes of Dragonlance:</p>
+        <p>Good should triumph over Evil.</p>
+        <p>That does not mean every battle is won, every hero survives, or every story ends happily. It means courage, sacrifice, honor, and hope remain worth fighting for, even when victory seems impossible.</p>
+        <p>Heroes may fail.</p>
+        <p>Heroes may fall.</p>
+        <p>But evil is never celebrated simply because it is powerful.</p>
+      </section>
+
+      <section className="rulebook-section">
+        <h2>Beyond This Page</h2>
+        <p>If you're new to Dragonlance, these references will help you prepare your character.</p>
+        <div className="reference-hub-grid">
+          <Link className="guide-card" to={`${basePath}/races`}>
+            <h4>Races of Krynn</h4>
+            <p>The unique peoples of the world and their game mechanics.</p>
+          </Link>
+          <Link className="guide-card" to={`${basePath}/classes`}>
+            <h4>Classes</h4>
+            <p>The Knights of Solamnia, Wizards of High Sorcery, Tinker Gnomes, and how Dragonlance expands upon OSRIC.</p>
+          </Link>
+          <Link className="guide-card" to={`${basePath}/gods`}>
+            <h4>Gods</h4>
+            <p>The deities of Good, Neutrality, and Evil, along with the role faith and divine magic play in Krynn.</p>
+          </Link>
+        </div>
+      </section>
+
+      <section className="rulebook-quote-panel">
+        <h2>A Note from Chance</h2>
+        <p>Dragonlance is the setting that first made fantasy feel real to me.</p>
+        <p>As a kid, I read every Dragonlance novel I could find, and then I read them all again. Krynn became more than a place on a map-it became a world I dreamed about exploring. The heroes inspired me, the dragons captured my imagination, and the stories taught me that courage, friendship, sacrifice, and hope matter most when the world seems darkest.</p>
+        <p>Today, my goal isn't simply to replay the adventures of Tanis, Raistlin, or Sturm. Those stories have already been told.</p>
+        <p>Instead, I want to gather around a table with new adventurers and create legends of our own. Every campaign is a chance for new heroes to shape the future of Krynn, one choice at a time.</p>
+        <p>If, for just a few hours each week, our table can bring this incredible world to life once again, then we've accomplished something truly special.</p>
+        <p className="rulebook-signature">- Chance Russo</p>
+      </section>
+    </>
   );
+}
+
+function DragonlanceRaceOverview({ path, basePath }) {
+  const page = raceOverviewPages[path];
+  return (
+    <>
+      <p className="eyebrow">{page.status}</p>
+      <h1>{page.title}</h1>
+      <p className="portal-copy">{page.summary}</p>
+      {page.notice ? <div className="source-pending-box"><strong>Reference Note</strong><p>{page.notice}</p></div> : null}
+      {page.links?.length ? (
+        <nav className="reference-link-row" aria-label={`${page.title} related rules`}>
+          {page.links.map((link) => <a key={link.href} href={link.href}>{link.label}</a>)}
+        </nav>
+      ) : null}
+      <div className="reference-hub-grid">
+        {(page.cards || []).map((card) => (
+          <Link className="guide-card" key={card.path} to={`${basePath}/${card.path}`}>
+            <h4>{card.label}</h4>
+            <p>{card.copy}</p>
+          </Link>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function DragonlanceSectionLanding({ title, page, basePath }) {
+  return (
+    <>
+      <p className="eyebrow">Section</p>
+      <h1>{title}</h1>
+      <p className="portal-copy">Choose a page from this section. Standard OSRIC material is linked rather than duplicated.</p>
+      <div className="reference-hub-grid">
+        {(page.children || []).map((child) => (
+          <Link className="guide-card" key={child.path} to={`${basePath}/${child.path}`}>
+            <h4>{child.label}</h4>
+            <p>{child.children?.length ? "Open this group." : "Open this reference page."}</p>
+          </Link>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function DragonlanceRacePage({ path, title }) {
+  const record = raceRecords[path];
+  const presentation = racePresentation[path] || {};
+  if (!record) return <SourcePendingPage title={title} />;
+  const detailRows = raceDetailRows(record);
+  return (
+    <>
+      <p className="eyebrow">{presentation.parent || "Race of Krynn"}</p>
+      <h1>{title}</h1>
+      <div className="race-source-grid">
+        <div><strong>Canonical Source</strong><span>Dragonlance Adventures</span></div>
+        <div><strong>Source Pages</strong><span>{presentation.sourcePages || sourcePageLabel(record)}</span></div>
+        <div><strong>Review Status</strong><span>{titleCase(record.review?.status || "source pending")}</span></div>
+        <div><strong>OSRIC Base</strong><span>{osricBaseRaceLink(record, presentation)}</span></div>
+      </div>
+      <SourceStatus record={record} />
+      {presentation.notice ? <div className="guide-banner">{presentation.notice}</div> : null}
+      <h2>Player Summary</h2>
+      <p className="portal-copy">{presentation.summary || record.description || "Source-verified race presentation is in progress."}</p>
+      <h2>Game Statistics</h2>
+      {detailRows.length ? (
+        <dl className="guide-details reference-details">
+          {detailRows.map((row) => <div key={row.label}><dt>{row.label}</dt><dd>{row.value}</dd></div>)}
+        </dl>
+      ) : <SourcePendingInline page={sourcePageLabel(record)} />}
+      {record.racial_abilities?.length ? (
+        <>
+          <h2>Special Abilities</h2>
+          <ul className="guide-list">{record.racial_abilities.map((ability) => <li key={ability}>{ability}</li>)}</ul>
+        </>
+      ) : null}
+      {record.level_limits?.length ? (
+        <>
+          <h2>Class Access and Level Limits</h2>
+          <DragonlanceReferenceTable
+            columns={["Class", "Maximum Level", "Source Status"]}
+            rows={record.level_limits.map((entry) => [entry.class_name, entry.maximum_level, entry.source_status])}
+          />
+        </>
+      ) : null}
+      {record.needs_review_fields?.length ? (
+        <div className="source-pending-box">
+          <strong>Source Verification Required</strong>
+          <p>{record.needs_review_fields.map((field) => titleCase(field)).join(", ")}. Source page: {sourcePageLabel(record)}.</p>
+        </div>
+      ) : null}
+      <h2>Playing This Race</h2>
+      <p className="portal-copy">{presentation.playing || "Use the verified game statistics above. Add no extra mechanical benefits unless the source or DM explicitly provides them."}</p>
+      <RulesRelationships record={record} presentation={presentation} />
+    </>
+  );
+}
+
+function DragonlancePresentationOnlyRacePage({ path, basePath }) {
+  const page = presentationOnlyRacePages[path];
+  return (
+    <>
+      <p className="eyebrow">{page.status}</p>
+      <h1>{page.title}</h1>
+      <div className="race-source-grid">
+        <div><strong>Canonical Source</strong><span>Dragonlance Adventures</span></div>
+        <div><strong>Source Pages</strong><span>{page.sourcePages}</span></div>
+        <div><strong>Review Status</strong><span>Presentation Only</span></div>
+        <div><strong>Player Selectable</strong><span>No separate race record</span></div>
+      </div>
+      <p className="portal-copy">{page.summary}</p>
+      <div className="source-pending-box"><strong>Rules Relationship</strong><p>{page.notice}</p></div>
+      {page.links?.length ? (
+        <div className="reference-hub-grid">
+          {page.links.map((link) => (
+            <Link className="guide-card" key={link.path} to={`${basePath}/${link.path}`}>
+              <h4>{link.label}</h4>
+              <p>Open the underlying selectable race.</p>
+            </Link>
+          ))}
+        </div>
+      ) : null}
+    </>
+  );
+}
+
+function SourcePendingInline({ page }) {
+  return <div className="source-pending-box compact-source-box"><strong>Source Verification Required</strong><p>Mechanics for this field remain unresolved from {page}.</p></div>;
+}
+
+function DragonlanceClassPage({ reference }) {
+  if (!reference) return <SourcePendingPage title="Class System" />;
+  return (
+    <>
+      <p className="eyebrow">Class System</p>
+      <h1>{reference.title}</h1>
+      {reference.notice ? <div className="guide-banner">{reference.notice}</div> : null}
+      <p className="portal-copy">{reference.sourceStatus}</p>
+      {reference.moonNote ? <div className="source-pending-box"><strong>Moon Tracking Chart</strong><p>{reference.moonNote}</p></div> : null}
+      <h2>Player Reference</h2>
+      <ul className="guide-list">{reference.sections.map((section) => <li key={section}>{section}</li>)}</ul>
+      {reference.links?.length ? <ReferenceLinks links={reference.links} /> : null}
+      {reference.moons?.length ? <MoonSummary moons={reference.moons} /> : null}
+      {reference.progressions?.map((progression) => <ProgressionTable key={progression.id} progression={progression} />)}
+      {reference.spellTables?.map((table) => <SpellSlotTable key={table.id} table={table} />)}
+    </>
+  );
+}
+
+function DragonlanceGodReferencePage({ reference, basePath }) {
+  return (
+    <>
+      <p className="eyebrow">Gods of Krynn</p>
+      <h1>{reference.title}</h1>
+      <p className="portal-copy">{reference.sourceStatus}</p>
+      <ul className="guide-list">{reference.sections.map((section) => <li key={section}>{section}</li>)}</ul>
+      {reference.links?.length ? <ReferenceLinks links={reference.links} /> : null}
+      {reference.records?.map((record) => <SourceStatus key={record.id} record={record} />)}
+      {reference.progressions?.map((progression) => <ProgressionTable key={progression.id} progression={progression} />)}
+      {reference.spellTables?.map((table) => <SpellSlotTable key={table.id} table={table} />)}
+      {reference === godsReference.gods ? <DragonlanceGodsLanding basePath={basePath} /> : null}
+    </>
+  );
+}
+
+function ReferenceLinks({ links }) {
+  return (
+    <nav className="reference-link-row" aria-label="Related rule links">
+      {links.map((link) => link.path ? <Link key={link.label} to={`${dragonlanceBasePath()}/${link.path}`}>{link.label}</Link> : <a key={link.href || link.label} href={link.href}>{link.label}</a>)}
+    </nav>
+  );
+}
+
+function MoonSummary({ moons }) {
+  return (
+    <section className="reference-table-section">
+      <h2>Moons</h2>
+      <DragonlanceReferenceTable
+        columns={["Moon", "Affects", "Cycle", "Review Status"]}
+        rows={moons.map((moon) => [
+          moon.display_name || moon.name,
+          formatRulesRefs(moon.affects),
+          moon.cycle_days ? `${moon.cycle_days} days` : "Source Verification Required",
+          moon.review?.status || "source_pending",
+        ])}
+      />
+    </section>
+  );
+}
+
+function DragonlanceGodsLanding({ basePath }) {
+  return (
+    <>
+      <div className="reference-hub-grid">
+        {Object.keys(deityGroups).map((group) => <Link className="guide-card" key={group} to={`${basePath}/gods/${group}`}><h4>Gods of {titleCase(group)}</h4><p>{deityGroups[group].join(", ")}</p></Link>)}
+      </div>
+    </>
+  );
+}
+
+function DragonlanceGodGroup({ groupKey, basePath }) {
+  const names = deityGroups[groupKey] || [];
+  return (
+    <>
+      <p className="eyebrow">Gods of Krynn</p>
+      <h1>{titleCase(groupKey)}</h1>
+      <div className="reference-hub-grid">
+        {names.map((name) => <Link className="guide-card" key={name} to={`${basePath}/gods/${groupKey}/${slugify(name)}`}><h4>{name}</h4><p>{deityRecord(name).alignment}</p></Link>)}
+      </div>
+    </>
+  );
+}
+
+function DragonlanceDeityPage({ deityPage }) {
+  const record = deityRecord(deityPage.name);
+  return (
+    <>
+      <p className="eyebrow">Deity of Krynn</p>
+      <h1>{deityPage.name}</h1>
+      <SourceStatus record={record} />
+      <p className="portal-copy">{record.description}</p>
+      <dl className="guide-details reference-details">
+        <div><dt>Alignment</dt><dd>{record.alignment || "Source verification required"}</dd></div>
+        <div><dt>Pantheon Group</dt><dd>{titleCase(deityPage.groupKey || "")}</dd></div>
+        <div><dt>Spheres</dt><dd>{formatRecordList(record.domains_or_spheres)}</dd></div>
+        <div><dt>Worshippers</dt><dd>Source verification required</dd></div>
+        <div><dt>Symbol</dt><dd>{record.holy_symbol || "Source verification required"}</dd></div>
+        <div><dt>Relationships</dt><dd>{formatRulesRefs(record.cleric_extensions)}</dd></div>
+        <div><dt>Clerical Information</dt><dd>{formatRecordList(record.allowed_cleric_alignments)}</dd></div>
+      </dl>
+      <ReferenceLinks links={[{ label: "Holy Orders", path: "gods/holy-orders" }, { label: "OSRIC Cleric", href: "/1e/classes/cleric/" }]} />
+    </>
+  );
+}
+
+function dragonlanceDeityPage(path) {
+  const match = path.match(/^gods\/(good|neutrality|evil)\/([^/]+)$/);
+  if (!match) return null;
+  const name = (deityGroups[match[1]] || []).find((entry) => slugify(entry) === match[2]);
+  return name ? { label: name, name, path, groupKey: match[1] } : null;
+}
+
+function SourcePendingPage({ title, copy }) {
+  return (
+    <>
+      <p className="eyebrow">Source Verification Required</p>
+      <h1>{title}</h1>
+      <div className="source-pending-box">
+        <strong>Mechanics withheld until verified</strong>
+        <p>{copy || "This page is present in the player reference tree, but exact Dragonlance Adventures mechanics have not yet been extracted into structured player-facing content."}</p>
+      </div>
+    </>
+  );
+}
+
+function SourceStatus({ record }) {
+  const status = record?.review?.status || "source_pending";
+  return <div className="source-pending-box compact-source-box"><strong>Source Status: {status}</strong><p>{(record?.review?.notes || [])[0] || "Dragonlance Adventures is the canonical authority. This page does not invent missing mechanics."}</p></div>;
+}
+
+function ProgressionTable({ progression }) {
+  return (
+    <section className="reference-table-section">
+      <h2>{progression.display_name || progression.name}</h2>
+      <DragonlanceReferenceTable
+        columns={["Level", "XP", "Hit Dice", "Title"]}
+        rows={(progression.levels || []).map((level) => [level.level, level.xp_threshold, level.hit_dice, level.title || "-"])}
+      />
+    </section>
+  );
+}
+
+function SpellSlotTable({ table }) {
+  const maxSpellLevel = Math.max(7, ...((table.levels || table.rows || []).flatMap((row) => Object.keys(row.slots || {}).map((key) => Number(key)).filter(Boolean))));
+  const spellLevels = Array.from({ length: maxSpellLevel }, (_, index) => String(index + 1));
+  const rows = (table.rows || table.levels || []).map((row) => {
+    const slots = Array.isArray(row.slots)
+      ? row.slots
+      : spellLevels.map((level) => row.slots?.[level] ?? 0);
+    return [row.level, ...slots];
+  });
+  if (!rows.length) return null;
+  return (
+    <section className="reference-table-section">
+      <h2>{table.display_name || table.name}</h2>
+      <DragonlanceReferenceTable columns={["Level", ...spellLevels]} rows={rows} />
+      {table.review?.status !== "verified" ? <SourceStatus record={table} /> : null}
+    </section>
+  );
+}
+
+function DragonlanceReferenceTable({ columns, rows }) {
+  return (
+    <div className="reference-table-wrap">
+      <table className="reference-table">
+        <thead><tr>{columns.map((column) => <th key={column}>{column}</th>)}</tr></thead>
+        <tbody>{rows.map((row, index) => <tr key={index}>{columns.map((column, cellIndex) => <td key={column}>{formatCell(row[cellIndex])}</td>)}</tr>)}</tbody>
+      </table>
+    </div>
+  );
+}
+
+function DragonlanceReaderNav({ previousNext, page, basePath }) {
+  const section = page?.path?.split("/")[0] || "";
+  return (
+    <nav className="reader-footer-nav" aria-label="Reader navigation">
+      {previousNext.previous ? <Link to={`${basePath}/${previousNext.previous.path}`}>Previous</Link> : <span />}
+      {section ? <Link to={`${basePath}/${section}`}>Back to Section</Link> : <Link to={basePath}>Back to Hub</Link>}
+      <a href="#top">Top</a>
+      {previousNext.next ? <Link to={`${basePath}/${previousNext.next.path}`}>Next</Link> : <span />}
+    </nav>
+  );
+}
+
+function dragonlancePreviousNext(path) {
+  const index = dragonlanceFlatPages.findIndex((page) => page.path === path);
+  return {
+    previous: index > 0 ? dragonlanceFlatPages[index - 1] : null,
+    next: index >= 0 && index < dragonlanceFlatPages.length - 1 ? dragonlanceFlatPages[index + 1] : null,
+  };
+}
+
+function raceDetailRows(record) {
+  const rows = [];
+  addDetailRow(rows, "Ability Adjustments", record.ability_adjustments, formatRecordMap);
+  addDetailRow(rows, "Ability Minimums", record.ability_minimums, formatRecordMap);
+  addDetailRow(rows, "Ability Maximums", record.ability_maximums, formatRecordMap);
+  addDetailRow(rows, "Movement", record.movement, (value) => `${value} ft`);
+  addDetailRow(rows, "Size", record.size, titleCase);
+  addDetailRow(rows, "Vision", record.vision, formatRecordList);
+  addDetailRow(rows, "Languages", record.languages, formatRulesRefs);
+  addDetailRow(rows, "Class Access", record.class_access, formatRulesRefs);
+  addDetailRow(rows, "Saving Throw Adjustments", record.saving_throw_modifiers, formatRecordList);
+  addDetailRow(rows, "Combat Modifiers", record.combat_modifiers, formatRecordList);
+  addDetailRow(rows, "Restrictions", record.restrictions, formatRecordList);
+  return rows;
+}
+
+function addDetailRow(rows, label, value, formatter) {
+  if (!hasDisplayValue(value)) return;
+  rows.push({ label, value: formatter(value) });
+}
+
+function hasDisplayValue(value) {
+  if (value == null || value === "") return false;
+  if (Array.isArray(value)) return value.length > 0;
+  if (typeof value === "object") return Object.keys(value).length > 0;
+  return true;
+}
+
+function sourcePageLabel(record) {
+  const page = record?.source_ref?.page;
+  const section = record?.source_ref?.section;
+  if (page && section) return `page ${page}, ${section}`;
+  if (page) return `page ${page}`;
+  return "Source Verification Required";
+}
+
+function osricBaseRaceLink(record, presentation = {}) {
+  const base = record.base_osric_race_ref?.split(".").pop() || presentation.osricBase?.toLowerCase().replace(/\s+/g, "-");
+  if (!base) return "None";
+  const label = presentation.osricBase || titleCase(base);
+  return <a href={`/1e/races/${base}/`}>OSRIC {label}</a>;
+}
+
+function RulesRelationships({ record, presentation }) {
+  const links = [
+    ...(presentation.relationships || []),
+  ];
+  if (record.base_osric_race_ref) {
+    const base = record.base_osric_race_ref.split(".").pop();
+    links.unshift({ label: `OSRIC ${titleCase(base)}`, href: `/1e/races/${base}/` });
+  }
+  const languageText = record.languages?.length ? formatRulesRefs(record.languages) : null;
+  const classText = record.class_access?.length ? formatRulesRefs(record.class_access) : null;
+  return (
+    <>
+      <h2>Rules Relationships</h2>
+      <div className="source-pending-box compact-source-box">
+        {links.length ? <p>{links.map((link, index) => <span key={`${link.href}-${link.label}`}>{index > 0 ? " | " : ""}<a href={link.href}>{link.label}</a></span>)}</p> : <p>No OSRIC base race is recorded for this Krynn race.</p>}
+        {languageText ? <p>Languages: {languageText}</p> : null}
+        {classText ? <p>Class records: {classText}</p> : null}
+      </div>
+    </>
+  );
+}
+
+function formatRecordMap(value = {}) {
+  const entries = Object.entries(value || {});
+  return entries.length
+    ? entries.map(([key, item]) => {
+      const amount = item == null ? "Source Verification Required" : `${Number(item) > 0 ? "+" : ""}${item}`;
+      return `${titleCase(key)} ${amount}`;
+    }).join(", ")
+    : "None";
+}
+
+function formatRecordList(value = []) {
+  return value?.length ? value.join(", ") : "Source verification required";
+}
+
+function formatRulesRefs(value = []) {
+  if (!value?.length) return "Source verification required";
+  return value.map((entry) => String(entry).replace(/^osric\./, "OSRIC: ").replace(/^dragolance\./, "Dragolance: ").replace(/\./g, " ")).join(", ");
+}
+
+function formatCell(value) {
+  if (Array.isArray(value)) return value.join(", ");
+  if (value == null || value === "") return "-";
+  return String(value);
+}
+
+function slugify(value) {
+  return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
 function PlayerHero({ eyebrow, title, copy }) {
@@ -1809,7 +2345,7 @@ function PlayersPage() {
       <Header
         eyebrow="Roster"
         title="Players"
-        copy="Manage Dragonlance player accounts, campaign access, and credentials."
+        copy="Manage Dragolance player accounts, campaign access, and credentials."
         action={<button onClick={openNew}>New Player</button>}
       />
       <PageState loading={loading} error={error} />
@@ -2281,7 +2817,7 @@ export default function App() {
             <Route path="/campaigns/:id" element={<PlayerCampaignHome />} />
             <Route path="/characters" element={<PlayerCharactersPage />} />
             <Route path="/characters/new" element={<PlayerCreateCharacterPage />} />
-            <Route path="/dragonlance" element={<DragonlanceGuidePage />} />
+            <Route path="/dragonlance/*" element={<DragonlanceGuidePage />} />
             <Route path="/characters/:id" element={<PlayerVaultToolPage />} />
             <Route path="/characters/:id/edit" element={<PlayerVaultToolPage />} />
             <Route path="/1e/characters/new" element={<PlayerVaultToolPage />} />
@@ -2307,7 +2843,7 @@ export default function App() {
           <Route path="/portal/characters" element={<PlayerCharactersPage />} />
           <Route path="/portal/characters/new" element={<PlayerCreateCharacterPage />} />
           <Route path="/portal/campaigns/:id/characters/new" element={<PlayerCreateCharacterPage />} />
-          <Route path="/portal/dragonlance" element={<DragonlanceGuidePage />} />
+          <Route path="/portal/dragonlance/*" element={<DragonlanceGuidePage />} />
         </Route>
         <Route element={<Protected><Shell /></Protected>}>
           <Route path="/campaigns" element={<CampaignsPage />} />

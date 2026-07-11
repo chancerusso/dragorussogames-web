@@ -1,13 +1,13 @@
 {
-  "id": "dragolance.deity.kiri_jolith",
+  "id": "dragolance.deity.majere",
   "type": "deity",
-  "name": "Kiri-Jolith",
-  "display_name": "Kiri-Jolith",
+  "name": "Majere",
+  "display_name": "Majere",
   "rules_engine": "osric",
   "source_library_id": "dragonlance_adventures",
   "source_ref": {
-    "page": 45,
-    "section": "Gods and Holy Orders relationships",
+    "page": 44,
+    "section": "Gods of Good",
     "internal_only": true
   },
   "review": {
@@ -15,7 +15,7 @@
     "reviewed_by": "Codex",
     "reviewed_at": "2026-07-11",
     "notes": [
-      "Follower spheres were transcribed from the Kiri-Jolith profile in Dragonlance Adventures.",
+      "Follower spheres were transcribed from the Majere profile in Dragonlance Adventures.",
       "Source Verification Required: holy symbol, allowed cleric alignments, and full deity-specific cleric data remain unmodeled in this canonical record. See Dragonlance Adventures, printed page 43 and sphere tables on pages 120-125."
     ]
   },
@@ -34,15 +34,14 @@
   "alignment": "Lawful Good",
   "domains_or_spheres": [
     "Astral",
-    "Combat",
-    "Guardianship",
-    "Healing"
+    "Charm",
+    "Divination",
+    "Summoning"
   ],
   "allowed_cleric_alignments": [],
   "cleric_extensions": [
-    "dragolance.extension.cleric.holy_orders",
-    "dragolance.extension.fighter.solamnic_knighthood"
+    "dragolance.extension.cleric.holy_orders"
   ],
-  "holy_symbol": "symbol pending review",
-  "description": "Kiri-Jolith is represented here only for class relationship and legality references."
+  "holy_symbol": "Source Verification Required",
+  "description": "Majere is a god of Good. Full player-facing cleric data remains source-verification pending."
 }

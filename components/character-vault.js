@@ -470,7 +470,7 @@ function playerNavHtml(sheetId) {
       ${campaignHref ? `<a class="vault-button secondary" href="${campaignHref}">Back to Campaign</a>` : ""}
       <a class="vault-button secondary" href="/characters">My Characters</a>
       ${sheetId ? `<a class="vault-button secondary" href="${characterViewHref(sheetId)}">Character Sheet</a>` : ""}
-      <a class="vault-button secondary" href="/dragonlance">Dragonlance Guide</a>
+      <a class="vault-button secondary" href="/dragonlance">Dragolance Reference</a>
       <a class="vault-button secondary" href="/1e/">Rules</a>`;
   }
   return `
@@ -931,7 +931,7 @@ function raceSourceSection(source, races, selectedRace) {
     <div class="vault-source-heading">
       <div>
         <div class="vault-kicker">${h(source)}</div>
-        <h3>${source === "OSRIC" ? "Foundation Races" : "Dragonlance Races"}</h3>
+        <h3>${source === "OSRIC" ? "Foundation Races" : "Dragolance Races"}</h3>
       </div>
       <span>${h(cards.length)} options</span>
     </div>
@@ -1004,7 +1004,7 @@ function classSectionTitle(source) {
   if (source === "OSRIC") return "Foundation Classes";
   if (source === "DRAGOLANCE STARTING CLASSES") return "Starting Classes";
   if (source === "DRAGOLANCE PROGRESSION PATHS") return "Progression Paths";
-  return "Dragonlance Classes";
+  return "Dragolance Classes";
 }
 
 function choiceFact(label, value) {

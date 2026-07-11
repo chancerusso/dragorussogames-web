@@ -46,6 +46,26 @@ body:before{
   margin-top:3px;
 }
 
+.one-e-portal-return{
+  border:1px solid rgba(214,167,86,.34);
+  border-radius:999px;
+  color:var(--gold);
+  flex:0 0 auto;
+  font-family:'Cinzel', serif;
+  font-size:.68rem;
+  font-weight:900;
+  letter-spacing:.05em;
+  padding:7px 10px;
+  text-decoration:none;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+.one-e-portal-return:hover{
+  background:rgba(122,33,27,.34);
+  color:var(--text);
+}
+
 .one-e-topnav{
   display:flex;
   gap:6px;

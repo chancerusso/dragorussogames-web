@@ -11,11 +11,11 @@
     "internal_only": true
   },
   "review": {
-    "status": "needs_review",
+    "status": "verified",
     "reviewed_by": "Codex",
-    "reviewed_at": "2026-07-10",
+    "reviewed_at": "2026-07-11",
     "notes": [
-      "Moon relationship verified for robe order; cycle and phase mechanics belong to later moon/calendar work."
+      "Cycle length and sanction phases verified against the rendered Moon Tracking Chart in Dragonlance Adventures, printed page 28. Solinari has a 36-day period."
     ]
   },
   "visibility": {
@@ -30,10 +30,15 @@
   "version": 1,
   "deprecated": false,
   "replaces": null,
-  "cycle_days": null,
-  "phases": [],
+  "cycle_days": 36,
+  "phases": [
+    "Low Sanction",
+    "Waning",
+    "High Sanction",
+    "Waxing"
+  ],
   "affects": [
     "dragolance.order.white_robes"
   ],
-  "description": "Solinari is the moon associated with its High Sorcery order; exact cycle data remains pending."
+  "description": "Solinari is the moon associated with its High Sorcery order; its period and sanction phases are represented for campaign moon tracking."
 }

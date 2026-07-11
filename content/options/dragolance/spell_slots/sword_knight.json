@@ -11,11 +11,11 @@
     "internal_only": true
   },
   "review": {
-    "status": "needs_review",
+    "status": "verified",
     "reviewed_by": "Codex",
-    "reviewed_at": "2026-07-10",
+    "reviewed_at": "2026-07-11",
     "notes": [
-      "OCR for levels 14 and 17 required normalization; verify before runtime use."
+      "Verified against rendered Sword Knight Spells Table on Dragonlance Adventures printed page 19."
     ]
   },
   "visibility": {
@@ -122,7 +122,7 @@
       "slots": {
         "1": 4,
         "2": 2,
-        "3": 0,
+        "3": 1,
         "4": 0,
         "5": 0,
         "6": 0,
@@ -140,7 +140,7 @@
         "1": 5,
         "2": 3,
         "3": 1,
-        "4": 0,
+        "4": 1,
         "5": 0,
         "6": 0,
         "7": 0
@@ -157,8 +157,8 @@
         "1": 6,
         "2": 4,
         "3": 1,
-        "4": 0,
-        "5": 0,
+        "4": 1,
+        "5": 1,
         "6": 0,
         "7": 0
       },
@@ -175,8 +175,8 @@
         "2": 5,
         "3": 2,
         "4": 1,
-        "5": 0,
-        "6": 0,
+        "5": 1,
+        "6": 1,
         "7": 0
       },
       "spell_lists": [
@@ -192,9 +192,9 @@
         "2": 6,
         "3": 3,
         "4": 2,
-        "5": 0,
-        "6": 0,
-        "7": 0
+        "5": 1,
+        "6": 1,
+        "7": 1
       },
       "spell_lists": [
         "cleric"
@@ -210,8 +210,8 @@
         "3": 3,
         "4": 2,
         "5": 2,
-        "6": 0,
-        "7": 0
+        "6": 1,
+        "7": 1
       },
       "spell_lists": [
         "cleric"
@@ -226,9 +226,9 @@
         "2": 8,
         "3": 4,
         "4": 3,
-        "5": 2,
+        "5": 3,
         "6": 2,
-        "7": 0
+        "7": 1
       },
       "spell_lists": [
         "cleric"
@@ -245,7 +245,7 @@
         "4": 4,
         "5": 3,
         "6": 2,
-        "7": 0
+        "7": 1
       },
       "spell_lists": [
         "cleric"

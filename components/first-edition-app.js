@@ -516,6 +516,17 @@ function renderNav(slug) {
     .join("");
 }
 
+function renderPortalReturn() {
+  const header = document.querySelector(".one-e-header");
+  if (!header || header.querySelector(".one-e-portal-return")) return;
+
+  const link = document.createElement("a");
+  link.className = "one-e-portal-return";
+  link.href = "/portal";
+  link.textContent = "← Return to Player Portal";
+  header.insertBefore(link, header.firstChild);
+}
+
 function renderSidebar(slug) {
   const sidebar = document.querySelector("[data-section-nav]");
   const section = topSection(slug);
@@ -556,6 +567,7 @@ async function loadPage() {
   const slug = currentSlug();
   const article = document.querySelector("[data-markdown]");
 
+  renderPortalReturn();
   renderNav(slug);
   renderSidebar(slug);
 

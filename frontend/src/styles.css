@@ -1286,6 +1286,409 @@ tbody tr:hover {
   gap: 16px;
 }
 
+.reference-return-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.dragonlance-reader {
+  align-items: start;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(230px, 280px) minmax(0, 1fr);
+}
+
+.dragonlance-tree {
+  background: linear-gradient(180deg, rgba(35, 27, 17, 0.96), rgba(16, 13, 9, 0.96));
+  border: 1px solid rgba(137, 117, 63, 0.58);
+  border-radius: 8px;
+  padding: 12px;
+  position: sticky;
+  top: 16px;
+}
+
+.dragonlance-tree a {
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: #eadfcf;
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 800;
+  padding: 8px 9px;
+}
+
+.dragonlance-tree a.active,
+.dragonlance-tree a:hover {
+  background: rgba(201, 154, 63, 0.18);
+  border-color: rgba(201, 154, 63, 0.48);
+  color: var(--gold-2);
+}
+
+.dragonlance-tree ul {
+  list-style: none;
+  margin: 4px 0 0;
+  padding-left: 10px;
+}
+
+.dragonlance-tree li li a {
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 750;
+  padding-block: 6px;
+}
+
+.dragonlance-article {
+  background:
+    linear-gradient(180deg, rgba(255, 247, 232, 0.08), transparent 220px),
+    linear-gradient(180deg, rgba(31, 25, 17, 0.96), rgba(16, 13, 9, 0.96));
+  min-height: 640px;
+  padding: 22px;
+}
+
+.dragonlance-article h1 {
+  font-size: clamp(2rem, 3.4vw, 3.2rem);
+  margin-bottom: 12px;
+}
+
+.dragonlance-article h2 {
+  color: var(--gold-2);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.24rem;
+  margin: 24px 0 10px;
+}
+
+.dragonlance-article h3 {
+  color: #eadfcf;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.04rem;
+  margin: 18px 0 6px;
+}
+
+.reference-breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 18px;
+}
+
+.reference-breadcrumbs a {
+  background: rgba(12, 10, 8, 0.72);
+  border: 1px solid rgba(114, 86, 43, 0.46);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 850;
+  padding: 6px 9px;
+}
+
+.reference-breadcrumbs a:last-child {
+  color: var(--gold-2);
+}
+
+.reference-hub-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin-top: 18px;
+}
+
+.source-badge {
+  align-items: center;
+  background: rgba(12, 10, 8, 0.62);
+  border: 1px solid rgba(114, 86, 43, 0.5);
+  border-radius: 999px;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 14px;
+  padding: 7px 10px;
+}
+
+.source-badge strong {
+  color: var(--gold-2);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.source-badge span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.reference-link-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.reference-link-row a,
+.source-pending-box a {
+  color: var(--gold-2);
+  font-weight: 850;
+}
+
+.related-topics {
+  border-top: 1px solid rgba(114, 86, 43, 0.34);
+  margin-top: 24px;
+  padding-top: 16px;
+}
+
+.related-topics h2 {
+  font-size: 1.02rem;
+  margin-top: 0;
+}
+
+.related-topics div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.related-topics a,
+.related-topics span {
+  background: rgba(12, 10, 8, 0.66);
+  border: 1px solid rgba(114, 86, 43, 0.52);
+  border-radius: 999px;
+  color: var(--gold-2);
+  font-size: 0.78rem;
+  font-weight: 850;
+  padding: 7px 10px;
+}
+
+.related-topics span {
+  color: var(--muted);
+}
+
+.rulebook-section {
+  border-bottom: 1px solid rgba(114, 86, 43, 0.34);
+  padding: 4px 0 20px;
+}
+
+.rulebook-section:last-child {
+  border-bottom: 0;
+}
+
+.rulebook-section p,
+.rulebook-callout p,
+.rulebook-quote-panel p {
+  color: var(--text);
+  line-height: 1.62;
+  margin: 0 0 12px;
+  max-width: 78ch;
+}
+
+.rulebook-link-intro {
+  color: var(--muted);
+  font-weight: 850;
+  margin-top: 16px;
+}
+
+.rulebook-callout,
+.rulebook-quote-panel {
+  border-radius: 8px;
+  margin: 20px 0;
+  padding: 18px;
+}
+
+.rulebook-callout {
+  background: rgba(77, 51, 18, 0.34);
+  border: 1px solid rgba(201, 154, 63, 0.5);
+}
+
+.rulebook-callout h2,
+.rulebook-quote-panel h2 {
+  margin-top: 0;
+}
+
+.rulebook-callout p:nth-of-type(2) {
+  color: var(--gold-2);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.18rem;
+  font-weight: 900;
+}
+
+.rulebook-quote-panel {
+  background:
+    linear-gradient(180deg, rgba(255, 247, 232, 0.08), rgba(93, 62, 30, 0.18)),
+    rgba(22, 17, 12, 0.86);
+  border: 1px solid rgba(214, 167, 86, 0.42);
+}
+
+.rulebook-signature {
+  color: var(--gold-2) !important;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 900;
+  margin-top: 16px !important;
+}
+
+.dragolance-intro-page {
+  padding-bottom: 8px;
+}
+
+.dragolance-intro-page h1 {
+  margin-bottom: 22px;
+}
+
+.dragolance-intro-page p {
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.68;
+  margin: 0 0 14px;
+  max-width: 80ch;
+}
+
+.dragolance-credo {
+  background:
+    linear-gradient(180deg, rgba(255, 247, 232, 0.08), rgba(93, 62, 30, 0.22)),
+    rgba(22, 17, 12, 0.9);
+  border: 1px solid rgba(214, 167, 86, 0.48);
+  border-radius: 8px;
+  color: var(--gold-2);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.35rem, 2.4vw, 2rem);
+  font-weight: 900;
+  margin: 24px auto;
+  max-width: 620px;
+  padding: 20px;
+  text-align: center;
+}
+
+.dragolance-signature {
+  color: var(--gold-2) !important;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.12rem !important;
+  font-style: italic;
+  font-weight: 900;
+  margin-top: 24px !important;
+}
+
+.race-source-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin: 10px 0 16px;
+}
+
+.race-source-grid div {
+  background: rgba(12, 10, 8, 0.64);
+  border: 1px solid rgba(114, 86, 43, 0.5);
+  border-radius: 7px;
+  padding: 10px;
+}
+
+.race-source-grid strong {
+  color: var(--gold-2);
+  display: block;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.race-source-grid span {
+  color: var(--text);
+  font-weight: 750;
+}
+
+.race-source-grid a {
+  color: var(--gold-2);
+}
+
+.source-pending-box {
+  background: rgba(77, 51, 18, 0.34);
+  border: 1px solid rgba(201, 154, 63, 0.46);
+  border-radius: 8px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 16px 0;
+  padding: 14px;
+}
+
+.source-pending-box strong {
+  color: var(--gold-2);
+  display: block;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.source-pending-box p {
+  margin: 0;
+}
+
+.compact-source-box {
+  margin-top: 0;
+}
+
+.reference-details {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin-top: 16px;
+}
+
+.reference-table-section {
+  margin-top: 20px;
+}
+
+.reference-table-wrap {
+  border: 1px solid rgba(114, 86, 43, 0.58);
+  border-radius: 8px;
+  margin-top: 10px;
+  overflow-x: auto;
+}
+
+.reference-table {
+  border-collapse: collapse;
+  min-width: 620px;
+  width: 100%;
+}
+
+.reference-table th,
+.reference-table td {
+  border-bottom: 1px solid rgba(114, 86, 43, 0.38);
+  padding: 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.reference-table th {
+  background: rgba(201, 154, 63, 0.16);
+  color: var(--gold-2);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.reference-table td {
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.reader-footer-nav {
+  border-top: 1px solid rgba(114, 86, 43, 0.46);
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 28px;
+  padding-top: 16px;
+}
+
+.reader-footer-nav a {
+  background: rgba(12, 10, 8, 0.72);
+  border: 1px solid rgba(114, 86, 43, 0.58);
+  border-radius: 6px;
+  color: var(--gold-2);
+  font-size: 0.8rem;
+  font-weight: 850;
+  min-height: 36px;
+  padding: 9px 10px;
+  text-align: center;
+}
+
 .guide-nav {
   background: rgba(13, 11, 8, 0.72);
   border: 1px solid rgba(114, 86, 43, 0.52);
@@ -1458,8 +1861,17 @@ tbody tr:hover {
   .workspace-grid,
   .rule-link-grid,
   .home-grid,
-  .builder-campaign-strip {
+  .builder-campaign-strip,
+  .dragonlance-reader {
     grid-template-columns: 1fr;
+  }
+
+  .dragonlance-tree {
+    position: static;
+  }
+
+  .reader-footer-nav {
+    grid-template-columns: 1fr 1fr;
   }
 }
 

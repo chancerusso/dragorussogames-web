@@ -13,9 +13,10 @@
   "review": {
     "status": "needs_review",
     "reviewed_by": "Codex",
-    "reviewed_at": "2026-07-10",
+    "reviewed_at": "2026-07-11",
     "notes": [
-      "Minimal relationship record for class legality; spheres, specials, holy symbols, and full cleric data belong to later deity content work."
+      "Follower sphere relationship was transcribed from the Solinari profile in Dragonlance Adventures.",
+      "Source Verification Required: moon/order mechanics live in High Sorcery records; holy symbol and full deity-specific cleric data remain unmodeled here. See Dragonlance Adventures, printed page 44 and sphere tables on pages 120-125."
     ]
   },
   "visibility": {
@@ -31,7 +32,9 @@
   "deprecated": false,
   "replaces": null,
   "alignment": "Lawful Good",
-  "domains_or_spheres": [],
+  "domains_or_spheres": [
+    "All spheres of White Robe sorcery"
+  ],
   "allowed_cleric_alignments": [],
   "cleric_extensions": [
     "dragolance.extension.magic_user.high_sorcery",

@@ -11,12 +11,12 @@
     "internal_only": true
   },
   "review": {
-    "status": "needs_review",
+    "status": "verified",
     "reviewed_by": "Codex",
-    "reviewed_at": "2026-07-10",
+    "reviewed_at": "2026-07-11",
     "notes": [
-      "Structured from Irda Game Statistics in the private Dragonlance Adventures source.",
-      "One or more OCR-uncertain or source-ambiguous fields remains marked for manual review."
+      "Verified against the rendered Irda Game Statistics table in the private Dragonlance Adventures source.",
+      "Ability minimums, maximums, shapechanging proficiency note, highest-level spell bonus, and class limits were checked against the rendered source page."
     ]
   },
   "visibility": {
@@ -39,11 +39,11 @@
   },
   "ability_minimums": {
     "strength": 12,
-    "intelligence": null,
+    "intelligence": 3,
     "wisdom": 10,
     "dexterity": 8,
     "constitution": 12,
-    "charisma": null
+    "charisma": 15
   },
   "ability_maximums": {
     "strength": 18,
@@ -120,12 +120,7 @@
   "restrictions": [
     "Barbarian, renegade magic-user, renegade illusionist, heathen cleric/druid, and knightly orders are not eligible by source class-limit table."
   ],
-  "needs_review_fields": [
-    "irda_intelligence_minimum",
-    "irda_charisma_minimum",
-    "shapechange_proficiency_record",
-    "highest_spell_bonus_rule"
-  ],
+  "needs_review_fields": [],
   "legacy_source_directory": "content/settings/dragonlance/races",
   "source_class_limits_complete": true,
   "description": "Irda are a rare Dragolance race with strong magical aptitude and a shapechanging proficiency option."

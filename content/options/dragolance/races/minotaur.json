@@ -13,10 +13,10 @@
   "review": {
     "status": "needs_review",
     "reviewed_by": "Codex",
-    "reviewed_at": "2026-07-10",
+    "reviewed_at": "2026-07-11",
     "notes": [
-      "Structured from Krynn Minotaur Game Statistics in the private Dragonlance Adventures source.",
-      "One or more OCR-uncertain or source-ambiguous fields remains marked for manual review."
+      "Ability minimums, maximums, ability adjustments, and class limits were checked against the rendered Krynn Minotaur Game Statistics table in the private Dragonlance Adventures source.",
+      "Source Verification Required: the canonical size field remains marked large from existing content, but the rendered game-statistics table used in this pass does not show an explicit size line. See Dragonlance Adventures, printed page 70."
     ]
   },
   "visibility": {
@@ -39,7 +39,7 @@
   },
   "ability_minimums": {
     "strength": 12,
-    "intelligence": null,
+    "intelligence": 5,
     "wisdom": 3,
     "dexterity": 8,
     "constitution": 12,
@@ -103,10 +103,7 @@
     "Cavalier, paladin, knightly orders, renegade arcane classes, thief, thief/acrobat, heathen cleric, and druid are not eligible by source class-limit table."
   ],
   "needs_review_fields": [
-    "minotaur_intelligence_minimum",
-    "size_rules_confirmation",
-    "high_sorcery_class_extension",
-    "holy_orders_class_extension"
+    "size_rules_confirmation"
   ],
   "legacy_source_directory": "content/settings/dragonlance/races",
   "source_class_limits_complete": true,

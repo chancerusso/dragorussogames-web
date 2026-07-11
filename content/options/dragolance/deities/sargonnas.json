@@ -1,0 +1,48 @@
+{
+  "id": "dragolance.deity.sargonnas",
+  "type": "deity",
+  "name": "Sargonnas",
+  "display_name": "Sargonnas",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 47,
+    "section": "Gods of Evil",
+    "internal_only": true
+  },
+  "review": {
+    "status": "needs_review",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-11",
+    "notes": [
+      "Follower spheres were transcribed from the Sargonnas profile in Dragonlance Adventures.",
+      "Source Verification Required: holy symbol, allowed cleric alignments, and full deity-specific cleric data remain unmodeled in this canonical record. See Dragonlance Adventures, printed page 46 and sphere tables on pages 120-125."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "deity"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "alignment": "Lawful Evil",
+  "domains_or_spheres": [
+    "Astral",
+    "Charm",
+    "Combat",
+    "Healing",
+    "Summoning"
+  ],
+  "allowed_cleric_alignments": [],
+  "cleric_extensions": [
+    "dragolance.extension.cleric.holy_orders"
+  ],
+  "holy_symbol": "Source Verification Required",
+  "description": "Sargonnas is a god of Evil. Full player-facing cleric data remains source-verification pending."
+}

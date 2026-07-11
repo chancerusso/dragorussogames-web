@@ -11,12 +11,12 @@
     "internal_only": true
   },
   "review": {
-    "status": "needs_review",
+    "status": "verified",
     "reviewed_by": "Codex",
-    "reviewed_at": "2026-07-10",
+    "reviewed_at": "2026-07-11",
     "notes": [
-      "Structured from Dargonesti and Dimernesti Sea Elves in the private Dragonlance Adventures source.",
-      "One or more OCR-uncertain or source-ambiguous fields remains marked for manual review."
+      "Verified against the rendered Dimernesti/Dargonesti sea-elf game-statistics table and footnotes in the private Dragonlance Adventures source.",
+      "The source page applies the listed land/sea class limits and shapechange rules to both Dimernesti and Dargonesti."
     ]
   },
   "visibility": {
@@ -80,12 +80,12 @@
     {
       "class_name": "Paladin",
       "maximum_level": "10 on land; Unlimited in sea environs",
-      "source_status": "needs_review"
+      "source_status": "verified"
     },
     {
       "class_name": "Fighter",
       "maximum_level": "16 on land; Unlimited in sea environs",
-      "source_status": "needs_review"
+      "source_status": "verified"
     },
     {
       "class_name": "Wizard of High Sorcery",
@@ -103,15 +103,10 @@
   "saving_throw_modifiers": [],
   "combat_modifiers": [],
   "restrictions": [
-    "Same structured table as Dimernesti is provisionally applied; verify whether separate Dargonesti class limits exist elsewhere."
+    "Land/sea environment changes effective maximum levels for some classes."
   ],
-  "needs_review_fields": [
-    "dargonesti_table_confirmation",
-    "environmental_level_limit_rules",
-    "high_sorcery_class_extension",
-    "holy_orders_class_extension"
-  ],
+  "needs_review_fields": [],
   "legacy_source_directory": "content/settings/dragonlance/races",
   "source_class_limits_complete": true,
-  "description": "Dargonesti elves are deep sea elves; their exact class-limit table needs a final source review."
+  "description": "Dargonesti elves are deep sea elves with air/water breathing and a dolphin shapechange ability."
 }
