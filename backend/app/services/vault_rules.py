@@ -162,7 +162,29 @@ def constitution_hp_adjustment(constitution: int, class_name: str = "") -> int:
     return 0
 
 
-def strength_encumbrance_adjustment(strength: int) -> int:
+MARTIAL_EXCEPTIONAL_STRENGTH_CLASSES = {"Fighter", "Paladin", "Ranger"}
+
+
+def exceptional_strength_adjustment(exceptional_strength: int | None) -> int:
+    if exceptional_strength is None:
+        return 75
+    percentile = 100 if int(exceptional_strength) == 0 else int(exceptional_strength)
+    if percentile <= 50:
+        return 100
+    if percentile <= 75:
+        return 125
+    if percentile <= 90:
+        return 150
+    if percentile <= 99:
+        return 200
+    return 300
+
+
+def qualifies_for_exceptional_strength(class_name: str, strength: int) -> bool:
+    return class_name in MARTIAL_EXCEPTIONAL_STRENGTH_CLASSES and int(strength) == 18
+
+
+def strength_encumbrance_adjustment(strength: int, exceptional_strength: int | None = None, class_name: str = "") -> int:
     if strength <= 3:
         return -35
     if strength <= 5:
@@ -180,8 +202,21 @@ def strength_encumbrance_adjustment(strength: int) -> int:
     if strength == 17:
         return 50
     if strength == 18:
+        if qualifies_for_exceptional_strength(class_name, strength):
+            return exceptional_strength_adjustment(exceptional_strength)
         return 75
     return 300
+
+
+def strength_display(strength: int, exceptional_strength: int | None = None, class_name: str = "") -> str:
+    if not qualifies_for_exceptional_strength(class_name, strength):
+        return str(strength)
+    if exceptional_strength is None:
+        return "18/--"
+    percentile = 100 if int(exceptional_strength) == 0 else int(exceptional_strength)
+    if percentile >= 100:
+        return "18/00"
+    return f"18/{percentile:02d}"
 
 
 def ability_modifiers(scores: dict[str, int], class_name: str = "") -> dict:
@@ -207,25 +242,51 @@ def coin_weight(coins: dict[str, int]) -> float:
     return sum(max(0, int(coins.get(coin, 0) or 0)) for coin in ("platinum", "gold", "electrum", "silver", "copper")) / 10
 
 
-def encumbrance(total_weight: float, armor_move_limit: int | None = None, base_movement: int = 120, strength: int = 10) -> tuple[str, int]:
-    maximum = 150 + strength_encumbrance_adjustment(strength)
+def encumbrance_details(
+    total_weight: float,
+    armor_move_limit: int | None = None,
+    base_movement: int = 120,
+    strength: int = 10,
+    exceptional_strength: int | None = None,
+    class_name: str = "",
+) -> dict:
+    adjustment = strength_encumbrance_adjustment(strength, exceptional_strength, class_name)
+    thresholds = [35 + adjustment, 70 + adjustment, 105 + adjustment, 150 + adjustment]
+    maximum = thresholds[-1]
+    band = "Overloaded"
+    standard_move = 0
     if total_weight > maximum:
-        return "Over adjusted carry limit", 0
-    if total_weight <= 35:
-        band, move = "Unencumbered", 120
-    elif total_weight <= 70:
-        band, move = "Light", 90
-    elif total_weight <= 105:
-        band, move = "Heavy", 60
-    elif total_weight <= 150:
-        band, move = "Severe", 30
-    else:
-        band, move = "Overloaded", 0
-    if base_movement == 90 and move > 30:
-        move -= 30
+        band = "Over adjusted carry limit"
+    elif total_weight <= thresholds[0]:
+        band, standard_move = "Unencumbered", 120
+    elif total_weight <= thresholds[1]:
+        band, standard_move = "Light", 90
+    elif total_weight <= thresholds[2]:
+        band, standard_move = "Heavy", 60
+    elif total_weight <= thresholds[3]:
+        band, standard_move = "Severe", 30
+    weight_move = standard_move
+    if base_movement == 90 and weight_move > 30:
+        weight_move -= 30
+    move = weight_move
     if armor_move_limit:
         move = min(move, armor_move_limit)
-    return band, move
+    next_threshold = next((threshold + 1 for threshold in thresholds if total_weight <= threshold), None)
+    return {
+        "band": band,
+        "movement": move,
+        "weight_movement": weight_move,
+        "armor_move_limit": armor_move_limit,
+        "max_carried": maximum,
+        "unencumbered_through": thresholds[0],
+        "next_encumbrance": next_threshold,
+        "strength_adjustment": adjustment,
+    }
+
+
+def encumbrance(total_weight: float, armor_move_limit: int | None = None, base_movement: int = 120, strength: int = 10) -> tuple[str, int]:
+    details = encumbrance_details(total_weight, armor_move_limit, base_movement, strength)
+    return details["band"], details["movement"]
 
 
 SAVING_THROW_TABLES = {
@@ -432,7 +493,15 @@ def character_warnings(race: str, class_name: str, alignment: str) -> list[str]:
     return warnings
 
 
-def derived_stats(abilities: dict[str, int], inventory: list[dict], coins: dict[str, int], class_name: str = "Fighter", race: str = "Human", level: int = 1) -> dict:
+def derived_stats(
+    abilities: dict[str, int],
+    inventory: list[dict],
+    coins: dict[str, int],
+    class_name: str = "Fighter",
+    race: str = "Human",
+    level: int = 1,
+    exceptional_strength: int | None = None,
+) -> dict:
     carried_weight = coin_weight(coins)
     armor_ac = 10
     armor_move_limit = None
@@ -453,16 +522,25 @@ def derived_stats(abilities: dict[str, int], inventory: list[dict], coins: dict[
                 shield_bonus = max(shield_bonus, 1)
     dex_adjustment = dex_ac_adjustment(int(abilities.get("dexterity", 10)))
     armor_class = armor_ac - shield_bonus + dex_adjustment
-    band, movement = encumbrance(carried_weight, armor_move_limit, int(RACES.get(race, {}).get("movement", 120)), int(abilities.get("strength", 10)))
+    encumbrance = encumbrance_details(
+        carried_weight,
+        armor_move_limit,
+        int(RACES.get(race, {}).get("movement", 120)),
+        int(abilities.get("strength", 10)),
+        exceptional_strength,
+        class_name,
+    )
     surprise = ability_modifiers(abilities, class_name)["dexterity"]["surprise_bonus"]
     return {
         "armor_class": armor_class,
         "unarmored_ac": 10 + dex_adjustment,
         "shield_bonus": shield_bonus,
         "dex_adjustment": dex_adjustment,
-        "movement_rate": movement,
+        "movement_rate": encumbrance["movement"],
         "carried_weight": round(carried_weight, 2),
-        "encumbrance_band": band,
+        "encumbrance_band": encumbrance["band"],
+        "encumbrance": encumbrance,
+        "strength_display": strength_display(int(abilities.get("strength", 10)), exceptional_strength, class_name),
         "surprise_adjustment": f"{surprise:+d}",
         "initiative_adjustment": "Manual DM Review: OSRIC Dexterity does not modify melee initiative, but may modify missile initiative.",
         "saving_throws": saving_throws(class_name, level, race, int(abilities.get("constitution", 10))),

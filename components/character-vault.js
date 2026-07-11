@@ -567,7 +567,21 @@ function abilityAssignmentHtml(d) {
       const selected = assigned[ability] ?? "";
       return `<label class="vault-assign"><span>${abilityLabels[ability]}</span><select name="assigned_rolls.${ability}"><option value="">Manual</option>${rolls.map((roll, index) => `<option value="${index}" ${String(selected) === String(index) ? "selected" : ""} ${used.has(String(index)) && String(selected) !== String(index) ? "disabled" : ""}>${h(roll)}</option>`).join("")}</select><input name="abilities.${ability}" type="number" min="3" max="18" value="${h(d.abilities[ability])}"></label>`;
     }).join("")}</div>
+    ${exceptionalStrengthBuilderHtml(d)}
     <p class="vault-muted">Manual values remain available for DM-approved overrides. Race adjustments apply after assignment.</p>
+  </div>`;
+}
+
+function exceptionalStrengthEligible(d) {
+  return Number(d?.abilities?.strength || 0) === 18 && ["Fighter", "Paladin", "Ranger"].includes(rulesClassName(d?.class_name || ""));
+}
+
+function exceptionalStrengthBuilderHtml(d) {
+  if (!exceptionalStrengthEligible(d)) return "";
+  const value = d.exceptional_strength ?? "";
+  return `<div class="vault-actions">
+    <label class="vault-field">Exceptional STR d100<input name="exceptional_strength" type="number" min="1" max="100" value="${h(value)}"></label>
+    <button class="vault-button secondary" type="button" data-roll-exceptional-strength>Roll d100</button>
   </div>`;
 }
 
@@ -643,7 +657,7 @@ function builderStep() {
       ${classSourceSection("DRAGOLANCE STARTING CLASSES", dragonlanceStartingClassCards(), d.class_name)}
       ${classSourceSection("DRAGOLANCE PROGRESSION PATHS", dragonlanceProgressionClassCards(), d.class_name)}
     </section>
-    <div class="vault-card vault-full"><h3>Class Notes</h3>${raceClassWarnings(d)}<p>${h((state.rules.classes[d.class_name] || {}).armor)}</p><p><strong>Weapons:</strong> ${h((state.rules.classes[d.class_name] || {}).weapons)}</p><p>Hit Dice: ${h(hitDiceText(d))}. Starting wealth: ${h((state.rules.classes[d.class_name] || {}).wealth)}.</p><p>Proficiencies: ${h(proficiencyCount(d.class_name, d.level) ?? "Manual DM Review")} at this level. Non-proficiency penalty: ${h((state.rules.classes[d.class_name] || {}).non_proficiency_penalty ?? "Manual DM Review")}.</p></div>
+    <div class="vault-card vault-full"><h3>Class Notes</h3>${raceClassWarnings(d)}${exceptionalStrengthBuilderHtml(d)}<p>${h((state.rules.classes[d.class_name] || {}).armor)}</p><p><strong>Weapons:</strong> ${h((state.rules.classes[d.class_name] || {}).weapons)}</p><p>Hit Dice: ${h(hitDiceText(d))}. Starting wealth: ${h((state.rules.classes[d.class_name] || {}).wealth)}.</p><p>Proficiencies: ${h(proficiencyCount(d.class_name, d.level) ?? "Manual DM Review")} at this level. Non-proficiency penalty: ${h((state.rules.classes[d.class_name] || {}).non_proficiency_penalty ?? "Manual DM Review")}.</p></div>
     <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/003-class/">Class</a></p>
     ${navButtons()}`;
   if (state.step === 4) return `${selectField("Alignment", "alignment", d.alignment, state.rules.alignments)}<div class="vault-card vault-wide">${raceClassWarnings(d)}<p><strong>${h(d.class_name)}:</strong> ${h((state.rules.classes[d.class_name] || {}).alignment || "Any alignment")}</p></div><p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/004-alignment/">Alignment</a>.</p>${navButtons()}`;
@@ -1220,6 +1234,11 @@ function bindBuilderActions() {
     state.hpRollMessage = `Rolled ${roll.detail} ${formatConEquation(conMod)} CON = ${hp} HP`;
     renderBuilder();
   });
+  document.querySelector("[data-roll-exceptional-strength]")?.addEventListener("click", () => {
+    syncDraft();
+    state.draft.exceptional_strength = Math.floor(Math.random() * 100) + 1;
+    renderBuilder();
+  });
   document.querySelector("[data-roll-gold]")?.addEventListener("click", () => {
     syncDraft();
     const formula = startingWealthFormula(state.draft.class_name);
@@ -1415,6 +1434,7 @@ function characterSavePayload(d) {
     notes: d.notes || "",
     original_rolls: Array.isArray(d.original_rolls) ? d.original_rolls.map((roll) => Number(roll)).filter((roll) => Number.isFinite(roll)) : [],
     abilities: Object.fromEntries(abilities.map((ability) => [ability, Number(d.abilities?.[ability] || 10)])),
+    exceptional_strength: d.exceptional_strength === "" || d.exceptional_strength == null ? null : Number(d.exceptional_strength),
     coins: Object.fromEntries(coins.map((coin) => [coin, Number(d.coins?.[coin] || 0)])),
     combat: {
       max_hp: Number(d.combat?.max_hp || 1),
@@ -1686,7 +1706,7 @@ function sheetHtml(c) {
   return `${sheetHeaderHtml(c)}<div class="vault-grid">
     <section class="vault-card">${sectionTitle("Saving Throws", "/1e/character-creation/003-class/")}${savingThrowsHtml(c)}</section>
     <section class="vault-card">${sectionTitle("Armor Class", "/1e/equipment/")}${armorClassBreakdownHtml(c)}</section>
-    <section class="vault-card">${sectionTitle("Movement & Encumbrance", "/1e/how-to-play/equipment-encumbrance/")}<div class="vault-compact-list"><span><strong>Move</strong>${h(c.combat?.movement_rate ?? 120)}</span><span><strong>Carried</strong>${h(c.combat?.carried_weight ?? 0)} lb</span><span><strong>Coins</strong>${coinWeight(c.coins)} lb</span><span><strong>Load</strong>${h(c.combat?.encumbrance_band ?? "Unencumbered")}</span></div></section>
+    <section class="vault-card">${sectionTitle("Movement & Encumbrance", "/1e/how-to-play/equipment-encumbrance/")}${movementEncumbranceHtml(c)}</section>
     <section class="vault-card">${sectionTitle("Race/Class Details", "/1e/character-creation/003-class/")}${raceClassDetailsHtml(c)}</section>
     <section class="vault-panel">${sectionTitle("Weapons", "/1e/equipment/")}${weaponsHtml(c)}</section>
     <section class="vault-panel">${sectionTitle("Armor", "/1e/equipment/")}${armorHtml(c)}</section>
@@ -1722,8 +1742,27 @@ function abilityStripHtml(c) {
     const base = c.abilities?.[ability] ?? 10;
     const adjusted = c.adjusted_abilities?.[ability] ?? base;
     const changed = Number(base) !== Number(adjusted);
-    return `<span><strong>${abilityLabels[ability]}</strong>${h(adjusted)}${changed ? `<em>${h(base)}</em>` : ""}</span>`;
+    const display = ability === "strength" ? (c.strength_display || adjusted) : adjusted;
+    return `<span><strong>${abilityLabels[ability]}</strong>${h(display)}${changed ? `<em>${h(base)}</em>` : ""}</span>`;
   }).join("")}</div>`;
+}
+
+function movementEncumbranceHtml(c) {
+  const enc = c.combat?.encumbrance || {};
+  const armor = equippedArmor(c);
+  const armorLimit = enc.armor_move_limit || armor?.equipment?.properties?.max_move || "";
+  return `<div class="vault-compact-list">
+    <span><strong>Move</strong>${h(c.combat?.movement_rate ?? 120)}</span>
+    <span><strong>Load</strong>${h(c.combat?.encumbrance_band ?? "Unencumbered")}</span>
+    <span><strong>Armor Limit</strong>${armorLimit ? `${h(armor.equipment.name)} - ${h(armorLimit)} ft` : "None"}</span>
+    <span><strong>Carried</strong>${h(c.combat?.carried_weight ?? 0)} lb / ${h(enc.max_carried ?? "")} lb</span>
+    <span><strong>Coins</strong>${coinWeight(c.coins)} lb</span>
+    <span><strong>Next Encumbrance</strong>${enc.next_encumbrance ? `${h(enc.next_encumbrance)} lb` : "None"}</span>
+  </div>`;
+}
+
+function equippedArmor(c) {
+  return (c.inventory || []).find((item) => item.status === "equipped" && item.equipment?.type === "armor") || null;
 }
 
 function sectionTitle(label, reference) {

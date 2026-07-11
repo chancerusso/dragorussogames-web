@@ -25,6 +25,7 @@ from app.api import (  # noqa: E402
 from app.db.base import Base  # noqa: E402
 from app.db.models import EquipmentCatalog, Player, VaultCharacter, WeaponProficiency  # noqa: E402
 from app.services.vault_rules import seed_vault_catalogs  # noqa: E402
+from app.services.vault_rules import encumbrance  # noqa: E402
 import app.db.models  # noqa: E402,F401
 
 
@@ -89,6 +90,50 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         updated = update_inventory_record(self.character_model, row["id"], {"status": "carried"}, self.db)
         self.assertEqual("carried", updated["inventory"][0]["status"])
         self.assertEqual(10, updated["combat"]["armor_class"])
+
+    def test_exceptional_strength_and_armor_limited_dwarf_encumbrance(self) -> None:
+        character = create_vault_character_for_player(
+            {
+                "name": "Dwarf Crown Strong",
+                "race": "Hill Dwarf",
+                "class_name": "Knight of the Crown",
+                "alignment": "Lawful Good",
+                "level": 1,
+                "abilities": {
+                    "strength": 18,
+                    "intelligence": 10,
+                    "wisdom": 12,
+                    "dexterity": 16,
+                    "constitution": 16,
+                    "charisma": 10,
+                },
+                "exceptional_strength": 43,
+                "combat": {"max_hp": 10, "current_hp": 10},
+                "coins": {"gold": 100},
+            },
+            self.player,
+            self.db,
+        )
+        model = self.db.get(VaultCharacter, character["id"])
+        payload = add_inventory_record(model, {"equipment_id": self.equipment("Splint").id, "status": "equipped"}, self.db)
+        self.db.refresh(model)
+        payload = add_inventory_record(model, {"equipment_id": self.equipment("Backpack").id, "quantity": 4, "status": "carried"}, self.db)
+
+        self.assertEqual("18/43", payload["strength_display"])
+        self.assertEqual(90, payload["combat"]["carried_weight"])
+        self.assertEqual(2, payload["combat"]["armor_class"])
+        self.assertEqual("Unencumbered", payload["combat"]["encumbrance_band"])
+        self.assertEqual(60, payload["combat"]["movement_rate"])
+        self.assertEqual(250, payload["combat"]["encumbrance"]["max_carried"])
+        self.assertEqual(135, payload["combat"]["encumbrance"]["unencumbered_through"])
+        self.assertEqual(136, payload["combat"]["encumbrance"]["next_encumbrance"])
+        self.assertEqual(60, payload["combat"]["encumbrance"]["armor_move_limit"])
+
+    def test_plain_strength_18_shifts_all_encumbrance_thresholds(self) -> None:
+        band, movement = encumbrance(90, None, 90, 18)
+
+        self.assertEqual("Unencumbered", band)
+        self.assertEqual(90, movement)
 
     def test_drop_preserves_dropped_status_and_removes_derived_effects(self) -> None:
         splint = self.equipment("Splint")

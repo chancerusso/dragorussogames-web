@@ -67,6 +67,7 @@ from app.services.vault_rules import (
     proficiency_count,
     seed_vault_catalogs,
     spell_slot_summary,
+    strength_display,
 )
 from app.services.characters import (
     activate_character,
@@ -300,6 +301,11 @@ def character_payload(character: VaultCharacter) -> dict:
             ability: getattr(abilities, f"racial_adjusted_{ability}") for ability in ABILITIES
         } if abilities else {},
         "exceptional_strength": abilities.exceptional_strength if abilities else None,
+        "strength_display": strength_display(
+            abilities.racial_adjusted_strength if abilities else 10,
+            abilities.exceptional_strength if abilities else None,
+            rules_class_name(character.class_name),
+        ),
         "coins": {
             "platinum": coins.platinum if coins else 0,
             "gold": coins.gold if coins else 0,
@@ -317,6 +323,21 @@ def character_payload(character: VaultCharacter) -> dict:
             "movement_rate": combat.movement_rate if combat else 120,
             "carried_weight": combat.carried_weight if combat else 0,
             "encumbrance_band": combat.encumbrance_band if combat else "Unencumbered",
+            "encumbrance": derived_stats(
+                {ability: getattr(abilities, f"racial_adjusted_{ability}") for ability in ABILITIES},
+                inventory,
+                {
+                    "platinum": coins.platinum if coins else 0,
+                    "gold": coins.gold if coins else 0,
+                    "electrum": coins.electrum if coins else 0,
+                    "silver": coins.silver if coins else 0,
+                    "copper": coins.copper if coins else 0,
+                },
+                rules_class_name(character.class_name),
+                rules_race_name(character.race),
+                character.level,
+                abilities.exceptional_strength if abilities else None,
+            ).get("encumbrance") if abilities and coins else {},
             "surprise_adjustment": combat.surprise_adjustment if combat else "Manual DM Review",
             "initiative_adjustment": combat.initiative_adjustment if combat else "Manual DM Review",
             "saving_throws": combat.saving_throws if combat else {"status": "Manual DM Review"},
@@ -530,7 +551,15 @@ def recalculate_character(db: Session, character: VaultCharacter) -> None:
         "silver": character.coins.silver,
         "copper": character.coins.copper,
     }
-    stats = derived_stats(adjusted, inventory, coins, rules_class_name(character.class_name), rules_race_name(character.race), character.level)
+    stats = derived_stats(
+        adjusted,
+        inventory,
+        coins,
+        rules_class_name(character.class_name),
+        rules_race_name(character.race),
+        character.level,
+        character.abilities.exceptional_strength,
+    )
     for field, value in stats.items():
         if hasattr(character.combat, field):
             setattr(character.combat, field, value)
@@ -1463,6 +1492,9 @@ def update_vault_character_record(character: VaultCharacter, data: dict, db: Ses
         for ability in ABILITIES:
             if ability in data["abilities"]:
                 setattr(character.abilities, ability, int(data["abilities"][ability]))
+    if "exceptional_strength" in data:
+        value = data.get("exceptional_strength")
+        character.abilities.exceptional_strength = None if value in (None, "") else int(value)
     if "coins" in data:
         validate_non_negative_coins(data["coins"])
         for coin in ("platinum", "gold", "electrum", "silver", "copper"):
