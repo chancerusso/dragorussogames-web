@@ -64,9 +64,9 @@ class ContentValidationTests(unittest.TestCase):
         self.assert_has_error("missing source library")
 
     def test_broken_reference_fails(self) -> None:
-        data = self.load("content/options/dragolance/extensions/high_sorcery.json")
+        data = self.load("content/options/dragolance/extensions/magic_user_high_sorcery.json")
         data["target_id"] = "osric.class.nope"
-        self.save("content/options/dragolance/extensions/high_sorcery.json", data)
+        self.save("content/options/dragolance/extensions/magic_user_high_sorcery.json", data)
         self.assert_has_error("missing referenced id 'osric.class.nope'")
 
     def test_bad_stable_id_fails(self) -> None:

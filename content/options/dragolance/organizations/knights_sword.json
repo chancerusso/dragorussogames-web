@@ -1,13 +1,13 @@
 {
-  "id": "dragolance.order.white_robes",
+  "id": "dragolance.order.knights_sword",
   "type": "organization",
-  "name": "White Robes",
-  "display_name": "White Robes",
+  "name": "Knights of the Sword",
+  "display_name": "Knights of the Sword",
   "rules_engine": "osric",
   "source_library_id": "dragonlance_adventures",
   "source_ref": {
-    "page": 37,
-    "section": "White Robes",
+    "page": 20,
+    "section": "Knights of the Sword",
     "internal_only": true
   },
   "review": {
@@ -26,26 +26,31 @@
   "tags": [
     "dragolance",
     "organization",
-    "wizard_order"
+    "knightly_order"
   ],
   "version": 1,
   "deprecated": false,
   "replaces": null,
-  "category": "wizard_order",
+  "category": "knightly_order",
   "membership_requirements": [
     {
-      "alignment": "good"
+      "prerequisite_order": "dragolance.order.knights_crown"
     },
     {
-      "moon": "dragolance.moon.solinari"
+      "minimums": {
+        "strength": 12,
+        "intelligence": 9,
+        "wisdom": 13,
+        "dexterity": 9,
+        "constitution": 10
+      }
     },
     {
-      "deity": "dragolance.deity.solinari"
+      "deity_relationship": "dragolance.deity.kiri_jolith"
     }
   ],
   "class_extensions": [
-    "dragolance.extension.magic_user.high_sorcery",
-    "dragolance.extension.illusionist.high_sorcery"
+    "dragolance.extension.fighter.solamnic_knighthood"
   ],
-  "description": "White Robes is modeled as a Dragolance organization/class relationship layer over OSRIC mechanics."
+  "description": "Knights of the Sword is modeled as a Dragolance organization/class relationship layer over OSRIC mechanics."
 }

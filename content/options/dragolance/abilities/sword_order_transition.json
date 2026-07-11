@@ -1,0 +1,51 @@
+{
+  "id": "dragolance.ability.sword_order_transition",
+  "type": "class_ability",
+  "name": "Sword Order Transition",
+  "display_name": "Sword Order Transition",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 20,
+    "section": "Knights of the Sword minimum requirements",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Structured class ability or gate; no runtime automation in this unit."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "class-ability"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "owner_id": "dragolance.order.knights_sword",
+  "level_gained": 3,
+  "prerequisites": [
+    {
+      "organization_id": "dragolance.order.knights_crown"
+    },
+    {
+      "minimum_level": 2
+    }
+  ],
+  "mechanical_effect": {
+    "effect": "petition and quest gate before Sword order membership"
+  },
+  "references": [
+    "dragolance.order.knights_crown",
+    "dragolance.order.knights_sword"
+  ],
+  "description": "Sword Order Transition is represented as structured canonical class ability data."
+}

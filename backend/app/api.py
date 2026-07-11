@@ -81,6 +81,7 @@ from app.services.characters import (
     move_equipment,
 )
 from app.services.ledger import build_initial_ledger, sync_active_status
+from app.services.canonical_content import CanonicalContentError, CanonicalContentService
 from app.services.expedition import (
     get_order,
     get_store,
@@ -111,6 +112,7 @@ def load_dragonlance_race_names() -> set[str]:
 
 
 DRAGONLANCE_RACE_NAMES = load_dragonlance_race_names()
+REFERENCE_CONTENT = CanonicalContentService(enabled=True)
 
 
 def load_dragonlance_class_names() -> set[str]:
@@ -788,6 +790,67 @@ def get_player_campaign(campaign_id: int, claims: dict = Depends(require_player)
 @router.get("/1e/rules-data")
 def vault_rules_data(_: dict = Depends(require_player_or_admin)) -> dict:
     return {"races": RACES, "classes": CLASSES, "alignments": ALIGNMENTS}
+
+
+def reference_service() -> CanonicalContentService:
+    try:
+        return REFERENCE_CONTENT.load_all()
+    except CanonicalContentError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+def review_status(record: dict) -> str:
+    review = record.get("review")
+    if isinstance(review, dict):
+        return str(review.get("status") or "")
+    return str(review or "")
+
+
+def canonical_summary(record: dict) -> dict:
+    return {
+        "id": record.get("id"),
+        "type": record.get("type"),
+        "name": record.get("name"),
+        "display_name": record.get("display_name") or record.get("name") or record.get("id"),
+        "source_library_id": record.get("source_library_id"),
+        "review_status": review_status(record),
+        "summary": record.get("summary") or record.get("description") or record.get("notes") or "",
+    }
+
+
+@router.get("/1e/reference/catalog")
+def canonical_reference_catalog(
+    source_library_id: Optional[str] = None,
+    record_type: Optional[str] = None,
+    q: Optional[str] = None,
+    _: dict = Depends(require_jwt_admin),
+) -> dict:
+    service = reference_service()
+    normalized_source = None if source_library_id in {None, "", "all"} else source_library_id
+    normalized_type = None if record_type in {None, "", "all"} else record_type
+    records = service.list_records(record_type=normalized_type, source_library_id=normalized_source, search=q)
+    rules_pages = []
+    if normalized_type in {None, "rules_page"} and normalized_source in {None, "osric"}:
+        rules_pages = service.list_rules_pages(search=q)
+    return {
+        "sources": [canonical_summary(source) for source in service.list_source_libraries()],
+        "record_types": sorted(set(service.list_record_types()) | ({"rules_page"} if service.list_rules_pages() else set())),
+        "records": [canonical_summary(record) for record in records],
+        "rules_pages": rules_pages,
+    }
+
+
+@router.get("/1e/reference/records/{record_id}")
+def canonical_reference_record(record_id: str, _: dict = Depends(require_jwt_admin)) -> dict:
+    service = reference_service()
+    record = service.get_by_id(record_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Canonical record not found.")
+    return {
+        "record": record,
+        "summary": canonical_summary(record),
+        "references": service.resolved_references(record_id),
+    }
 
 
 @router.get("/1e/players")

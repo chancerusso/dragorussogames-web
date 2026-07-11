@@ -1,0 +1,12 @@
+{
+  "id": "dragolance.availability.class.illusionist",
+  "type": "availability_rule",
+  "campaign_profile_id": "campaign_profile.dragolance",
+  "record_id": "osric.class.illusionist",
+  "available": true,
+  "scope": [
+    "character_builder",
+    "rules_reference"
+  ],
+  "notes": "Available through High Sorcery/renegade legality."
+}

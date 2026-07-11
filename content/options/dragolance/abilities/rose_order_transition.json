@@ -1,0 +1,51 @@
+{
+  "id": "dragolance.ability.rose_order_transition",
+  "type": "class_ability",
+  "name": "Rose Order Transition",
+  "display_name": "Rose Order Transition",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 21,
+    "section": "Knights of the Rose minimum requirements",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Structured class ability or gate; no runtime automation in this unit."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "class-ability"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "owner_id": "dragolance.order.knights_rose",
+  "level_gained": 4,
+  "prerequisites": [
+    {
+      "organization_id": "dragolance.order.knights_sword"
+    },
+    {
+      "minimum_level": 4
+    }
+  ],
+  "mechanical_effect": {
+    "effect": "requires Crown then Sword service, petition, council, and quest"
+  },
+  "references": [
+    "dragolance.order.knights_sword",
+    "dragolance.order.knights_rose"
+  ],
+  "description": "Rose Order Transition is represented as structured canonical class ability data."
+}

@@ -1,0 +1,40 @@
+{
+  "id": "dragolance.extension.fighter.solamnic_knighthood",
+  "type": "extension_rule",
+  "campaign_profile_id": "campaign_profile.dragolance",
+  "target_id": "osric.class.fighter",
+  "extension_kind": "class_order",
+  "adds": {
+    "organizations": [
+      "dragolance.order.solamnic_knights",
+      "dragolance.order.knights_crown",
+      "dragolance.order.knights_sword",
+      "dragolance.order.knights_rose"
+    ],
+    "deity_relationships": [
+      "dragolance.deity.habbakuk",
+      "dragolance.deity.kiri_jolith",
+      "dragolance.deity.paladine"
+    ],
+    "alignment_requirement": "good",
+    "requires_knightly_council": true,
+    "progression_overlays": [
+      "dragolance.progression.solamnic.crown",
+      "dragolance.progression.solamnic.sword",
+      "dragolance.progression.solamnic.rose"
+    ],
+    "spell_slot_overlays": [
+      "dragolance.spell_slots.sword_knight"
+    ],
+    "ability_refs": [
+      "dragolance.ability.crown_squire_entry",
+      "dragolance.ability.sword_order_transition",
+      "dragolance.ability.sword_knight_clerical_spells",
+      "dragolance.ability.rose_order_transition",
+      "dragolance.ability.solamnic_oath_and_measure"
+    ],
+    "inherits_attack_progression_ref": "osric.attack.fighter",
+    "inherits_saving_throw_ref": "osric.saves.fighter"
+  },
+  "notes": "Solamnic knight legality is modeled as a fighter-based relationship layer until dedicated progression is added."
+}

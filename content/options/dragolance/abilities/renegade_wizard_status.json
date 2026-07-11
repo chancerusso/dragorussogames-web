@@ -1,0 +1,49 @@
+{
+  "id": "dragolance.ability.renegade_wizard_status",
+  "type": "class_ability",
+  "name": "Renegade Wizard Status",
+  "display_name": "Renegade Wizard Status",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 38,
+    "section": "Renegade Wizards",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Structured class ability or gate; no runtime automation in this unit."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "class-ability"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "owner_id": "dragolance.order.high_sorcery",
+  "level_gained": 3,
+  "prerequisites": [
+    {
+      "class_id": "osric.class.magic_user"
+    }
+  ],
+  "mechanical_effect": {
+    "effect": "unaffiliated wizard beyond initiate is treated as renegade",
+    "consequence": "orders may capture, judge, exile, or destroy"
+  },
+  "references": [
+    "dragolance.restriction.class.magic_user_high_sorcery_required",
+    "dragolance.restriction.class.illusionist_high_sorcery_required"
+  ],
+  "description": "Renegade Wizard Status is represented as structured canonical class ability data."
+}

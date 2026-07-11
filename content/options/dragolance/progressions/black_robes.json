@@ -1,0 +1,147 @@
+{
+  "id": "dragolance.progression.high_sorcery.black_robes",
+  "type": "class_progression",
+  "name": "Black Robe Wizard Progression",
+  "display_name": "Black Robe Wizard Progression",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 38,
+    "section": "Black Robe Wizard Progression",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Canonical progression overlay; runtime automation is not implemented in this unit."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "progression"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "class_id": "osric.class.magic_user",
+  "levels": [
+    {
+      "level": 4,
+      "xp_threshold": 17000,
+      "hit_dice": "4d4",
+      "title": "9th Order",
+      "ability_ids": [
+        "dragolance.ability.moon_magic_modifier"
+      ]
+    },
+    {
+      "level": 5,
+      "xp_threshold": 35000,
+      "hit_dice": "5d4",
+      "title": "8th Order",
+      "ability_ids": []
+    },
+    {
+      "level": 6,
+      "xp_threshold": 45000,
+      "hit_dice": "6d4",
+      "title": "7th Order",
+      "ability_ids": []
+    },
+    {
+      "level": 7,
+      "xp_threshold": 80000,
+      "hit_dice": "7d4",
+      "title": "6th Order",
+      "ability_ids": []
+    },
+    {
+      "level": 8,
+      "xp_threshold": 135000,
+      "hit_dice": "8d4",
+      "title": "5th Order",
+      "ability_ids": []
+    },
+    {
+      "level": 9,
+      "xp_threshold": 290000,
+      "hit_dice": "9d4",
+      "title": "4th Order",
+      "ability_ids": []
+    },
+    {
+      "level": 10,
+      "xp_threshold": 375000,
+      "hit_dice": "10d4",
+      "title": "Trimone",
+      "ability_ids": []
+    },
+    {
+      "level": 11,
+      "xp_threshold": 500000,
+      "hit_dice": "11d4",
+      "title": "Brother to Darkness",
+      "ability_ids": []
+    },
+    {
+      "level": 12,
+      "xp_threshold": 650000,
+      "hit_dice": "11d4+1",
+      "title": "Blackmage",
+      "ability_ids": []
+    },
+    {
+      "level": 13,
+      "xp_threshold": 800000,
+      "hit_dice": "11d4+2",
+      "title": "Master",
+      "ability_ids": []
+    },
+    {
+      "level": 14,
+      "xp_threshold": 1000000,
+      "hit_dice": "11d4+2",
+      "title": "",
+      "ability_ids": []
+    },
+    {
+      "level": 15,
+      "xp_threshold": 1200000,
+      "hit_dice": "11d4+3",
+      "title": "",
+      "ability_ids": []
+    },
+    {
+      "level": 16,
+      "xp_threshold": 1400000,
+      "hit_dice": "11d4+4",
+      "title": "",
+      "ability_ids": []
+    },
+    {
+      "level": 17,
+      "xp_threshold": 1650000,
+      "hit_dice": "11d4+5",
+      "title": "",
+      "ability_ids": []
+    },
+    {
+      "level": 18,
+      "xp_threshold": 1900000,
+      "hit_dice": "11d4+6",
+      "title": "",
+      "ability_ids": []
+    }
+  ],
+  "base_progression_ref": "dragolance.progression.high_sorcery.student",
+  "organization_id": "dragolance.order.black_robes",
+  "progression_kind": "overlay",
+  "description": "Black Robe Wizard Progression machine-readable Dragolance progression overlay."
+}

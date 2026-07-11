@@ -1,0 +1,155 @@
+{
+  "id": "dragolance.progression.solamnic.sword",
+  "type": "class_progression",
+  "name": "Sword Knight Progression",
+  "display_name": "Sword Knight Progression",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 20,
+    "section": "Sword Knight Progression",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Canonical progression overlay; runtime automation is not implemented in this unit."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "progression"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "class_id": "osric.class.fighter",
+  "levels": [
+    {
+      "level": 3,
+      "xp_threshold": 12000,
+      "hit_dice": "4d10",
+      "title": "Novice of Swords",
+      "ability_ids": [
+        "dragolance.ability.sword_order_transition",
+        "dragolance.ability.sword_knight_clerical_spells"
+      ]
+    },
+    {
+      "level": 4,
+      "xp_threshold": 24000,
+      "hit_dice": "5d10",
+      "title": "Knight of Swords",
+      "ability_ids": []
+    },
+    {
+      "level": 5,
+      "xp_threshold": 45000,
+      "hit_dice": "6d10",
+      "title": "Blade Knight",
+      "ability_ids": []
+    },
+    {
+      "level": 6,
+      "xp_threshold": 95000,
+      "hit_dice": "7d10",
+      "title": "Knight Clerist",
+      "ability_ids": []
+    },
+    {
+      "level": 7,
+      "xp_threshold": 175000,
+      "hit_dice": "8d10",
+      "title": "Abbot of Swords",
+      "ability_ids": []
+    },
+    {
+      "level": 8,
+      "xp_threshold": 350000,
+      "hit_dice": "9d10",
+      "title": "Elder of Swords",
+      "ability_ids": []
+    },
+    {
+      "level": 9,
+      "xp_threshold": 700000,
+      "hit_dice": "10d10",
+      "title": "Master of Swords",
+      "ability_ids": []
+    },
+    {
+      "level": 10,
+      "xp_threshold": 1050000,
+      "hit_dice": "10d10+2",
+      "title": "Lord of Swords",
+      "ability_ids": []
+    },
+    {
+      "level": 11,
+      "xp_threshold": 1400000,
+      "hit_dice": "10d10+4",
+      "title": "Master Clerist",
+      "ability_ids": []
+    },
+    {
+      "level": 12,
+      "xp_threshold": 1750000,
+      "hit_dice": "10d10+6",
+      "title": "Lord Clerist",
+      "ability_ids": []
+    },
+    {
+      "level": 13,
+      "xp_threshold": 2100000,
+      "hit_dice": "10d10+8",
+      "title": "High Clerist",
+      "ability_ids": []
+    },
+    {
+      "level": 14,
+      "xp_threshold": 2450000,
+      "hit_dice": "10d10+10",
+      "title": "",
+      "ability_ids": []
+    },
+    {
+      "level": 15,
+      "xp_threshold": 2800000,
+      "hit_dice": "10d10+12",
+      "title": "",
+      "ability_ids": []
+    },
+    {
+      "level": 16,
+      "xp_threshold": 3150000,
+      "hit_dice": "10d10+14",
+      "title": "",
+      "ability_ids": []
+    },
+    {
+      "level": 17,
+      "xp_threshold": 3500000,
+      "hit_dice": "10d10+16",
+      "title": "",
+      "ability_ids": []
+    },
+    {
+      "level": 18,
+      "xp_threshold": 3850000,
+      "hit_dice": "10d10+18",
+      "title": "",
+      "ability_ids": []
+    }
+  ],
+  "base_progression_ref": "osric.progression.class.fighter",
+  "organization_id": "dragolance.order.knights_sword",
+  "progression_kind": "overlay",
+  "description": "Sword Knight Progression machine-readable Dragolance progression overlay."
+}

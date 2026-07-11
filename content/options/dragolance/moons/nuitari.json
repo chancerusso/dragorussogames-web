@@ -1,8 +1,8 @@
 {
-  "id": "dragolance.moon.solinari",
+  "id": "dragolance.moon.nuitari",
   "type": "moon",
-  "name": "Solinari",
-  "display_name": "Solinari",
+  "name": "Nuitari",
+  "display_name": "Nuitari",
   "rules_engine": "osric",
   "source_library_id": "dragonlance_adventures",
   "source_ref": {
@@ -33,7 +33,7 @@
   "cycle_days": null,
   "phases": [],
   "affects": [
-    "dragolance.order.white_robes"
+    "dragolance.order.black_robes"
   ],
-  "description": "Solinari is the moon associated with its High Sorcery order; exact cycle data remains pending."
+  "description": "Nuitari is the moon associated with its High Sorcery order; exact cycle data remains pending."
 }

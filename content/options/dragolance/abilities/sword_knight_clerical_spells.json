@@ -1,0 +1,52 @@
+{
+  "id": "dragolance.ability.sword_knight_clerical_spells",
+  "type": "class_ability",
+  "name": "Sword Knight Clerical Spells",
+  "display_name": "Sword Knight Clerical Spells",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 21,
+    "section": "Sword Knight spells table",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Structured class ability or gate; no runtime automation in this unit."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "class-ability"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "owner_id": "dragolance.order.knights_sword",
+  "level_gained": 6,
+  "prerequisites": [
+    {
+      "organization_id": "dragolance.order.knights_sword"
+    },
+    {
+      "deity_id": "dragolance.deity.kiri_jolith"
+    }
+  ],
+  "mechanical_effect": {
+    "effect": "weekly meditation grants retained clerical spells until used",
+    "meditation_limit_hours": 6
+  },
+  "references": [
+    "dragolance.spell_slots.sword_knight",
+    "dragolance.deity.kiri_jolith"
+  ],
+  "description": "Sword Knight Clerical Spells is represented as structured canonical class ability data."
+}

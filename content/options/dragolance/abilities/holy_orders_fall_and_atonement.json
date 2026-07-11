@@ -1,0 +1,47 @@
+{
+  "id": "dragolance.ability.holy_orders_fall_and_atonement",
+  "type": "class_ability",
+  "name": "Holy Orders Fall and Atonement",
+  "display_name": "Holy Orders Fall and Atonement",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 42,
+    "section": "The Fallen",
+    "internal_only": true
+  },
+  "review": {
+    "status": "needs_review",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Structured class ability or gate; no runtime automation in this unit."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "class-ability"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "owner_id": "dragolance.order.holy_orders",
+  "level_gained": null,
+  "prerequisites": [
+    {
+      "organization_id": "dragolance.order.holy_orders"
+    }
+  ],
+  "mechanical_effect": {
+    "effect": "cleric may lose powers for deity/order violation; restoration requires atonement-like process"
+  },
+  "references": [
+    "dragolance.extension.cleric.holy_orders"
+  ],
+  "description": "Holy Orders Fall and Atonement is represented as structured canonical class ability data."
+}

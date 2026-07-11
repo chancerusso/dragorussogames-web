@@ -16,6 +16,7 @@ SCHEMA_BY_TYPE = {
     "source_library": "source_library.schema.json",
     "race": "race.schema.json",
     "class": "class.schema.json",
+    "class_ability": "class_ability.schema.json",
     "class_progression": "class_progression.schema.json",
     "saving_throw_progression": "saving_throw_progression.schema.json",
     "attack_progression": "attack_progression.schema.json",
@@ -45,12 +46,13 @@ TYPE_DIRS = {
     "source_library": ["content/sources"],
     "race": ["content/osric/core/races", "content/options/dragolance/races"],
     "class": ["content/osric/core/classes", "content/options/dragolance/classes"],
-    "class_progression": ["content/osric/core/progressions"],
+    "class_ability": ["content/options/dragolance/abilities"],
+    "class_progression": ["content/osric/core/progressions", "content/options/dragolance/progressions"],
     "saving_throw_progression": ["content/osric/core/saving_throws"],
     "attack_progression": ["content/osric/core/attacks"],
     "spell": ["content/osric/core/spells", "content/options/dragolance/spells"],
     "spell_list": ["content/osric/core/spell_lists"],
-    "spell_slot_progression": ["content/osric/core/spell_slots"],
+    "spell_slot_progression": ["content/osric/core/spell_slots", "content/options/dragolance/spell_slots"],
     "weapon": ["content/osric/core/equipment", "content/options/dragolance/equipment"],
     "armor": ["content/osric/core/equipment", "content/options/dragolance/equipment"],
     "shield": ["content/osric/core/equipment", "content/options/dragolance/equipment"],
@@ -290,9 +292,17 @@ def validate_content(root: Path) -> ValidationResult:
                     result.error(path, f"player-visible record contains {field}")
 
         references = set(nested_values(data, "class_id"))
+        references.update(nested_values(data, "owner_id"))
+        references.update(nested_values(data, "organization_id"))
+        references.update(nested_values(data, "deity_id"))
+        references.update(nested_values(data, "moon_id"))
+        references.update(nested_values(data, "ability_id"))
+        references.update(nested_values(data, "progression_id"))
+        references.update(nested_values(data, "spell_slot_progression_id"))
         references.update(nested_values(data, "spell_id"))
         references.update(nested_values(data, "calendar_id"))
         references.update(nested_values(data, "base_item_ref"))
+        references.update(nested_string_lists(data))
         references.update(data.get("languages", []) if isinstance(data.get("languages"), list) else [])
         references.update(data.get("class_access", []) if isinstance(data.get("class_access"), list) else [])
         references.update(data.get("months", []) if isinstance(data.get("months"), list) else [])

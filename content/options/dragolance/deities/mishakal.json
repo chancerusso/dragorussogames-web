@@ -1,0 +1,41 @@
+{
+  "id": "dragolance.deity.mishakal",
+  "type": "deity",
+  "name": "Mishakal",
+  "display_name": "Mishakal",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 45,
+    "section": "Gods and Holy Orders relationships",
+    "internal_only": true
+  },
+  "review": {
+    "status": "needs_review",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Minimal relationship record for class legality; spheres, specials, holy symbols, and full cleric data belong to later deity content work."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "deity"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "alignment": "Neutral Good",
+  "domains_or_spheres": [],
+  "allowed_cleric_alignments": [],
+  "cleric_extensions": [
+    "dragolance.extension.cleric.holy_orders"
+  ],
+  "holy_symbol": "symbol pending review",
+  "description": "Mishakal is represented here only for class relationship and legality references."
+}

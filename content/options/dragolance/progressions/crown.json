@@ -1,0 +1,113 @@
+{
+  "id": "dragolance.progression.solamnic.crown",
+  "type": "class_progression",
+  "name": "Crown Knight Progression",
+  "display_name": "Crown Knight Progression",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 19,
+    "section": "Crown Knight Progression",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Canonical progression overlay; runtime automation is not implemented in this unit."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "progression"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "class_id": "osric.class.fighter",
+  "levels": [
+    {
+      "level": 1,
+      "xp_threshold": 2500,
+      "hit_dice": "2d10",
+      "title": "Squire of Crown",
+      "ability_ids": [
+        "dragolance.ability.crown_squire_entry",
+        "dragolance.ability.solamnic_oath_and_measure"
+      ]
+    },
+    {
+      "level": 2,
+      "xp_threshold": 5000,
+      "hit_dice": "3d10",
+      "title": "Defender of Crown",
+      "ability_ids": []
+    },
+    {
+      "level": 3,
+      "xp_threshold": 10000,
+      "hit_dice": "4d10",
+      "title": "Knight of Crown",
+      "ability_ids": []
+    },
+    {
+      "level": 4,
+      "xp_threshold": 18500,
+      "hit_dice": "5d10",
+      "title": "",
+      "ability_ids": []
+    },
+    {
+      "level": 5,
+      "xp_threshold": 37000,
+      "hit_dice": "6d10",
+      "title": "Shield of Crown",
+      "ability_ids": []
+    },
+    {
+      "level": 6,
+      "xp_threshold": 85000,
+      "hit_dice": "7d10",
+      "title": "",
+      "ability_ids": []
+    },
+    {
+      "level": 7,
+      "xp_threshold": 140000,
+      "hit_dice": "8d10",
+      "title": "",
+      "ability_ids": []
+    },
+    {
+      "level": 8,
+      "xp_threshold": 220000,
+      "hit_dice": "9d10",
+      "title": "",
+      "ability_ids": []
+    },
+    {
+      "level": 9,
+      "xp_threshold": 300000,
+      "hit_dice": "10d10",
+      "title": "Lord of Crown",
+      "ability_ids": []
+    },
+    {
+      "level": 10,
+      "xp_threshold": 600000,
+      "hit_dice": "10d10+2",
+      "title": "",
+      "ability_ids": []
+    }
+  ],
+  "base_progression_ref": "osric.progression.class.fighter",
+  "organization_id": "dragolance.order.knights_crown",
+  "progression_kind": "overlay",
+  "description": "Crown Knight Progression machine-readable Dragolance progression overlay."
+}

@@ -1,0 +1,53 @@
+{
+  "id": "dragolance.ability.test_of_high_sorcery",
+  "type": "class_ability",
+  "name": "Test of High Sorcery",
+  "display_name": "Test of High Sorcery",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 36,
+    "section": "Test of High Sorcery",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Structured class ability or gate; no runtime automation in this unit."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "class-ability"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "owner_id": "dragolance.order.high_sorcery",
+  "level_gained": 3,
+  "prerequisites": [
+    {
+      "class_id": "osric.class.magic_user"
+    },
+    {
+      "minimum_level": 3
+    }
+  ],
+  "mechanical_effect": {
+    "effect": "required_gate_for_order_advancement",
+    "failure": "death_or_dm_adjudicated_result"
+  },
+  "references": [
+    "dragolance.order.high_sorcery",
+    "dragolance.extension.magic_user.high_sorcery",
+    "dragolance.extension.illusionist.high_sorcery"
+  ],
+  "description": "Test of High Sorcery is represented as structured canonical class ability data."
+}

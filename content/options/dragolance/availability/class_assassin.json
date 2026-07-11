@@ -1,0 +1,12 @@
+{
+  "id": "dragolance.availability.class.assassin",
+  "type": "availability_rule",
+  "campaign_profile_id": "campaign_profile.dragolance",
+  "record_id": "osric.class.assassin",
+  "available": false,
+  "scope": [
+    "character_builder",
+    "rules_reference"
+  ],
+  "notes": "Unavailable in Krynn by source; legacy characters map to thief handling."
+}

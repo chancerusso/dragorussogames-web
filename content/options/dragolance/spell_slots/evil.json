@@ -1,0 +1,329 @@
+{
+  "id": "dragolance.spell_slots.holy_orders.evil",
+  "type": "spell_slot_progression",
+  "name": "Holy Orders Evil Cleric Spell Slots",
+  "display_name": "Holy Orders Evil Cleric Spell Slots",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 44,
+    "section": "Clerics of Evil base spells table",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Canonical progression overlay; runtime automation is not implemented in this unit."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "spell-slots"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "class_id": "osric.class.cleric",
+  "levels": [
+    {
+      "level": 1,
+      "slots": {
+        "1": 1,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "bonus_spell_model": "wisdom_17_18_gates_not_base_slots"
+    },
+    {
+      "level": 2,
+      "slots": {
+        "1": 2,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "bonus_spell_model": "wisdom_17_18_gates_not_base_slots"
+    },
+    {
+      "level": 3,
+      "slots": {
+        "1": 2,
+        "2": 1,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "bonus_spell_model": "wisdom_17_18_gates_not_base_slots"
+    },
+    {
+      "level": 4,
+      "slots": {
+        "1": 2,
+        "2": 2,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "bonus_spell_model": "wisdom_17_18_gates_not_base_slots"
+    },
+    {
+      "level": 5,
+      "slots": {
+        "1": 3,
+        "2": 3,
+        "3": 1,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "bonus_spell_model": "wisdom_17_18_gates_not_base_slots"
+    },
+    {
+      "level": 6,
+      "slots": {
+        "1": 3,
+        "2": 3,
+        "3": 2,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "bonus_spell_model": "wisdom_17_18_gates_not_base_slots"
+    },
+    {
+      "level": 7,
+      "slots": {
+        "1": 3,
+        "2": 3,
+        "3": 2,
+        "4": 1,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "bonus_spell_model": "wisdom_17_18_gates_not_base_slots"
+    },
+    {
+      "level": 8,
+      "slots": {
+        "1": 3,
+        "2": 3,
+        "3": 3,
+        "4": 2,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "bonus_spell_model": "wisdom_17_18_gates_not_base_slots"
+    },
+    {
+      "level": 9,
+      "slots": {
+        "1": 4,
+        "2": 4,
+        "3": 3,
+        "4": 2,
+        "5": 1,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "bonus_spell_model": "wisdom_17_18_gates_not_base_slots"
+    },
+    {
+      "level": 10,
+      "slots": {
+        "1": 4,
+        "2": 4,
+        "3": 3,
+        "4": 3,
+        "5": 2,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "bonus_spell_model": "wisdom_17_18_gates_not_base_slots"
+    },
+    {
+      "level": 11,
+      "slots": {
+        "1": 5,
+        "2": 4,
+        "3": 4,
+        "4": 3,
+        "5": 2,
+        "6": 1,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "bonus_spell_model": "wisdom_17_18_gates_not_base_slots"
+    },
+    {
+      "level": 12,
+      "slots": {
+        "1": 6,
+        "2": 5,
+        "3": 5,
+        "4": 3,
+        "5": 2,
+        "6": 1,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "bonus_spell_model": "wisdom_17_18_gates_not_base_slots"
+    },
+    {
+      "level": 13,
+      "slots": {
+        "1": 6,
+        "2": 6,
+        "3": 6,
+        "4": 4,
+        "5": 2,
+        "6": 2,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "bonus_spell_model": "wisdom_17_18_gates_not_base_slots"
+    },
+    {
+      "level": 14,
+      "slots": {
+        "1": 6,
+        "2": 6,
+        "3": 6,
+        "4": 4,
+        "5": 3,
+        "6": 2,
+        "7": 1
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "bonus_spell_model": "wisdom_17_18_gates_not_base_slots"
+    },
+    {
+      "level": 15,
+      "slots": {
+        "1": 6,
+        "2": 6,
+        "3": 6,
+        "4": 5,
+        "5": 3,
+        "6": 2,
+        "7": 1
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "bonus_spell_model": "wisdom_17_18_gates_not_base_slots"
+    },
+    {
+      "level": 16,
+      "slots": {
+        "1": 6,
+        "2": 6,
+        "3": 6,
+        "4": 5,
+        "5": 4,
+        "6": 2,
+        "7": 1
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "bonus_spell_model": "wisdom_17_18_gates_not_base_slots"
+    },
+    {
+      "level": 17,
+      "slots": {
+        "1": 6,
+        "2": 6,
+        "3": 6,
+        "4": 6,
+        "5": 4,
+        "6": 3,
+        "7": 2
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "bonus_spell_model": "wisdom_17_18_gates_not_base_slots"
+    },
+    {
+      "level": 18,
+      "slots": {
+        "1": 6,
+        "2": 6,
+        "3": 6,
+        "4": 6,
+        "5": 5,
+        "6": 4,
+        "7": 3
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "bonus_spell_model": "wisdom_17_18_gates_not_base_slots"
+    }
+  ],
+  "base_spell_slot_progression_ref": "osric.spell_slots.cleric",
+  "organization_id": "dragolance.order.holy_orders",
+  "slot_model": "prepared_osric_style",
+  "bonus_spell_model": "separate_from_base_slots",
+  "description": "Holy Orders Evil Cleric Spell Slots spell-slot overlay; known/prepared spell behavior remains OSRIC-style memorization."
+}

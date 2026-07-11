@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
+import re
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -103,6 +104,65 @@ class CanonicalContentService:
         self._ensure_loaded()
         return list(self._by_source.get(source_library_id, []))
 
+    def list_records(
+        self,
+        record_type: str | None = None,
+        source_library_id: str | None = None,
+        search: str | None = None,
+    ) -> list[dict[str, Any]]:
+        self._ensure_loaded()
+        records = list(self._records.values())
+        if record_type:
+            records = [record for record in records if record.get("type") == record_type]
+        if source_library_id:
+            records = [record for record in records if record.get("source_library_id") == source_library_id]
+        if search:
+            needle = search.strip().lower()
+            records = [record for record in records if needle in self._search_blob(record)]
+        return sorted(records, key=lambda record: (str(record.get("type", "")), str(record.get("display_name") or record.get("name") or record.get("id"))))
+
+    def list_source_libraries(self) -> list[dict[str, Any]]:
+        self._ensure_loaded()
+        libraries = [record for record in self._records.values() if record.get("type") == "source_library"]
+        return sorted(libraries, key=lambda record: str(record.get("display_name") or record.get("name") or record.get("id")))
+
+    def list_record_types(self) -> list[str]:
+        self._ensure_loaded()
+        return sorted(self._by_type)
+
+    def record_references(self, record: dict[str, Any]) -> set[str]:
+        return self._record_references(record)
+
+    def resolved_references(self, record_id: str) -> list[dict[str, Any]]:
+        self._ensure_loaded()
+        record = self._records.get(record_id)
+        if not record:
+            return []
+        references = []
+        for reference_id in sorted(self._record_references(record)):
+            target = self._records.get(reference_id)
+            references.append({
+                "id": reference_id,
+                "resolved": target is not None,
+                "type": target.get("type") if target else None,
+                "display_name": target.get("display_name") or target.get("name") if target else None,
+            })
+        return references
+
+    def list_rules_pages(self, search: str | None = None) -> list[dict[str, Any]]:
+        content_root = self.root / "content" / "1e"
+        if not content_root.exists():
+            return []
+        pages: list[dict[str, Any]] = []
+        for path in sorted(content_root.rglob("*.md")):
+            if path.name.startswith("_") or "source" in path.relative_to(content_root).parts:
+                continue
+            record = self._rules_page_record(content_root, path)
+            if search and search.strip().lower() not in self._search_blob(record):
+                continue
+            pages.append(record)
+        return pages
+
     def get_campaign_profile(self, profile_id: str) -> dict[str, Any] | None:
         record = self.get_by_id(profile_id)
         if record and record.get("type") == "campaign_profile":
@@ -166,6 +226,47 @@ class CanonicalContentService:
         with path.open("r", encoding="utf-8") as handle:
             return json.load(handle)
 
+    def _rules_page_record(self, content_root: Path, path: Path) -> dict[str, Any]:
+        relative = path.relative_to(content_root)
+        text = path.read_text(encoding="utf-8")
+        title = self._markdown_title(text) or self._title_from_path(path)
+        summary = self._markdown_summary(text)
+        route_parts = list(relative.with_suffix("").parts)
+        route = "/1e/" if route_parts == ["index"] else "/1e/" + "/".join(part for part in route_parts if part != "index") + "/"
+        section = route_parts[0] if len(route_parts) > 1 else "core"
+        return {
+            "id": "rules_page." + ".".join(self._stable_segment(part) for part in route_parts),
+            "type": "rules_page",
+            "name": title,
+            "display_name": title,
+            "source_library_id": "osric",
+            "section": section.replace("-", " ").replace("_", " ").title(),
+            "path": str(relative),
+            "route": route,
+            "summary": summary,
+            "review": {"status": "implemented"},
+        }
+
+    def _markdown_title(self, text: str) -> str | None:
+        for line in text.splitlines():
+            if line.startswith("# "):
+                return line.removeprefix("# ").strip()
+        return None
+
+    def _markdown_summary(self, text: str) -> str:
+        for line in text.splitlines():
+            stripped = line.strip()
+            if not stripped or stripped.startswith("#") or stripped.startswith("|") or stripped.startswith("---"):
+                continue
+            return stripped[:240]
+        return ""
+
+    def _title_from_path(self, path: Path) -> str:
+        return path.stem.replace("-", " ").replace("_", " ").title()
+
+    def _stable_segment(self, value: str) -> str:
+        return re.sub(r"[^a-z0-9]+", "_", value.lower()).strip("_") or "index"
+
     def _load_validator(self):
         validator_path = self.root / "content" / "tools" / "validate_content.py"
         spec = importlib.util.spec_from_file_location("canonical_validate_content", validator_path)
@@ -189,6 +290,9 @@ class CanonicalContentService:
                 refs.add(record[key])
         refs.update(self._stable_strings(record.get("spellcasting")))
         refs.update(self._stable_strings(record.get("adds")))
+        refs.update(self._stable_strings(record))
+        if isinstance(record.get("id"), str):
+            refs.discard(record["id"])
         return refs
 
     def _stable_strings(self, value: Any) -> set[str]:
@@ -197,6 +301,23 @@ class CanonicalContentService:
         for item in validator.nested_string_lists(value):
             refs.add(item)
         return refs
+
+    def _search_blob(self, record: dict[str, Any]) -> str:
+        pieces = [
+            str(record.get("id", "")),
+            str(record.get("type", "")),
+            str(record.get("name", "")),
+            str(record.get("display_name", "")),
+            str(record.get("source_library_id", "")),
+            str(record.get("section", "")),
+            str(record.get("summary", "")),
+            str(record.get("description", "")),
+        ]
+        aliases = record.get("aliases")
+        if isinstance(aliases, list):
+            pieces.extend(str(alias) for alias in aliases)
+        pieces.extend(sorted(self._record_references(record)))
+        return " ".join(pieces).lower()
 
     def _default_legacy_mappings(self) -> dict[tuple[str, str], list[str]]:
         return {

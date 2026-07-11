@@ -1,0 +1,262 @@
+{
+  "id": "dragolance.spell_slots.sword_knight",
+  "type": "spell_slot_progression",
+  "name": "Sword Knight Clerical Spell Slots",
+  "display_name": "Sword Knight Clerical Spell Slots",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 21,
+    "section": "Sword Knight spells table",
+    "internal_only": true
+  },
+  "review": {
+    "status": "needs_review",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "OCR for levels 14 and 17 required normalization; verify before runtime use."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "spell-slots"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "class_id": "osric.class.fighter",
+  "levels": [
+    {
+      "level": 6,
+      "slots": {
+        "1": 1,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "deity_id": "dragolance.deity.kiri_jolith",
+      "notes": "Spells are retained until used after weekly meditation."
+    },
+    {
+      "level": 7,
+      "slots": {
+        "1": 2,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "deity_id": "dragolance.deity.kiri_jolith",
+      "notes": "Spells are retained until used after weekly meditation."
+    },
+    {
+      "level": 8,
+      "slots": {
+        "1": 2,
+        "2": 1,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "deity_id": "dragolance.deity.kiri_jolith",
+      "notes": "Spells are retained until used after weekly meditation."
+    },
+    {
+      "level": 9,
+      "slots": {
+        "1": 3,
+        "2": 2,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "deity_id": "dragolance.deity.kiri_jolith",
+      "notes": "Spells are retained until used after weekly meditation."
+    },
+    {
+      "level": 10,
+      "slots": {
+        "1": 4,
+        "2": 2,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "deity_id": "dragolance.deity.kiri_jolith",
+      "notes": "Spells are retained until used after weekly meditation."
+    },
+    {
+      "level": 11,
+      "slots": {
+        "1": 4,
+        "2": 2,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "deity_id": "dragolance.deity.kiri_jolith",
+      "notes": "Spells are retained until used after weekly meditation."
+    },
+    {
+      "level": 12,
+      "slots": {
+        "1": 5,
+        "2": 3,
+        "3": 1,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "deity_id": "dragolance.deity.kiri_jolith",
+      "notes": "Spells are retained until used after weekly meditation."
+    },
+    {
+      "level": 13,
+      "slots": {
+        "1": 6,
+        "2": 4,
+        "3": 1,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "deity_id": "dragolance.deity.kiri_jolith",
+      "notes": "Spells are retained until used after weekly meditation."
+    },
+    {
+      "level": 14,
+      "slots": {
+        "1": 7,
+        "2": 5,
+        "3": 2,
+        "4": 1,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "deity_id": "dragolance.deity.kiri_jolith",
+      "notes": "Spells are retained until used after weekly meditation."
+    },
+    {
+      "level": 15,
+      "slots": {
+        "1": 8,
+        "2": 6,
+        "3": 3,
+        "4": 2,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "deity_id": "dragolance.deity.kiri_jolith",
+      "notes": "Spells are retained until used after weekly meditation."
+    },
+    {
+      "level": 16,
+      "slots": {
+        "1": 9,
+        "2": 7,
+        "3": 3,
+        "4": 2,
+        "5": 2,
+        "6": 0,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "deity_id": "dragolance.deity.kiri_jolith",
+      "notes": "Spells are retained until used after weekly meditation."
+    },
+    {
+      "level": 17,
+      "slots": {
+        "1": 9,
+        "2": 8,
+        "3": 4,
+        "4": 3,
+        "5": 2,
+        "6": 2,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "deity_id": "dragolance.deity.kiri_jolith",
+      "notes": "Spells are retained until used after weekly meditation."
+    },
+    {
+      "level": 18,
+      "slots": {
+        "1": 9,
+        "2": 9,
+        "3": 5,
+        "4": 4,
+        "5": 3,
+        "6": 2,
+        "7": 0
+      },
+      "spell_lists": [
+        "cleric"
+      ],
+      "deity_id": "dragolance.deity.kiri_jolith",
+      "notes": "Spells are retained until used after weekly meditation."
+    }
+  ],
+  "base_spell_slot_progression_ref": null,
+  "organization_id": "dragolance.order.knights_sword",
+  "slot_model": "prepared_osric_style",
+  "bonus_spell_model": "separate_from_base_slots",
+  "description": "Sword Knight Clerical Spell Slots spell-slot overlay; known/prepared spell behavior remains OSRIC-style memorization."
+}

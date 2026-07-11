@@ -1,0 +1,48 @@
+{
+  "id": "dragolance.extension.illusionist.high_sorcery",
+  "type": "extension_rule",
+  "campaign_profile_id": "campaign_profile.dragolance",
+  "target_id": "osric.class.illusionist",
+  "extension_kind": "class_order",
+  "adds": {
+    "organizations": [
+      "dragolance.order.high_sorcery",
+      "dragolance.order.white_robes",
+      "dragolance.order.red_robes",
+      "dragolance.order.black_robes"
+    ],
+    "moon_relationships": [
+      "dragolance.moon.solinari",
+      "dragolance.moon.lunitari",
+      "dragolance.moon.nuitari"
+    ],
+    "deity_relationships": [
+      "dragolance.deity.solinari",
+      "dragolance.deity.lunitari",
+      "dragolance.deity.nuitari"
+    ],
+    "requires_test": true,
+    "renegade_status_if_unaffiliated_after_level": 3,
+    "progression_overlays": [
+      "dragolance.progression.high_sorcery.student",
+      "dragolance.progression.high_sorcery.white_robes",
+      "dragolance.progression.high_sorcery.red_robes",
+      "dragolance.progression.high_sorcery.black_robes"
+    ],
+    "spell_slot_overlays": [
+      "dragolance.spell_slots.high_sorcery.white_robes",
+      "dragolance.spell_slots.high_sorcery.red_robes",
+      "dragolance.spell_slots.high_sorcery.black_robes"
+    ],
+    "ability_refs": [
+      "dragolance.ability.test_of_high_sorcery",
+      "dragolance.ability.moon_magic_modifier",
+      "dragolance.ability.wizard_order_change_penalty",
+      "dragolance.ability.renegade_wizard_status"
+    ],
+    "inherits_attack_progression_ref": "osric.attack.illusionist",
+    "inherits_saving_throw_ref": "osric.saves.illusionist",
+    "review_note": "Dragonlance source groups magic-users and illusionists under High Sorcery; exact OSRIC illusionist spell-list interaction needs human review."
+  },
+  "notes": "Illusionists follow the same High Sorcery order relationship layer as magic-users in the source."
+}

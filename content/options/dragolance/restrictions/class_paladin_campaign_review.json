@@ -1,0 +1,12 @@
+{
+  "id": "dragolance.restriction.class.paladin_campaign_review",
+  "type": "restriction_rule",
+  "campaign_profile_id": "campaign_profile.dragolance",
+  "target_type": "class",
+  "target_id": "osric.class.paladin",
+  "rule": {
+    "requires_campaign_review": true,
+    "reason": "Paladin legality varies by race table and Solamnic-era relationships."
+  },
+  "notes": "Class legality relationship only; no runtime behavior changes."
+}

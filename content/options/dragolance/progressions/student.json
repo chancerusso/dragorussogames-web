@@ -1,0 +1,64 @@
+{
+  "id": "dragolance.progression.high_sorcery.student",
+  "type": "class_progression",
+  "name": "Student Wizard Progression",
+  "display_name": "Student Wizard Progression",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 36,
+    "section": "Student Magic-Users game data",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Canonical progression overlay; runtime automation is not implemented in this unit."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "progression"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "class_id": "osric.class.magic_user",
+  "levels": [
+    {
+      "level": 1,
+      "xp_threshold": 2500,
+      "hit_dice": "1d4",
+      "title": "Student",
+      "ability_ids": []
+    },
+    {
+      "level": 2,
+      "xp_threshold": 5000,
+      "hit_dice": "2d4",
+      "title": "Novice",
+      "ability_ids": []
+    },
+    {
+      "level": 3,
+      "xp_threshold": 10000,
+      "hit_dice": "3d4",
+      "title": "Initiate",
+      "ability_ids": [
+        "dragolance.ability.test_of_high_sorcery",
+        "dragolance.ability.renegade_wizard_status"
+      ]
+    }
+  ],
+  "base_progression_ref": "osric.progression.class.magic_user",
+  "organization_id": "dragolance.order.high_sorcery",
+  "progression_kind": "overlay",
+  "description": "Student Wizard Progression machine-readable Dragolance progression overlay."
+}

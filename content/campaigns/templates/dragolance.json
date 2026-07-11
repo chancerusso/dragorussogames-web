@@ -4,6 +4,15 @@
   "name": "Dragolance",
   "rules_engine": "osric",
   "availability_sets": [
+    "dragolance.availability.class.assassin",
+    "dragolance.availability.class.cleric",
+    "dragolance.availability.class.druid",
+    "dragolance.availability.class.fighter",
+    "dragolance.availability.class.illusionist",
+    "dragolance.availability.class.magic_user",
+    "dragolance.availability.class.paladin",
+    "dragolance.availability.class.ranger",
+    "dragolance.availability.class.thief",
     "dragolance.availability.race.dargonesti_elf",
     "dragolance.availability.race.dimernesti_elf",
     "dragolance.availability.race.gully_dwarf",
@@ -19,10 +28,20 @@
     "dragolance.availability.race.tinker_gnome"
   ],
   "restriction_sets": [
+    "dragolance.restriction.class.assassin_unavailable",
+    "dragolance.restriction.class.cleric_deity_required",
+    "dragolance.restriction.class.druid_heathen_review",
+    "dragolance.restriction.class.illusionist_high_sorcery_required",
+    "dragolance.restriction.class.magic_user_high_sorcery_required",
+    "dragolance.restriction.class.paladin_campaign_review",
+    "dragolance.restriction.class.ranger_campaign_review",
     "dragolance.restriction.race.half_orc_unavailable",
     "dragolance.restriction.race.halfling_unavailable"
   ],
   "extension_sets": [
+    "dragolance.extension.cleric.holy_orders",
+    "dragolance.extension.fighter.solamnic_knighthood",
+    "dragolance.extension.illusionist.high_sorcery",
     "dragolance.extension.magic_user.high_sorcery",
     "dragolance.extension.race.human"
   ],

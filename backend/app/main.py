@@ -133,6 +133,11 @@ def deny_source_material(source_path: str) -> None:
     raise HTTPException(status_code=404, detail="Not found.")
 
 
+@app.get("/content/1e/source/{source_path:path}", include_in_schema=False)
+def deny_one_e_source_material(source_path: str) -> None:
+    raise HTTPException(status_code=404, detail="Not found.")
+
+
 @app.get("/private-reference/{source_path:path}", include_in_schema=False)
 def deny_private_reference(source_path: str) -> None:
     raise HTTPException(status_code=404, detail="Not found.")

@@ -1,0 +1,48 @@
+{
+  "id": "dragolance.ability.holy_orders_deity_spell_access",
+  "type": "class_ability",
+  "name": "Holy Orders Deity Spell Access",
+  "display_name": "Holy Orders Deity Spell Access",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 43,
+    "section": "Godly Spheres of Influence",
+    "internal_only": true
+  },
+  "review": {
+    "status": "needs_review",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Structured class ability or gate; no runtime automation in this unit."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "class-ability"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "owner_id": "dragolance.order.holy_orders",
+  "level_gained": 1,
+  "prerequisites": [
+    {
+      "organization_id": "dragolance.order.holy_orders"
+    }
+  ],
+  "mechanical_effect": {
+    "effect": "cleric spell access is governed by deity spheres, specials, and additionals",
+    "later_unit": "full deity catalog"
+  },
+  "references": [
+    "dragolance.extension.cleric.holy_orders"
+  ],
+  "description": "Holy Orders Deity Spell Access is represented as structured canonical class ability data."
+}

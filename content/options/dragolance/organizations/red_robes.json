@@ -1,13 +1,13 @@
 {
-  "id": "dragolance.order.white_robes",
+  "id": "dragolance.order.red_robes",
   "type": "organization",
-  "name": "White Robes",
-  "display_name": "White Robes",
+  "name": "Red Robes",
+  "display_name": "Red Robes",
   "rules_engine": "osric",
   "source_library_id": "dragonlance_adventures",
   "source_ref": {
     "page": 37,
-    "section": "White Robes",
+    "section": "Red Robes",
     "internal_only": true
   },
   "review": {
@@ -34,18 +34,18 @@
   "category": "wizard_order",
   "membership_requirements": [
     {
-      "alignment": "good"
+      "alignment": "neutral"
     },
     {
-      "moon": "dragolance.moon.solinari"
+      "moon": "dragolance.moon.lunitari"
     },
     {
-      "deity": "dragolance.deity.solinari"
+      "deity": "dragolance.deity.lunitari"
     }
   ],
   "class_extensions": [
     "dragolance.extension.magic_user.high_sorcery",
     "dragolance.extension.illusionist.high_sorcery"
   ],
-  "description": "White Robes is modeled as a Dragolance organization/class relationship layer over OSRIC mechanics."
+  "description": "Red Robes is modeled as a Dragolance organization/class relationship layer over OSRIC mechanics."
 }

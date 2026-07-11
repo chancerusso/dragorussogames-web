@@ -1,0 +1,12 @@
+{
+  "id": "dragolance.restriction.class.magic_user_high_sorcery_required",
+  "type": "restriction_rule",
+  "campaign_profile_id": "campaign_profile.dragolance",
+  "target_type": "class",
+  "target_id": "osric.class.magic_user",
+  "rule": {
+    "requires_order_or_renegade_status_after_level": 3,
+    "extension": "dragolance.extension.magic_user.high_sorcery"
+  },
+  "notes": "Class legality relationship only; no runtime behavior changes."
+}

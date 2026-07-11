@@ -1,0 +1,50 @@
+{
+  "id": "dragolance.ability.wizard_order_change_penalty",
+  "type": "class_ability",
+  "name": "Wizard Order Change Penalty",
+  "display_name": "Wizard Order Change Penalty",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 36,
+    "section": "Changing Orders after the Test",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Structured class ability or gate; no runtime automation in this unit."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "class-ability"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "owner_id": "dragolance.order.high_sorcery",
+  "level_gained": null,
+  "prerequisites": [
+    {
+      "organization_id": "dragolance.order.high_sorcery"
+    }
+  ],
+  "mechanical_effect": {
+    "level_loss": 2,
+    "moon_effect_delay": "one game month"
+  },
+  "references": [
+    "dragolance.order.white_robes",
+    "dragolance.order.red_robes",
+    "dragolance.order.black_robes"
+  ],
+  "description": "Wizard Order Change Penalty is represented as structured canonical class ability data."
+}

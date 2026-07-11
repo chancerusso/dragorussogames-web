@@ -1,0 +1,311 @@
+{
+  "id": "dragolance.spell_slots.high_sorcery.white_robes",
+  "type": "spell_slot_progression",
+  "name": "White Robe Wizard Spell Slots",
+  "display_name": "White Robe Wizard Spell Slots",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 37,
+    "section": "White Robe spells usable by level",
+    "internal_only": true
+  },
+  "review": {
+    "status": "needs_review",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "OCR extraction of high-level slots requires human table review before verification."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "spell-slots"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "class_id": "osric.class.magic_user",
+  "levels": [
+    {
+      "level": 4,
+      "slots": {
+        "1": 3,
+        "2": 2,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "spell_lists": [
+        "magic-user"
+      ],
+      "notes": ""
+    },
+    {
+      "level": 5,
+      "slots": {
+        "1": 4,
+        "2": 2,
+        "3": 1,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "spell_lists": [
+        "magic-user"
+      ],
+      "notes": ""
+    },
+    {
+      "level": 6,
+      "slots": {
+        "1": 4,
+        "2": 2,
+        "3": 2,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "spell_lists": [
+        "magic-user"
+      ],
+      "notes": ""
+    },
+    {
+      "level": 7,
+      "slots": {
+        "1": 4,
+        "2": 3,
+        "3": 2,
+        "4": 1,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "spell_lists": [
+        "magic-user"
+      ],
+      "notes": ""
+    },
+    {
+      "level": 8,
+      "slots": {
+        "1": 4,
+        "2": 3,
+        "3": 3,
+        "4": 2,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "spell_lists": [
+        "magic-user"
+      ],
+      "notes": ""
+    },
+    {
+      "level": 9,
+      "slots": {
+        "1": 4,
+        "2": 3,
+        "3": 3,
+        "4": 2,
+        "5": 1,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "spell_lists": [
+        "magic-user"
+      ],
+      "notes": ""
+    },
+    {
+      "level": 10,
+      "slots": {
+        "1": 4,
+        "2": 4,
+        "3": 3,
+        "4": 2,
+        "5": 2,
+        "6": 1,
+        "7": 0,
+        "8": 0,
+        "9": 0
+      },
+      "spell_lists": [
+        "magic-user"
+      ],
+      "notes": ""
+    },
+    {
+      "level": 11,
+      "slots": {
+        "1": 4,
+        "2": 4,
+        "3": 4,
+        "4": 3,
+        "5": 3,
+        "6": 2,
+        "7": 1,
+        "8": 0,
+        "9": 0
+      },
+      "spell_lists": [
+        "magic-user"
+      ],
+      "notes": ""
+    },
+    {
+      "level": 12,
+      "slots": {
+        "1": 4,
+        "2": 4,
+        "3": 4,
+        "4": 4,
+        "5": 4,
+        "6": 3,
+        "7": 2,
+        "8": 0,
+        "9": 0
+      },
+      "spell_lists": [
+        "magic-user"
+      ],
+      "notes": ""
+    },
+    {
+      "level": 13,
+      "slots": {
+        "1": 5,
+        "2": 5,
+        "3": 5,
+        "4": 4,
+        "5": 4,
+        "6": 3,
+        "7": 2,
+        "8": 0,
+        "9": 0
+      },
+      "spell_lists": [
+        "magic-user"
+      ],
+      "notes": ""
+    },
+    {
+      "level": 14,
+      "slots": {
+        "1": 5,
+        "2": 5,
+        "3": 5,
+        "4": 4,
+        "5": 4,
+        "6": 3,
+        "7": 2,
+        "8": 0,
+        "9": 0
+      },
+      "spell_lists": [
+        "magic-user"
+      ],
+      "notes": ""
+    },
+    {
+      "level": 15,
+      "slots": {
+        "1": 5,
+        "2": 5,
+        "3": 5,
+        "4": 5,
+        "5": 5,
+        "6": 3,
+        "7": 2,
+        "8": 0,
+        "9": 0
+      },
+      "spell_lists": [
+        "magic-user"
+      ],
+      "notes": ""
+    },
+    {
+      "level": 16,
+      "slots": {
+        "1": 5,
+        "2": 5,
+        "3": 5,
+        "4": 5,
+        "5": 5,
+        "6": 4,
+        "7": 2,
+        "8": 0,
+        "9": 0
+      },
+      "spell_lists": [
+        "magic-user"
+      ],
+      "notes": ""
+    },
+    {
+      "level": 17,
+      "slots": {
+        "1": 5,
+        "2": 5,
+        "3": 5,
+        "4": 5,
+        "5": 5,
+        "6": 4,
+        "7": 3,
+        "8": 0,
+        "9": 0
+      },
+      "spell_lists": [
+        "magic-user"
+      ],
+      "notes": ""
+    },
+    {
+      "level": 18,
+      "slots": {
+        "1": 5,
+        "2": 5,
+        "3": 5,
+        "4": 5,
+        "5": 5,
+        "6": 4,
+        "7": 3,
+        "8": 0,
+        "9": 0
+      },
+      "spell_lists": [
+        "magic-user"
+      ],
+      "notes": ""
+    }
+  ],
+  "base_spell_slot_progression_ref": "osric.spell_slots.magic_user",
+  "organization_id": "dragolance.order.white_robes",
+  "slot_model": "prepared_osric_style",
+  "bonus_spell_model": "separate_from_base_slots",
+  "description": "White Robe Wizard Spell Slots spell-slot overlay; known/prepared spell behavior remains OSRIC-style memorization."
+}

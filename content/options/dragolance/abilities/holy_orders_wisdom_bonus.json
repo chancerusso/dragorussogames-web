@@ -1,0 +1,49 @@
+{
+  "id": "dragolance.ability.holy_orders_wisdom_bonus",
+  "type": "class_ability",
+  "name": "Holy Orders Wisdom Bonus",
+  "display_name": "Holy Orders Wisdom Bonus",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 43,
+    "section": "Holy Orders of the Stars game data",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Structured class ability or gate; no runtime automation in this unit."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "class-ability"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "owner_id": "dragolance.order.holy_orders",
+  "level_gained": 1,
+  "prerequisites": [
+    {
+      "class_id": "osric.class.cleric"
+    }
+  ],
+  "mechanical_effect": {
+    "effect": "Wisdom bonus spells remain separate from base slots",
+    "inherits_osric_wisdom_bonus": true
+  },
+  "references": [
+    "osric.class.cleric",
+    "dragolance.extension.cleric.holy_orders"
+  ],
+  "description": "Holy Orders Wisdom Bonus is represented as structured canonical class ability data."
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "class_ability.schema.json",
+  "title": "Class ability",
+  "allOf": [{ "$ref": "shared/metadata.schema.json" }],
+  "type": "object",
+  "required": ["owner_id", "level_gained", "prerequisites", "mechanical_effect", "references", "description"],
+  "properties": {
+    "type": { "const": "class_ability" },
+    "owner_id": { "type": "string" },
+    "level_gained": { "type": ["integer", "null"] },
+    "prerequisites": { "type": "array", "items": { "type": "object" } },
+    "mechanical_effect": { "type": "object" },
+    "references": { "type": "array", "items": { "type": "string" } },
+    "description": { "type": "string" }
+  }
+}

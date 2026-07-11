@@ -1,0 +1,140 @@
+{
+  "id": "dragolance.progression.solamnic.rose",
+  "type": "class_progression",
+  "name": "Rose Knight Progression",
+  "display_name": "Rose Knight Progression",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 21,
+    "section": "Rose Knight Progression",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Canonical progression overlay; runtime automation is not implemented in this unit."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "progression"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "class_id": "osric.class.fighter",
+  "levels": [
+    {
+      "level": 4,
+      "xp_threshold": 27000,
+      "hit_dice": "5d10",
+      "title": "Novice of Roses",
+      "ability_ids": [
+        "dragolance.ability.rose_order_transition"
+      ]
+    },
+    {
+      "level": 5,
+      "xp_threshold": 60000,
+      "hit_dice": "6d10",
+      "title": "Knight of Tears",
+      "ability_ids": []
+    },
+    {
+      "level": 6,
+      "xp_threshold": 125000,
+      "hit_dice": "7d10",
+      "title": "Knight of Mind",
+      "ability_ids": []
+    },
+    {
+      "level": 7,
+      "xp_threshold": 200000,
+      "hit_dice": "8d10",
+      "title": "Knight of Heart",
+      "ability_ids": []
+    },
+    {
+      "level": 8,
+      "xp_threshold": 425000,
+      "hit_dice": "9d10",
+      "title": "Knight of Roses",
+      "ability_ids": []
+    },
+    {
+      "level": 9,
+      "xp_threshold": 800000,
+      "hit_dice": "10d10",
+      "title": "Keeper of Roses",
+      "ability_ids": []
+    },
+    {
+      "level": 10,
+      "xp_threshold": 1500000,
+      "hit_dice": "10d10+2",
+      "title": "Master of Roses",
+      "ability_ids": []
+    },
+    {
+      "level": 11,
+      "xp_threshold": 2000000,
+      "hit_dice": "10d10+4",
+      "title": "Archknight",
+      "ability_ids": []
+    },
+    {
+      "level": 12,
+      "xp_threshold": 2500000,
+      "hit_dice": "10d10+6",
+      "title": "Lord of Roses",
+      "ability_ids": []
+    },
+    {
+      "level": 13,
+      "xp_threshold": 3000000,
+      "hit_dice": "10d10+8",
+      "title": "Master of Justice",
+      "ability_ids": []
+    },
+    {
+      "level": 14,
+      "xp_threshold": 3500000,
+      "hit_dice": "10d10+10",
+      "title": "Lord of Justice",
+      "ability_ids": []
+    },
+    {
+      "level": 15,
+      "xp_threshold": 4000000,
+      "hit_dice": "10d10+12",
+      "title": "High Justice",
+      "ability_ids": []
+    },
+    {
+      "level": 16,
+      "xp_threshold": 4500000,
+      "hit_dice": "10d10+14",
+      "title": "",
+      "ability_ids": []
+    },
+    {
+      "level": 17,
+      "xp_threshold": 5000000,
+      "hit_dice": "10d10+16",
+      "title": "",
+      "ability_ids": []
+    }
+  ],
+  "base_progression_ref": "osric.progression.class.fighter",
+  "organization_id": "dragolance.order.knights_rose",
+  "progression_kind": "overlay",
+  "description": "Rose Knight Progression machine-readable Dragolance progression overlay."
+}

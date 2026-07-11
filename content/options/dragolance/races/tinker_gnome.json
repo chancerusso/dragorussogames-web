@@ -79,7 +79,7 @@
     "In Krynn, tinker gnomes are limited to the tinker class by source; tinker class is not canonicalized yet."
   ],
   "needs_review_fields": [
-    "dragolance.class.tinker",
+    "tinker_class_record",
     "regular_gnome_ability_reconciliation"
   ],
   "legacy_source_directory": "content/settings/dragonlance/races",

@@ -1,13 +1,13 @@
 {
-  "id": "dragolance.order.white_robes",
+  "id": "dragolance.order.solamnic_knights",
   "type": "organization",
-  "name": "White Robes",
-  "display_name": "White Robes",
+  "name": "Knights of Solamnia",
+  "display_name": "Knights of Solamnia",
   "rules_engine": "osric",
   "source_library_id": "dragonlance_adventures",
   "source_ref": {
-    "page": 37,
-    "section": "White Robes",
+    "page": 17,
+    "section": "Knights of Solamnia",
     "internal_only": true
   },
   "review": {
@@ -26,26 +26,22 @@
   "tags": [
     "dragolance",
     "organization",
-    "wizard_order"
+    "knightly_order_group"
   ],
   "version": 1,
   "deprecated": false,
   "replaces": null,
-  "category": "wizard_order",
+  "category": "knightly_order_group",
   "membership_requirements": [
     {
+      "requires": "Knightly Council sponsorship and oath."
+    },
+    {
       "alignment": "good"
-    },
-    {
-      "moon": "dragolance.moon.solinari"
-    },
-    {
-      "deity": "dragolance.deity.solinari"
     }
   ],
   "class_extensions": [
-    "dragolance.extension.magic_user.high_sorcery",
-    "dragolance.extension.illusionist.high_sorcery"
+    "dragolance.extension.fighter.solamnic_knighthood"
   ],
-  "description": "White Robes is modeled as a Dragolance organization/class relationship layer over OSRIC mechanics."
+  "description": "Knights of Solamnia is modeled as a Dragolance organization/class relationship layer over OSRIC mechanics."
 }

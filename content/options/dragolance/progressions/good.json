@@ -1,0 +1,169 @@
+{
+  "id": "dragolance.progression.holy_orders.good",
+  "type": "class_progression",
+  "name": "Holy Orders Good Cleric Progression",
+  "display_name": "Holy Orders Good Cleric Progression",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 43,
+    "section": "Holy Orders Good Cleric Progression",
+    "internal_only": true
+  },
+  "review": {
+    "status": "needs_review",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Deity-specific spheres and granted powers are intentionally deferred; progression table is structured from source."
+    ]
+  },
+  "visibility": {
+    "player_visible": false,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "progression"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "class_id": "osric.class.cleric",
+  "levels": [
+    {
+      "level": 1,
+      "xp_threshold": 2000,
+      "hit_dice": "2d8",
+      "title": "Acolyte",
+      "ability_ids": [
+        "dragolance.ability.holy_orders_deity_spell_access",
+        "dragolance.ability.holy_orders_wisdom_bonus"
+      ]
+    },
+    {
+      "level": 2,
+      "xp_threshold": 4000,
+      "hit_dice": "3d8",
+      "title": "Deacon",
+      "ability_ids": []
+    },
+    {
+      "level": 3,
+      "xp_threshold": 7500,
+      "hit_dice": "4d8",
+      "title": "Adept",
+      "ability_ids": []
+    },
+    {
+      "level": 4,
+      "xp_threshold": 15250,
+      "hit_dice": "5d8",
+      "title": "Priest",
+      "ability_ids": []
+    },
+    {
+      "level": 5,
+      "xp_threshold": 25000,
+      "hit_dice": "6d8",
+      "title": "Curate",
+      "ability_ids": []
+    },
+    {
+      "level": 6,
+      "xp_threshold": 40000,
+      "hit_dice": "7d8",
+      "title": "Prefect",
+      "ability_ids": []
+    },
+    {
+      "level": 7,
+      "xp_threshold": 90000,
+      "hit_dice": "8d8",
+      "title": "Canon",
+      "ability_ids": []
+    },
+    {
+      "level": 8,
+      "xp_threshold": 160000,
+      "hit_dice": "9d8",
+      "title": "Elder",
+      "ability_ids": []
+    },
+    {
+      "level": 9,
+      "xp_threshold": 250000,
+      "hit_dice": "9d8+1",
+      "title": "Patriarch",
+      "ability_ids": []
+    },
+    {
+      "level": 10,
+      "xp_threshold": 500000,
+      "hit_dice": "9d8+2",
+      "title": "High Priest",
+      "ability_ids": []
+    },
+    {
+      "level": 11,
+      "xp_threshold": 750000,
+      "hit_dice": "9d8+3",
+      "title": "",
+      "ability_ids": []
+    },
+    {
+      "level": 12,
+      "xp_threshold": 1000000,
+      "hit_dice": "9d8+4",
+      "title": "Apostle",
+      "ability_ids": []
+    },
+    {
+      "level": 13,
+      "xp_threshold": 1250000,
+      "hit_dice": "9d8+5",
+      "title": "",
+      "ability_ids": []
+    },
+    {
+      "level": 14,
+      "xp_threshold": 1500000,
+      "hit_dice": "9d8+6",
+      "title": "",
+      "ability_ids": []
+    },
+    {
+      "level": 15,
+      "xp_threshold": 1750000,
+      "hit_dice": "9d8+7",
+      "title": "Prophet",
+      "ability_ids": []
+    },
+    {
+      "level": 16,
+      "xp_threshold": 2000000,
+      "hit_dice": "9d8+8",
+      "title": "",
+      "ability_ids": []
+    },
+    {
+      "level": 17,
+      "xp_threshold": 2250000,
+      "hit_dice": "9d8+9",
+      "title": "",
+      "ability_ids": []
+    },
+    {
+      "level": 18,
+      "xp_threshold": 2500000,
+      "hit_dice": "9d8+10",
+      "title": "Chosen Prophet",
+      "ability_ids": []
+    }
+  ],
+  "base_progression_ref": "osric.progression.class.cleric",
+  "organization_id": "dragolance.order.holy_orders",
+  "progression_kind": "overlay",
+  "description": "Holy Orders Good Cleric Progression machine-readable Dragolance progression overlay."
+}

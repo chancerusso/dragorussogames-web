@@ -1,0 +1,48 @@
+{
+  "id": "dragolance.ability.solamnic_oath_and_measure",
+  "type": "class_ability",
+  "name": "Solamnic Oath and Measure",
+  "display_name": "Solamnic Oath and Measure",
+  "rules_engine": "osric",
+  "source_library_id": "dragonlance_adventures",
+  "source_ref": {
+    "page": 18,
+    "section": "The Oath and the Measure",
+    "internal_only": true
+  },
+  "review": {
+    "status": "verified",
+    "reviewed_by": "Codex",
+    "reviewed_at": "2026-07-10",
+    "notes": [
+      "Structured class ability or gate; no runtime automation in this unit."
+    ]
+  },
+  "visibility": {
+    "player_visible": true,
+    "dm_only": false,
+    "description_status": "original"
+  },
+  "tags": [
+    "dragolance",
+    "class-ability"
+  ],
+  "version": 1,
+  "deprecated": false,
+  "replaces": null,
+  "owner_id": "dragolance.order.solamnic_knights",
+  "level_gained": 1,
+  "prerequisites": [
+    {
+      "organization_id": "dragolance.order.solamnic_knights"
+    }
+  ],
+  "mechanical_effect": {
+    "effect": "code_of_conduct_required",
+    "loss_condition": "breach of honor adjudicated by Knightly Council"
+  },
+  "references": [
+    "dragolance.order.solamnic_knights"
+  ],
+  "description": "Solamnic Oath and Measure is represented as structured canonical class ability data."
+}

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { Link, Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import dragonlanceRaceManifest from "../../content/settings/dragonlance/races/index.json";
 import gullyDwarfRace from "../../content/settings/dragonlance/races/gully-dwarf.json";
 import halfElfRace from "../../content/settings/dragonlance/races/half-elf.json";
@@ -14,6 +14,7 @@ import silvanestiElfRace from "../../content/settings/dragonlance/races/silvanes
 import tinkerGnomeRace from "../../content/settings/dragonlance/races/tinker-gnome.json";
 import dragonlanceReference from "../../content/settings/dragonlance/reference/index.json";
 import { api, getPlayerToken, getToken, login, logout, playerLogin, playerLogout } from "./api.js";
+import { filterReferenceItems, isCanonicalId, makeTypeOptions, recordTitle, reviewStatus, sourceLabel, titleize, typeLabel } from "./rulesReference.js";
 
 const AuthContext = createContext(null);
 const PlayerPortalContext = createContext(null);
@@ -232,6 +233,7 @@ function Shell() {
         navItems={[
           { label: "Command Center", to: "/campaigns" },
           { label: "Campaigns", href: "/campaigns#active-campaigns" },
+          { label: "Rules & Settings", to: "/rules" },
           { label: "Players", to: "/players" },
           { label: "Characters", to: "/characters" },
           { label: "Archive", to: "/archive" },
@@ -487,6 +489,7 @@ function CampaignsPage() {
         <ActionCard tone="red" title="Campaigns" copy="Create, review, and prepare campaign workspaces." action="Create Campaign" onClick={() => setCreateOpen(true)} />
         <ActionCard tone="green" title="Players" copy="Manage the table roster and campaign membership." action="Manage Players" to="/players" />
         <ActionCard tone="blue" title="Characters" copy="Review characters and open the existing sheet tools." action="View Characters" to="/characters" />
+        <ActionCard tone="violet" title="Rules & Settings" copy="Browse OSRIC rules, Dragolance records, and campaign reference material." action="Open Reference" to="/rules" />
       </div>
 
       <div className="command-grid" id="active-campaigns">
@@ -1876,6 +1879,256 @@ function PlaceholderPage({ eyebrow, title, copy }) {
   );
 }
 
+function RulesSettingsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedSource = searchParams.get("source") || "all";
+  const selectedType = searchParams.get("type") || "all";
+  const search = searchParams.get("q") || "";
+  const selectedRecordId = searchParams.get("record") || "";
+  const { data: catalog, error, loading } = useLoad(() => api("/1e/reference/catalog"), []);
+  const [detail, setDetail] = useState(null);
+  const [detailError, setDetailError] = useState("");
+  const [detailLoading, setDetailLoading] = useState(false);
+
+  const sources = catalog?.sources || [];
+  const allItems = [...(catalog?.rules_pages || []), ...(catalog?.records || [])];
+  const typeOptions = makeTypeOptions(catalog || {});
+  const filteredItems = filterReferenceItems(allItems, {
+    source: selectedSource,
+    type: selectedType,
+    query: search,
+  });
+
+  useEffect(() => {
+    if (!selectedRecordId) {
+      setDetail(null);
+      setDetailError("");
+      return;
+    }
+    let cancelled = false;
+    setDetailLoading(true);
+    setDetailError("");
+    api(`/1e/reference/records/${encodeURIComponent(selectedRecordId)}`)
+      .then((payload) => {
+        if (!cancelled) setDetail(payload);
+      })
+      .catch((err) => {
+        if (!cancelled) setDetailError(err.message);
+      })
+      .finally(() => {
+        if (!cancelled) setDetailLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedRecordId]);
+
+  function updateFilters(updates) {
+    const next = new URLSearchParams(searchParams);
+    Object.entries(updates).forEach(([key, value]) => {
+      if (!value || value === "all") next.delete(key);
+      else next.set(key, value);
+    });
+    if ("source" in updates || "type" in updates || "q" in updates) next.delete("record");
+    setSearchParams(next);
+  }
+
+  function selectRecord(recordId) {
+    const next = new URLSearchParams(searchParams);
+    next.set("record", recordId);
+    setSearchParams(next);
+  }
+
+  return (
+    <section>
+      <Header
+        eyebrow="DM Reference"
+        title="Rules & Settings"
+        copy="Browse the installed OSRIC rules pages and canonical source-library records from one read-only desk."
+        action={<a className="secondary-button" href="/rules" target="_blank" rel="noreferrer">Open in New Tab</a>}
+      />
+      <PageState loading={loading} error={error} />
+      {!loading && !error ? (
+        <div className="rules-browser">
+          <Panel className="rules-sidebar">
+            <label>Source Library
+              <select value={selectedSource} onChange={(event) => updateFilters({ source: event.target.value })}>
+                <option value="all">All Sources</option>
+                {sources.map((source) => (
+                  <option key={source.id} value={source.id}>{recordTitle(source)}</option>
+                ))}
+              </select>
+            </label>
+            <label>Search
+              <input value={search} onChange={(event) => updateFilters({ q: event.target.value })} placeholder="Search rules, IDs, records..." />
+            </label>
+            <nav className="rules-type-list" aria-label="Reference categories">
+              <button className={selectedType === "all" ? "active" : ""} onClick={() => updateFilters({ type: "all" })}>All Reference</button>
+              {typeOptions.map((type) => (
+                <button key={type} className={selectedType === type ? "active" : ""} onClick={() => updateFilters({ type })}>
+                  {typeLabel(type)}
+                </button>
+              ))}
+            </nav>
+          </Panel>
+
+          <Panel className="rules-results">
+            <div className="rules-panel-heading">
+              <div>
+                <p className="eyebrow">Results</p>
+                <h2>{selectedType === "all" ? "All Reference" : typeLabel(selectedType)}</h2>
+              </div>
+              <span className="status-pill">{filteredItems.length} records</span>
+            </div>
+            {filteredItems.length ? (
+              <div className="reference-list">
+                {filteredItems.map((item) => <ReferenceListItem key={item.id} item={item} sources={sources} active={item.id === selectedRecordId} onSelect={selectRecord} />)}
+              </div>
+            ) : (
+              <p className="muted">No records match the selected source, category, and search.</p>
+            )}
+          </Panel>
+
+          <Panel className="rules-detail">
+            {selectedRecordId ? (
+              <>
+                <PageState loading={detailLoading} error={detailError} />
+                {detail?.record ? <ReferenceDetail payload={detail} sources={sources} onSelect={selectRecord} /> : null}
+              </>
+            ) : (
+              <div className="empty-reference">
+                <p className="eyebrow">Detail</p>
+                <h2>Select a canonical record.</h2>
+                <p className="muted">Rules pages open in the protected OSRIC reference. Canonical records render here with relationships and internal review metadata.</p>
+              </div>
+            )}
+          </Panel>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function ReferenceListItem({ item, sources, active, onSelect }) {
+  const isRulesPage = item.type === "rules_page";
+  const body = (
+    <>
+      <div>
+        <strong>{recordTitle(item)}</strong>
+        <p>{item.summary || item.section || item.id}</p>
+      </div>
+      <div className="reference-meta">
+        <span>{typeLabel(item.type)}</span>
+        <span>{sourceLabel(item.source_library_id, sources)}</span>
+        {reviewStatus(item) ? <span>{reviewStatus(item)}</span> : null}
+      </div>
+    </>
+  );
+  if (isRulesPage) {
+    return <a className="reference-row" href={item.route}>{body}</a>;
+  }
+  return <button className={`reference-row ${active ? "active" : ""}`} type="button" onClick={() => onSelect(item.id)}>{body}</button>;
+}
+
+function ReferenceDetail({ payload, sources, onSelect }) {
+  const { record, references } = payload;
+  const hiddenKeys = new Set(["id", "type", "name", "display_name", "source_library_id", "review", "visibility", "tags", "version", "deprecated", "replaces"]);
+  const contentEntries = Object.entries(record).filter(([key, value]) => !hiddenKeys.has(key) && hasReferenceValue(value));
+  return (
+    <article className="reference-detail-view">
+      <div className="detail-title-row">
+        <div>
+          <p className="eyebrow">{typeLabel(record.type)}</p>
+          <h2>{recordTitle(record)}</h2>
+        </div>
+        {reviewStatus(record) ? <span className="status-pill">{reviewStatus(record)}</span> : null}
+      </div>
+      <dl className="reference-facts">
+        <div><dt>Canonical ID</dt><dd>{record.id}</dd></div>
+        <div><dt>Source</dt><dd>{sourceLabel(record.source_library_id, sources)}</dd></div>
+        {record.version ? <div><dt>Version</dt><dd>{record.version}</dd></div> : null}
+        {record.deprecated ? <div><dt>Deprecated</dt><dd>Yes</dd></div> : null}
+      </dl>
+      {contentEntries.map(([key, value]) => (
+        <section className="reference-section" key={key}>
+          <h3>{titleize(key)}</h3>
+          <ReferenceValue value={value} onSelect={onSelect} />
+        </section>
+      ))}
+      {references?.length ? (
+        <section className="reference-section">
+          <h3>Canonical Relationships</h3>
+          <div className="relationship-list">
+            {references.map((reference) => (
+              reference.resolved ? (
+                <button className="relationship-chip" key={reference.id} type="button" onClick={() => onSelect(reference.id)}>
+                  {reference.display_name || reference.id}<small>{reference.type}</small>
+                </button>
+              ) : (
+                <span className="relationship-chip unresolved" key={reference.id}>{reference.id}<small>unresolved</small></span>
+              )
+            ))}
+          </div>
+        </section>
+      ) : null}
+      <details className="raw-record">
+        <summary>Raw canonical record</summary>
+        <pre>{JSON.stringify(record, null, 2)}</pre>
+      </details>
+    </article>
+  );
+}
+
+function ReferenceValue({ value, onSelect }) {
+  if (!hasReferenceValue(value)) return null;
+  if (Array.isArray(value)) {
+    if (value.every((item) => item && typeof item === "object" && !Array.isArray(item))) {
+      return <ReferenceTable rows={value} onSelect={onSelect} />;
+    }
+    return <ul className="reference-list-values">{value.map((item, index) => <li key={index}><ReferenceValue value={item} onSelect={onSelect} /></li>)}</ul>;
+  }
+  if (value && typeof value === "object") {
+    return (
+      <dl className="reference-object">
+        {Object.entries(value).filter(([, nested]) => hasReferenceValue(nested)).map(([key, nested]) => (
+          <div key={key}>
+            <dt>{titleize(key)}</dt>
+            <dd><ReferenceValue value={nested} onSelect={onSelect} /></dd>
+          </div>
+        ))}
+      </dl>
+    );
+  }
+  if (typeof value === "boolean") return <span>{value ? "Yes" : "No"}</span>;
+  if (isCanonicalId(value)) return <button className="inline-reference" type="button" onClick={() => onSelect(value)}>{value}</button>;
+  return <span>{String(value)}</span>;
+}
+
+function ReferenceTable({ rows, onSelect }) {
+  const columns = [...new Set(rows.flatMap((row) => Object.keys(row).filter((key) => hasReferenceValue(row[key]))))];
+  return (
+    <div className="table-wrap compact-table">
+      <table>
+        <thead><tr>{columns.map((column) => <th key={column}>{titleize(column)}</th>)}</tr></thead>
+        <tbody>
+          {rows.map((row, index) => (
+            <tr key={index}>
+              {columns.map((column) => <td key={column}><ReferenceValue value={row[column]} onSelect={onSelect} /></td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function hasReferenceValue(value) {
+  if (value === null || value === undefined || value === "") return false;
+  if (Array.isArray(value)) return value.some(hasReferenceValue);
+  if (typeof value === "object") return Object.values(value).some(hasReferenceValue);
+  return true;
+}
+
 function ArchivePage() {
   const { data: campaigns, error, loading } = useLoad(() => api("/1e/campaigns?include_archived=true"), []);
   const archived = (campaigns || []).filter((campaign) => campaign.status === "archived");
@@ -2037,6 +2290,7 @@ export default function App() {
           <Route path="/campaigns/:id/players" element={<CampaignWorkspace initialTab="players" />} />
           <Route path="/campaigns/:id/characters" element={<CampaignWorkspace initialTab="characters" />} />
           <Route path="/campaigns/:id/notes" element={<CampaignWorkspace initialTab="session-notes" />} />
+          <Route path="/rules" element={<RulesSettingsPage />} />
           <Route path="/players" element={<PlayersPage />} />
           <Route path="/characters" element={<CharactersPage />} />
           <Route path="/sessions" element={<Navigate to="/campaigns" replace />} />

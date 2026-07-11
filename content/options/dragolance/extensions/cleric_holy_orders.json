@@ -1,0 +1,38 @@
+{
+  "id": "dragolance.extension.cleric.holy_orders",
+  "type": "extension_rule",
+  "campaign_profile_id": "campaign_profile.dragolance",
+  "target_id": "osric.class.cleric",
+  "extension_kind": "class_order",
+  "adds": {
+    "organizations": [
+      "dragolance.order.holy_orders"
+    ],
+    "deity_relationships": [
+      "dragolance.deity.paladine",
+      "dragolance.deity.kiri_jolith",
+      "dragolance.deity.habbakuk",
+      "dragolance.deity.mishakal"
+    ],
+    "requires_deity_choice": true,
+    "wisdom_bonus_uses_osric": true,
+    "progression_overlays": [
+      "dragolance.progression.holy_orders.good",
+      "dragolance.progression.holy_orders.neutral",
+      "dragolance.progression.holy_orders.evil"
+    ],
+    "spell_slot_overlays": [
+      "dragolance.spell_slots.holy_orders.good",
+      "dragolance.spell_slots.holy_orders.neutral",
+      "dragolance.spell_slots.holy_orders.evil"
+    ],
+    "ability_refs": [
+      "dragolance.ability.holy_orders_deity_spell_access",
+      "dragolance.ability.holy_orders_wisdom_bonus",
+      "dragolance.ability.holy_orders_fall_and_atonement"
+    ],
+    "inherits_attack_progression_ref": "osric.attack.cleric",
+    "inherits_saving_throw_ref": "osric.saves.cleric"
+  },
+  "notes": "Clerics use OSRIC cleric mechanics with Dragolance deity/order legality layered on top."
+}

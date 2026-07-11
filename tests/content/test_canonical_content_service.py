@@ -98,10 +98,10 @@ class CanonicalContentServiceTests(unittest.TestCase):
     def test_restriction_lookup_works(self) -> None:
         service = self.service().load_all()
         restrictions = service.get_restrictions("campaign_profile.dragolance")
-        self.assertEqual(
-            {"dragolance.restriction.race.halfling_unavailable", "dragolance.restriction.race.half_orc_unavailable"},
-            {record["id"] for record in restrictions},
-        )
+        restriction_ids = {record["id"] for record in restrictions}
+        self.assertIn("dragolance.restriction.race.halfling_unavailable", restriction_ids)
+        self.assertIn("dragolance.restriction.race.half_orc_unavailable", restriction_ids)
+        self.assertIn("dragolance.restriction.class.assassin_unavailable", restriction_ids)
 
     def test_legacy_string_mapping_resolves_exact_matches(self) -> None:
         service = self.service()
