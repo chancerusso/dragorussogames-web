@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { Component, createContext, useContext, useEffect, useMemo, useState } from "react";
 import { Link, Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import dragonlanceRaceManifest from "../../content/settings/dragonlance/races/index.json";
 import gullyDwarfRace from "../../content/settings/dragonlance/races/gully-dwarf.json";
@@ -15,7 +15,7 @@ import tinkerGnomeRace from "../../content/settings/dragonlance/races/tinker-gno
 import dragonlanceReference from "../../content/settings/dragonlance/reference/index.json";
 import { api, getPlayerToken, getToken, login, logout, playerLogin, playerLogout } from "./api.js";
 import { CLASSIC_PORTAL_URL, DM_NAV_ITEMS } from "./dmNavigation.js";
-import { filterReferenceItems, isCanonicalId, makeTypeOptions, recordTitle, reviewStatus, sourceLabel, titleize, typeLabel } from "./rulesReference.js";
+import { filterReferenceItems, isCanonicalId, makeTypeOptions, recordSummary, recordTitle, reviewStatus, safeDisplayText, sourceLabel, titleize, typeLabel } from "./rulesReference.js";
 
 const AuthContext = createContext(null);
 const PlayerPortalContext = createContext(null);
@@ -411,6 +411,37 @@ function PageState({ loading, error }) {
   if (loading) return <p className="muted">Loading...</p>;
   if (error) return <p className="error">{error}</p>;
   return null;
+}
+
+class RulesBrowserBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+
+  componentDidCatch(error) {
+    console.error("Rules & Settings render failed", error);
+  }
+
+  render() {
+    if (!this.state.error) return this.props.children;
+    const params = new URLSearchParams(window.location.search);
+    const recordId = params.get("record");
+    return (
+      <section>
+        <PlainHeader eyebrow="DM Reference" title="Rules & Settings" copy="One canonical record could not be rendered safely." />
+        <Panel className="rules-detail">
+          <p className="error">Rules & Settings hit an unsupported record shape.</p>
+          {recordId ? <p className="muted">Affected record: {safeDisplayText(recordId)}</p> : null}
+          <Link className="secondary-button" to="/rules">Return to Rules & Settings</Link>
+        </Panel>
+      </section>
+    );
+  }
 }
 
 function CampaignsPage() {
@@ -2004,11 +2035,12 @@ function RulesSettingsPage() {
 
 function ReferenceListItem({ item, sources, active, onSelect }) {
   const isRulesPage = item.type === "rules_page";
+  const detailPath = `/rules?source=${encodeURIComponent(item.source_library_id || "all")}&type=${encodeURIComponent(item.type)}&record=${encodeURIComponent(item.id)}`;
   const body = (
     <>
       <div>
         <strong>{recordTitle(item)}</strong>
-        <p>{item.summary || item.section || item.id}</p>
+        <p>{recordSummary(item)}</p>
       </div>
       <div className="reference-meta">
         <span>{typeLabel(item.type)}</span>
@@ -2020,7 +2052,7 @@ function ReferenceListItem({ item, sources, active, onSelect }) {
   if (isRulesPage) {
     return <a className="reference-row" href={item.route}>{body}</a>;
   }
-  return <button className={`reference-row ${active ? "active" : ""}`} type="button" onClick={() => onSelect(item.id)}>{body}</button>;
+  return <Link className={`reference-row ${active ? "active" : ""}`} to={detailPath} onClick={() => onSelect(item.id)}>{body}</Link>;
 }
 
 function ReferenceDetail({ payload, sources, onSelect }) {
@@ -2055,10 +2087,10 @@ function ReferenceDetail({ payload, sources, onSelect }) {
             {references.map((reference) => (
               reference.resolved ? (
                 <button className="relationship-chip" key={reference.id} type="button" onClick={() => onSelect(reference.id)}>
-                  {reference.display_name || reference.id}<small>{reference.type}</small>
+                  {safeDisplayText(reference.display_name || reference.id)}<small>{safeDisplayText(reference.type)}</small>
                 </button>
               ) : (
-                <span className="relationship-chip unresolved" key={reference.id}>{reference.id}<small>unresolved</small></span>
+                <span className="relationship-chip unresolved" key={reference.id}>{safeDisplayText(reference.id)}<small>unresolved</small></span>
               )
             ))}
           </div>
@@ -2094,7 +2126,7 @@ function ReferenceValue({ value, onSelect }) {
   }
   if (typeof value === "boolean") return <span>{value ? "Yes" : "No"}</span>;
   if (isCanonicalId(value)) return <button className="inline-reference" type="button" onClick={() => onSelect(value)}>{value}</button>;
-  return <span>{String(value)}</span>;
+  return <span>{safeDisplayText(value)}</span>;
 }
 
 function ReferenceTable({ rows, onSelect }) {
@@ -2283,7 +2315,7 @@ export default function App() {
           <Route path="/campaigns/:id/players" element={<CampaignWorkspace initialTab="players" />} />
           <Route path="/campaigns/:id/characters" element={<CampaignWorkspace initialTab="characters" />} />
           <Route path="/campaigns/:id/notes" element={<CampaignWorkspace initialTab="session-notes" />} />
-          <Route path="/rules" element={<RulesSettingsPage />} />
+          <Route path="/rules" element={<RulesBrowserBoundary><RulesSettingsPage /></RulesBrowserBoundary>} />
           <Route path="/players" element={<PlayersPage />} />
           <Route path="/characters" element={<CharactersPage />} />
           <Route path="/sessions" element={<Navigate to="/campaigns" replace />} />

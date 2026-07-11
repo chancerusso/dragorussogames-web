@@ -36,24 +36,50 @@ export function titleize(value = "") {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
+export function safeDisplayText(value, fallback = "") {
+  if (value === null || value === undefined || value === "") return fallback;
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => safeDisplayText(item)).filter(Boolean).join(", ") || fallback;
+  }
+  if (typeof value === "object") {
+    if (typeof value.player === "string" && value.player.trim()) return value.player;
+    if (typeof value.dm === "string" && value.dm.trim()) return value.dm;
+    return Object.entries(value)
+      .map(([key, nested]) => {
+        const text = safeDisplayText(nested);
+        return text ? `${titleize(key)}: ${text}` : "";
+      })
+      .filter(Boolean)
+      .join("; ") || fallback;
+  }
+  return fallback;
+}
+
 export function typeLabel(type) {
   return TYPE_LABELS[type] || titleize(type);
 }
 
 export function recordTitle(record) {
-  return record?.display_name || record?.name || record?.id || "Untitled Record";
+  return safeDisplayText(record?.display_name || record?.name || record?.id, "Untitled Record");
 }
 
 export function reviewStatus(record) {
   const review = record?.review;
-  if (record?.review_status) return record.review_status;
-  if (review && typeof review === "object") return review.status || "";
-  return typeof review === "string" ? review : "";
+  if (record?.review_status) return safeDisplayText(record.review_status);
+  if (review && typeof review === "object") return safeDisplayText(review.status);
+  return safeDisplayText(review);
 }
 
 export function sourceLabel(sourceId, sources = []) {
   const source = sources.find((item) => item.id === sourceId);
   return source ? recordTitle(source) : sourceId ? titleize(sourceId) : "Unspecified";
+}
+
+export function recordSummary(record) {
+  return safeDisplayText(record?.summary || record?.description || record?.section || record?.id, "");
 }
 
 export function makeTypeOptions(catalog = {}) {
@@ -76,7 +102,7 @@ export function searchableText(item) {
     item.section,
     item.path,
   ];
-  return pieces.filter(Boolean).join(" ").toLowerCase();
+  return pieces.map((piece) => safeDisplayText(piece)).filter(Boolean).join(" ").toLowerCase();
 }
 
 export function filterReferenceItems(items, { source = "all", type = "all", query = "" } = {}) {

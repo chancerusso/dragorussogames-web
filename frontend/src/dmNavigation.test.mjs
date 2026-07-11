@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 
 import { CLASSIC_PORTAL_URL, DM_NAV_ITEMS } from "./dmNavigation.js";
 
@@ -27,4 +28,10 @@ test("Rules & Settings routes inside the authenticated DM app", () => {
 test("Classic portal link remains separate from the DM rules browser", () => {
   assert.equal(CLASSIC_PORTAL_URL, "https://classic.dragorussogames.com/");
   assert.equal(DM_NAV_ITEMS.some((item) => item.href === CLASSIC_PORTAL_URL), false);
+});
+
+test("Rules route is wrapped in an error boundary inside the DM shell", () => {
+  const appSource = readFileSync(new URL("./App.jsx", import.meta.url), "utf8");
+  assert.match(appSource, /class RulesBrowserBoundary extends Component/);
+  assert.equal(appSource.includes('<Route path="/rules" element={<RulesBrowserBoundary><RulesSettingsPage /></RulesBrowserBoundary>} />'), true);
 });

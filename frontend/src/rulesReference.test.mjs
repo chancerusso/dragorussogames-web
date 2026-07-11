@@ -6,7 +6,9 @@ import {
   isCanonicalId,
   makeTypeOptions,
   recordTitle,
+  recordSummary,
   reviewStatus,
+  safeDisplayText,
   sourceLabel,
   typeLabel,
 } from "./rulesReference.js";
@@ -46,4 +48,33 @@ test("display helpers render user-facing labels", () => {
 test("canonical ID detection accepts stable IDs and rejects prose", () => {
   assert.equal(isCanonicalId("dragolance.progression.high_sorcery.white_robes"), true);
   assert.equal(isCanonicalId("White Robes"), false);
+});
+
+test("player and DM text objects render to safe text", () => {
+  const value = { player: "Player-facing text", dm: "DM-facing text" };
+  assert.equal(safeDisplayText(value), "Player-facing text");
+});
+
+test("catalog summaries never return raw objects", () => {
+  const record = {
+    id: "osric.spell.magic_missile",
+    summary: { player: "A structural placeholder for an OSRIC magic-user spell.", dm: null },
+  };
+  assert.equal(recordSummary(record), "A structural placeholder for an OSRIC magic-user spell.");
+});
+
+test("nested and unknown objects render as labeled text", () => {
+  const value = {
+    prerequisite: { class_id: "osric.class.magic_user", minimum_level: 3 },
+    unknown_future_field: { review: "Needs DM review" },
+  };
+  const text = safeDisplayText(value);
+  assert.match(text, /Prerequisite:/);
+  assert.match(text, /Class Id: osric.class.magic_user/);
+  assert.match(text, /Unknown Future Field:/);
+});
+
+test("arrays of primitives and objects render safely", () => {
+  assert.equal(safeDisplayText(["osric.class.fighter", "osric.class.thief"]), "osric.class.fighter, osric.class.thief");
+  assert.equal(safeDisplayText([{ player: "Player-facing text", dm: "DM-facing text" }]), "Player-facing text");
 });
