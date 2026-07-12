@@ -65,7 +65,9 @@ from app.services.vault_rules import (
     character_warnings,
     derived_stats,
     ammunition_profile,
+    ammunition_unit_cost,
     equipment_total_weight,
+    equipment_stack_value,
     is_allowed_equipment,
     is_ammunition,
     proficiency_count,
@@ -194,6 +196,7 @@ def inventory_payload(item: CharacterInventory) -> dict:
     equipment = equipment_payload(item.equipment)
     quantity = max(0, int(item.quantity or 0))
     profile = ammunition_profile(equipment)
+    stack_value = equipment_stack_value(equipment, quantity)
     return {
         "id": item.id,
         "equipment_id": item.equipment_id,
@@ -209,6 +212,9 @@ def inventory_payload(item: CharacterInventory) -> dict:
         "compatible_weapon_terms": equipment.get("compatible_weapon_terms") or [],
         "unit_weight": equipment_total_weight(equipment, 1) if profile else float(equipment.get("weight") or 0),
         "total_weight": round(equipment_total_weight(equipment, quantity), 4),
+        "unit_cost": round(ammunition_unit_cost(equipment), 6) if profile and ammunition_unit_cost(equipment) is not None else equipment.get("cost_amount"),
+        "stack_value": round(stack_value, 4) if stack_value is not None else None,
+        "stack_value_coin": equipment.get("cost_coin"),
     }
 
 
@@ -1672,6 +1678,23 @@ def add_inventory_record(character: VaultCharacter, data: dict, db: Session) -> 
         raise HTTPException(status_code=422, detail="Equipment quantity must be at least 1.")
     if status == "stored" and not (data.get("storage_location") or character.safe_storage_location):
         raise HTTPException(status_code=422, detail="Stored equipment requires a storage location.")
+    profile = ammunition_profile(equipment_payload(equipment))
+    if profile:
+        existing = db.scalar(
+            select(CharacterInventory).where(
+                CharacterInventory.character_id == character.id,
+                CharacterInventory.equipment_id == equipment.id,
+                CharacterInventory.status == status,
+            )
+        )
+        if existing is not None:
+            existing.quantity = int(existing.quantity or 0) + quantity
+            if status == "stored":
+                existing.storage_location = data.get("storage_location") or existing.storage_location or character.safe_storage_location
+            recalculate_character(db, character)
+            db.commit()
+            db.refresh(character)
+            return character_payload(character)
     item = CharacterInventory(
         character_id=character.id,
         equipment_id=equipment.id,
@@ -1702,6 +1725,15 @@ def update_inventory_record(character: VaultCharacter, inventory_id: int, data: 
             setattr(item, field, data[field])
     if item.status not in VALID_INVENTORY_STATUSES:
         raise HTTPException(status_code=422, detail="Invalid equipment status.")
+    if item.quantity < 0:
+        raise HTTPException(status_code=422, detail="Equipment quantity cannot be negative.")
+    if item.quantity == 0:
+        db.delete(item)
+        db.flush()
+        recalculate_character(db, character)
+        db.commit()
+        db.refresh(character)
+        return character_payload(character)
     if item.quantity < 1:
         raise HTTPException(status_code=422, detail="Equipment quantity must be at least 1.")
     if item.status == "stored" and not (item.storage_location or character.safe_storage_location):
@@ -1720,9 +1752,7 @@ def delete_inventory_record(character: VaultCharacter, inventory_id: int, db: Se
     item = db.get(CharacterInventory, inventory_id)
     if item is None or item.character_id != character.id:
         raise HTTPException(status_code=404, detail="Inventory item not found.")
-    item.status = "dropped"
-    item.container_id = None
-    item.storage_location = None
+    db.delete(item)
     db.flush()
     recalculate_character(db, character)
     db.commit()

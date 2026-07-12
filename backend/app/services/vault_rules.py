@@ -36,21 +36,28 @@ AMMUNITION_RULES = (
     {
         "kind": "light_bolt",
         "name_terms": ("light crossbow bolt", "bolt, light crossbow", "bolts, light crossbow"),
-        "display_name": "Light Bolts",
+        "display_name": "Light Crossbow Bolts",
         "compatible_weapon_terms": ("crossbow, light", "light crossbow"),
         "bundle_size": 12,
     },
     {
         "kind": "heavy_bolt",
         "name_terms": ("heavy crossbow bolt", "bolt, heavy crossbow", "bolts, heavy crossbow"),
-        "display_name": "Heavy Bolts",
+        "display_name": "Heavy Crossbow Bolts",
         "compatible_weapon_terms": ("crossbow, heavy", "heavy crossbow"),
         "bundle_size": 12,
     },
     {
         "kind": "sling_bullet",
-        "name_terms": ("sling bullet", "sling bullets", "sling stone", "sling stones", "bullet, dozen", "stone, dozen"),
+        "name_terms": ("sling bullet", "sling bullets", "bullet, dozen"),
         "display_name": "Sling Bullets",
+        "compatible_weapon_terms": ("sling",),
+        "bundle_size": 12,
+    },
+    {
+        "kind": "sling_stone",
+        "name_terms": ("sling stone", "sling stones", "stone, dozen"),
+        "display_name": "Sling Stones",
         "compatible_weapon_terms": ("sling",),
         "bundle_size": 12,
     },
@@ -643,11 +650,31 @@ def ammunition_unit_weight(equipment: dict) -> float:
     if not profile:
         return weight
     bundle_size = int(profile.get("bundle_size") or 1)
-    return weight / max(1, bundle_size) if "dozen" in (equipment.get("name") or "").lower() else weight
+    return weight / max(1, bundle_size)
 
 
 def equipment_total_weight(equipment: dict, quantity: int) -> float:
     return ammunition_unit_weight(equipment) * max(0, int(quantity or 0))
+
+
+def ammunition_unit_cost(equipment: dict) -> float | None:
+    cost = equipment.get("cost_amount")
+    if cost is None:
+        return None
+    profile = ammunition_profile(equipment)
+    if not profile:
+        return float(cost)
+    bundle_size = int(profile.get("bundle_size") or 1)
+    return float(cost) / max(1, bundle_size)
+
+
+def equipment_stack_value(equipment: dict, quantity: int) -> float | None:
+    unit_cost = ammunition_unit_cost(equipment)
+    if unit_cost is None:
+        return None
+    if ammunition_profile(equipment):
+        return unit_cost * max(0, int(quantity or 0))
+    return unit_cost * max(1, int(quantity or 1))
 
 
 def is_allowed_equipment(class_name: str, equipment: dict) -> tuple[bool, str]:

@@ -150,9 +150,10 @@ const fallbackDragonlanceRaces = [
 const state = { characters: [], equipment: [], spells: [], campaigns: [], players: [], dragonlanceRaces: [], dragonlanceClasses: [], campaign: null, rules: null, character: null, currentPlayer: null, step: 0, draft: null, hpRollMessage: "", moneyRollMessage: "", equipmentFeedback: {}, equipmentPreviews: {}, inventoryFilter: "equipped", dmOverride: false, dmCharacterFilters: { campaign_id: "", user_id: "", status: "" }, equipmentFilters: { q: "", type: "", allowedOnly: false }, editEquipmentId: null, dmCampaignTab: "overview" };
 const AMMUNITION_COMPATIBILITY = [
   { kind: "arrow", terms: ["arrow"], label: "Arrows", weaponTerms: ["bow"] },
-  { kind: "light_bolt", terms: ["light crossbow bolt", "bolt, light crossbow", "bolts, light crossbow"], label: "Light Bolts", weaponTerms: ["crossbow, light", "light crossbow"] },
-  { kind: "heavy_bolt", terms: ["heavy crossbow bolt", "bolt, heavy crossbow", "bolts, heavy crossbow"], label: "Heavy Bolts", weaponTerms: ["crossbow, heavy", "heavy crossbow"] },
-  { kind: "sling_bullet", terms: ["sling bullet", "sling bullets", "sling stone", "sling stones", "bullet, dozen", "stone, dozen"], label: "Sling Bullets", weaponTerms: ["sling"] },
+  { kind: "light_bolt", terms: ["light crossbow bolt", "bolt, light crossbow", "bolts, light crossbow"], label: "Light Crossbow Bolts", weaponTerms: ["crossbow, light", "light crossbow"] },
+  { kind: "heavy_bolt", terms: ["heavy crossbow bolt", "bolt, heavy crossbow", "bolts, heavy crossbow"], label: "Heavy Crossbow Bolts", weaponTerms: ["crossbow, heavy", "heavy crossbow"] },
+  { kind: "sling_bullet", terms: ["sling bullet", "sling bullets", "bullet, dozen"], label: "Sling Bullets", weaponTerms: ["sling"] },
+  { kind: "sling_stone", terms: ["sling stone", "sling stones", "stone, dozen"], label: "Sling Stones", weaponTerms: ["sling"] },
 ];
 const builderContext = detectBuilderContext();
 
@@ -1653,14 +1654,19 @@ function bindInventoryActions(afterAction) {
     event.preventDefault();
     if (!state.character?.id) return;
     const [id, status, value] = button.dataset.inventoryAction.split(":");
+    const item = (state.character.inventory || []).find((entry) => String(entry.id) === String(id));
     try {
       if (status === "delete") {
+        if (!(await confirmDropItem(item))) return;
         state.character = await inventoryApi(id, { method: "DELETE" });
       } else if (status === "quantity") {
-        state.character = await inventoryApi(id, {
-          method: "PUT",
-          body: JSON.stringify({ quantity: Math.max(1, Number(value || 1)) }),
-        });
+        const nextQuantity = Math.max(0, Number(value || 0));
+        state.character = nextQuantity === 0
+          ? await inventoryApi(id, { method: "DELETE" })
+          : await inventoryApi(id, {
+            method: "PUT",
+            body: JSON.stringify({ quantity: nextQuantity }),
+          });
       } else {
         state.character = await inventoryApi(id, {
           method: "PUT",
@@ -1684,11 +1690,27 @@ function inventoryActionMessage(status) {
     equipped: "Equipped.",
     carried: "Unequipped.",
     stored: "Stored.",
-    delete: "Dropped.",
-    dropped: "Dropped.",
+    delete: "Item dropped.",
     quantity: "Quantity updated.",
   };
   return messages[status] || "Saved.";
+}
+
+function confirmDropItem(item) {
+  const name = inventoryItemName(item || {});
+  return new Promise((resolve) => {
+    const modal = document.createElement("div");
+    modal.className = "vault-rules-modal";
+    modal.innerHTML = `<div class="vault-rules-popout"><div class="vault-kicker">Confirm Drop</div><h2>Drop ${h(name)}?</h2><p>This removes the item from the character's inventory.</p><div class="vault-actions"><button class="vault-button secondary" type="button" data-drop-cancel>Cancel</button><button class="vault-button danger-button" type="button" data-drop-confirm>Drop Item</button></div></div>`;
+    const close = (result) => {
+      modal.remove();
+      resolve(result);
+    };
+    modal.querySelector("[data-drop-cancel]").addEventListener("click", () => close(false));
+    modal.querySelector("[data-drop-confirm]").addEventListener("click", () => close(true));
+    modal.addEventListener("click", (event) => { if (event.target === modal) close(false); });
+    document.body.appendChild(modal);
+  });
 }
 
 function readableError(error) {
@@ -1893,7 +1915,6 @@ function inventoryHtml(c) {
     ["carried", "Carried"],
     ["stored", "Stored"],
     ["coins", "Coins"],
-    ["dropped", "Dropped"],
     ["lost", "Lost / Destroyed"],
   ];
   return buckets.map(([status, label]) => {
@@ -1924,13 +1945,13 @@ function inventoryRow(item, proficiencies = []) {
   const ammo = item.is_ammunition || isAmmunition(equipment);
   const damage = equipment.type === "weapon" && !ammo ? [equipment.damage_small_medium, equipment.damage_large].filter(Boolean).join(" / ") : "";
   const proficiency = equipment.type === "weapon" && !ammo ? weaponProficiencyLabel(equipment.id, proficiencies) : "";
-  const ammoDetail = ammo ? `${h(ammunitionLabel(item))} x${h(item.quantity || 0)}` : "";
-  const cost = equipment.cost_amount != null ? `${equipment.cost_amount} ${equipment.cost_coin || ""}` : "";
+  const itemName = inventoryItemName(item);
+  const cost = inventoryItemValue(item);
   const status = isStored && item.storage_location ? `${labelize(item.status)} at ${item.storage_location}` : labelize(item.status);
   const proficiencyClass = proficiency === "Proficient" ? "vault-status-good" : "vault-muted";
-  const weight = Number(item.total_weight ?? ((equipment.weight || 0) * item.quantity)).toFixed(2);
-  const quantityActions = ammo ? `<span class="vault-ammo-quantity"><button type="button" class="vault-button secondary" data-inventory-action="${item.id}:quantity:${Math.max(1, Number(item.quantity || 1) - 1)}" ${Number(item.quantity || 1) <= 1 ? "disabled" : ""}>-</button><strong>${h(item.quantity || 0)}</strong><button type="button" class="vault-button secondary" data-inventory-action="${item.id}:quantity:${Number(item.quantity || 0) + 1}">+</button></span>` : "";
-  return `<tr class="${isEquipped ? "vault-equipped-row" : ""}"><td>${h(item.quantity)} x <strong>${h(equipment.name)}</strong><br><span class="vault-mini">${ammoDetail || ""}${damage ? `Damage ${h(damage)}` : ""}${damage && proficiency ? " / " : ""}${proficiency ? `<span class="${proficiencyClass}">${h(proficiency)}</span>` : ""}</span></td><td>${h(equipmentDisplayType(equipment))}</td><td>${h(weight)}</td><td>${h(cost)}</td><td>${h(status)}</td><td>${quantityActions}${isEquipped ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Unequip</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:equipped">Equip</button>`} ${isStored ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Carry</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:stored">Store</button>`} <button type="button" class="vault-button secondary" data-inventory-action="${item.id}:dropped">Drop</button></td></tr>`;
+  const weight = formatWeight(item.total_weight ?? ((equipment.weight || 0) * item.quantity));
+  const quantityActions = ammo ? `<span class="vault-ammo-quantity"><button type="button" class="vault-button secondary" data-inventory-action="${item.id}:quantity:${Math.max(0, Number(item.quantity || 0) - 1)}">-</button><strong>${h(item.quantity || 0)}</strong><button type="button" class="vault-button secondary" data-inventory-action="${item.id}:quantity:${Number(item.quantity || 0) + 1}">+</button></span>` : "";
+  return `<tr class="${isEquipped ? "vault-equipped-row" : ""}"><td>${ammo ? `<strong>${h(itemName)}</strong> ×${h(item.quantity || 0)}` : `${h(item.quantity)} x <strong>${h(itemName)}</strong>`}<br><span class="vault-mini">${damage ? `Damage ${h(damage)}` : ""}${damage && proficiency ? " / " : ""}${proficiency ? `<span class="${proficiencyClass}">${h(proficiency)}</span>` : ""}</span></td><td>${h(equipmentDisplayType(equipment))}</td><td>${h(weight)}</td><td>${h(cost)}</td><td>${h(status)}</td><td>${quantityActions}${isEquipped ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Unequip</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:equipped">Equip</button>`} ${isStored ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Carry</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:stored">Store</button>`} <button type="button" class="vault-button secondary" data-inventory-action="${item.id}:delete">Drop</button></td></tr>`;
 }
 
 function savingThrowsHtml(c) {
@@ -2093,7 +2114,7 @@ function weaponCardHtml(runtime, equipment = {}, proficiencyLabel = "", characte
       ${statRow("DAMAGE", damage.final_small_medium || damage.base_small_medium || "-")}
       ${runtime.rate_of_fire ? statRow("ROF", runtime.rate_of_fire) : statRow("APR", compactAttackRate(runtime.attacks_per_round?.value || "1"))}
       ${range.raw ? statRow("RANGE", rangeLabel(range)) : ""}
-      ${runtime.mode === "missile" ? statRow("AMMO", ammo ? `${ammunitionLabel(ammo)} x${ammo.quantity || 0}` : "None Equipped") : ""}
+      ${runtime.mode === "missile" ? statRow("AMMO", ammo ? `${ammunitionLabel(ammo)} ×${ammo.quantity || 0}` : "None Equipped") : ""}
     </div>
     <details class="vault-breakdown"><summary>Details</summary>
       <h4>Attack Breakdown</h4>${modifierBreakdownHtml(runtime.attack_modifiers || {}, runtime.racial_modifiers, runtime.base_thac0, runtime.final_attack_value)}
@@ -2697,18 +2718,40 @@ function ammunitionBundleSize(item = {}) {
   return Number(item.bundle_size || item.equipment?.bundle_size || (String(item.name || item.equipment?.name || "").toLowerCase().includes("dozen") ? 12 : 1));
 }
 
+function inventoryItemName(item = {}) {
+  const equipment = item.equipment || item;
+  return isAmmunition(equipment) || item.is_ammunition ? ammunitionLabel(item) : equipment.name || "Item";
+}
+
+function formatWeight(value) {
+  const number = Number(value || 0);
+  if (Number.isInteger(number)) return `${number} lb`;
+  return `${Number(number.toFixed(2))} lb`;
+}
+
+function inventoryItemValue(item = {}) {
+  const equipment = item.equipment || {};
+  const coin = item.stack_value_coin || equipment.cost_coin || "";
+  const value = item.stack_value ?? (equipment.cost_amount != null ? Number(equipment.cost_amount) * Math.max(1, Number(item.quantity || 1)) : null);
+  if (value == null) return "";
+  const amount = Number(value);
+  const display = Number.isInteger(amount) ? String(amount) : String(Number(amount.toFixed(2)));
+  return `${display} ${coin}`.trim();
+}
+
 function equipmentDisplayType(item = {}) {
   return isAmmunition(item) ? "Ammunition" : labelize(item.type);
 }
 
 function compatibleAmmunitionForWeapon(weapon = {}, inventory = []) {
   const weaponName = String(weapon.name || "").toLowerCase();
-  const profile = AMMUNITION_COMPATIBILITY.find((candidate) => candidate.weaponTerms.some((term) => weaponName.includes(term)));
-  if (!profile) return null;
+  const profiles = AMMUNITION_COMPATIBILITY.filter((candidate) => candidate.weaponTerms.some((term) => weaponName.includes(term)));
+  if (!profiles.length) return null;
+  const kinds = new Set(profiles.map((profile) => profile.kind));
   return inventory.find((item) => {
     const status = item.status || "carried";
     if (!["equipped", "carried"].includes(status)) return false;
-    return isAmmunition(item.equipment || item) && ammunitionProfile(item.equipment || item)?.kind === profile.kind;
+    return isAmmunition(item.equipment || item) && kinds.has(ammunitionProfile(item.equipment || item)?.kind);
   }) || null;
 }
 

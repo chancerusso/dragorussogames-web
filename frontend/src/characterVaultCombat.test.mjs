@@ -151,11 +151,13 @@ test("equipment catalog is scrollable and no longer hard-caps first rows", () =>
   assert.doesNotMatch(vaultSource, /classAwareEquipment\(\)\.slice\(0, 40\)/);
 });
 
-test("inventory drop uses dropped status and ammo gets quantity controls", () => {
-  assert.match(vaultSource, /data-inventory-action="\$\{item\.id\}:dropped"/);
+test("inventory drop deletes rows and ammo gets quantity controls", () => {
+  assert.match(vaultSource, /data-inventory-action="\$\{item\.id\}:delete"/);
+  assert.match(vaultSource, /Drop Item/);
   assert.match(vaultSource, /status === "quantity"/);
   assert.match(vaultSource, /vault-ammo-quantity/);
   assert.match(vaultSource, /inventoryActionMessage\(status\)/);
+  assert.doesNotMatch(vaultSource, /"dropped", "Dropped"/);
 });
 
 test("ammunition is separated from weapons and shown on compatible missile cards", () => {
