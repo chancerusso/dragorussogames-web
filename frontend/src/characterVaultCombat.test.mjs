@@ -144,6 +144,33 @@ test("equipment preview toggles without resetting catalog filters", () => {
   assert.doesNotMatch(vaultSource, /state\.equipmentPreviews\[equipmentId\] = await combatPreviewApi\(equipmentId\);\s*renderBuilder\(\);/);
 });
 
+test("character sheet and edit boot lazy-load heavy catalogs", () => {
+  const bootMatch = vaultSource.match(/async function boot\(\) \{([\s\S]*?)async function hydratePlayerBuilderContext/);
+  assert.ok(bootMatch);
+  const boot = bootMatch[1];
+  assert.doesNotMatch(boot, /api\("\/rules-data"\)/);
+  assert.doesNotMatch(boot, /api\("\/spells"\)/);
+  assert.doesNotMatch(boot, /api\("\/equipment"\)/);
+  assert.match(boot, /cachedApi\(`\/characters\/\$\{characterId\(\)\}`\)/);
+  assert.match(vaultSource, /function cachedApi/);
+  assert.match(vaultSource, /sessionDataCache\.api/);
+  assert.match(vaultSource, /function builderStepDataGate/);
+  assert.match(vaultSource, /state\.step === 9 && !state\.spells\.length/);
+  assert.match(vaultSource, /\[7, 8\]\.includes\(state\.step\) && !state\.equipment\.length/);
+});
+
+test("character mutations reuse returned payloads instead of immediate duplicate GETs", () => {
+  const saveMatch = vaultSource.match(/async function saveDraft\([\s\S]*?function characterSavePayload/);
+  assert.ok(saveMatch);
+  assert.doesNotMatch(saveMatch[0], /await rootApi\(`\/player\/characters\/\$\{state\.character\.id\}`,\s*\{ headers: playerAuthHeaders\(\) \}\)/);
+  assert.doesNotMatch(saveMatch[0], /await api\(`\/characters\/\$\{state\.character\.id\}`\)/);
+  const quickEditMatch = vaultSource.match(/function openQuickEditModal[\s\S]*?function sheetHtml/);
+  assert.ok(quickEditMatch);
+  assert.doesNotMatch(quickEditMatch[0], /await rootApi\(`\/player\/characters\/\$\{state\.character\.id\}`,\s*\{ headers: playerAuthHeaders\(\) \}\)/);
+  assert.doesNotMatch(quickEditMatch[0], /await api\(`\/characters\/\$\{state\.character\.id\}`\)/);
+  assert.match(vaultSource, /function invalidateCharacterCache/);
+});
+
 test("equipment catalog is scrollable and no longer hard-caps first rows", () => {
   assert.match(vaultSource, /vault-equipment-catalog-scroll/);
   assert.match(vaultCss, /\.vault-equipment-catalog-scroll/);
@@ -158,6 +185,19 @@ test("inventory drop deletes rows and ammo gets quantity controls", () => {
   assert.match(vaultSource, /vault-ammo-quantity/);
   assert.match(vaultSource, /inventoryActionMessage\(status\)/);
   assert.doesNotMatch(vaultSource, /"dropped", "Dropped"/);
+});
+
+test("sheet disclosure state survives inventory refreshes", () => {
+  assert.match(vaultSource, /sheetDisclosure: \{ inventoryOpen: false, spellsOpen: true, campaignOpen: false \}/);
+  assert.match(vaultSource, /function bindSheetDisclosureState/);
+  assert.match(vaultSource, /data-sheet-disclosure="inventoryOpen"/);
+  assert.match(vaultSource, /state\.sheetDisclosure\.inventoryOpen \? "open" : ""/);
+  assert.match(vaultSource, /data-sheet-disclosure="campaignOpen"/);
+  assert.match(vaultSource, /details\.addEventListener\("toggle"/);
+  assert.match(vaultSource, /afterAction\(\{ preserveScrollY, changedInventoryId: id, keepInventoryVisible: true \}\)/);
+  assert.match(vaultSource, /function restoreSheetPosition/);
+  assert.match(vaultSource, /data-inventory-row="\$\{h\(item\.id\)\}"/);
+  assert.doesNotMatch(vaultSource, /sheetDisclosure: \{ inventoryOpen: false, spellsOpen: true, campaignOpen: false \}[\s\S]*?state\.sheetDisclosure =/);
 });
 
 test("ammunition is separated from weapons and shown on compatible missile cards", () => {

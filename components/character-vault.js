@@ -147,7 +147,11 @@ const fallbackDragonlanceRaces = [
     advanced: true,
   },
 ];
-const state = { characters: [], equipment: [], spells: [], campaigns: [], players: [], dragonlanceRaces: [], dragonlanceClasses: [], campaign: null, rules: null, character: null, currentPlayer: null, step: 0, draft: null, hpRollMessage: "", moneyRollMessage: "", equipmentFeedback: {}, equipmentPreviews: {}, inventoryFilter: "equipped", dmOverride: false, dmCharacterFilters: { campaign_id: "", user_id: "", status: "" }, equipmentFilters: { q: "", type: "", allowedOnly: false }, editEquipmentId: null, dmCampaignTab: "overview" };
+const state = { characters: [], equipment: [], spells: [], campaigns: [], players: [], dragonlanceRaces: [], dragonlanceClasses: [], campaign: null, rules: null, character: null, currentPlayer: null, step: 0, draft: null, hpRollMessage: "", moneyRollMessage: "", equipmentFeedback: {}, equipmentPreviews: {}, inventoryFilter: "equipped", dmOverride: false, dmCharacterFilters: { campaign_id: "", user_id: "", status: "" }, equipmentFilters: { q: "", type: "", allowedOnly: false }, editEquipmentId: null, dmCampaignTab: "overview", sheetDisclosure: { inventoryOpen: false, spellsOpen: true, campaignOpen: false } };
+const sessionDataCache = {
+  api: new Map(),
+  content: new Map(),
+};
 const AMMUNITION_COMPATIBILITY = [
   { kind: "arrow", terms: ["arrow"], label: "Arrows", weaponTerms: ["bow"] },
   { kind: "light_bolt", terms: ["light crossbow bolt", "bolt, light crossbow", "bolts, light crossbow"], label: "Light Crossbow Bolts", weaponTerms: ["crossbow, light", "light crossbow"] },
@@ -201,6 +205,32 @@ async function api(path, options = {}) {
   return response.status === 204 ? null : response.json();
 }
 
+function cachedApi(path, options = {}) {
+  const method = String(options.method || "GET").toUpperCase();
+  if (method !== "GET") return api(path, options);
+  const key = `${API}${path}`;
+  if (!sessionDataCache.api.has(key)) {
+    sessionDataCache.api.set(key, api(path, options));
+  }
+  return sessionDataCache.api.get(key);
+}
+
+function invalidateApiCache(...paths) {
+  paths.forEach((path) => sessionDataCache.api.delete(`${API}${path}`));
+}
+
+function invalidateCharacterCache(characterId = state.character?.id) {
+  if (!characterId) return;
+  invalidateApiCache(`/characters/${characterId}`, "/characters?include_archived=true");
+  sessionDataCache.api.forEach((_, key) => {
+    if (key.includes(`${API}/characters?`)) sessionDataCache.api.delete(key);
+  });
+}
+
+function invalidateEquipmentCache() {
+  invalidateApiCache("/equipment");
+}
+
 async function rootApi(path, options = {}) {
   const { headers = {}, ...fetchOptions } = options;
   const response = await fetch(`${VAULT_API_BASE}${path}`, {
@@ -244,6 +274,21 @@ async function optionalApi(loader, fallback) {
   }
 }
 
+async function loadRulesData() {
+  state.rules ||= await cachedApi("/rules-data");
+  return state.rules;
+}
+
+async function loadEquipmentCatalog() {
+  state.equipment = await cachedApi("/equipment");
+  return state.equipment;
+}
+
+async function loadSpellsCatalog() {
+  state.spells = await cachedApi("/spells");
+  return state.spells;
+}
+
 function playerAuthHeaders() {
   const token = localStorage.getItem(PLAYER_TOKEN_KEY);
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -285,6 +330,13 @@ function applyCampaignSourceContext(campaign) {
 }
 
 async function fetchJson(path) {
+  if (sessionDataCache.content.has(path)) return sessionDataCache.content.get(path);
+  const promise = fetchJsonUncached(path);
+  sessionDataCache.content.set(path, promise);
+  return promise;
+}
+
+async function fetchJsonUncached(path) {
   const response = await fetch(path);
   if (!response.ok) throw new Error(`Unable to load ${path}`);
   return response.json();
@@ -373,21 +425,21 @@ function toast(message, tone = "") {
 async function boot() {
   renderShell();
   try {
-    [state.rules, state.equipment, state.spells, state.dragonlanceRaces, state.dragonlanceClasses] = await Promise.all([
-      api("/rules-data"),
-      api("/equipment"),
-      api("/spells"),
-      fetchDragonlanceRaces(),
-      fetchDragonlanceClasses(),
-    ]);
     const kind = pageKind();
+    if (kind === "dmEquipment") {
+      await loadEquipmentCatalog();
+    } else if (["campaign", "dmDashboard"].includes(kind)) {
+      await loadEquipmentCatalog();
+    }
 
     if (isPlayerCharacterMode()) {
       await hydratePlayerBuilderContext();
     } else {
+      const needsCampaigns = ["new", "edit", "index", "dmDashboard", "campaign", "dmEquipment"].includes(kind);
+      const needsPlayers = ["new", "edit", "index", "dmDashboard", "campaign", "dmPlayers", "dmCharacters"].includes(kind);
       [state.campaigns, state.players] = await Promise.all([
-        optionalApi(() => api("/campaigns"), []),
-        optionalApi(() => api("/players"), []),
+        needsCampaigns ? optionalApi(() => cachedApi("/campaigns"), []) : [],
+        needsPlayers ? optionalApi(() => cachedApi("/players"), []) : [],
       ]);
       hydrateCurrentPlayer();
     }
@@ -395,16 +447,16 @@ async function boot() {
     if (kind === "show" || kind === "edit") {
       state.character = isPlayerCharacterMode()
         ? await rootApi(`/player/characters/${characterId()}`, { headers: playerAuthHeaders() })
-        : await api(`/characters/${characterId()}`);
+        : await cachedApi(`/characters/${characterId()}`);
       if (state.character?.campaign_id) applyCampaignSourceContext(state.campaigns.find((campaign) => campaign.id === state.character.campaign_id));
     }
     if (kind === "campaign" && campaignId()) {
-      state.campaign = await api(`/campaigns/${campaignId()}`);
-      state.characters = await api("/characters?include_archived=true");
+      state.campaign = await cachedApi(`/campaigns/${campaignId()}`);
+      state.characters = await cachedApi("/characters?include_archived=true");
     }
-    if (kind === "dmPlayers") state.characters = await api("/characters?include_archived=true");
-    if (kind === "dmCharacters") state.characters = await api("/characters?include_archived=true");
-    if (kind === "index") state.characters = await api(`/characters${state.currentPlayer?.id ? `?user_id=${state.currentPlayer.id}` : ""}`);
+    if (kind === "dmPlayers") state.characters = await cachedApi("/characters?include_archived=true");
+    if (kind === "dmCharacters") state.characters = await cachedApi("/characters?include_archived=true");
+    if (kind === "index") state.characters = await cachedApi(`/characters${state.currentPlayer?.id ? `?user_id=${state.currentPlayer.id}` : ""}`);
     render();
   } catch (error) {
     toast("Required builder data is unavailable. Check rules, equipment, and spell APIs.");
@@ -547,13 +599,48 @@ function initialDraft() {
 function renderBuilder() {
   state.draft ||= initialDraft();
   const steps = ["Start", "Abilities", "Race", "Class", "Alignment", "Hit Points", "Money", "Equipment", "Proficiencies", "Spells", "Review"];
+  const dataGate = builderStepDataGate();
   document.querySelector("[data-vault-view]").innerHTML = `
     <div class="vault-builder-nav">${steps.map((label, index) => `<button class="vault-tab" aria-selected="${state.step === index}" data-step="${index}">${index + 1}. ${label}</button>`).join("")}</div>
-    <form class="vault-panel vault-form" data-builder-form><div class="vault-panel-toast vault-full" data-panel-toast></div>${builderStep()}</form>`;
+    <form class="vault-panel vault-form" data-builder-form><div class="vault-panel-toast vault-full" data-panel-toast></div>${dataGate ? builderLoadingHtml(dataGate.label) : builderStep()}</form>`;
+  if (dataGate) dataGate.promise.then(() => renderBuilder()).catch((error) => {
+    console.error("Builder step data failed to load.", error);
+    toast("Unable to load this builder step. Try refreshing the page.");
+  });
   document.querySelectorAll("[data-step]").forEach((button) => button.addEventListener("click", () => { syncDraft(); state.step = Number(button.dataset.step); renderBuilder(); }));
   document.querySelector("[data-builder-form]").addEventListener("input", syncDraft);
   document.querySelector("[data-builder-form]").addEventListener("change", syncDraft);
   bindBuilderActions();
+}
+
+function builderStepDataGate() {
+  const loads = [];
+  const labels = [];
+  if (state.step >= 2 && !state.rules) {
+    labels.push("rules");
+    loads.push(loadRulesData());
+  }
+  if (state.step === 2 && !state.dragonlanceRaces.length) {
+    labels.push("race options");
+    loads.push(fetchDragonlanceRaces().then((records) => { state.dragonlanceRaces = records; }));
+  }
+  if (state.step === 3 && !state.dragonlanceClasses.length) {
+    labels.push("class options");
+    loads.push(fetchDragonlanceClasses().then((records) => { state.dragonlanceClasses = records; }));
+  }
+  if ([7, 8].includes(state.step) && !state.equipment.length) {
+    labels.push("equipment catalog");
+    loads.push(loadEquipmentCatalog());
+  }
+  if (state.step === 9 && !state.spells.length) {
+    labels.push("spell catalog");
+    loads.push(loadSpellsCatalog());
+  }
+  return loads.length ? { label: `Loading ${labels.join(", ")}...`, promise: Promise.all(loads) } : null;
+}
+
+function builderLoadingHtml(label) {
+  return `<div class="vault-full vault-compact-empty"><strong>${h(label)}</strong><p class="vault-muted">Preparing this step.</p></div>${navButtons()}`;
 }
 
 function field(label, name, value, type = "text", extra = "") {
@@ -1373,9 +1460,16 @@ async function ensureSaved() {
 }
 
 async function characterApi(path, options = {}) {
-  return isPlayerCharacterMode()
+  const method = String(options.method || "GET").toUpperCase();
+  const result = isPlayerCharacterMode()
     ? rootApi(`/player/characters${path}`, { ...options, headers: { ...playerAuthHeaders(), ...(options.headers || {}) } })
     : api(`/characters${path}`, options);
+  const payload = await result;
+  if (method !== "GET") {
+    const match = path.match(/^\/(\d+)/);
+    invalidateCharacterCache(match ? Number(match[1]) : state.character?.id);
+  }
+  return payload;
 }
 
 async function inventoryApi(inventoryId, options = {}) {
@@ -1432,6 +1526,7 @@ async function saveDraft(navigate = true) {
   state.character = isPlayerCharacterMode()
     ? await rootApi(state.character?.id ? `/player/characters/${state.character.id}` : "/player/characters", { method, headers: playerAuthHeaders(), body: JSON.stringify(payload) })
     : await api(path, { method, body: JSON.stringify(payload) });
+  invalidateCharacterCache(state.character.id);
   if (state.character.player?.id) {
     state.currentPlayer = state.character.player;
     localStorage.setItem("drg1e_player_id", String(state.currentPlayer.id));
@@ -1441,9 +1536,6 @@ async function saveDraft(navigate = true) {
     renderBuilder();
     toast("Character saved.", "success");
   } else if (pageKind() === "edit") {
-    state.character = isPlayerCharacterMode()
-      ? await rootApi(`/player/characters/${state.character.id}`, { headers: playerAuthHeaders() })
-      : await api(`/characters/${state.character.id}`);
     state.draft = initialDraft();
     if (navigate) renderBuilder();
     toast("Character saved.", "success");
@@ -1615,13 +1707,25 @@ function currentUserIsDm() {
   return ["dm", "admin"].includes(state.currentPlayer?.role);
 }
 
-function renderSheet() {
+function renderSheet(options = {}) {
   document.querySelector("[data-vault-view]").innerHTML = `<div class="vault-sheet">${sheetHtml(state.character)}</div>`;
-  bindInventoryActions(() => renderSheet());
+  bindSheetDisclosureState();
+  bindInventoryActions((renderOptions) => renderSheet(renderOptions));
   document.querySelectorAll("[data-rules-link]").forEach((button) => button.addEventListener("click", () => openRulesModal(button.dataset.rulesTitle, button.dataset.rulesLink)));
   document.querySelector("[data-quick-edit-open]")?.addEventListener("click", () => openQuickEditModal(state.character));
   document.querySelector("[data-level-up-placeholder]")?.addEventListener("click", () => toast("Level Up tools coming soon."));
   bindSpellActions(() => renderSheet());
+  restoreSheetPosition(options);
+}
+
+function bindSheetDisclosureState() {
+  document.querySelectorAll("[data-sheet-disclosure]").forEach((details) => {
+    const key = details.dataset.sheetDisclosure;
+    if (key in state.sheetDisclosure) details.open = Boolean(state.sheetDisclosure[key]);
+    details.addEventListener("toggle", () => {
+      state.sheetDisclosure[key] = details.open;
+    });
+  });
 }
 
 function bindSpellActions(afterAction) {
@@ -1655,6 +1759,7 @@ function bindInventoryActions(afterAction) {
     if (!state.character?.id) return;
     const [id, status, value] = button.dataset.inventoryAction.split(":");
     const item = (state.character.inventory || []).find((entry) => String(entry.id) === String(id));
+    const preserveScrollY = window.scrollY;
     try {
       if (status === "delete") {
         if (!(await confirmDropItem(item))) return;
@@ -1678,11 +1783,25 @@ function bindInventoryActions(afterAction) {
       }
       state.draft = initialDraft();
       toast(inventoryActionMessage(status), "success");
-      afterAction();
+      afterAction({ preserveScrollY, changedInventoryId: id, keepInventoryVisible: true });
     } catch (error) {
       toast(readableError(error));
     }
   }));
+}
+
+function restoreSheetPosition(options = {}) {
+  if (options.preserveScrollY === undefined && !options.changedInventoryId) return;
+  window.requestAnimationFrame(() => {
+    const row = options.changedInventoryId ? document.querySelector(`[data-inventory-row="${options.changedInventoryId}"]`) : null;
+    if (row) {
+      row.scrollIntoView({ block: "nearest" });
+    } else if (options.preserveScrollY !== undefined) {
+      window.scrollTo({ top: options.preserveScrollY, left: 0 });
+    } else if (options.keepInventoryVisible) {
+      document.querySelector(".vault-sheet-inventory")?.scrollIntoView({ block: "nearest" });
+    }
+  });
 }
 
 function inventoryActionMessage(status) {
@@ -1760,9 +1879,7 @@ function openQuickEditModal(c) {
       method: "PUT",
       body: JSON.stringify(patchPayload),
     });
-    state.character = isPlayerCharacterMode()
-      ? await rootApi(`/player/characters/${state.character.id}`, { headers: playerAuthHeaders() })
-      : await api(`/characters/${state.character.id}`);
+    invalidateCharacterCache(state.character.id);
     toast("Saved.");
     modal.remove();
     renderSheet();
@@ -1775,9 +1892,9 @@ function sheetHtml(c) {
   <section class="vault-sheet-card vault-sheet-abilities">${sheetSectionHeading("Ability Scores")}${abilityStripHtml(c)}</section>
   <div class="vault-sheet-layout">
     <section class="vault-sheet-card vault-sheet-combat">${sheetSectionHeading("Combat")}${combatSummaryHtml(c)}</section>
-    <section class="vault-sheet-card vault-sheet-inventory"><details><summary>${sheetSectionHeading("Inventory")}</summary>${inventoryHtml(c)}</details></section>
+    <section class="vault-sheet-card vault-sheet-inventory"><details data-sheet-disclosure="inventoryOpen" ${state.sheetDisclosure.inventoryOpen ? "open" : ""}><summary>${sheetSectionHeading("Inventory")}</summary>${inventoryHtml(c)}</details></section>
     <section class="vault-sheet-card vault-sheet-spells">${sheetSectionHeading("Spells")}${spellsHtml(c)}</section>
-    <section class="vault-sheet-card vault-sheet-notes"><details><summary>${sheetSectionHeading("Campaign")}</summary><p>Day ${h(c.campaign_day)} at ${h(c.current_location)}.</p><p>Storage: ${h(c.safe_storage_location || "No storage location set")}.</p><p>${h(c.notes || "No notes.")}</p></details></section>
+    <section class="vault-sheet-card vault-sheet-notes"><details data-sheet-disclosure="campaignOpen" ${state.sheetDisclosure.campaignOpen ? "open" : ""}><summary>${sheetSectionHeading("Campaign")}</summary><p>Day ${h(c.campaign_day)} at ${h(c.current_location)}.</p><p>Storage: ${h(c.safe_storage_location || "No storage location set")}.</p><p>${h(c.notes || "No notes.")}</p></details></section>
   </div>`;
 }
 
@@ -1951,7 +2068,7 @@ function inventoryRow(item, proficiencies = []) {
   const proficiencyClass = proficiency === "Proficient" ? "vault-status-good" : "vault-muted";
   const weight = formatWeight(item.total_weight ?? ((equipment.weight || 0) * item.quantity));
   const quantityActions = ammo ? `<span class="vault-ammo-quantity"><button type="button" class="vault-button secondary" data-inventory-action="${item.id}:quantity:${Math.max(0, Number(item.quantity || 0) - 1)}">-</button><strong>${h(item.quantity || 0)}</strong><button type="button" class="vault-button secondary" data-inventory-action="${item.id}:quantity:${Number(item.quantity || 0) + 1}">+</button></span>` : "";
-  return `<tr class="${isEquipped ? "vault-equipped-row" : ""}"><td>${ammo ? `<strong>${h(itemName)}</strong> ×${h(item.quantity || 0)}` : `${h(item.quantity)} x <strong>${h(itemName)}</strong>`}<br><span class="vault-mini">${damage ? `Damage ${h(damage)}` : ""}${damage && proficiency ? " / " : ""}${proficiency ? `<span class="${proficiencyClass}">${h(proficiency)}</span>` : ""}</span></td><td>${h(equipmentDisplayType(equipment))}</td><td>${h(weight)}</td><td>${h(cost)}</td><td>${h(status)}</td><td>${quantityActions}${isEquipped ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Unequip</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:equipped">Equip</button>`} ${isStored ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Carry</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:stored">Store</button>`} <button type="button" class="vault-button secondary" data-inventory-action="${item.id}:delete">Drop</button></td></tr>`;
+  return `<tr class="${isEquipped ? "vault-equipped-row" : ""}" data-inventory-row="${h(item.id)}"><td>${ammo ? `<strong>${h(itemName)}</strong> ×${h(item.quantity || 0)}` : `${h(item.quantity)} x <strong>${h(itemName)}</strong>`}<br><span class="vault-mini">${damage ? `Damage ${h(damage)}` : ""}${damage && proficiency ? " / " : ""}${proficiency ? `<span class="${proficiencyClass}">${h(proficiency)}</span>` : ""}</span></td><td>${h(equipmentDisplayType(equipment))}</td><td>${h(weight)}</td><td>${h(cost)}</td><td>${h(status)}</td><td>${quantityActions}${isEquipped ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Unequip</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:equipped">Equip</button>`} ${isStored ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Carry</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:stored">Store</button>`} <button type="button" class="vault-button secondary" data-inventory-action="${item.id}:delete">Drop</button></td></tr>`;
 }
 
 function savingThrowsHtml(c) {
@@ -2346,12 +2463,14 @@ function renderCampaigns() {
       data.campaign_id = c.id;
       data.is_dm_created = true;
       await api("/equipment", { method: "POST", body: JSON.stringify(data) });
-      state.equipment = await api("/equipment");
+      invalidateEquipmentCache();
+      state.equipment = await loadEquipmentCatalog();
       renderCampaigns();
     });
     document.querySelectorAll("[data-archive-item]").forEach((button) => button.addEventListener("click", async () => {
       await api(`/equipment/${button.dataset.archiveItem}`, { method: "DELETE" });
-      state.equipment = await api("/equipment");
+      invalidateEquipmentCache();
+      state.equipment = await loadEquipmentCatalog();
       renderCampaigns();
     }));
     return;
@@ -2502,7 +2621,8 @@ function renderDmEquipment() {
   }));
   document.querySelectorAll("[data-archive-equipment]").forEach((button) => button.addEventListener("click", async () => {
     await api(`/equipment/${button.dataset.archiveEquipment}`, { method: "DELETE" });
-    state.equipment = await api("/equipment");
+    invalidateEquipmentCache();
+    state.equipment = await loadEquipmentCatalog();
     toast("Saved.");
     renderDmEquipment();
   }));
@@ -2512,7 +2632,8 @@ function renderDmEquipment() {
     const path = editItem ? `/equipment/${editItem.id}` : "/equipment";
     const method = editItem ? "PUT" : "POST";
     await api(path, { method, body: JSON.stringify(data) });
-    state.equipment = await api("/equipment");
+    invalidateEquipmentCache();
+    state.equipment = await loadEquipmentCatalog();
     state.editEquipmentId = null;
     toast("Saved.");
     renderDmEquipment();
