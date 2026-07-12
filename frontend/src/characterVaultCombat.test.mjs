@@ -10,7 +10,12 @@ const vaultCss = readFileSync(resolve(repoRoot, "styles", "character-vault.css")
 test("character sheet renders combat summary from runtime payload", () => {
   assert.match(vaultSource, /function combatSummaryHtml/);
   assert.match(vaultSource, /c\.combat\?\.runtime/);
-  assert.match(vaultSource, /Attacks\/Round/);
+  assert.match(vaultSource, /combatStat\("THAC0"/);
+  assert.match(vaultSource, /combatStat\("TO HIT"/);
+  assert.match(vaultSource, /combatStat\("DAMAGE"/);
+  assert.match(vaultSource, /combatStatDetails\("Armor Class"/);
+  assert.match(vaultSource, /combatStat\("ATTACKS"/);
+  assert.match(vaultSource, /combatStatDetails\("Move"/);
   assert.match(vaultSource, /function combatStat/);
   assert.doesNotMatch(vaultSource, /thac0_source/);
   assert.doesNotMatch(vaultSource, /attack_progression_ref/);
@@ -32,7 +37,7 @@ test("weapon cards expose runtime breakdown and illegal equipment state", () => 
   assert.match(vaultSource, /Illegal Equipment/);
   assert.match(vaultSource, /function modifierBreakdownHtml/);
   assert.match(vaultSource, /function damageBreakdownHtml/);
-  assert.match(vaultSource, /vault-weapon-stat-grid/);
+  assert.match(vaultSource, /vault-weapon-stat-block/);
   assert.doesNotMatch(vaultSource, /Runtime derived/);
 });
 
@@ -50,12 +55,77 @@ test("spell slot table renders backend remaining values without fallback arithme
 test("combat presentation has responsive readable styles", () => {
   assert.match(vaultSource, /vault-sheet-layout/);
   assert.match(vaultSource, /vault-sheet-card/);
+  assert.match(vaultSource, /vault-sheet-header-grid/);
+  assert.match(vaultSource, /raceClassSummaryHtml/);
   assert.match(vaultCss, /\.vault-combat-summary/);
-  assert.match(vaultCss, /\.vault-combat-panels/);
+  assert.match(vaultCss, /\.vault-combat-body/);
   assert.match(vaultCss, /\.vault-weapon-card/);
-  assert.match(vaultCss, /\.vault-weapon-stat-grid/);
+  assert.match(vaultCss, /\.vault-weapon-stat-block/);
   assert.match(vaultCss, /\.vault-breakdown-list/);
   assert.match(vaultCss, /\.vault-ability-mods/);
   assert.match(vaultCss, /\.vault-saving-row summary/);
   assert.match(vaultCss, /@media \(max-width: 820px\)/);
+});
+
+test("top summary uses separate identity pills and concise ability labels", () => {
+  assert.match(vaultSource, /vault-identity-pills/);
+  assert.match(vaultSource, /\["Hit", runtime\.melee_to_hit/);
+  assert.match(vaultSource, /\["Dmg", runtime\.melee_damage/);
+  assert.doesNotMatch(vaultSource, /\["Carry", runtime\.carry_adjustment/);
+  assert.match(vaultCss, /\.vault-identity-pills span/);
+});
+
+test("character sheet hierarchy is full-width and combat-centered", () => {
+  const sheetMatch = vaultSource.match(/function sheetHtml\(c\) \{([\s\S]*?)function sheetSectionHeading/);
+  assert.ok(sheetMatch);
+  const sheet = sheetMatch[1];
+  assert.match(sheet, /vault-sheet-abilities/);
+  assert.match(sheet, /vault-sheet-combat/);
+  assert.match(sheet, /vault-sheet-inventory/);
+  assert.match(sheet, /vault-sheet-spells/);
+  assert.match(sheet, /vault-sheet-notes/);
+  assert.ok(sheet.indexOf("vault-sheet-combat") < sheet.indexOf("vault-sheet-inventory"));
+  assert.ok(sheet.indexOf("vault-sheet-inventory") < sheet.indexOf("vault-sheet-spells"));
+  assert.ok(sheet.indexOf("vault-sheet-spells") < sheet.indexOf("vault-sheet-notes"));
+  assert.doesNotMatch(sheet, /vault-sheet-weapons/);
+  assert.doesNotMatch(sheet, /vault-sheet-details/);
+});
+
+test("equipped weapons and saves live inside combat", () => {
+  const combatMatch = vaultSource.match(/function combatSummaryHtml\(c\) \{([\s\S]*?)function combatStat/);
+  assert.ok(combatMatch);
+  const combat = combatMatch[1];
+  assert.match(combat, /vault-combat-body/);
+  assert.match(combat, /vault-equipped-weapons/);
+  assert.match(combat, /equippedWeaponsHtml\(c\)/);
+  assert.match(combat, /vault-combat-saves/);
+  assert.match(combat, /savingThrowsHtml\(c\)/);
+  assert.match(combat, /combatStatDetails\("Armor Class"/);
+  assert.match(combat, /combatStatDetails\("Move"/);
+  assert.doesNotMatch(combat, /Armor Class"\)\}\$\{armorClassBreakdownHtml/);
+  assert.doesNotMatch(combat, /Movement"\)\}\$\{movementEncumbranceHtml/);
+});
+
+test("weapon stat blocks place To Hit before Damage and omit zero detail rows", () => {
+  const weaponMatch = vaultSource.match(/function weaponCardHtml\(runtime[\s\S]*?function statRow/);
+  assert.ok(weaponMatch);
+  const weapon = weaponMatch[0];
+  assert.ok(weapon.indexOf('statRow("TO HIT"') < weapon.indexOf('statRow("DAMAGE"'));
+  assert.match(vaultSource, /Number\(value \|\| 0\) !== 0/);
+  assert.match(vaultSource, /\["Weapon", damage\.base_small_medium/);
+  assert.match(vaultSource, /\["Final Damage", damage\.final_small_medium/);
+});
+
+test("saving throws use compact classic rows without source text", () => {
+  assert.match(vaultCss, /\.vault-saving-row summary::after/);
+  assert.match(vaultCss, /border-bottom:1px dotted/);
+  assert.doesNotMatch(vaultSource, /saves\.source/);
+});
+
+test("compact non-spellcaster empty state and mobile stacking are present", () => {
+  assert.match(vaultSource, /No spellcasting ability at this class and level/);
+  assert.match(vaultSource, /function hasSpellSlots/);
+  assert.match(vaultCss, /\.vault-compact-empty/);
+  assert.match(vaultCss, /\.vault-sheet-header-grid/);
+  assert.match(vaultCss, /\.vault-combat-body/);
 });

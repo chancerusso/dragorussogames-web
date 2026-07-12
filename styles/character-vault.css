@@ -662,6 +662,47 @@
   justify-content:space-between;
 }
 
+.vault-sheet-header-grid{
+  display:grid;
+  gap:14px;
+  grid-template-columns:minmax(0,1.4fr) minmax(320px,.8fr);
+  align-items:start;
+}
+
+.vault-sheet-race-class{
+  border:1px solid rgba(75,47,31,.18);
+  border-radius:8px;
+  background:rgba(255,250,240,.72);
+  padding:10px;
+}
+
+.vault-summary-list{
+  display:grid;
+  gap:6px;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  margin:8px 0 0;
+}
+
+.vault-summary-list div{
+  min-width:0;
+}
+
+.vault-summary-list dt{
+  color:#7a211b;
+  font-family:'Cinzel',serif;
+  font-size:.62rem;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.vault-summary-list dd{
+  color:#2e1d12;
+  font-size:.78rem;
+  margin:2px 0 0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
 .vault-sheet-title h2{
   font-family:'Cinzel',serif;
   font-size:clamp(1.8rem,3vw,2.7rem);
@@ -669,8 +710,22 @@
   margin:0;
 }
 
-.vault-sheet-title p{
-  margin:0;
+.vault-identity-pills{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  margin-top:6px;
+}
+
+.vault-identity-pills span{
+  border:1px solid rgba(75,47,31,.18);
+  border-radius:999px;
+  background:rgba(255,250,240,.72);
+  color:#3a2415;
+  font-size:.72rem;
+  font-weight:800;
+  line-height:1;
+  padding:5px 8px;
 }
 
 .vault-topline,
@@ -686,7 +741,7 @@
 }
 
 .vault-abilities{
-  grid-template-columns:repeat(auto-fit,minmax(128px,1fr));
+  grid-template-columns:repeat(6,minmax(82px,1fr));
 }
 
 .vault-compact-list{
@@ -705,6 +760,11 @@
   padding:7px 9px;
 }
 
+.vault-abilities span{
+  min-height:64px;
+  padding:5px 7px;
+}
+
 .vault-topline strong,
 .vault-abilities strong,
 .vault-compact-list strong{
@@ -713,6 +773,11 @@
   font-family:'Cinzel',serif;
   font-size:.68rem;
   text-transform:uppercase;
+}
+
+.vault-abilities > span{
+  font-size:1rem;
+  font-weight:900;
 }
 
 .vault-choice-summary .vault-compact-list span{
@@ -736,9 +801,8 @@
 
 .vault-sheet-layout{
   display:grid;
-  grid-template-columns:repeat(12,minmax(0,1fr));
   gap:12px;
-  align-items:start;
+  grid-template-columns:1fr;
 }
 
 .vault-sheet-card{
@@ -751,16 +815,12 @@
   padding:12px;
 }
 
+.vault-sheet-abilities,
 .vault-sheet-combat,
-.vault-sheet-weapons{
-  grid-column:span 8;
-}
-
 .vault-sheet-spells,
 .vault-sheet-inventory,
-.vault-sheet-details,
 .vault-sheet-notes{
-  grid-column:span 4;
+  width:100%;
 }
 
 .vault-sheet-section-title{
@@ -815,7 +875,7 @@
 .vault-ability-mods small{
   color:#4b392f;
   display:block;
-  font-size:.66rem;
+  font-size:.62rem;
   line-height:1.25;
   white-space:nowrap;
 }
@@ -1017,21 +1077,33 @@
 }
 
 .vault-saving-row{
-  border:1px solid rgba(75,47,31,.22);
-  border-radius:6px;
-  background:linear-gradient(180deg,#fff7e8,#ead8b8);
+  border:0;
+  border-bottom:1px solid rgba(75,47,31,.15);
+  border-radius:0;
+  background:transparent;
   color:#3a2415;
-  min-height:34px;
-  padding:6px 8px;
+  min-height:28px;
+  padding:4px 0;
 }
 
 .vault-saving-row summary{
   align-items:center;
   cursor:pointer;
   display:flex;
-  gap:14px;
+  gap:8px;
   justify-content:space-between;
-  list-style:revert;
+  list-style:none;
+}
+
+.vault-saving-row summary::-webkit-details-marker{
+  display:none;
+}
+
+.vault-saving-row summary::after{
+  border-bottom:1px dotted rgba(75,47,31,.35);
+  content:"";
+  flex:1 1 auto;
+  order:1;
 }
 
 .vault-saving-row span{
@@ -1041,6 +1113,7 @@
   font-weight:800;
   letter-spacing:0;
   text-transform:uppercase;
+  order:0;
 }
 
 .vault-saving-row strong{
@@ -1049,11 +1122,12 @@
   font-size:.95rem;
   font-weight:900;
   min-width:3ch;
+  order:2;
   text-align:right;
 }
 
 .vault-combat-summary,
-.vault-weapon-stat-grid,
+.vault-combat-tile,
 .vault-mini-stat-grid{
   display:grid;
   gap:8px;
@@ -1062,7 +1136,7 @@
 }
 
 .vault-combat-summary span,
-.vault-weapon-stat-grid span,
+.vault-combat-tile,
 .vault-mini-stat-grid span{
   border:1px solid rgba(75,47,31,.22);
   border-radius:6px;
@@ -1073,7 +1147,7 @@
 }
 
 .vault-combat-summary strong,
-.vault-weapon-stat-grid strong,
+.vault-combat-tile strong,
 .vault-mini-stat-grid strong{
   color:#7c211a;
   display:block;
@@ -1088,13 +1162,56 @@
   font-weight:900;
 }
 
-.vault-combat-panels{
-  display:grid;
-  gap:10px;
-  grid-template-columns:repeat(3,minmax(0,1fr));
+.vault-combat-tile{
+  font-size:1.25rem;
+  font-weight:900;
 }
 
-.vault-combat-panels > section{
+.vault-combat-tile summary{
+  cursor:pointer;
+  display:block;
+  list-style:none;
+}
+
+.vault-combat-tile summary::-webkit-details-marker{
+  display:none;
+}
+
+.vault-tile-details{
+  border-top:1px solid rgba(75,47,31,.14);
+  display:grid;
+  gap:5px;
+  font-size:.82rem;
+  font-weight:400;
+  margin-top:8px;
+  padding-top:7px;
+}
+
+.vault-tile-details div{
+  display:flex;
+  gap:8px;
+  justify-content:space-between;
+}
+
+.vault-tile-details span{
+  color:#5d4b3e;
+}
+
+.vault-tile-details strong{
+  color:#21140f;
+  font-family:'Libre Baskerville',serif;
+  font-size:.78rem;
+  text-transform:none;
+}
+
+.vault-combat-body{
+  display:grid;
+  gap:12px;
+  grid-template-columns:minmax(0,1fr) minmax(220px,300px);
+}
+
+.vault-equipped-weapons,
+.vault-combat-saves{
   border:1px solid rgba(75,47,31,.16);
   border-radius:8px;
   background:rgba(255,250,240,.68);
@@ -1102,7 +1219,8 @@
   padding:10px;
 }
 
-.vault-combat-panels .vault-sheet-section-title{
+.vault-equipped-weapons .vault-sheet-section-title,
+.vault-combat-saves .vault-sheet-section-title{
   font-size:.86rem;
   margin-bottom:8px;
 }
@@ -1113,8 +1231,8 @@
   background:linear-gradient(180deg,#fff8eb,#ead8b8);
   box-shadow:0 10px 24px rgba(39,26,14,.10);
   color:#21140f;
-  margin:10px 0;
-  padding:12px;
+  margin:8px 0;
+  padding:10px 12px;
 }
 
 .vault-weapon-head{
@@ -1125,9 +1243,11 @@
 }
 
 .vault-weapon-head h3{
+  font-family:'Cinzel',serif;
   font-size:1.05rem;
   line-height:1.2;
-  margin:2px 0 4px;
+  margin:0 0 3px;
+  text-transform:uppercase;
 }
 
 .vault-weapon-head p{
@@ -1135,6 +1255,33 @@
   font-size:.82rem;
   font-weight:800;
   margin:0;
+}
+
+.vault-weapon-stat-block{
+  display:grid;
+  gap:4px;
+  margin-top:8px;
+}
+
+.vault-weapon-stat-block div{
+  align-items:baseline;
+  display:grid;
+  gap:12px;
+  grid-template-columns:minmax(72px,.35fr) minmax(0,1fr);
+}
+
+.vault-weapon-stat-block span{
+  color:#7c211a;
+  font-family:'Cinzel',serif;
+  font-size:.68rem;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.vault-weapon-stat-block strong{
+  color:#21140f;
+  font-size:.96rem;
+  font-weight:900;
 }
 
 .vault-weapon-head > strong{
@@ -1328,6 +1475,15 @@
   padding:12px;
 }
 
+.vault-compact-empty{
+  border:1px solid rgba(75,47,31,.16);
+  border-radius:6px;
+  background:rgba(255,250,240,.68);
+  color:#5f4c3c;
+  margin:0;
+  padding:10px 12px;
+}
+
 .vault-quick-popout{
   width:min(760px,100%);
 }
@@ -1381,17 +1537,22 @@
   .vault-sheet .vault-card,
   .vault-sheet-card,
   .vault-sheet-combat,
-  .vault-sheet-weapons,
   .vault-sheet-spells,
   .vault-sheet-inventory,
-  .vault-sheet-details,
   .vault-sheet-notes,
   .vault-field,
   .vault-field.wide{
     grid-column:1/-1;
   }
   .vault-sheet-layout,
-  .vault-combat-panels{
+  .vault-sheet-header-grid,
+  .vault-combat-body{
+    grid-template-columns:1fr;
+  }
+  .vault-abilities{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .vault-summary-list{
     grid-template-columns:1fr;
   }
   .vault-row{
