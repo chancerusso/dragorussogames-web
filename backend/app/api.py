@@ -64,7 +64,10 @@ from app.services.vault_rules import (
     adjusted_abilities,
     character_warnings,
     derived_stats,
+    ammunition_profile,
+    equipment_total_weight,
     is_allowed_equipment,
+    is_ammunition,
     proficiency_count,
     seed_vault_catalogs,
     spell_slot_summary,
@@ -148,7 +151,7 @@ def ensure_vault_seeded(db: Session) -> None:
 
 
 def equipment_payload(item: EquipmentCatalog) -> dict:
-    return {
+    base_payload = {
         "id": item.id,
         "name": item.name,
         "type": item.type,
@@ -170,6 +173,42 @@ def equipment_payload(item: EquipmentCatalog) -> dict:
         "campaign_id": item.campaign_id,
         "notes": item.notes,
         "archived": item.archived,
+    }
+    profile = ammunition_profile(base_payload)
+    if profile:
+        base_payload.update(
+            {
+                "is_ammunition": True,
+                "ammunition_kind": profile["kind"],
+                "ammunition_display_name": profile["display_name"],
+                "compatible_weapon_terms": list(profile["compatible_weapon_terms"]),
+                "bundle_size": profile["bundle_size"],
+            }
+        )
+    else:
+        base_payload["is_ammunition"] = False
+    return base_payload
+
+
+def inventory_payload(item: CharacterInventory) -> dict:
+    equipment = equipment_payload(item.equipment)
+    quantity = max(0, int(item.quantity or 0))
+    profile = ammunition_profile(equipment)
+    return {
+        "id": item.id,
+        "equipment_id": item.equipment_id,
+        "quantity": quantity,
+        "status": item.status,
+        "container_id": item.container_id,
+        "storage_location": item.storage_location,
+        "notes": item.notes,
+        "equipment": equipment,
+        "is_ammunition": is_ammunition(equipment),
+        "ammunition_kind": equipment.get("ammunition_kind"),
+        "ammunition_display_name": equipment.get("ammunition_display_name"),
+        "compatible_weapon_terms": equipment.get("compatible_weapon_terms") or [],
+        "unit_weight": equipment_total_weight(equipment, 1) if profile else float(equipment.get("weight") or 0),
+        "total_weight": round(equipment_total_weight(equipment, quantity), 4),
     }
 
 
@@ -282,16 +321,7 @@ def character_payload(character: VaultCharacter) -> dict:
     coins = character.coins
     combat = character.combat
     inventory = [
-        {
-            "id": item.id,
-            "equipment_id": item.equipment_id,
-            "quantity": item.quantity,
-            "status": item.status,
-            "container_id": item.container_id,
-            "storage_location": item.storage_location,
-            "notes": item.notes,
-            "equipment": equipment_payload(item.equipment),
-        }
+        inventory_payload(item)
         for item in character.inventory
     ]
     spell_entries = [
@@ -1636,7 +1666,8 @@ def add_inventory_record(character: VaultCharacter, data: dict, db: Session) -> 
     status = data.get("status") or "carried"
     if status not in VALID_INVENTORY_STATUSES:
         raise HTTPException(status_code=422, detail="Invalid equipment status.")
-    quantity = int(data.get("quantity") or 1)
+    default_quantity = int((ammunition_profile(equipment_payload(equipment)) or {}).get("bundle_size") or 1)
+    quantity = int(data.get("quantity") or default_quantity)
     if quantity < 1:
         raise HTTPException(status_code=422, detail="Equipment quantity must be at least 1.")
     if status == "stored" and not (data.get("storage_location") or character.safe_storage_location):

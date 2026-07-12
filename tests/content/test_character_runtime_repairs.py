@@ -212,6 +212,44 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertEqual("dropped", dropped["inventory"][0]["status"])
         self.assertEqual(10, dropped["combat"]["armor_class"])
 
+    def test_drop_status_update_keeps_item_and_removes_runtime_effects(self) -> None:
+        hammer = self.equipment("Hammer, war, heavy")
+        payload = add_inventory_record(self.character_model, {"equipment_id": hammer.id, "status": "equipped"}, self.db)
+        row = next(item for item in payload["inventory"] if item["equipment_id"] == hammer.id)
+        self.assertEqual(1, len(payload["combat"]["runtime"]["weapons"]))
+
+        dropped = update_inventory_record(self.character_model, row["id"], {"status": "dropped"}, self.db)
+
+        dropped_row = next(item for item in dropped["inventory"] if item["id"] == row["id"])
+        self.assertEqual("dropped", dropped_row["status"])
+        self.assertEqual([], dropped["combat"]["runtime"]["weapons"])
+
+    def test_ammunition_is_inventory_not_runtime_weapon(self) -> None:
+        crossbow = self.equipment("Crossbow, heavy")
+        bolts = self.equipment("Bolt, heavy crossbow, dozen")
+
+        payload = add_inventory_record(self.character_model, {"equipment_id": crossbow.id, "status": "equipped"}, self.db)
+        payload = add_inventory_record(self.character_model, {"equipment_id": bolts.id, "status": "equipped"}, self.db)
+
+        ammo_row = next(item for item in payload["inventory"] if item["equipment_id"] == bolts.id)
+        self.assertTrue(ammo_row["is_ammunition"])
+        self.assertEqual("heavy_bolt", ammo_row["ammunition_kind"])
+        self.assertEqual(12, ammo_row["quantity"])
+        self.assertEqual(4.0, ammo_row["total_weight"])
+        self.assertEqual(["Crossbow, heavy"], [weapon["weapon"] for weapon in payload["combat"]["runtime"]["weapons"]])
+
+    def test_ammunition_quantity_updates_weight_without_migration(self) -> None:
+        bolts = self.equipment("Bolt, heavy crossbow, dozen")
+        payload = add_inventory_record(self.character_model, {"equipment_id": bolts.id, "status": "carried"}, self.db)
+        ammo_row = next(item for item in payload["inventory"] if item["equipment_id"] == bolts.id)
+
+        updated = update_inventory_record(self.character_model, ammo_row["id"], {"quantity": 6}, self.db)
+
+        updated_row = next(item for item in updated["inventory"] if item["id"] == ammo_row["id"])
+        self.assertEqual(6, updated_row["quantity"])
+        self.assertEqual(2.0, updated_row["total_weight"])
+        self.assertEqual(2.0, updated["combat"]["encumbrance"]["equipment_weight"])
+
     def test_armor_class_breakdown_excludes_unequipped_armor_and_applies_shield(self) -> None:
         payload = add_inventory_record(self.character_model, {"equipment_id": self.equipment("Splint").id, "status": "carried"}, self.db)
         self.assertEqual(10, payload["combat"]["armor_class"])

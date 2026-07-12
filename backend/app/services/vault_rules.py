@@ -25,6 +25,37 @@ SAVE_LABELS = {
     "spells": "Spells",
 }
 
+AMMUNITION_RULES = (
+    {
+        "kind": "arrow",
+        "name_terms": ("arrow", "arrows"),
+        "display_name": "Arrows",
+        "compatible_weapon_terms": ("bow",),
+        "bundle_size": 12,
+    },
+    {
+        "kind": "light_bolt",
+        "name_terms": ("light crossbow bolt", "bolt, light crossbow", "bolts, light crossbow"),
+        "display_name": "Light Bolts",
+        "compatible_weapon_terms": ("crossbow, light", "light crossbow"),
+        "bundle_size": 12,
+    },
+    {
+        "kind": "heavy_bolt",
+        "name_terms": ("heavy crossbow bolt", "bolt, heavy crossbow", "bolts, heavy crossbow"),
+        "display_name": "Heavy Bolts",
+        "compatible_weapon_terms": ("crossbow, heavy", "heavy crossbow"),
+        "bundle_size": 12,
+    },
+    {
+        "kind": "sling_bullet",
+        "name_terms": ("sling bullet", "sling bullets", "sling stone", "sling stones", "bullet, dozen", "stone, dozen"),
+        "display_name": "Sling Bullets",
+        "compatible_weapon_terms": ("sling",),
+        "bundle_size": 12,
+    },
+)
+
 RACES = {
     "Human": {
         "adjustments": {},
@@ -585,6 +616,40 @@ def race_allows_class(race: str, class_name: str) -> bool:
     return class_name in (RACES.get(race, {}).get("classes") or [])
 
 
+def ammunition_profile(equipment: dict) -> dict | None:
+    name = (equipment.get("name") or "").lower()
+    subtype = (equipment.get("subtype") or "").lower()
+    if "ammunition" in subtype:
+        for profile in AMMUNITION_RULES:
+            if any(term in name for term in profile["name_terms"]):
+                return profile
+        return {
+            "kind": "ammunition",
+            "name_terms": (),
+            "display_name": equipment.get("name") or "Ammunition",
+            "compatible_weapon_terms": (),
+            "bundle_size": 1,
+        }
+    return next((profile for profile in AMMUNITION_RULES if any(term in name for term in profile["name_terms"])), None)
+
+
+def is_ammunition(equipment: dict) -> bool:
+    return ammunition_profile(equipment) is not None
+
+
+def ammunition_unit_weight(equipment: dict) -> float:
+    weight = float(equipment.get("weight") or 0)
+    profile = ammunition_profile(equipment)
+    if not profile:
+        return weight
+    bundle_size = int(profile.get("bundle_size") or 1)
+    return weight / max(1, bundle_size) if "dozen" in (equipment.get("name") or "").lower() else weight
+
+
+def equipment_total_weight(equipment: dict, quantity: int) -> float:
+    return ammunition_unit_weight(equipment) * max(0, int(quantity or 0))
+
+
 def is_allowed_equipment(class_name: str, equipment: dict) -> tuple[bool, str]:
     info = CLASSES.get(class_name, {})
     item_type = equipment.get("type")
@@ -597,6 +662,8 @@ def is_allowed_equipment(class_name: str, equipment: dict) -> tuple[bool, str]:
     if item_type == "shield":
         return bool(info.get("shields")), info.get("shield_note") or ("Allowed shield" if info.get("shields") else "Class does not allow shields")
     if item_type == "weapon":
+        if is_ammunition(equipment):
+            return True, "Ammunition"
         policy = info.get("weapon_policy")
         if policy == "any":
             return True, "Allowed weapon"
@@ -644,7 +711,7 @@ def derived_stats(
         equipment = item.get("equipment") or {}
         quantity = max(1, int(item.get("quantity", 1) or 1))
         if status in {"carried", "equipped"}:
-            item_weight = float(equipment.get("weight") or 0) * quantity
+            item_weight = equipment_total_weight(equipment, quantity)
             equipment_weight += item_weight
             carried_weight += item_weight
         if status == "equipped":

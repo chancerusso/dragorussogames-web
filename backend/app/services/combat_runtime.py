@@ -5,7 +5,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from app.services.vault_rules import CLASSES, ability_modifiers, is_allowed_equipment, strength_attack_damage
+from app.services.vault_rules import CLASSES, ability_modifiers, is_allowed_equipment, is_ammunition, strength_attack_damage
 
 
 THROWN_WEAPON_NAMES = {
@@ -336,7 +336,11 @@ def combat_payload(
     weapons = [
         weapon_combat(item.get("equipment") or {}, abilities, class_name, race, level, proficiencies, exceptional_strength)
         for item in inventory
-        if (item.get("equipment") or {}).get("type") == "weapon" and item.get("status") != "dropped"
+        if (
+            (item.get("equipment") or {}).get("type") == "weapon"
+            and not is_ammunition(item.get("equipment") or {})
+            and item.get("status") not in {"dropped", "lost", "destroyed", "stored"}
+        )
     ]
     return {
         "thac0": thac0(class_name, level),

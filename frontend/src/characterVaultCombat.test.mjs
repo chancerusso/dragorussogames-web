@@ -129,3 +129,39 @@ test("compact non-spellcaster empty state and mobile stacking are present", () =
   assert.match(vaultCss, /\.vault-sheet-header-grid/);
   assert.match(vaultCss, /\.vault-combat-body/);
 });
+
+test("combat tiles use equal grid sizing and handle long load labels", () => {
+  assert.match(vaultCss, /\.vault-combat-summary\{\s*align-items:stretch;/);
+  assert.match(vaultCss, /grid-template-columns:repeat\(7,minmax\(0,1fr\)\)/);
+  assert.match(vaultCss, /\.vault-combat-summary \.vault-long-value/);
+  assert.match(vaultSource, /String\(value \?\? ""\)\.length > 10/);
+});
+
+test("equipment preview toggles without resetting catalog filters", () => {
+  assert.match(vaultSource, /equipmentFilters: \{ q: "", type: "", allowedOnly: false \}/);
+  assert.match(vaultSource, /delete state\.equipmentPreviews\[equipmentId\]/);
+  assert.match(vaultSource, /filterEquipment\(\);/);
+  assert.doesNotMatch(vaultSource, /state\.equipmentPreviews\[equipmentId\] = await combatPreviewApi\(equipmentId\);\s*renderBuilder\(\);/);
+});
+
+test("equipment catalog is scrollable and no longer hard-caps first rows", () => {
+  assert.match(vaultSource, /vault-equipment-catalog-scroll/);
+  assert.match(vaultCss, /\.vault-equipment-catalog-scroll/);
+  assert.match(vaultCss, /max-height:46vh/);
+  assert.doesNotMatch(vaultSource, /classAwareEquipment\(\)\.slice\(0, 40\)/);
+});
+
+test("inventory drop uses dropped status and ammo gets quantity controls", () => {
+  assert.match(vaultSource, /data-inventory-action="\$\{item\.id\}:dropped"/);
+  assert.match(vaultSource, /status === "quantity"/);
+  assert.match(vaultSource, /vault-ammo-quantity/);
+  assert.match(vaultSource, /inventoryActionMessage\(status\)/);
+});
+
+test("ammunition is separated from weapons and shown on compatible missile cards", () => {
+  assert.match(vaultSource, /const AMMUNITION_COMPATIBILITY/);
+  assert.match(vaultSource, /function compatibleAmmunitionForWeapon/);
+  assert.match(vaultSource, /item\.equipment\.type === "weapon" && !isAmmunition\(item\.equipment\)/);
+  assert.match(vaultSource, /runtime\.mode === "missile" \? compatibleAmmunitionForWeapon/);
+  assert.match(vaultSource, /statRow\("AMMO"/);
+});
