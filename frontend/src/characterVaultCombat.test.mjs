@@ -10,16 +10,20 @@ const vaultCss = readFileSync(resolve(repoRoot, "styles", "character-vault.css")
 test("character sheet renders combat summary from runtime payload", () => {
   assert.match(vaultSource, /function combatSummaryHtml/);
   assert.match(vaultSource, /c\.combat\?\.runtime/);
-  assert.match(vaultSource, /combatStat\("THAC0"/);
-  assert.match(vaultSource, /combatStat\("TO HIT"/);
-  assert.match(vaultSource, /combatStat\("DAMAGE"/);
+  assert.match(vaultSource, /combatStatDetails\("THAC0"/);
+  assert.match(vaultSource, /combatStatDetails\("TO HIT"/);
+  assert.match(vaultSource, /combatStatDetails\("DAMAGE"/);
   assert.match(vaultSource, /combatStatDetails\("Armor Class"/);
   assert.match(vaultSource, /function armorClassFacingSummary/);
   assert.match(vaultSource, /flank_armor_class/);
   assert.match(vaultSource, /rear_armor_class/);
-  assert.match(vaultSource, /combatStat\("ATTACKS"/);
+  assert.match(vaultSource, /combatStatDetails\("ATTACKS"/);
   assert.match(vaultSource, /combatStatDetails\("Move"/);
-  assert.match(vaultSource, /function combatStat/);
+  assert.match(vaultSource, /combatStatDetails\("Enc"/);
+  assert.match(vaultSource, /function thac0DetailsHtml/);
+  assert.match(vaultSource, /function toHitDetailsHtml/);
+  assert.match(vaultSource, /function damageDetailsHtml/);
+  assert.match(vaultSource, /function attackRateDetailsHtml/);
   assert.doesNotMatch(vaultSource, /thac0_source/);
   assert.doesNotMatch(vaultSource, /attack_progression_ref/);
 });
@@ -83,9 +87,11 @@ test("sheet top line shows constant combat stats and HP", () => {
   assert.ok(headerMatch);
   const header = headerMatch[1];
   assert.match(header, /function hpSummary/);
-  for (const label of ["XP", "HP", "AC", "THAC0", "Move", "Load"]) {
+  for (const label of ["XP", "HP", "AC", "THAC0", "Move", "Enc"]) {
     assert.match(header, new RegExp(`<strong>${label}<\\/strong>`));
   }
+  assert.match(header, /encumbranceSummary\(c\)/);
+  assert.doesNotMatch(header, /<strong>Load<\/strong>/);
   assert.doesNotMatch(header, /<strong>Day<\/strong>/);
   assert.doesNotMatch(header, /<strong>Status<\/strong>/);
   assert.match(vaultSource, /temporary_hp/);
@@ -118,9 +124,22 @@ test("equipped weapons and saves live inside combat", () => {
   assert.match(combat, /vault-combat-saves/);
   assert.match(combat, /savingThrowsHtml\(c\)/);
   assert.match(combat, /combatStatDetails\("Armor Class", armorClassFacingSummary\(c\)/);
+  assert.match(combat, /combatStatDetails\("THAC0"/);
+  assert.match(combat, /combatStatDetails\("TO HIT"/);
+  assert.match(combat, /combatStatDetails\("DAMAGE"/);
+  assert.match(combat, /combatStatDetails\("ATTACKS"/);
   assert.match(combat, /combatStatDetails\("Move"/);
+  assert.match(combat, /combatStatDetails\("Enc"/);
+  assert.doesNotMatch(combat, /combatStatDetails\("Load"/);
   assert.doesNotMatch(combat, /Armor Class"\)\}\$\{armorClassBreakdownHtml/);
   assert.doesNotMatch(combat, /Movement"\)\}\$\{movementEncumbranceHtml/);
+});
+
+test("combat breakdown panels open as compact popovers", () => {
+  assert.match(vaultCss, /\.vault-combat-tile\[open\]/);
+  assert.match(vaultCss, /\.vault-tile-details\{[\s\S]*?position:absolute/);
+  assert.match(vaultCss, /\.vault-tile-details\{[\s\S]*?font-size:\.72rem/);
+  assert.match(vaultCss, /\.vault-combat-tile:nth-last-child\(-n\+2\) \.vault-tile-details/);
 });
 
 test("armor class tile exposes standard flank and rear values", () => {
@@ -198,11 +217,13 @@ test("compact non-spellcaster empty state and mobile stacking are present", () =
   assert.match(vaultCss, /\.vault-combat-body/);
 });
 
-test("combat tiles use equal grid sizing and handle long load labels", () => {
+test("combat tiles use equal grid sizing and compact popover-safe values", () => {
   assert.match(vaultCss, /\.vault-combat-summary\{\s*align-items:stretch;/);
   assert.match(vaultCss, /grid-template-columns:repeat\(7,minmax\(0,1fr\)\)/);
   assert.match(vaultCss, /\.vault-combat-summary \.vault-long-value/);
   assert.match(vaultSource, /String\(value \?\? ""\)\.length > 10/);
+  assert.match(vaultSource, /function encumbranceSummary/);
+  assert.match(vaultSource, /return "None"/);
 });
 
 test("equipment preview toggles without resetting catalog filters", () => {

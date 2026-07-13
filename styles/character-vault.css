@@ -1225,9 +1225,10 @@
 .vault-combat-summary{
   align-items:stretch;
   grid-template-columns:repeat(7,minmax(0,1fr));
+  position:relative;
 }
 
-.vault-combat-summary span,
+.vault-combat-summary > span,
 .vault-combat-tile,
 .vault-mini-stat-grid span{
   border:1px solid rgba(75,47,31,.22);
@@ -1250,7 +1251,7 @@
   text-transform:uppercase;
 }
 
-.vault-combat-summary span{
+.vault-combat-summary > span{
   font-size:1.25rem;
   font-weight:900;
 }
@@ -1259,6 +1260,8 @@
   font-size:1.25rem;
   font-weight:900;
   margin:0;
+  overflow:visible;
+  position:relative;
 }
 
 .vault-combat-tile summary{
@@ -1276,6 +1279,16 @@
   font-size:clamp(.92rem,1.2vw,1.1rem);
   line-height:1.15;
   overflow-wrap:anywhere;
+}
+
+.vault-combat-tile[open]{
+  z-index:30;
+}
+
+.vault-combat-tile[open] summary{
+  border-bottom:1px solid rgba(75,47,31,.14);
+  margin-bottom:6px;
+  padding-bottom:5px;
 }
 
 .vault-equipment-catalog-scroll{
@@ -1302,30 +1315,58 @@
 }
 
 .vault-tile-details{
-  border-top:1px solid rgba(75,47,31,.14);
+  background:#fffaf0;
+  border:1px solid rgba(75,47,31,.24);
+  border-radius:6px;
+  box-shadow:0 14px 28px rgba(33,20,15,.18);
   display:grid;
-  gap:5px;
-  font-size:.82rem;
+  gap:3px;
+  font-size:.72rem;
   font-weight:400;
-  margin-top:8px;
-  padding-top:7px;
+  left:0;
+  line-height:1.25;
+  margin-top:0;
+  max-height:310px;
+  min-width:min(250px,90vw);
+  overflow:auto;
+  padding:8px;
+  position:absolute;
+  top:calc(100% + 6px);
+  width:max-content;
+  z-index:40;
 }
 
 .vault-tile-details div{
-  display:flex;
+  align-items:start;
+  border-bottom:1px solid rgba(75,47,31,.09);
+  display:grid;
   gap:8px;
-  justify-content:space-between;
+  grid-template-columns:minmax(76px,max-content) minmax(0,1fr);
+  justify-content:start;
+  padding:2px 0;
+}
+
+.vault-tile-details div:last-child{
+  border-bottom:0;
 }
 
 .vault-tile-details span{
   color:#5d4b3e;
+  overflow-wrap:anywhere;
 }
 
 .vault-tile-details strong{
   color:#21140f;
   font-family:'Libre Baskerville',serif;
-  font-size:.78rem;
+  font-size:.72rem;
+  line-height:1.25;
+  overflow-wrap:anywhere;
   text-transform:none;
+}
+
+.vault-combat-tile:nth-last-child(-n+2) .vault-tile-details{
+  left:auto;
+  right:0;
 }
 
 .vault-combat-body{

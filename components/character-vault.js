@@ -2023,7 +2023,7 @@ function sheetHeaderHtml(c) {
           <span><strong>AC</strong>${h(armorClassFacingSummary(c))}</span>
           <span><strong>THAC0</strong>${h(thac0)}</span>
           <span><strong>Move</strong>${h(c.combat?.movement_rate ?? 120)}'</span>
-          <span><strong>Load</strong>${h(c.combat?.encumbrance_band ?? "Unencumbered")}</span>
+          <span><strong>Enc</strong>${h(encumbranceSummary(c))}</span>
         </div>
       </div>
       <aside class="vault-sheet-race-class">
@@ -2042,6 +2042,17 @@ function hpSummary(c) {
   const max = c.combat?.max_hp ?? 1;
   const temporary = Number(c.combat?.temporary_hp || 0);
   return temporary > 0 ? `${current}/${max} +${temporary}` : `${current}/${max}`;
+}
+
+function encumbranceSummary(c) {
+  const band = String(c.combat?.encumbrance_band || "Unencumbered").toLowerCase();
+  if (band.includes("unencumbered")) return "None";
+  if (band.includes("normal")) return "Normal";
+  if (band.includes("light")) return "Light";
+  if (band.includes("medium")) return "Medium";
+  if (band.includes("heavy")) return "Heavy";
+  if (band.includes("severe")) return "Severe";
+  return title(c.combat?.encumbrance_band || "None").replace(/\s+Encumbered$/i, "");
 }
 
 function raceClassSummaryHtml(c) {
@@ -2090,7 +2101,7 @@ function movementEncumbranceHtml(c) {
   const enc = c.combat?.encumbrance || {};
   return `<div class="vault-mini-stat-grid">
     ${miniStat("Move", `${c.combat?.movement_rate ?? 120}'`)}
-    ${miniStat("Load", c.combat?.encumbrance_band ?? "Unencumbered")}
+    ${miniStat("Enc", encumbranceSummary(c))}
     ${miniStat("Carry", `${c.combat?.carried_weight ?? 0} / ${enc.max_carried ?? ""} lb`)}
     ${miniStat("Next", enc.next_encumbrance ? `${enc.next_encumbrance} lb` : "None")}
   </div><details class="vault-breakdown"><summary>Details</summary>
@@ -2266,6 +2277,78 @@ function armorClassDetailsHtml(c) {
   return `<div class="vault-tile-details">${rows.map(([label, value, signed]) => `<div><span>${h(label)}</span><strong>${h(signed ? formatSigned(value) : value)}</strong></div>`).join("")}</div>`;
 }
 
+function thac0DetailsHtml(runtime = {}) {
+  const thac0 = runtime.thac0 || {};
+  const rows = [
+    ["Class", thac0.class_source],
+    ["Level", thac0.level_source],
+    ["Base THAC0", thac0.base_thac0],
+    ["Final THAC0", thac0.final_thac0],
+    ["Status", combatStatusLabel(thac0.automation_status)],
+  ];
+  return tileDetailsHtml(rows);
+}
+
+function toHitDetailsHtml(runtime, strength = {}) {
+  const modifiers = runtime?.attack_modifiers || {};
+  const rows = runtime ? [
+    ["Weapon", runtime.weapon],
+    ["Strength", modifiers.strength, true],
+    ["Dexterity", modifiers.dexterity_missile, true],
+    ["Race", modifiers.racial, true],
+    ["Magic", modifiers.magical, true],
+    ["Proficiency", modifiers.proficiency, true],
+    ["Misc", modifiers.miscellaneous, true],
+    ["Total To Hit", runtime.total_attack_bonus, true, true],
+    ["Attack Value", runtime.final_attack_value],
+  ] : [
+    ["Strength", strength.melee_to_hit, true, true],
+    ["Total To Hit", strength.melee_to_hit, true, true],
+  ];
+  return tileDetailsHtml(rows);
+}
+
+function damageDetailsHtml(runtime, strength = {}) {
+  const damage = runtime?.damage || {};
+  const totalBonus = runtime ? Number(damage.strength || 0) + Number(damage.magical || 0) + Number(damage.miscellaneous || 0) : strength.melee_damage;
+  const rows = runtime ? [
+    ["Weapon", runtime.weapon],
+    ["Base", damage.base_small_medium],
+    ["Strength", damage.strength, true],
+    ["Magic", damage.magical, true],
+    ["Misc", damage.miscellaneous, true],
+    ["Total Bonus", totalBonus, true, true],
+    ["Final", damage.final_small_medium],
+  ] : [
+    ["Strength", strength.melee_damage, true, true],
+    ["Total Bonus", strength.melee_damage, true, true],
+  ];
+  return tileDetailsHtml(rows);
+}
+
+function attackRateDetailsHtml(runtime = {}) {
+  const attacks = runtime.attacks_per_round || {};
+  const rows = [
+    ["Rate", compactAttackRate(attacks.value || "1")],
+    ["Source", attacks.source],
+    ["Specialized", attacks.specialization_applied ? "Yes" : "No"],
+    ["Missile ROF", attacks.rate_of_fire_separate ? "Tracked per weapon" : ""],
+  ];
+  return tileDetailsHtml(rows);
+}
+
+function tileDetailsHtml(rows = []) {
+  const rendered = rows
+    .filter(([, value, signed, always]) => always || playerFacingValue(value) || (signed && Number(value || 0) !== 0))
+    .map(([label, value, signed]) => `<div><span>${h(label)}</span><strong>${h(signed ? formatSigned(value || 0) : value)}</strong></div>`)
+    .join("");
+  return `<div class="vault-tile-details">${rendered || `<p class="vault-muted">No breakdown available.</p>`}</div>`;
+}
+
+function combatStatusLabel(value) {
+  return title(String(value || "").replace(/^derived_from_/, "").replace(/_/g, " "));
+}
+
 function armorClassValue(c, combatKey, breakdownKey, fallback) {
   const ac = c.combat?.armor_class_breakdown || {};
   return ac[breakdownKey]?.value ?? ac[breakdownKey] ?? c.combat?.[combatKey] ?? fallback;
@@ -2321,21 +2404,17 @@ function combatSummaryHtml(c) {
   const primaryWeapon = primaryWeaponRuntime(c);
   const abilityStrength = c.combat?.ability_breakdown?.strength || {};
   return `<div class="vault-combat-summary">
-    ${combatStat("THAC0", thac0.final_thac0 ?? "-")}
-    ${combatStat("TO HIT", toHitSummary(primaryWeapon, abilityStrength))}
-    ${combatStat("DAMAGE", damageBonusSummary(primaryWeapon, abilityStrength))}
+    ${combatStatDetails("THAC0", thac0.final_thac0 ?? "-", thac0DetailsHtml(runtime))}
+    ${combatStatDetails("TO HIT", toHitSummary(primaryWeapon, abilityStrength), toHitDetailsHtml(primaryWeapon, abilityStrength))}
+    ${combatStatDetails("DAMAGE", damageBonusSummary(primaryWeapon, abilityStrength), damageDetailsHtml(primaryWeapon, abilityStrength))}
     ${combatStatDetails("Armor Class", armorClassFacingSummary(c), armorClassDetailsHtml(c))}
-    ${combatStat("ATTACKS", compactAttackRate(runtime.attacks_per_round?.value || "1"))}
+    ${combatStatDetails("ATTACKS", compactAttackRate(runtime.attacks_per_round?.value || "1"), attackRateDetailsHtml(runtime))}
     ${combatStatDetails("Move", `${c.combat?.movement_rate ?? 120}'`, movementEncumbranceDetailsHtml(c))}
-    ${combatStatDetails("Load", c.combat?.encumbrance_band ?? "Unencumbered", movementEncumbranceDetailsHtml(c))}
+    ${combatStatDetails("Enc", encumbranceSummary(c), movementEncumbranceDetailsHtml(c))}
   </div><div class="vault-combat-body">
     <section class="vault-equipped-weapons">${sheetSectionHeading("Equipped Weapons")}${equippedWeaponsHtml(c)}</section>
     <section class="vault-combat-saves">${sheetSectionHeading("Saves")}${savingThrowsHtml(c)}${dailyMagicSummaryHtml(c)}</section>
   </div>`;
-}
-
-function combatStat(label, value) {
-  return `<span class="${String(value ?? "").length > 10 ? "vault-long-value" : ""}"><strong>${h(label)}</strong>${h(value)}</span>`;
 }
 
 function primaryWeaponRuntime(c) {
