@@ -17,6 +17,10 @@ CLASS_NAME_TO_ID = {
     "cleric": "osric.class.cleric",
     "druid": "osric.class.druid",
     "fighter": "osric.class.fighter",
+    "knight of solamnia": "osric.class.fighter",
+    "knight of the crown": "osric.class.fighter",
+    "knight of the sword": "osric.class.fighter",
+    "knight of the rose": "osric.class.fighter",
     "illusionist": "osric.class.illusionist",
     "magic-user": "osric.class.magic_user",
     "magic user": "osric.class.magic_user",
@@ -24,6 +28,13 @@ CLASS_NAME_TO_ID = {
     "paladin": "osric.class.paladin",
     "ranger": "osric.class.ranger",
     "thief": "osric.class.thief",
+}
+
+CLASS_NAME_TO_SPECIALTY = {
+    "knight of solamnia": "knight of the crown",
+    "knight of the crown": "knight of the crown",
+    "knight of the sword": "knight of the sword",
+    "knight of the rose": "knight of the rose",
 }
 
 SPECIALTY_TO_PROGRESSION = {
@@ -220,7 +231,7 @@ class AdvancementPreviewService:
         return record
 
     def _progression_record(self, character: VaultCharacter, class_record: dict[str, Any]) -> dict[str, Any]:
-        specialty = str(character.subclass_or_specialty or "").strip().lower()
+        specialty = str(character.subclass_or_specialty or "").strip().lower() or CLASS_NAME_TO_SPECIALTY.get(str(character.class_name or "").strip().lower(), "")
         progression_id = SPECIALTY_TO_PROGRESSION.get(specialty) or class_record.get("progression_ref")
         return self._record(str(progression_id))
 

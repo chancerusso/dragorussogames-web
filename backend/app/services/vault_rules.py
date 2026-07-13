@@ -708,7 +708,11 @@ def character_warnings(race: str, class_name: str, alignment: str) -> list[str]:
     warnings = []
     if not class_allows_alignment(class_name, alignment):
         warnings.append(f"{class_name} alignment restriction: {CLASSES.get(class_name, {}).get('alignment')}.")
-    warnings.extend(CLASSES.get(class_name, {}).get("manual_review") or [])
+    warnings.extend(
+        warning
+        for warning in (CLASSES.get(class_name, {}).get("manual_review") or [])
+        if "optional campaign policy" not in warning.lower()
+    )
     return warnings
 
 

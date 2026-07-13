@@ -329,6 +329,12 @@ function applyCampaignSourceContext(campaign) {
   builderContext.selectableSources = new Set(sourcebooks.map((source) => String(source).toUpperCase()));
 }
 
+function isDragonlanceCampaignContext() {
+  const setting = String(state.campaign?.setting || "").toLowerCase();
+  const sourcebooks = Array.isArray(state.campaign?.allowed_sourcebooks) ? state.campaign.allowed_sourcebooks.map((source) => String(source).toUpperCase()) : [];
+  return setting === "dragonlance" || setting === "dragolance" || sourcebooks.includes("DRAGOLANCE");
+}
+
 async function fetchJson(path) {
   if (sessionDataCache.content.has(path)) return sessionDataCache.content.get(path);
   const promise = fetchJsonUncached(path);
@@ -449,6 +455,7 @@ async function boot() {
         ? await rootApi(`/player/characters/${characterId()}`, { headers: playerAuthHeaders() })
         : await cachedApi(`/characters/${characterId()}`);
       if (state.character?.campaign_id) applyCampaignSourceContext(state.campaigns.find((campaign) => campaign.id === state.character.campaign_id));
+      renderShell();
     }
     if (kind === "campaign" && campaignId()) {
       state.campaign = await cachedApi(`/campaigns/${campaignId()}`);
@@ -525,12 +532,13 @@ function pageTitle() {
 function playerNavHtml(sheetId) {
   if (isPlayerCharacterMode()) {
     const campaignHref = state.campaign?.id ? `/campaigns/${state.campaign.id}` : "";
+    const dragonlanceReference = isDragonlanceCampaignContext() ? `<a class="vault-button secondary" href="/dragonlance">Dragolance Reference</a>` : "";
     return `
       <a class="vault-button" href="/">Back to Player Home</a>
       ${campaignHref ? `<a class="vault-button secondary" href="${campaignHref}">Back to Campaign</a>` : ""}
       <a class="vault-button secondary" href="/characters">My Characters</a>
       ${sheetId ? `<a class="vault-button secondary" href="${characterViewHref(sheetId)}">Character Sheet</a>` : ""}
-      <a class="vault-button secondary" href="/dragonlance">Dragolance Reference</a>
+      ${dragonlanceReference}
       <a class="vault-button secondary" href="/1e/">Rules</a>`;
   }
   return `
@@ -1915,20 +1923,33 @@ async function openLevelUpModal(c) {
         <div><span>New Abilities</span><strong>${h((preview.new_class_abilities || []).map((ability) => ability.name).join(", ") || "None")}</strong></div>
       </div>
       <form class="vault-form" data-level-up-form>
+        ${field("Current XP", "current_xp", Number(c.xp || 0), "number")}
         ${hp.roll ? field(`HP Roll Result (${hp.roll})`, "hp_gain", "", "number") : ""}
-        ${field("XP After Level Up", "xp", Math.max(Number(c.xp || 0), Number(preview.xp_required || 0)), "number")}
+        ${field("XP After Level Up", "xp_after", Math.max(Number(c.xp || 0), Number(preview.xp_required || 0)), "number")}
         <label class="vault-field full">Notes<textarea name="notes">Level-up reviewed and applied.</textarea></label>
         <div class="vault-panel-toast vault-full" data-panel-toast></div>
-        <div class="vault-actions vault-full"><button class="vault-button" type="submit" ${blockers.length ? "disabled" : ""}>Apply Level Up</button></div>
+        <div class="vault-actions vault-full"><button class="vault-button secondary" type="button" data-level-up-save-xp>Save XP / Refresh Preview</button><button class="vault-button" type="submit" ${blockers.length ? "disabled" : ""}>Apply Level Up</button></div>
       </form>
-      <details class="vault-breakdown"><summary>Strict Class Rules</summary>
-        <p>Multiclass and dual-class advancement remain locked until class-track state exists. This prevents accidental modern-style advancement.</p>
-        <p>${h((preview.multiclass?.modeled_requirements || []).join(", "))}</p>
-        <p>${h((preview.dual_class?.modeled_requirements || []).join(", "))}</p>
-      </details>
+      ${strictClassRulesHtml(preview)}
     </div>`;
     modal.querySelector(".vault-modal-close").addEventListener("click", () => modal.remove());
     modal.addEventListener("click", (event) => { if (event.target === modal) modal.remove(); });
+    modal.querySelector("[data-level-up-save-xp]")?.addEventListener("click", async () => {
+      const form = modal.querySelector("[data-level-up-form]");
+      const data = Object.fromEntries(new FormData(form));
+      const panel = modal.querySelector("[data-panel-toast]");
+      try {
+        state.character = await characterApi(`/${c.id}`, {
+          method: "PATCH",
+          body: JSON.stringify({ xp: Number(data.current_xp || c.xp || 0) }),
+        });
+        invalidateCharacterCache(c.id);
+        modal.remove();
+        await openLevelUpModal(state.character);
+      } catch (error) {
+        panel.textContent = readableError(error);
+      }
+    });
     modal.querySelector("[data-level-up-form]")?.addEventListener("submit", async (event) => {
       event.preventDefault();
       const data = Object.fromEntries(new FormData(event.target));
@@ -1937,7 +1958,7 @@ async function openLevelUpModal(c) {
           method: "POST",
           body: JSON.stringify({
             target_level: preview.next_level,
-            xp: Number(data.xp || preview.xp_required || c.xp || 0),
+            xp: Number(data.xp_after || preview.xp_required || c.xp || 0),
             hp_gain: hp.roll ? Number(data.hp_gain || 0) : null,
             notes: data.notes,
           }),
@@ -1956,6 +1977,15 @@ async function openLevelUpModal(c) {
   } catch (error) {
     toast(readableError(error));
   }
+}
+
+function strictClassRulesHtml(preview) {
+  return `<details class="vault-breakdown vault-class-rules"><summary>Class Advancement Rules</summary>
+    <p>This level-up tool currently applies single-class advancement only. Multiclass and dual-class characters need separate class tracks before the app can update them safely.</p>
+    <p><strong>Multiclass:</strong> chosen at character creation for eligible non-human races; XP is divided between classes and each class advances on its own track.</p>
+    <p><strong>Dual-class:</strong> human-only; the character stops advancing the original class, begins a new class, and regains former class abilities only after surpassing the original class level.</p>
+    <p class="vault-muted">Planned support: ${h([...(preview.multiclass?.missing_persistent_fields || []), ...(preview.dual_class?.missing_persistent_fields || [])].join(", ") || "class-track state and advancement history")}.</p>
+  </details>`;
 }
 
 function sheetHtml(c) {

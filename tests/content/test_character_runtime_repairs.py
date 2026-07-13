@@ -32,7 +32,7 @@ from app.api import (  # noqa: E402
 from app.db.base import Base  # noqa: E402
 from app.db.models import EquipmentCatalog, Player, VaultCharacter, WeaponProficiency  # noqa: E402
 from app.services.vault_rules import seed_vault_catalogs  # noqa: E402
-from app.services.vault_rules import encumbrance  # noqa: E402
+from app.services.vault_rules import character_warnings, encumbrance  # noqa: E402
 from app.services.combat_runtime import combat_payload, load_attack_progression, weapon_combat  # noqa: E402
 import app.db.models  # noqa: E402,F401
 
@@ -386,6 +386,9 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertEqual(2, payload["advancement_applied"]["target_level"])
         self.assertEqual(8, payload["advancement_applied"]["hp_gain_total"])
         self.assertIn("[Level Up]", payload["notes"])
+
+    def test_fighter_optional_specialization_is_not_sheet_warning(self) -> None:
+        self.assertNotIn("Weapon specialization is optional campaign policy.", character_warnings("Human", "Fighter", "Lawful Good"))
 
     def test_apply_advancement_rejects_multiclass_and_dual_class_writes(self) -> None:
         with self.assertRaises(Exception) as raised:

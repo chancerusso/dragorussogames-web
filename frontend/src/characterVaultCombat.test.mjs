@@ -128,6 +128,19 @@ test("player sheet hero is compact and no longer says level up is coming soon", 
   assert.doesNotMatch(vaultSource, /Level Up tools coming soon/);
 });
 
+test("player sheet nav and level-up modal expose campaign-aware controls", () => {
+  assert.match(vaultSource, /function isDragonlanceCampaignContext/);
+  assert.match(vaultSource, /sourcebooks\.includes\("DRAGOLANCE"\)/);
+  assert.match(vaultSource, /const dragonlanceReference = isDragonlanceCampaignContext\(\)/);
+  assert.match(vaultSource, /data-level-up-save-xp/);
+  assert.match(vaultSource, /Save XP \/ Refresh Preview/);
+  assert.match(vaultSource, /Current XP/);
+  assert.match(vaultSource, /function strictClassRulesHtml/);
+  assert.match(vaultSource, /chosen at character creation for eligible non-human races/);
+  assert.match(vaultSource, /human-only; the character stops advancing the original class/);
+  assert.match(vaultCss, /\.vault-hero-compact \.vault-actions/);
+});
+
 test("weapon stat blocks place To Hit before Damage and omit zero detail rows", () => {
   const weaponMatch = vaultSource.match(/function weaponCardHtml\(runtime[\s\S]*?function statRow/);
   assert.ok(weaponMatch);

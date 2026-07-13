@@ -65,6 +65,12 @@ class AdvancementPreviewTests(unittest.TestCase):
         self.assertEqual("dragolance.progression.solamnic.crown", preview["class_track"]["progression_id"])
         self.assertTrue(any("solamnic" in gate["id"] for gate in preview["gates"]))
 
+    def test_knight_class_name_preview_uses_solamnic_progression(self) -> None:
+        preview = self.service.preview_advancement(self.character("Knight of the Crown", 1, 5000), target_level=2)
+        self.assertEqual("osric.class.fighter", preview["class_track"]["class_id"])
+        self.assertEqual("dragolance.progression.solamnic.crown", preview["class_track"]["progression_id"])
+        self.assertTrue(preview["advancement_available"])
+
     def test_knight_of_sword_spell_unlock_preview(self) -> None:
         preview = self.service.preview_advancement(self.character("Fighter", 5, 95000, "Knight of the Sword"), target_level=6)
         self.assertEqual("dragolance.spell_slots.sword_knight", preview["spellcasting"]["source_record_id"])
