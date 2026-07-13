@@ -5,7 +5,7 @@ These instructions describe the intended DigitalOcean VPS deployment from a chec
 ## Server Paths
 
 ```text
-/opt/dragorussogames-web/source
+/opt/russo-bot/source
 ```
 
 ## PostgreSQL
@@ -21,7 +21,7 @@ GRANT ALL PRIVILEGES ON DATABASE russo TO russo;
 ## Backend
 
 ```bash
-cd /opt/dragorussogames-web/source/backend
+cd /opt/russo-bot/source/backend
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -47,7 +47,7 @@ uvicorn app.main:app --host 127.0.0.1 --port 8010
 ## Bot
 
 ```bash
-cd /opt/dragorussogames-web/source/discord-bot
+cd /opt/russo-bot/source/discord-bot
 npm install
 cp .env.example .env
 npm run build
@@ -67,10 +67,11 @@ RUSSO_API_BASE_URL=http://127.0.0.1:8010/api
 ## DM Portal Frontend
 
 ```bash
-cd /opt/dragorussogames-web/source/frontend
+cd /opt/russo-bot/source/frontend
 npm install
 VITE_API_BASE_URL=https://dm.dragorussogames.com/api npm run build
 sudo rsync -a --delete dist/ /var/www/dm.dragorussogames.com/
+sudo rsync -a --delete dist/ /var/www/classic.dragorussogames.com/
 ```
 
 Private reference PDFs must never be copied into a served web root. Keep
@@ -88,9 +89,9 @@ Description=RUSSO FastAPI Backend
 After=network.target postgresql.service
 
 [Service]
-WorkingDirectory=/opt/dragorussogames-web/source/backend
-EnvironmentFile=/opt/dragorussogames-web/source/backend/.env
-ExecStart=/opt/dragorussogames-web/source/backend/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8010
+WorkingDirectory=/opt/russo-bot/source/backend
+EnvironmentFile=/opt/russo-bot/source/backend/.env
+ExecStart=/opt/russo-bot/source/backend/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8010
 Restart=always
 User=www-data
 Group=www-data
@@ -107,8 +108,8 @@ Description=RUSSO Discord Bot
 After=network.target russo-backend.service
 
 [Service]
-WorkingDirectory=/opt/dragorussogames-web/source/discord-bot
-EnvironmentFile=/opt/dragorussogames-web/source/discord-bot/.env
+WorkingDirectory=/opt/russo-bot/source/discord-bot
+EnvironmentFile=/opt/russo-bot/source/discord-bot/.env
 ExecStart=/usr/bin/node dist/index.js
 Restart=always
 User=www-data

@@ -14,6 +14,9 @@ test("character sheet renders combat summary from runtime payload", () => {
   assert.match(vaultSource, /combatStat\("TO HIT"/);
   assert.match(vaultSource, /combatStat\("DAMAGE"/);
   assert.match(vaultSource, /combatStatDetails\("Armor Class"/);
+  assert.match(vaultSource, /function armorClassFacingSummary/);
+  assert.match(vaultSource, /flank_armor_class/);
+  assert.match(vaultSource, /rear_armor_class/);
   assert.match(vaultSource, /combatStat\("ATTACKS"/);
   assert.match(vaultSource, /combatStatDetails\("Move"/);
   assert.match(vaultSource, /function combatStat/);
@@ -100,10 +103,26 @@ test("equipped weapons and saves live inside combat", () => {
   assert.match(combat, /equippedWeaponsHtml\(c\)/);
   assert.match(combat, /vault-combat-saves/);
   assert.match(combat, /savingThrowsHtml\(c\)/);
-  assert.match(combat, /combatStatDetails\("Armor Class"/);
+  assert.match(combat, /combatStatDetails\("Armor Class", armorClassFacingSummary\(c\)/);
   assert.match(combat, /combatStatDetails\("Move"/);
   assert.doesNotMatch(combat, /Armor Class"\)\}\$\{armorClassBreakdownHtml/);
   assert.doesNotMatch(combat, /Movement"\)\}\$\{movementEncumbranceHtml/);
+});
+
+test("armor class tile exposes standard flank and rear values", () => {
+  assert.match(vaultSource, /function armorClassValue/);
+  assert.match(vaultSource, /function armorClassFacingSummary/);
+  assert.match(vaultSource, /`\$\{finalAc\} \/ \$\{flankAc\} \/ \$\{rearAc\}`/);
+  assert.match(vaultSource, /\["Flank AC", flankAc/);
+  assert.match(vaultSource, /\["Rear AC", rearAc/);
+});
+
+test("player sheet hero is compact and no longer says level up is coming soon", () => {
+  assert.match(vaultSource, /playerCharacterPage = isPlayerCharacterMode\(\)/);
+  assert.match(vaultSource, /dmPage \|\| playerCharacterPage \? "vault-hero-compact"/);
+  assert.match(vaultCss, /\.vault-hero-compact p\{/);
+  assert.match(vaultCss, /white-space:nowrap/);
+  assert.doesNotMatch(vaultSource, /Level Up tools coming soon/);
 });
 
 test("weapon stat blocks place To Hit before Damage and omit zero detail rows", () => {

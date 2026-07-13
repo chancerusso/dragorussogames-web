@@ -485,18 +485,19 @@ function hydrateCurrentPlayer() {
 
 function renderShell() {
   const dmPage = isDmMode();
+  const playerCharacterPage = isPlayerCharacterMode();
   const sheetId = characterId();
   const heroCopy = dmPage
     ? "Campaigns, characters, storage, and equipment for DRG 1e play."
-    : isPlayerCharacterMode()
+    : playerCharacterPage
       ? "Build and maintain your classic First Edition character through the unified DRG 1e rules engine."
       : builderContext.setting === "dragolance"
         ? "Build one Dragolance character through the unified DRG 1e rules engine. Dragonlance sourcebook options are active for this campaign."
         : "Persistent OSRIC character building with DRG 1e table-rule ability rolls, catalog-only equipment, coins, spells, and campaign state.";
   document.querySelector("[data-vault-app]").innerHTML = `
-    <section class="vault-hero ${dmPage ? "vault-hero-compact" : ""}">
+    <section class="vault-hero ${dmPage || playerCharacterPage ? "vault-hero-compact" : ""}">
       <div>
-        <div class="vault-eyebrow">${dmPage ? "DM Tools" : isPlayerCharacterMode() ? "My Characters" : builderContext.setting === "dragolance" ? "Dragolance Character Builder" : "DRG 1e Character Vault"}</div>
+        <div class="vault-eyebrow">${dmPage ? "DM Tools" : playerCharacterPage ? "My Characters" : builderContext.setting === "dragolance" ? "Dragolance Character Builder" : "DRG 1e Character Vault"}</div>
         <h1>${pageTitle()}</h1>
         <p>${heroCopy}</p>
         ${dmPage ? `<p class="vault-warning-text">DM tools are currently unprotected until login is enabled.</p>` : ""}
@@ -2180,6 +2181,9 @@ function armorClassBreakdownHtml(c) {
 function armorClassDetailsHtml(c) {
   const ac = c.combat?.armor_class_breakdown || {};
   const baseAc = ac.base?.value ?? 10;
+  const finalAc = armorClassValue(c, "armor_class", "final", baseAc);
+  const flankAc = armorClassValue(c, "flank_armor_class", "flank", finalAc);
+  const rearAc = armorClassValue(c, "rear_armor_class", "rear", flankAc);
   const rows = [
     [ac.base?.label || "Base AC", baseAc, false, true],
     [ac.armor?.label || "Armor", ac.armor?.value || 0, true],
@@ -2187,11 +2191,24 @@ function armorClassDetailsHtml(c) {
     ["Dexterity", ac.dexterity?.value || 0, true],
     ["Magic", ac.magical?.value || 0, true],
     ["Misc", ac.miscellaneous?.value || 0, true],
-    ["Final AC", ac.final ?? c.combat?.armor_class ?? baseAc, false, true],
-    ["Flank AC", ac.flank?.value ?? c.combat?.flank_armor_class ?? c.combat?.armor_class ?? baseAc, false, true],
-    ["Rear AC", ac.rear?.value ?? c.combat?.rear_armor_class ?? c.combat?.armor_class ?? baseAc, false, true],
+    ["Final AC", finalAc, false, true],
+    ["Flank AC", flankAc, false, true],
+    ["Rear AC", rearAc, false, true],
   ].filter(([, value, signed, always]) => always || !signed || Number(value || 0) !== 0);
   return `<div class="vault-tile-details">${rows.map(([label, value, signed]) => `<div><span>${h(label)}</span><strong>${h(signed ? formatSigned(value) : value)}</strong></div>`).join("")}</div>`;
+}
+
+function armorClassValue(c, combatKey, breakdownKey, fallback) {
+  const ac = c.combat?.armor_class_breakdown || {};
+  return ac[breakdownKey]?.value ?? ac[breakdownKey] ?? c.combat?.[combatKey] ?? fallback;
+}
+
+function armorClassFacingSummary(c) {
+  const baseAc = c.combat?.armor_class_breakdown?.base?.value ?? 10;
+  const finalAc = armorClassValue(c, "armor_class", "final", baseAc);
+  const flankAc = armorClassValue(c, "flank_armor_class", "flank", finalAc);
+  const rearAc = armorClassValue(c, "rear_armor_class", "rear", flankAc);
+  return `${finalAc} / ${flankAc} / ${rearAc}`;
 }
 
 function raceClassDetailsHtml(c) {
@@ -2230,7 +2247,7 @@ function combatSummaryHtml(c) {
     ${combatStat("THAC0", thac0.final_thac0 ?? "-")}
     ${combatStat("TO HIT", toHitSummary(primaryWeapon, abilityStrength))}
     ${combatStat("DAMAGE", damageBonusSummary(primaryWeapon, abilityStrength))}
-    ${combatStatDetails("Armor Class", c.combat?.armor_class ?? 10, armorClassDetailsHtml(c))}
+    ${combatStatDetails("Armor Class", armorClassFacingSummary(c), armorClassDetailsHtml(c))}
     ${combatStat("ATTACKS", compactAttackRate(runtime.attacks_per_round?.value || "1"))}
     ${combatStatDetails("Move", `${c.combat?.movement_rate ?? 120}'`, movementEncumbranceDetailsHtml(c))}
     ${combatStatDetails("Load", c.combat?.encumbrance_band ?? "Unencumbered", movementEncumbranceDetailsHtml(c))}

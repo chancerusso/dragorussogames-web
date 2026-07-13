@@ -109,9 +109,9 @@ Restart the bot and backend services, then run `/ledger show` again. The same va
 Run migrations and re-register commands:
 
 ```bash
-cd /opt/dragorussogames-web/source/backend
+cd /opt/russo-bot/source/backend
 alembic upgrade head
-cd /opt/dragorussogames-web/source/discord-bot
+cd /opt/russo-bot/source/discord-bot
 npm run build
 npm run register
 sudo systemctl restart russo-backend.service
