@@ -27,6 +27,7 @@ from app.api import (  # noqa: E402
     get_vault_character,
     remove_weapon_proficiency,
     update_inventory_record,
+    update_vault_character_record,
     upsert_weapon_proficiency,
 )
 from app.db.base import Base  # noqa: E402
@@ -389,6 +390,30 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
 
     def test_fighter_optional_specialization_is_not_sheet_warning(self) -> None:
         self.assertNotIn("Weapon specialization is optional campaign policy.", character_warnings("Human", "Fighter", "Lawful Good"))
+
+    def test_character_payload_and_update_include_temporary_hp(self) -> None:
+        character = create_vault_character_for_player(
+            {
+                "name": "Temp HP Test",
+                "race": "Human",
+                "class_name": "Fighter",
+                "alignment": "Lawful Good",
+                "level": 1,
+                "abilities": {"strength": 12, "intelligence": 10, "wisdom": 10, "dexterity": 10, "constitution": 10, "charisma": 10},
+                "combat": {"max_hp": 10, "current_hp": 7, "temporary_hp": 3},
+                "coins": {},
+            },
+            self.player,
+            self.db,
+        )
+        model = self.db.get(VaultCharacter, character["id"])
+        self.assertEqual(3, character_payload(model)["combat"]["temporary_hp"])
+
+        payload = get_player_vault_character(model.id, {"sub": str(self.player.id)}, self.db)
+        self.assertEqual(3, payload["combat"]["temporary_hp"])
+
+        updated = update_vault_character_record(model, {"combat": {"temporary_hp": 5}}, self.db)
+        self.assertEqual(5, updated["combat"]["temporary_hp"])
 
     def test_apply_advancement_rejects_multiclass_and_dual_class_writes(self) -> None:
         with self.assertRaises(Exception) as raised:

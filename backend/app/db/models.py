@@ -229,6 +229,7 @@ class CharacterCombatStats(Base):
     character_id: Mapped[int] = mapped_column(ForeignKey("vault_characters.id", ondelete="CASCADE"), primary_key=True)
     max_hp: Mapped[int] = mapped_column(Integer, default=1, server_default="1", nullable=False)
     current_hp: Mapped[int] = mapped_column(Integer, default=1, server_default="1", nullable=False)
+    temporary_hp: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
     armor_class: Mapped[int] = mapped_column(Integer, default=10, server_default="10", nullable=False)
     unarmored_ac: Mapped[int] = mapped_column(Integer, default=10, server_default="10", nullable=False)
     shield_bonus: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)

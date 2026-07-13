@@ -414,6 +414,7 @@ def character_payload(character: VaultCharacter) -> dict:
         "combat": {
             "max_hp": combat.max_hp if combat else 1,
             "current_hp": combat.current_hp if combat else 1,
+            "temporary_hp": combat.temporary_hp if combat else 0,
             "armor_class": derived.get("armor_class", combat.armor_class if combat else 10),
             "flank_armor_class": derived.get("flank_armor_class"),
             "rear_armor_class": derived.get("rear_armor_class"),
@@ -1595,7 +1596,11 @@ def create_vault_character_for_player(data: dict, player: Player, db: Session) -
         silver=int(coins.get("silver") or 0),
         copper=int(coins.get("copper") or 0),
     )
-    character.combat = CharacterCombatStats(max_hp=hp, current_hp=int((data.get("combat") or {}).get("current_hp") or hp))
+    character.combat = CharacterCombatStats(
+        max_hp=hp,
+        current_hp=int((data.get("combat") or {}).get("current_hp") or hp),
+        temporary_hp=int((data.get("combat") or {}).get("temporary_hp") or 0),
+    )
     db.add(character)
     db.flush()
     if character.campaign_id and not db.get(CampaignPlayer, (character.campaign_id, player.id)):
@@ -1679,7 +1684,7 @@ def update_vault_character_record(character: VaultCharacter, data: dict, db: Ses
             if coin in data["coins"]:
                 setattr(character.coins, coin, int(data["coins"][coin] or 0))
     if "combat" in data:
-        for field in ("max_hp", "current_hp"):
+        for field in ("max_hp", "current_hp", "temporary_hp"):
             if field in data["combat"]:
                 setattr(character.combat, field, int(data["combat"][field] or 0))
     recalculate_character(db, character)

@@ -1857,6 +1857,7 @@ function openQuickEditModal(c) {
   modal.innerHTML = `<div class="vault-rules-popout vault-quick-popout"><button class="vault-modal-close" type="button" aria-label="Close">x</button><div class="vault-kicker">Quick Edit</div><form class="vault-form" data-quick-edit>
     ${field("Current HP", "current_hp", c.combat?.current_hp ?? 1, "number")}
     ${field("Max HP", "max_hp", c.combat?.max_hp ?? 1, "number")}
+    ${field("Temp HP", "temporary_hp", c.combat?.temporary_hp ?? 0, "number")}
     ${field("XP", "xp", c.xp ?? 0, "number")}
     ${field("Campaign Day", "campaign_day", c.campaign_day ?? 1, "number")}
     ${field("Current Location", "current_location", c.current_location || "Town", "text", "wide")}
@@ -1880,7 +1881,7 @@ function openQuickEditModal(c) {
       notes: data.notes,
       safe_storage_location: data.safe_storage_location,
       coins: coinsPatch,
-      combat: { current_hp: Number(data.current_hp || 0), max_hp: Number(data.max_hp || 0) },
+      combat: { current_hp: Number(data.current_hp || 0), max_hp: Number(data.max_hp || 0), temporary_hp: Number(data.temporary_hp || 0) },
     };
     state.character = isPlayerCharacterMode()
       ? await rootApi(`/player/characters/${state.character.id}`, { method: "PUT", headers: playerAuthHeaders(), body: JSON.stringify(patchPayload) })
@@ -2004,6 +2005,8 @@ function sheetSectionHeading(label) {
 }
 
 function sheetHeaderHtml(c) {
+  const runtime = c.combat?.runtime || {};
+  const thac0 = runtime.thac0?.final_thac0 ?? runtime.thac0?.base_thac0 ?? "-";
   return `<section class="vault-sheet-header">
     <div class="vault-sheet-header-grid">
       <div>
@@ -2016,9 +2019,11 @@ function sheetHeaderHtml(c) {
         </div>
         <div class="vault-topline">
           <span><strong>XP</strong>${h(c.xp ?? 0)}</span>
-          <span><strong>Coins</strong>${h(c.combat?.coin_count ?? coinCount(c.coins))} / ${h(c.combat?.coin_weight ?? "-")} lb</span>
-          <span><strong>Day</strong>${h(c.campaign_day ?? 1)}</span>
-          <span><strong>Status</strong>${h(labelize(c.life_status || "alive"))}</span>
+          <span><strong>HP</strong>${h(hpSummary(c))}</span>
+          <span><strong>AC</strong>${h(armorClassFacingSummary(c))}</span>
+          <span><strong>THAC0</strong>${h(thac0)}</span>
+          <span><strong>Move</strong>${h(c.combat?.movement_rate ?? 120)}'</span>
+          <span><strong>Load</strong>${h(c.combat?.encumbrance_band ?? "Unencumbered")}</span>
         </div>
       </div>
       <aside class="vault-sheet-race-class">
@@ -2030,6 +2035,13 @@ function sheetHeaderHtml(c) {
     ${warningsHtml(c)}
     <div class="vault-actions"><button class="vault-button secondary" type="button" data-quick-edit-open>Quick Edit</button><a class="vault-button secondary" href="${characterEditHref(c.id || "")}">Full Edit</a><button class="vault-button secondary" type="button" data-level-up-open>Level Up</button></div>
   </section>`;
+}
+
+function hpSummary(c) {
+  const current = c.combat?.current_hp ?? 1;
+  const max = c.combat?.max_hp ?? 1;
+  const temporary = Number(c.combat?.temporary_hp || 0);
+  return temporary > 0 ? `${current}/${max} +${temporary}` : `${current}/${max}`;
 }
 
 function raceClassSummaryHtml(c) {

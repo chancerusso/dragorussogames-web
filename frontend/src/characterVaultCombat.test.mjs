@@ -78,6 +78,20 @@ test("top summary uses separate identity pills and concise ability labels", () =
   assert.match(vaultCss, /\.vault-identity-pills span/);
 });
 
+test("sheet top line shows constant combat stats and HP", () => {
+  const headerMatch = vaultSource.match(/function sheetHeaderHtml\(c\) \{([\s\S]*?)function raceClassSummaryHtml/);
+  assert.ok(headerMatch);
+  const header = headerMatch[1];
+  assert.match(header, /function hpSummary/);
+  for (const label of ["XP", "HP", "AC", "THAC0", "Move", "Load"]) {
+    assert.match(header, new RegExp(`<strong>${label}<\\/strong>`));
+  }
+  assert.doesNotMatch(header, /<strong>Day<\/strong>/);
+  assert.doesNotMatch(header, /<strong>Status<\/strong>/);
+  assert.match(vaultSource, /temporary_hp/);
+  assert.match(vaultCss, /\.vault-topline\{[\s\S]*?grid-template-columns:repeat\(6,minmax\(0,1fr\)\)/);
+});
+
 test("character sheet hierarchy is full-width and combat-centered", () => {
   const sheetMatch = vaultSource.match(/function sheetHtml\(c\) \{([\s\S]*?)function sheetSectionHeading/);
   assert.ok(sheetMatch);
