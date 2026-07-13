@@ -147,7 +147,7 @@ const fallbackDragonlanceRaces = [
     advanced: true,
   },
 ];
-const state = { characters: [], equipment: [], spells: [], campaigns: [], players: [], dragonlanceRaces: [], dragonlanceClasses: [], campaign: null, rules: null, character: null, currentPlayer: null, step: 0, draft: null, hpRollMessage: "", moneyRollMessage: "", equipmentFeedback: {}, equipmentPreviews: {}, inventoryFilter: "equipped", dmOverride: false, dmCharacterFilters: { campaign_id: "", user_id: "", status: "" }, equipmentFilters: { q: "", type: "", allowedOnly: false }, editEquipmentId: null, dmCampaignTab: "overview", sheetDisclosure: { inventoryOpen: false, spellsOpen: true, campaignOpen: false } };
+const state = { characters: [], equipment: [], spells: [], campaigns: [], players: [], dragonlanceRaces: [], dragonlanceClasses: [], campaign: null, rules: null, character: null, currentPlayer: null, step: 0, draft: null, hpRollMessage: "", moneyRollMessage: "", equipmentFeedback: {}, equipmentPreviews: {}, inventoryFilter: "equipped", dmOverride: false, dmCharacterFilters: { campaign_id: "", user_id: "", status: "" }, equipmentFilters: { q: "", type: "", allowedOnly: false }, editEquipmentId: null, dmCampaignTab: "overview", sheetDisclosure: { inventoryOpen: false, magicItemsOpen: false, spellsOpen: true, campaignOpen: false } };
 const sessionDataCache = {
   api: new Map(),
   content: new Map(),
@@ -1741,6 +1741,7 @@ function renderSheet(options = {}) {
   document.querySelector("[data-vault-view]").innerHTML = `<div class="vault-sheet">${sheetHtml(state.character)}</div>`;
   bindSheetDisclosureState();
   bindInventoryActions((renderOptions) => renderSheet(renderOptions));
+  bindMagicItemActions((renderOptions) => renderSheet(renderOptions));
   document.querySelectorAll("[data-rules-link]").forEach((button) => button.addEventListener("click", () => openRulesModal(button.dataset.rulesTitle, button.dataset.rulesLink)));
   document.querySelector("[data-quick-edit-open]")?.addEventListener("click", () => openQuickEditModal(state.character));
   document.querySelector("[data-level-up-open]")?.addEventListener("click", () => openLevelUpModal(state.character));
@@ -1825,12 +1826,116 @@ function bindInventoryActions(afterAction) {
   }));
 }
 
+function bindMagicItemActions(afterAction) {
+  document.querySelector("[data-magic-item-add]")?.addEventListener("click", () => openMagicItemModal());
+  document.querySelectorAll("[data-magic-item-edit]").forEach((button) => button.addEventListener("click", () => {
+    const item = (state.character?.magic_items || []).find((entry) => String(entry.id) === String(button.dataset.magicItemEdit));
+    openMagicItemModal(item);
+  }));
+  document.querySelectorAll("[data-magic-item-action]").forEach((button) => button.addEventListener("click", async (event) => {
+    event.preventDefault();
+    const [id, action, value] = button.dataset.magicItemAction.split(":");
+    const items = [...(state.character?.magic_items || [])];
+    const index = items.findIndex((item) => String(item.id) === String(id));
+    if (index < 0) return;
+    if (action === "delete" && !(await confirmMagicItemDrop(items[index]))) return;
+    const preserveScrollY = window.scrollY;
+    const nextItems = action === "delete"
+      ? items.filter((item) => String(item.id) !== String(id))
+      : items.map((item) => {
+        if (String(item.id) !== String(id)) return item;
+        if (action === "status") return { ...item, status: value || "carried" };
+        if (action === "charges") return { ...item, charges: Math.max(0, Number(value || 0)) };
+        if (action === "identified") return { ...item, identified: !item.identified };
+        return item;
+      });
+    await saveMagicItems(nextItems);
+    state.sheetDisclosure.magicItemsOpen = true;
+    toast(action === "delete" ? "Magic item removed." : "Magic item updated.", "success");
+    afterAction?.({ preserveScrollY, keepMagicItemsVisible: true });
+  }));
+}
+
+async function saveMagicItems(items) {
+  state.character = await characterApi(`/${state.character.id}`, {
+    method: "PUT",
+    body: JSON.stringify({ magic_items: items }),
+  });
+  state.draft = initialDraft();
+}
+
+function openMagicItemModal(item = null) {
+  document.querySelector(".vault-magic-item-modal")?.remove();
+  const current = item || { name: "", category: "Misc Magic", status: "carried", identified: false, charges: "", max_charges: "", notes: "" };
+  const modal = document.createElement("div");
+  modal.className = "vault-rules-modal vault-magic-item-modal";
+  modal.innerHTML = `<div class="vault-rules-popout vault-quick-popout"><button class="vault-modal-close" type="button" aria-label="Close">x</button><div class="vault-kicker">${item ? "Edit" : "Add"} Magic Item</div><form class="vault-form" data-magic-item-form>
+    ${field("Name", "name", current.name || "", "text", "wide")}
+    ${selectField("Category", "category", current.category || "Misc Magic", magicItemCategories())}
+    ${selectField("Status", "status", current.status || "carried", ["equipped", "carried", "stored", "lost", "destroyed"])}
+    ${field("Charges", "charges", current.charges ?? "", "number")}
+    ${field("Max Charges", "max_charges", current.max_charges ?? "", "number")}
+    <label class="vault-check vault-full"><input type="checkbox" name="identified" ${current.identified ? "checked" : ""}> Identified</label>
+    <label class="vault-field full">Notes<textarea name="notes">${h(current.notes || "")}</textarea></label>
+    <div class="vault-panel-toast vault-full" data-panel-toast></div>
+    <div class="vault-actions vault-full"><button class="vault-button" type="submit">Save Magic Item</button></div>
+  </form></div>`;
+  modal.querySelector(".vault-modal-close").addEventListener("click", () => modal.remove());
+  modal.addEventListener("click", (event) => { if (event.target === modal) modal.remove(); });
+  modal.querySelector("[data-magic-item-form]").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const data = Object.fromEntries(new FormData(event.target));
+    const payload = {
+      id: item?.id || `magic-${Date.now()}`,
+      name: data.name,
+      category: data.category,
+      status: data.status || "carried",
+      identified: data.identified === "on",
+      charges: data.charges === "" ? null : Number(data.charges),
+      max_charges: data.max_charges === "" ? null : Number(data.max_charges),
+      notes: data.notes,
+    };
+    if (!payload.name.trim()) {
+      modal.querySelector("[data-panel-toast]").textContent = "Magic item name is required.";
+      return;
+    }
+    const items = state.character?.magic_items || [];
+    const nextItems = item
+      ? items.map((entry) => String(entry.id) === String(item.id) ? payload : entry)
+      : [...items, payload];
+    await saveMagicItems(nextItems);
+    state.sheetDisclosure.magicItemsOpen = true;
+    toast("Magic item saved.", "success");
+    modal.remove();
+    renderSheet({ keepMagicItemsVisible: true });
+  });
+  document.body.appendChild(modal);
+}
+
+function confirmMagicItemDrop(item) {
+  return new Promise((resolve) => {
+    const modal = document.createElement("div");
+    modal.className = "vault-rules-modal";
+    modal.innerHTML = `<div class="vault-rules-popout"><div class="vault-kicker">Confirm Remove</div><h2>Remove ${h(item?.name || "magic item")}?</h2><p>This removes the magic item from this character only.</p><div class="vault-actions"><button class="vault-button secondary" type="button" data-drop-cancel>Cancel</button><button class="vault-button danger-button" type="button" data-drop-confirm>Remove</button></div></div>`;
+    const close = (result) => {
+      modal.remove();
+      resolve(result);
+    };
+    modal.querySelector("[data-drop-cancel]").addEventListener("click", () => close(false));
+    modal.querySelector("[data-drop-confirm]").addEventListener("click", () => close(true));
+    modal.addEventListener("click", (event) => { if (event.target === modal) close(false); });
+    document.body.appendChild(modal);
+  });
+}
+
 function restoreSheetPosition(options = {}) {
-  if (options.preserveScrollY === undefined && !options.changedInventoryId) return;
+  if (options.preserveScrollY === undefined && !options.changedInventoryId && !options.keepMagicItemsVisible) return;
   window.requestAnimationFrame(() => {
     const row = options.changedInventoryId ? document.querySelector(`[data-inventory-row="${options.changedInventoryId}"]`) : null;
     if (row) {
       row.scrollIntoView({ block: "nearest" });
+    } else if (options.keepMagicItemsVisible) {
+      document.querySelector(".vault-sheet-magic-items")?.scrollIntoView({ block: "nearest" });
     } else if (options.preserveScrollY !== undefined) {
       window.scrollTo({ top: options.preserveScrollY, left: 0 });
     } else if (options.keepInventoryVisible) {
@@ -2036,6 +2141,7 @@ function sheetHtml(c) {
   <div class="vault-sheet-layout">
     <section class="vault-sheet-card vault-sheet-combat">${sheetSectionHeading("Combat")}${combatSummaryHtml(c)}</section>
     <section class="vault-sheet-card vault-sheet-inventory"><details data-sheet-disclosure="inventoryOpen" ${state.sheetDisclosure.inventoryOpen ? "open" : ""}><summary>${sheetSectionHeading("Inventory")}</summary>${inventoryHtml(c)}</details></section>
+    <section class="vault-sheet-card vault-sheet-magic-items"><details data-sheet-disclosure="magicItemsOpen" ${state.sheetDisclosure.magicItemsOpen ? "open" : ""}><summary>${sheetSectionHeading("Magic Items")}</summary>${magicItemsHtml(c)}</details></section>
     <section class="vault-sheet-card vault-sheet-spells"><details data-sheet-disclosure="spellsOpen" ${state.sheetDisclosure.spellsOpen ? "open" : ""}><summary>${sheetSectionHeading("Spells")}</summary>${spellsHtml(c)}</details></section>
     <section class="vault-sheet-card vault-sheet-notes"><details data-sheet-disclosure="campaignOpen" ${state.sheetDisclosure.campaignOpen ? "open" : ""}><summary>${sheetSectionHeading("Campaign")}</summary><p>Day ${h(c.campaign_day)} at ${h(c.current_location)}.</p><p>${h(c.notes || "No notes.")}</p></details></section>
   </div>`;
@@ -2234,6 +2340,44 @@ function inventoryRow(item, proficiencies = []) {
   const weight = formatWeight(item.total_weight ?? ((equipment.weight || 0) * item.quantity));
   const quantityActions = `<span class="vault-ammo-quantity"><button type="button" class="vault-button secondary" data-inventory-action="${item.id}:quantity:${Math.max(0, Number(item.quantity || 0) - 1)}">-</button><strong>${h(item.quantity || 0)}</strong><button type="button" class="vault-button secondary" data-inventory-action="${item.id}:quantity:${Number(item.quantity || 0) + 1}">+</button></span>`;
   return `<tr class="${isEquipped ? "vault-equipped-row" : ""}" data-inventory-row="${h(item.id)}"><td>${ammo ? `<strong>${h(itemName)}</strong> ×${h(item.quantity || 0)}` : `${h(item.quantity)} x <strong>${h(itemName)}</strong>`}<br><span class="vault-mini">${damage ? `Damage ${h(damage)}` : ""}${damage && proficiency ? " / " : ""}${proficiency ? `<span class="${proficiencyClass}">${h(proficiency)}</span>` : ""}</span></td><td>${h(equipmentDisplayType(equipment))}</td><td>${h(weight)}</td><td>${h(cost)}</td><td>${h(status)}</td><td>${quantityActions}${isEquipped ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Unequip</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:equipped">Equip</button>`} ${isStored ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Carry</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:stored">Store</button>`} <button type="button" class="vault-button secondary" data-inventory-action="${item.id}:delete">Drop</button></td></tr>`;
+}
+
+function magicItemsHtml(c) {
+  const items = c.magic_items || [];
+  return `<div class="vault-magic-item-panel">
+    <div class="vault-actions"><button class="vault-button" type="button" data-magic-item-add>Add Magic Item</button></div>
+    ${items.length ? `<div class="vault-magic-item-grid">${items.map(magicItemCardHtml).join("")}</div>` : `<p class="vault-compact-empty">No magic items recorded.</p>`}
+  </div>`;
+}
+
+function magicItemCardHtml(item) {
+  const charges = magicItemChargesHtml(item);
+  const status = item.status || "carried";
+  return `<article class="vault-magic-item-card">
+    <div class="vault-magic-item-head">
+      <div><h4>${h(item.name || "Magic Item")}</h4><p>${h(item.category || "Misc Magic")} &bull; ${h(labelize(status))}${item.identified ? " &bull; Identified" : " &bull; Unidentified"}</p></div>
+      <button class="vault-button secondary" type="button" data-magic-item-edit="${h(item.id)}">Edit</button>
+    </div>
+    ${charges}
+    ${item.notes ? `<p class="vault-magic-item-notes">${h(item.notes)}</p>` : ""}
+    <div class="vault-actions vault-magic-item-actions">
+      ${status === "equipped" ? `<button class="vault-button secondary" type="button" data-magic-item-action="${h(item.id)}:status:carried">Unequip</button>` : `<button class="vault-button secondary" type="button" data-magic-item-action="${h(item.id)}:status:equipped">Equip</button>`}
+      ${status === "stored" ? `<button class="vault-button secondary" type="button" data-magic-item-action="${h(item.id)}:status:carried">Carry</button>` : `<button class="vault-button secondary" type="button" data-magic-item-action="${h(item.id)}:status:stored">Store</button>`}
+      <button class="vault-button secondary" type="button" data-magic-item-action="${h(item.id)}:identified">${item.identified ? "Mark Unknown" : "Identify"}</button>
+      <button class="vault-button secondary" type="button" data-magic-item-action="${h(item.id)}:delete">Remove</button>
+    </div>
+  </article>`;
+}
+
+function magicItemChargesHtml(item = {}) {
+  if (item.charges === null && item.max_charges === null && item.charges === undefined && item.max_charges === undefined) return "";
+  const current = Number(item.charges || 0);
+  const max = item.max_charges === null || item.max_charges === undefined ? "" : ` / ${item.max_charges}`;
+  return `<div class="vault-magic-charges"><span>Charges</span><strong>${h(current)}${h(max)}</strong><span class="vault-ammo-quantity"><button type="button" class="vault-button secondary" data-magic-item-action="${h(item.id)}:charges:${Math.max(0, current - 1)}">-</button><button type="button" class="vault-button secondary" data-magic-item-action="${h(item.id)}:charges:${current + 1}">+</button></span></div>`;
+}
+
+function magicItemCategories() {
+  return ["Potion", "Scroll", "Rod", "Staff", "Wand", "Magic Armour / Shield", "Magic Sword", "Magic Weapon", "Misc Magic", "Ring", "Cursed Item", "Artifact", "Other"];
 }
 
 function savingThrowsHtml(c) {

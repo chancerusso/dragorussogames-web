@@ -344,17 +344,30 @@ test("builder equipment actions keep the inventory area visible", () => {
 });
 
 test("sheet disclosure state survives inventory refreshes", () => {
-  assert.match(vaultSource, /sheetDisclosure: \{ inventoryOpen: false, spellsOpen: true, campaignOpen: false \}/);
+  assert.match(vaultSource, /sheetDisclosure: \{ inventoryOpen: false, magicItemsOpen: false, spellsOpen: true, campaignOpen: false \}/);
   assert.match(vaultSource, /function bindSheetDisclosureState/);
   assert.match(vaultSource, /data-sheet-disclosure="inventoryOpen"/);
   assert.match(vaultSource, /state\.sheetDisclosure\.inventoryOpen \? "open" : ""/);
+  assert.match(vaultSource, /data-sheet-disclosure="magicItemsOpen"/);
+  assert.match(vaultSource, /state\.sheetDisclosure\.magicItemsOpen \? "open" : ""/);
   assert.match(vaultSource, /data-sheet-disclosure="campaignOpen"/);
   assert.match(vaultSource, /details\.addEventListener\("toggle"/);
   assert.match(vaultSource, /afterAction\(\{ preserveScrollY, catalogScrollTop, changedInventoryId: id, keepInventoryVisible: true \}\)/);
   assert.match(vaultSource, /state\.sheetDisclosure\.inventoryOpen = true/);
   assert.match(vaultSource, /function restoreSheetPosition/);
   assert.match(vaultSource, /data-inventory-row="\$\{h\(item\.id\)\}"/);
-  assert.doesNotMatch(vaultSource, /sheetDisclosure: \{ inventoryOpen: false, spellsOpen: true, campaignOpen: false \}[\s\S]*?state\.sheetDisclosure =/);
+  assert.doesNotMatch(vaultSource, /sheetDisclosure: \{ inventoryOpen: false, magicItemsOpen: false, spellsOpen: true, campaignOpen: false \}[\s\S]*?state\.sheetDisclosure =/);
+});
+
+test("magic items are managed separately from standard equipment", () => {
+  assert.match(vaultSource, /function magicItemsHtml/);
+  assert.match(vaultSource, /vault-sheet-magic-items/);
+  assert.match(vaultSource, /data-magic-item-add/);
+  assert.match(vaultSource, /function bindMagicItemActions/);
+  assert.match(vaultSource, /magic_items/);
+  assert.match(vaultSource, /function magicItemCategories/);
+  assert.match(vaultSource, /Magic Armour \/ Shield/);
+  assert.doesNotMatch(vaultSource, /state\.equipment\.push\([^)]*magic_items/);
 });
 
 test("ammunition is separated from weapons and shown on compatible missile cards", () => {

@@ -192,6 +192,7 @@ class VaultCharacter(TimestampMixin, Base):
     safe_storage_location: Mapped[Optional[str]] = mapped_column(String(160), nullable=True)
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     original_rolls: Mapped[list[int]] = mapped_column(JSONType, default=list, nullable=False)
+    magic_items: Mapped[list[dict[str, Any]]] = mapped_column(JSONType, default=list, nullable=False)
 
     abilities: Mapped["CharacterAbilityScores"] = relationship(back_populates="character", cascade="all, delete-orphan")
     combat: Mapped["CharacterCombatStats"] = relationship(back_populates="character", cascade="all, delete-orphan")

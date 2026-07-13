@@ -402,6 +402,7 @@ def character_payload(character: VaultCharacter) -> dict:
         "safe_storage_location": character.safe_storage_location,
         "notes": character.notes,
         "original_rolls": character.original_rolls or [],
+        "magic_items": character.magic_items or [],
         "abilities": {ability: getattr(abilities, ability) for ability in ABILITIES} if abilities else {},
         "adjusted_abilities": adjusted_scores,
         "exceptional_strength": abilities.exceptional_strength if abilities else None,
@@ -681,6 +682,36 @@ def validate_non_negative_coins(coins: dict) -> None:
     for coin in ("platinum", "gold", "electrum", "silver", "copper"):
         if int(coins.get(coin, 0) or 0) < 0:
             raise HTTPException(status_code=422, detail=f"{coin} cannot be negative.")
+
+
+def normalize_magic_items(items: list[dict] | None) -> list[dict]:
+    normalized = []
+    for index, item in enumerate(items or [], start=1):
+        if not isinstance(item, dict):
+            continue
+        name = str(item.get("name") or "").strip()
+        if not name:
+            continue
+        status = str(item.get("status") or "carried").strip().lower()
+        if status not in {"equipped", "carried", "stored", "lost", "destroyed"}:
+            status = "carried"
+        charges_raw = item.get("charges")
+        max_charges_raw = item.get("max_charges")
+        charges = None if charges_raw in (None, "") else max(0, int(charges_raw))
+        max_charges = None if max_charges_raw in (None, "") else max(0, int(max_charges_raw))
+        normalized.append(
+            {
+                "id": str(item.get("id") or f"magic-{index}"),
+                "name": name[:160],
+                "category": str(item.get("category") or "Misc Magic").strip()[:80],
+                "status": status,
+                "identified": bool(item.get("identified", False)),
+                "charges": charges,
+                "max_charges": max_charges,
+                "notes": str(item.get("notes") or "").strip()[:1000],
+            }
+        )
+    return normalized
 
 
 def validate_character_choice(data: dict) -> None:
@@ -1698,9 +1729,10 @@ def update_vault_character_record(character: VaultCharacter, data: dict, db: Ses
         "safe_storage_location",
         "notes",
         "original_rolls",
+        "magic_items",
     ):
         if field in data:
-            setattr(character, field, data[field])
+            setattr(character, field, normalize_magic_items(data[field]) if field == "magic_items" else data[field])
     if "abilities" in data:
         for ability in ABILITIES:
             if ability in data["abilities"]:

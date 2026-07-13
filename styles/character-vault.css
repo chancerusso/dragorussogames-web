@@ -869,6 +869,7 @@
 .vault-sheet-combat,
 .vault-sheet-spells,
 .vault-sheet-inventory,
+.vault-sheet-magic-items,
 .vault-sheet-notes{
   width:100%;
 }
@@ -1406,6 +1407,79 @@
   grid-template-columns:repeat(2,minmax(0,1fr));
 }
 
+.vault-magic-item-panel{
+  display:grid;
+  gap:10px;
+}
+
+.vault-magic-item-grid{
+  display:grid;
+  gap:10px;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+}
+
+.vault-magic-item-card{
+  border:1px solid rgba(75,47,31,.24);
+  border-radius:8px;
+  background:linear-gradient(180deg,#fff8eb,#ead8b8);
+  color:#21140f;
+  min-width:0;
+  padding:10px;
+}
+
+.vault-magic-item-head{
+  align-items:flex-start;
+  display:flex;
+  gap:10px;
+  justify-content:space-between;
+  min-width:0;
+}
+
+.vault-magic-item-head h4{
+  color:#21140f;
+  font-family:'Cinzel',serif;
+  font-size:.95rem;
+  line-height:1.15;
+  margin:0;
+  overflow-wrap:anywhere;
+}
+
+.vault-magic-item-head p,
+.vault-magic-item-notes{
+  color:#5d4b3e;
+  font-size:.78rem;
+  line-height:1.35;
+  margin:3px 0 0;
+  overflow-wrap:anywhere;
+}
+
+.vault-magic-charges{
+  align-items:center;
+  border-top:1px solid rgba(75,47,31,.13);
+  display:flex;
+  gap:8px;
+  margin-top:8px;
+  padding-top:8px;
+}
+
+.vault-magic-charges span:first-child{
+  color:#7a211b;
+  font-family:'Cinzel',serif;
+  font-size:.68rem;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.vault-magic-charges strong{
+  margin-right:auto;
+}
+
+.vault-magic-item-actions{
+  border-top:1px solid rgba(75,47,31,.13);
+  margin-top:9px;
+  padding-top:9px;
+}
+
 .vault-weapon-card{
   border:1px solid rgba(75,47,31,.28);
   border-radius:8px;
@@ -1734,6 +1808,7 @@
   .vault-sheet-combat,
   .vault-sheet-spells,
   .vault-sheet-inventory,
+  .vault-sheet-magic-items,
   .vault-sheet-notes,
   .vault-field,
   .vault-field.wide{
