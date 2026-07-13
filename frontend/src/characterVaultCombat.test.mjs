@@ -151,6 +151,25 @@ test("weapon stat blocks place To Hit before Damage and omit zero detail rows", 
   assert.match(vaultSource, /\["Final Damage", damage\.final_small_medium/);
 });
 
+test("equipped weapon cards are compact two-up cards with bounded text", () => {
+  assert.match(vaultSource, /vault-equipped-weapon-grid/);
+  assert.match(vaultCss, /\.vault-equipped-weapon-grid\{/);
+  assert.match(vaultCss, /grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(vaultCss, /\.vault-weapon-head h3\{[\s\S]*?font-size:\.9rem/);
+  assert.match(vaultCss, /\.vault-weapon-card\{[\s\S]*?overflow:hidden/);
+  assert.match(vaultCss, /\.vault-weapon-stat-block\{[\s\S]*?grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(vaultCss, /overflow-wrap:anywhere/);
+});
+
+test("saves column can show compact daily magic summary", () => {
+  assert.match(vaultSource, /dailyMagicSummaryHtml\(c\)/);
+  assert.match(vaultSource, /function dailyMagicSummaryHtml/);
+  assert.match(vaultSource, /function compactSpellSlotRows/);
+  assert.match(vaultCss, /\.vault-daily-magic/);
+  assert.match(vaultCss, /\.vault-magic-slot-list/);
+  assert.match(vaultCss, /\.vault-prepared-spell-list/);
+});
+
 test("saving throws use compact classic rows without source text", () => {
   assert.match(vaultCss, /\.vault-saving-row summary::after/);
   assert.match(vaultCss, /border-bottom:1px dotted/);

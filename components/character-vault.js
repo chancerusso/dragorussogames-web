@@ -2178,6 +2178,34 @@ function savingThrowsHtml(c) {
   return `<div class="vault-saving-list">${Object.entries(saves.categories).map(([key, value]) => `<details class="vault-saving-row"><summary><span>${h(shortSaveLabel(saves.labels?.[key] || title(key)))}</span><strong>${h(value)}</strong></summary>${saveBreakdownHtml(saves.breakdown?.[key] || [])}</details>`).join("")}</div>`;
 }
 
+function dailyMagicSummaryHtml(c) {
+  const slots = compactSpellSlotRows(c.spell_slots);
+  const prepared = (c.spells || []).filter((spell) => spell.prepared || Number(spell.memorized_count || 0) > 0);
+  if (!slots.length && !prepared.length) return "";
+  return `<div class="vault-daily-magic"><h4>Daily Magic</h4>
+    ${slots.length ? `<div class="vault-magic-slot-list">${slots.map((row) => `<span><strong>${h(row.label)}</strong>${h(row.used)}/${h(row.total)} used</span>`).join("")}</div>` : ""}
+    <div class="vault-prepared-spell-list">${prepared.length ? prepared.slice(0, 8).map((spell) => `<span>${h(spell.spell?.name || spell.name || "Spell")}${Number(spell.memorized_count || 0) > 1 ? ` x${h(spell.memorized_count)}` : ""}</span>`).join("") : `<em>None prepared.</em>`}</div>
+  </div>`;
+}
+
+function compactSpellSlotRows(summary = {}) {
+  if (!summary?.slots) return [];
+  const rows = [];
+  const nested = Object.values(summary.slots).some((value) => value && typeof value === "object" && !Array.isArray(value));
+  if (nested) {
+    Object.entries(summary.slots).forEach(([bucket, levels]) => {
+      Object.entries(levels || {}).forEach(([level, total]) => {
+        if (Number(total || 0) > 0) rows.push({ label: `${title(bucket)} ${level}`, total, used: summary.used?.[bucket]?.[level] || 0 });
+      });
+    });
+    return rows;
+  }
+  Object.entries(summary.slots).forEach(([level, total]) => {
+    if (Number(total || 0) > 0) rows.push({ label: `L${level}`, total, used: summary.used?.[level] || 0 });
+  });
+  return rows;
+}
+
 function saveBreakdownHtml(rows = []) {
   if (!rows.length) return `<p class="vault-muted">No breakdown available.</p>`;
   const filtered = rows.filter((row) => row.value !== undefined || Number(row.modifier || 0) !== 0);
@@ -2290,7 +2318,7 @@ function combatSummaryHtml(c) {
     ${combatStatDetails("Load", c.combat?.encumbrance_band ?? "Unencumbered", movementEncumbranceDetailsHtml(c))}
   </div><div class="vault-combat-body">
     <section class="vault-equipped-weapons">${sheetSectionHeading("Equipped Weapons")}${equippedWeaponsHtml(c)}</section>
-    <section class="vault-combat-saves">${sheetSectionHeading("Saves")}${savingThrowsHtml(c)}</section>
+    <section class="vault-combat-saves">${sheetSectionHeading("Saves")}${savingThrowsHtml(c)}${dailyMagicSummaryHtml(c)}</section>
   </div>`;
 }
 
@@ -2337,7 +2365,7 @@ function equippedWeaponsHtml(c) {
     const runtime = runtimeByEquipment.get(Number(item.equipment_id));
     return runtime ? weaponCardHtml(runtime, item.equipment, weaponProficiencyLabel(item.equipment_id, profs), c) : "";
   }).filter(Boolean).join("");
-  return weaponCards || `<p class="vault-muted">No equipped weapons.</p>`;
+  return weaponCards ? `<div class="vault-equipped-weapon-grid">${weaponCards}</div>` : `<p class="vault-muted">No equipped weapons.</p>`;
 }
 
 function weaponCardHtml(runtime, equipment = {}, proficiencyLabel = "", character = {}) {

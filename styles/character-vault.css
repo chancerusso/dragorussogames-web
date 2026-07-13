@@ -1160,6 +1160,54 @@
   text-align:right;
 }
 
+.vault-daily-magic{
+  border-top:1px solid rgba(75,47,31,.16);
+  margin-top:12px;
+  padding-top:10px;
+}
+
+.vault-daily-magic h4{
+  color:#4b1b16;
+  font-family:'Cinzel',serif;
+  font-size:.76rem;
+  margin:0 0 8px;
+  text-transform:uppercase;
+}
+
+.vault-magic-slot-list,
+.vault-prepared-spell-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+
+.vault-magic-slot-list{
+  margin-bottom:8px;
+}
+
+.vault-magic-slot-list span,
+.vault-prepared-spell-list span,
+.vault-prepared-spell-list em{
+  border:1px solid rgba(75,47,31,.16);
+  border-radius:999px;
+  background:rgba(255,250,240,.7);
+  color:#4b392f;
+  font-size:.72rem;
+  font-style:normal;
+  line-height:1.2;
+  max-width:100%;
+  overflow-wrap:anywhere;
+  padding:5px 7px;
+}
+
+.vault-magic-slot-list strong{
+  color:#7c211a;
+  font-family:'Cinzel',serif;
+  font-size:.68rem;
+  margin-right:4px;
+  text-transform:uppercase;
+}
+
 .vault-combat-summary,
 .vault-mini-stat-grid{
   display:grid;
@@ -1295,63 +1343,82 @@
   margin-bottom:8px;
 }
 
+.vault-equipped-weapon-grid{
+  display:grid;
+  gap:10px;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+
 .vault-weapon-card{
   border:1px solid rgba(75,47,31,.28);
   border-radius:8px;
   background:linear-gradient(180deg,#fff8eb,#ead8b8);
   box-shadow:0 10px 24px rgba(39,26,14,.10);
   color:#21140f;
-  margin:8px 0;
-  padding:10px 12px;
+  margin:0;
+  min-width:0;
+  overflow:hidden;
+  padding:9px 10px;
 }
 
 .vault-weapon-head{
   align-items:flex-start;
   display:flex;
-  gap:14px;
+  gap:8px;
   justify-content:space-between;
+  min-width:0;
+}
+
+.vault-weapon-head > div{
+  min-width:0;
 }
 
 .vault-weapon-head h3{
   font-family:'Cinzel',serif;
-  font-size:1.05rem;
+  font-size:.9rem;
   line-height:1.2;
   margin:0 0 3px;
+  overflow-wrap:anywhere;
   text-transform:uppercase;
 }
 
 .vault-weapon-head p{
   color:#6b5948;
-  font-size:.82rem;
+  font-size:.74rem;
   font-weight:800;
   margin:0;
+  overflow-wrap:anywhere;
 }
 
 .vault-weapon-stat-block{
   display:grid;
-  gap:4px;
-  margin-top:8px;
+  gap:2px 10px;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  margin-top:7px;
 }
 
 .vault-weapon-stat-block div{
   align-items:baseline;
   display:grid;
-  gap:12px;
-  grid-template-columns:minmax(72px,.35fr) minmax(0,1fr);
+  gap:6px;
+  grid-template-columns:minmax(54px,max-content) minmax(0,1fr);
+  min-width:0;
 }
 
 .vault-weapon-stat-block span{
   color:#7c211a;
   font-family:'Cinzel',serif;
-  font-size:.68rem;
+  font-size:.62rem;
   font-weight:900;
   text-transform:uppercase;
 }
 
 .vault-weapon-stat-block strong{
   color:#21140f;
-  font-size:.96rem;
+  font-size:.82rem;
   font-weight:900;
+  min-width:0;
+  overflow-wrap:anywhere;
 }
 
 .vault-weapon-head > strong{
@@ -1400,14 +1467,15 @@
 .vault-breakdown-list div{
   align-items:center;
   border-bottom:1px solid rgba(75,47,31,.12);
-  display:flex;
-  gap:12px;
-  justify-content:space-between;
+  display:grid;
+  gap:8px;
+  grid-template-columns:minmax(112px,max-content) minmax(0,1fr);
   padding:4px 0;
 }
 
 .vault-breakdown-list strong{
   color:#21140f;
+  overflow-wrap:anywhere;
 }
 
 .vault-breakdown-list em{
@@ -1619,6 +1687,7 @@
   .vault-combat-body{
     grid-template-columns:1fr;
   }
+  .vault-equipped-weapon-grid,
   .vault-combat-summary{
     grid-template-columns:repeat(2,minmax(0,1fr));
   }
@@ -1653,5 +1722,12 @@
   }
   .vault-choice-title-row{
     display:grid;
+  }
+}
+
+@media (max-width: 560px){
+  .vault-equipped-weapon-grid,
+  .vault-weapon-stat-block{
+    grid-template-columns:1fr;
   }
 }
