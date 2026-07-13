@@ -222,3 +222,10 @@ test("OSRIC reference shell exposes a persistent player portal return", () => {
   assert.match(shellSource, /Return to Player Portal/);
   assert.match(shellSource, /one-e-portal-return/);
 });
+
+test("OSRIC reference shell does not crash when loaded by React character routes", () => {
+  const shellSource = readFileSync(resolve(repoRoot, "components/first-edition-app.js"), "utf8");
+  assert.match(shellSource, /const nav = document\.querySelector\("\[data-rules-nav\]"\);\n  if \(!nav\) return;/);
+  assert.match(shellSource, /const sidebar = document\.querySelector\("\[data-section-nav\]"\);\n  if \(!sidebar\) return;/);
+  assert.match(shellSource, /const article = document\.querySelector\("\[data-markdown\]"\);\n  if \(!article\) return;/);
+});

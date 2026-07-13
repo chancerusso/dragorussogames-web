@@ -36,6 +36,7 @@ const AuthContext = createContext(null);
 const PlayerPortalContext = createContext(null);
 const SETTINGS = ["dragonlance", "greyhawk"];
 const DRAGONLANCE_RACE_PATH = "/content/settings/dragonlance/races/";
+const CLASSIC_STATIC_VERSION = "2026-07-13-facing-ac-v3";
 const BUNDLED_DRAGONLANCE_RACE_FILES = {
   "gully-dwarf.json": gullyDwarfRace,
   "half-elf.json": halfElfRace,
@@ -1143,10 +1144,10 @@ function PlayerVaultToolPage() {
   useEffect(() => {
     ensureStylesheet("/style.css");
     ensureStylesheet("/styles/first-edition.css");
-    ensureStylesheet("/styles/character-vault.css");
+    ensureStylesheet(versionedClassicAsset("/styles/character-vault.css"), "character-vault");
     document.querySelector("[data-vault-app]")?.replaceChildren();
-    loadClassicScript("/components/first-edition-app.js", "player-vault-rules-nav")
-      .then(() => loadClassicScript("/components/character-vault.js", "player-vault-character-vault"))
+    loadClassicScript(versionedClassicAsset("/components/first-edition-app.js"), "player-vault-rules-nav")
+      .then(() => loadClassicScript(versionedClassicAsset("/components/character-vault.js"), "player-vault-character-vault"))
       .catch((error) => {
         const node = document.querySelector("[data-vault-app]");
         if (node) node.textContent = error?.message || "Unable to load character tools.";
@@ -1156,11 +1157,19 @@ function PlayerVaultToolPage() {
   return <main className="vault-shell" data-vault-app />;
 }
 
-function ensureStylesheet(href) {
-  if (document.querySelector(`link[href="${href}"]`)) return;
+function versionedClassicAsset(path) {
+  return `${path}?v=${CLASSIC_STATIC_VERSION}`;
+}
+
+function ensureStylesheet(href, id = "") {
+  const selector = id ? `link[data-classic-stylesheet="${id}"]` : `link[href="${href}"]`;
+  const existing = document.querySelector(selector);
+  if (existing?.getAttribute("href") === href) return;
+  existing?.remove();
   const link = document.createElement("link");
   link.rel = "stylesheet";
   link.href = href;
+  if (id) link.dataset.classicStylesheet = id;
   document.head.appendChild(link);
 }
 

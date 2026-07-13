@@ -506,6 +506,7 @@ function topSection(slug) {
 
 function renderNav(slug) {
   const nav = document.querySelector("[data-rules-nav]");
+  if (!nav) return;
   const active = topSection(slug);
   nav.innerHTML = navItems
     .map((item) => {
@@ -529,6 +530,7 @@ function renderPortalReturn() {
 
 function renderSidebar(slug) {
   const sidebar = document.querySelector("[data-section-nav]");
+  if (!sidebar) return;
   const section = topSection(slug);
   const items = sectionItems[section] || navItems.map((item) => [item.title, item.href]);
 
@@ -566,6 +568,7 @@ function renderSectionCards(slug) {
 async function loadPage() {
   const slug = currentSlug();
   const article = document.querySelector("[data-markdown]");
+  if (!article) return;
 
   renderPortalReturn();
   renderNav(slug);
