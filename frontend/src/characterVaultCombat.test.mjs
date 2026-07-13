@@ -98,18 +98,17 @@ test("sheet top line shows constant combat stats and HP", () => {
   assert.match(vaultCss, /\.vault-topline\{[\s\S]*?grid-template-columns:repeat\(6,minmax\(0,1fr\)\)/);
 });
 
-test("sheet header actions sit inline with race class details", () => {
+test("sheet header actions sit under the left combat summary", () => {
   const headerMatch = vaultSource.match(/function sheetHeaderHtml\(c\) \{([\s\S]*?)function raceClassSummaryHtml/);
   assert.ok(headerMatch);
   const header = headerMatch[1];
-  assert.match(header, /vault-sheet-header-controls/);
-  assert.ok(header.indexOf("vault-sheet-header-controls") < header.indexOf("data-quick-edit-open"));
-  assert.ok(header.indexOf("Open Details") < header.indexOf("data-level-up-open"));
-  assert.match(vaultCss, /\.vault-sheet-header-controls\{[\s\S]*?display:flex/);
-  assert.match(vaultCss, /\.vault-sheet-header-controls\{[\s\S]*?flex-wrap:nowrap/);
-  assert.match(vaultCss, /\.vault-sheet-header-controls \.vault-actions\{[\s\S]*?flex-wrap:nowrap/);
-  assert.match(vaultCss, /\.vault-sheet-header-controls \.vault-button\{[\s\S]*?font-size:\.68rem/);
-  assert.match(vaultCss, /\.vault-sheet-header-controls \.vault-breakdown\[open\]\{[\s\S]*?flex-basis:100%/);
+  assert.match(header, /vault-sheet-primary/);
+  assert.match(header, /vault-actions vault-sheet-actions/);
+  assert.ok(header.indexOf("vault-topline") < header.indexOf("vault-sheet-actions"));
+  assert.ok(header.indexOf("vault-sheet-actions") < header.indexOf("vault-sheet-race-class"));
+  assert.ok(header.indexOf("Open Details") > header.indexOf("vault-sheet-race-class"));
+  assert.match(vaultCss, /\.vault-sheet-actions\{[\s\S]*?margin-top:10px/);
+  assert.match(vaultCss, /\.vault-sheet-actions \.vault-button\{[\s\S]*?white-space:nowrap/);
   assert.match(vaultCss, /\.vault-hero-compact\{[\s\S]*?gap:8px/);
 });
 

@@ -2009,7 +2009,7 @@ function sheetHeaderHtml(c) {
   const thac0 = runtime.thac0?.final_thac0 ?? runtime.thac0?.base_thac0 ?? "-";
   return `<section class="vault-sheet-header">
     <div class="vault-sheet-header-grid">
-      <div>
+      <div class="vault-sheet-primary">
         <div class="vault-sheet-title">
           <h2>${h(c.name || "Unnamed")}</h2>
           <div class="vault-identity-pills">
@@ -2025,14 +2025,12 @@ function sheetHeaderHtml(c) {
           <span><strong>Move</strong>${h(c.combat?.movement_rate ?? 120)}'</span>
           <span><strong>Enc</strong>${h(encumbranceSummary(c))}</span>
         </div>
+        <div class="vault-actions vault-sheet-actions"><button class="vault-button secondary" type="button" data-quick-edit-open>Quick Edit</button><a class="vault-button secondary" href="${characterEditHref(c.id || "")}">Full Edit</a><button class="vault-button secondary" type="button" data-level-up-open>Level Up</button></div>
       </div>
       <aside class="vault-sheet-race-class">
         <div class="vault-kicker">Race / Class</div>
         ${raceClassSummaryHtml(c)}
-        <div class="vault-sheet-header-controls">
-          <details class="vault-breakdown"><summary>Open Details</summary>${raceClassDetailsHtml(c)}</details>
-          <div class="vault-actions"><button class="vault-button secondary" type="button" data-quick-edit-open>Quick Edit</button><a class="vault-button secondary" href="${characterEditHref(c.id || "")}">Full Edit</a><button class="vault-button secondary" type="button" data-level-up-open>Level Up</button></div>
-        </div>
+        <details class="vault-breakdown"><summary>Open Details</summary>${raceClassDetailsHtml(c)}</details>
       </aside>
     </div>
     ${warningsHtml(c)}

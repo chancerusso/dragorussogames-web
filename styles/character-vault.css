@@ -718,38 +718,12 @@
   margin:6px 0 0;
 }
 
-.vault-sheet-header-controls{
-  align-items:center;
-  border-top:1px solid rgba(75,47,31,.18);
-  display:flex;
-  flex-wrap:nowrap;
-  gap:8px;
-  justify-content:space-between;
-  margin-top:8px;
-  padding-top:7px;
+.vault-sheet-actions{
+  margin-top:10px;
 }
 
-.vault-sheet-header-controls .vault-breakdown{
-  border-top:0;
-  margin-top:0;
-  min-width:max-content;
-  padding-top:0;
-}
-
-.vault-sheet-header-controls .vault-breakdown[open]{
-  flex-basis:100%;
-  order:2;
-}
-
-.vault-sheet-header-controls .vault-actions{
-  flex:1 1 auto;
-  flex-wrap:nowrap;
-  justify-content:flex-end;
-}
-
-.vault-sheet-header-controls .vault-button{
-  font-size:.68rem;
-  padding:7px 10px;
+.vault-sheet-actions .vault-button{
+  padding:8px 13px;
   white-space:nowrap;
 }
 
