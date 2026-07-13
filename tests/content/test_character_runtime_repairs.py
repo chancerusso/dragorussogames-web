@@ -572,6 +572,28 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertEqual(14, payload["combat"]["runtime"]["thac0"]["final_thac0"])
         self.assertEqual("3 attacks every 2 rounds", payload["combat"]["runtime"]["attacks_per_round"]["value"])
 
+    def test_knight_of_the_sword_uses_cleric_spell_slots(self) -> None:
+        character = create_vault_character_for_player(
+            {
+                "name": "Sword Slot Test",
+                "race": "Human",
+                "class_name": "Knight of the Sword",
+                "alignment": "Lawful Good",
+                "level": 7,
+                "xp": 189000,
+                "abilities": {"strength": 17, "intelligence": 9, "wisdom": 10, "dexterity": 14, "constitution": 12, "charisma": 10},
+                "combat": {"max_hp": 33, "current_hp": 33},
+                "coins": {},
+            },
+            self.player,
+            self.db,
+        )
+        payload = character_payload(self.db.get(VaultCharacter, character["id"]))
+
+        self.assertEqual("Fighter", payload["class_details"]["rules_class_name"])
+        self.assertEqual({"1": 2, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0}, payload["spell_slots"]["slots"])
+        self.assertEqual({"1": 2, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0}, payload["spell_slots"]["remaining"])
+
     def test_magic_user_and_cleric_combat_sources_are_separate(self) -> None:
         magic_user = create_vault_character_for_player(
             {

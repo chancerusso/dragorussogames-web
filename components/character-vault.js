@@ -924,7 +924,7 @@ function proficiencyManager() {
 function spellManager() {
   const className = state.draft.class_name;
   const classKeys = spellListKeysForClass(className);
-  const classInfo = state.rules.classes[spellRulesClassName(className)] || {};
+  const classInfo = spellClassInfo(className);
   const starts = classInfo.spellcasting_starts_level || 1;
   const spells = spellsForCurrentClass().slice(0, 90);
   if (!classInfo.spellcaster || !classKeys.length || Number(state.draft.level || 1) < starts) return `<div class="vault-full"><p>This class has no spells at this level.</p><p class="vault-rules">Rules: <a href="/1e/how-to-play/magic/">Magic</a></p></div>`;
@@ -979,7 +979,19 @@ function knownSpellEntry(spellId) {
 }
 
 function spellRulesClassName(className) {
+  if (className === "Knight of the Sword") return "Knight of the Sword";
   return rulesClassName(className);
+}
+
+function spellClassInfo(className) {
+  if (spellRulesClassName(className) === "Knight of the Sword") {
+    return {
+      spellcaster: true,
+      spell_lists: ["cleric"],
+      spellcasting_starts_level: 6,
+    };
+  }
+  return state.rules?.classes?.[spellRulesClassName(className)] || {};
 }
 
 function rulesClassName(className) {
@@ -996,7 +1008,7 @@ function rulesClassName(className) {
 }
 
 function spellListKeysForClass(className) {
-  const classInfo = state.rules?.classes?.[spellRulesClassName(className)] || {};
+  const classInfo = spellClassInfo(className);
   return classInfo.spell_lists || [];
 }
 
@@ -1015,7 +1027,7 @@ function spellMatchesClass(spell, classKeys = spellListKeysForClass(state.draft.
 
 function spellAllowedAtCurrentLevel(spell) {
   const level = Number(state.draft.level || 1);
-  const starts = Number((state.rules?.classes?.[spellRulesClassName(state.draft.class_name)] || {}).spellcasting_starts_level || 1);
+  const starts = Number(spellClassInfo(state.draft.class_name).spellcasting_starts_level || 1);
   if (level < starts) return false;
   const summary = state.character?.class_name === state.draft.class_name && Number(state.character?.level) === level ? state.character.spell_slots : null;
   if (!summary?.slots) return Number(spell.spell_level) === 1;

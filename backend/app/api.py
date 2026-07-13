@@ -737,7 +737,19 @@ def character_spell_entries(character: VaultCharacter, exclude_id: int | None = 
 
 
 def spell_rules_class_name(class_name: str) -> str:
+    if class_name == "Knight of the Sword":
+        return "Knight of the Sword"
     return rules_class_name(class_name)
+
+
+def spell_class_info(class_name: str) -> dict:
+    if spell_rules_class_name(class_name) == "Knight of the Sword":
+        return {
+            "spellcaster": True,
+            "spell_lists": ["cleric"],
+            "spellcasting_starts_level": 6,
+        }
+    return CLASSES.get(spell_rules_class_name(class_name), {})
 
 
 def rules_class_name(class_name: str) -> str:
@@ -791,7 +803,7 @@ def spell_has_available_slot(class_name: str, level: int, spell: SpellsCatalog) 
 
 def validate_spell_preparation(character: VaultCharacter, spell: SpellsCatalog, data: dict, exclude_id: int | None = None) -> None:
     rules_class = spell_rules_class_name(character.class_name)
-    class_info = CLASSES.get(rules_class, {})
+    class_info = spell_class_info(character.class_name)
     class_lists = class_info.get("spell_lists") or []
     if not class_lists:
         raise HTTPException(status_code=422, detail=f"{character.class_name} does not have normal spell preparation.")

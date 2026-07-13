@@ -568,6 +568,22 @@ RANGER_MAGIC_USER_SLOTS = {
     17: "2/2", 18: "2/2", 19: "3/2", 20: "3/2", 21: "3/3", 22: "3/3", 23: "3/3", 24: "4/3",
 }
 
+SWORD_KNIGHT_CLERIC_SLOTS = {
+    6: "1/-/-/-/-/-/-",
+    7: "2/-/-/-/-/-/-",
+    8: "2/1/-/-/-/-/-",
+    9: "3/2/-/-/-/-/-",
+    10: "4/2/-/-/-/-/-",
+    11: "4/2/1/-/-/-/-",
+    12: "5/3/1/1/-/-/-",
+    13: "6/4/1/1/1/-/-",
+    14: "7/5/2/1/1/1/-",
+    15: "8/6/3/2/1/1/1",
+    16: "9/7/3/2/2/1/1",
+    17: "9/8/4/3/3/2/1",
+    18: "9/9/5/4/3/2/1",
+}
+
 
 def spell_slots(class_name: str, level: int) -> dict:
     if class_name == "Ranger":
@@ -575,6 +591,8 @@ def spell_slots(class_name: str, level: int) -> dict:
             "druid": slots_from_rows(RANGER_DRUID_SLOTS, level),
             "magic-user": slots_from_rows(RANGER_MAGIC_USER_SLOTS, level),
         }
+    if class_name == "Knight of the Sword":
+        return slots_from_rows(SWORD_KNIGHT_CLERIC_SLOTS, level)
     table = SPELL_SLOT_TABLES.get(class_name)
     return slots_from_rows(table or {}, level)
 

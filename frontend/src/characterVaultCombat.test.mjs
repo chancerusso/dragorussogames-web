@@ -230,6 +230,13 @@ test("spell section is collapsible and tracks duplicate prepared spells", () => 
   assert.match(vaultSource, /memorized_count: Math\.max\(0, currentCount - 1\)/);
 });
 
+test("sword knights use cleric spell slots in the builder", () => {
+  assert.match(vaultSource, /if \(spellRulesClassName\(className\) === "Knight of the Sword"\)/);
+  assert.match(vaultSource, /spell_lists: \["cleric"\]/);
+  assert.match(vaultSource, /spellcasting_starts_level: 6/);
+  assert.match(vaultSource, /const classInfo = spellClassInfo\(className\)/);
+});
+
 test("saving throws use compact classic rows without source text", () => {
   assert.match(vaultCss, /\.vault-saving-row summary::after/);
   assert.match(vaultCss, /border-bottom:1px dotted/);
