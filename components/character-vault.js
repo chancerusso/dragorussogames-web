@@ -880,12 +880,12 @@ function equipmentRows(items) {
     const added = Boolean(inventoryItem);
     const equipped = inventoryItem?.status === "equipped";
     const equipLabel = equipped ? "Equipped ✓" : feedback === "equipped" ? "Equipped ✓" : "Equip";
-    const addLabel = added || feedback === "added" ? "Added ✓" : "Add";
+    const addLabel = added || feedback === "added" ? "Add +1" : "Add";
     const status = equipmentUseStatus(allowed);
     const restricted = !allowed.allowed && !state.dmOverride;
     const preview = state.equipmentPreviews[item.id];
     const previewButton = item.type === "weapon" && !ammo ? ` <button class="vault-button secondary" type="button" data-preview-equipment="${item.id}">${preview ? "Hide Preview" : "Preview"}</button>` : "";
-    return `<tr class="${allowed.allowed ? "" : "vault-warn-row"}"><td><strong>${h(item.name)}</strong><br><span class="vault-mini">${h(displayReference(detail))}</span></td><td>${h(equipmentDisplayType(item))}</td><td>${h(item.weight)}</td><td>${h(item.cost_amount ?? "")} ${h(item.cost_coin ?? "")}</td><td><span class="${h(status.className)}">${h(status.label)}</span><br><span class="vault-mini">${h(status.reason)}</span></td><td><button class="vault-button secondary" type="button" data-add-equipment="${item.id}" data-status="carried" ${added || restricted ? "disabled" : ""}>${addLabel}</button> <button class="vault-button secondary" type="button" data-add-equipment="${item.id}" data-status="equipped" ${equipped || restricted ? "disabled" : ""}>${equipLabel}</button>${previewButton}${equipped ? ` <button class="vault-button secondary" type="button" data-inventory-action="${inventoryItem.id}:carried">Unequip</button>` : ""}</td></tr>${preview ? `<tr class="vault-preview-row"><td colspan="6">${builderWeaponPreviewHtml(preview)}</td></tr>` : ""}`;
+    return `<tr class="${allowed.allowed ? "" : "vault-warn-row"}"><td><strong>${h(item.name)}</strong><br><span class="vault-mini">${h(displayReference(detail))}</span></td><td>${h(equipmentDisplayType(item))}</td><td>${h(item.weight)}</td><td>${h(item.cost_amount ?? "")} ${h(item.cost_coin ?? "")}</td><td><span class="${h(status.className)}">${h(status.label)}</span><br><span class="vault-mini">${h(status.reason)}</span></td><td><button class="vault-button secondary" type="button" data-add-equipment="${item.id}" data-status="carried" ${restricted ? "disabled" : ""}>${addLabel}</button> <button class="vault-button secondary" type="button" data-add-equipment="${item.id}" data-status="equipped" ${equipped || restricted ? "disabled" : ""}>${equipLabel}</button>${previewButton}${equipped ? ` <button class="vault-button secondary" type="button" data-inventory-action="${inventoryItem.id}:carried">Unequip</button>` : ""}</td></tr>${preview ? `<tr class="vault-preview-row"><td colspan="6">${builderWeaponPreviewHtml(preview)}</td></tr>` : ""}`;
   }).join("");
 }
 
@@ -1499,11 +1499,15 @@ async function addOrUpdateInventoryItem(equipmentId, status = "carried") {
   const character = await ensureSaved();
   const existing = (character.inventory || []).find((item) => Number(item.equipment_id) === Number(equipmentId));
   if (existing) {
+    const existingQuantity = Number(existing.quantity || 0);
+    const quantityStep = initialEquipmentQuantity(equipmentId);
+    const nextStatus = status === "equipped" ? "equipped" : existing.status || "carried";
     state.character = await characterApi(`/${character.id}/inventory/${existing.id}`, {
       method: "PUT",
       body: JSON.stringify({
-        status,
-        storage_location: status === "stored" ? "Stored" : null,
+        quantity: status === "carried" ? existingQuantity + quantityStep : Math.max(existingQuantity, quantityStep),
+        status: nextStatus,
+        storage_location: nextStatus === "stored" ? "Stored" : null,
         dm_override: state.dmOverride,
       }),
     });
@@ -1788,6 +1792,7 @@ function bindInventoryActions(afterAction) {
         });
       }
       state.draft = initialDraft();
+      state.sheetDisclosure.inventoryOpen = true;
       toast(inventoryActionMessage(status), "success");
       afterAction({ preserveScrollY, changedInventoryId: id, keepInventoryVisible: true });
     } catch (error) {
@@ -2185,7 +2190,7 @@ function inventoryRow(item, proficiencies = []) {
   const status = isStored && item.storage_location ? `${labelize(item.status)} at ${item.storage_location}` : labelize(item.status);
   const proficiencyClass = proficiency === "Proficient" ? "vault-status-good" : "vault-muted";
   const weight = formatWeight(item.total_weight ?? ((equipment.weight || 0) * item.quantity));
-  const quantityActions = ammo ? `<span class="vault-ammo-quantity"><button type="button" class="vault-button secondary" data-inventory-action="${item.id}:quantity:${Math.max(0, Number(item.quantity || 0) - 1)}">-</button><strong>${h(item.quantity || 0)}</strong><button type="button" class="vault-button secondary" data-inventory-action="${item.id}:quantity:${Number(item.quantity || 0) + 1}">+</button></span>` : "";
+  const quantityActions = `<span class="vault-ammo-quantity"><button type="button" class="vault-button secondary" data-inventory-action="${item.id}:quantity:${Math.max(0, Number(item.quantity || 0) - 1)}">-</button><strong>${h(item.quantity || 0)}</strong><button type="button" class="vault-button secondary" data-inventory-action="${item.id}:quantity:${Number(item.quantity || 0) + 1}">+</button></span>`;
   return `<tr class="${isEquipped ? "vault-equipped-row" : ""}" data-inventory-row="${h(item.id)}"><td>${ammo ? `<strong>${h(itemName)}</strong> ×${h(item.quantity || 0)}` : `${h(item.quantity)} x <strong>${h(itemName)}</strong>`}<br><span class="vault-mini">${damage ? `Damage ${h(damage)}` : ""}${damage && proficiency ? " / " : ""}${proficiency ? `<span class="${proficiencyClass}">${h(proficiency)}</span>` : ""}</span></td><td>${h(equipmentDisplayType(equipment))}</td><td>${h(weight)}</td><td>${h(cost)}</td><td>${h(status)}</td><td>${quantityActions}${isEquipped ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Unequip</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:equipped">Equip</button>`} ${isStored ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Carry</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:stored">Store</button>`} <button type="button" class="vault-button secondary" data-inventory-action="${item.id}:delete">Drop</button></td></tr>`;
 }
 

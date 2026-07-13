@@ -307,13 +307,21 @@ test("equipment catalog is scrollable and no longer hard-caps first rows", () =>
   assert.doesNotMatch(vaultSource, /classAwareEquipment\(\)\.slice\(0, 40\)/);
 });
 
-test("inventory drop deletes rows and ammo gets quantity controls", () => {
+test("inventory drop deletes rows and inventory rows get quantity controls", () => {
   assert.match(vaultSource, /data-inventory-action="\$\{item\.id\}:delete"/);
   assert.match(vaultSource, /Drop Item/);
   assert.match(vaultSource, /status === "quantity"/);
   assert.match(vaultSource, /vault-ammo-quantity/);
   assert.match(vaultSource, /inventoryActionMessage\(status\)/);
   assert.doesNotMatch(vaultSource, /"dropped", "Dropped"/);
+  assert.doesNotMatch(vaultSource, /const quantityActions = ammo \?/);
+});
+
+test("equipment catalog supports adding another copy of an existing item", () => {
+  assert.match(vaultSource, /const addLabel = added \|\| feedback === "added" \? "Add \+1" : "Add"/);
+  assert.match(vaultSource, /quantity: status === "carried" \? existingQuantity \+ quantityStep : Math\.max\(existingQuantity, quantityStep\)/);
+  assert.match(vaultSource, /const nextStatus = status === "equipped" \? "equipped" : existing\.status \|\| "carried"/);
+  assert.doesNotMatch(vaultSource, /data-status="carried" \$\{added \|\| restricted \? "disabled" : ""\}/);
 });
 
 test("sheet disclosure state survives inventory refreshes", () => {
@@ -324,6 +332,7 @@ test("sheet disclosure state survives inventory refreshes", () => {
   assert.match(vaultSource, /data-sheet-disclosure="campaignOpen"/);
   assert.match(vaultSource, /details\.addEventListener\("toggle"/);
   assert.match(vaultSource, /afterAction\(\{ preserveScrollY, changedInventoryId: id, keepInventoryVisible: true \}\)/);
+  assert.match(vaultSource, /state\.sheetDisclosure\.inventoryOpen = true/);
   assert.match(vaultSource, /function restoreSheetPosition/);
   assert.match(vaultSource, /data-inventory-row="\$\{h\(item\.id\)\}"/);
   assert.doesNotMatch(vaultSource, /sheetDisclosure: \{ inventoryOpen: false, spellsOpen: true, campaignOpen: false \}[\s\S]*?state\.sheetDisclosure =/);

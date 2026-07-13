@@ -36,7 +36,7 @@ const AuthContext = createContext(null);
 const PlayerPortalContext = createContext(null);
 const SETTINGS = ["dragonlance", "greyhawk"];
 const DRAGONLANCE_RACE_PATH = "/content/settings/dragonlance/races/";
-const CLASSIC_STATIC_VERSION = "2026-07-13-facing-ac-v12";
+const CLASSIC_STATIC_VERSION = "2026-07-13-facing-ac-v13";
 const BUNDLED_DRAGONLANCE_RACE_FILES = {
   "gully-dwarf.json": gullyDwarfRace,
   "half-elf.json": halfElfRace,
