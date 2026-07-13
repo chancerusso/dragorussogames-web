@@ -324,6 +324,16 @@ test("equipment catalog supports adding another copy of an existing item", () =>
   assert.doesNotMatch(vaultSource, /data-status="carried" \$\{added \|\| restricted \? "disabled" : ""\}/);
 });
 
+test("builder equipment actions keep the inventory area visible", () => {
+  assert.match(vaultSource, /function renderBuilder\(options = \{\}\)/);
+  assert.match(vaultSource, /restoreBuilderPosition\(options\)/);
+  assert.match(vaultSource, /data-builder-inventory/);
+  assert.match(vaultSource, /const catalogScrollTop = document\.querySelector\("\.vault-equipment-catalog-scroll"\)\?\.scrollTop \|\| 0/);
+  assert.match(vaultSource, /renderBuilder\(\{ preserveScrollY, catalogScrollTop, keepInventoryVisible: true \}\)/);
+  assert.match(vaultSource, /bindInventoryActions\(\(renderOptions\) => renderBuilder\(renderOptions\)\)/);
+  assert.match(vaultSource, /function restoreBuilderPosition\(options = \{\}\)/);
+});
+
 test("sheet disclosure state survives inventory refreshes", () => {
   assert.match(vaultSource, /sheetDisclosure: \{ inventoryOpen: false, spellsOpen: true, campaignOpen: false \}/);
   assert.match(vaultSource, /function bindSheetDisclosureState/);
@@ -331,7 +341,7 @@ test("sheet disclosure state survives inventory refreshes", () => {
   assert.match(vaultSource, /state\.sheetDisclosure\.inventoryOpen \? "open" : ""/);
   assert.match(vaultSource, /data-sheet-disclosure="campaignOpen"/);
   assert.match(vaultSource, /details\.addEventListener\("toggle"/);
-  assert.match(vaultSource, /afterAction\(\{ preserveScrollY, changedInventoryId: id, keepInventoryVisible: true \}\)/);
+  assert.match(vaultSource, /afterAction\(\{ preserveScrollY, catalogScrollTop, changedInventoryId: id, keepInventoryVisible: true \}\)/);
   assert.match(vaultSource, /state\.sheetDisclosure\.inventoryOpen = true/);
   assert.match(vaultSource, /function restoreSheetPosition/);
   assert.match(vaultSource, /data-inventory-row="\$\{h\(item\.id\)\}"/);

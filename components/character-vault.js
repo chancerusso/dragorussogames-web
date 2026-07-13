@@ -604,7 +604,7 @@ function initialDraft() {
   };
 }
 
-function renderBuilder() {
+function renderBuilder(options = {}) {
   state.draft ||= initialDraft();
   const steps = ["Start", "Abilities", "Race", "Class", "Alignment", "Hit Points", "Money", "Equipment", "Proficiencies", "Spells", "Review"];
   const dataGate = builderStepDataGate();
@@ -619,6 +619,7 @@ function renderBuilder() {
   document.querySelector("[data-builder-form]").addEventListener("input", syncDraft);
   document.querySelector("[data-builder-form]").addEventListener("change", syncDraft);
   bindBuilderActions();
+  restoreBuilderPosition(options);
 }
 
 function builderStepDataGate() {
@@ -862,7 +863,7 @@ function equipmentManager() {
       <label class="vault-check"><input type="checkbox" name="dm_override" ${state.dmOverride ? "checked" : ""}> DM override equip restrictions</label>
     </div>
     <div class="vault-equipment-catalog-scroll"><table class="vault-table"><thead><tr><th>Item</th><th>Type</th><th>Wt</th><th>Cost</th><th>Use</th><th></th></tr></thead><tbody data-equipment-results>${equipmentRows(filteredEquipmentRows())}</tbody></table></div>
-    <h3>Character Inventory</h3>${state.character?.inventory?.length ? inventoryTable(state.character.inventory, state.character.weapon_proficiencies || []) : `<p class="vault-muted">No equipment added yet.</p>`}
+    <h3 data-builder-inventory>Character Inventory</h3>${state.character?.inventory?.length ? inventoryTable(state.character.inventory, state.character.weapon_proficiencies || []) : `<p class="vault-muted">No equipment added yet.</p>`}
     <p class="vault-rules">Rules: <a href="/1e/equipment/">OSRIC equipment catalog</a>. Free-typed player equipment is intentionally blocked.</p>
   </div>`;
 }
@@ -1369,11 +1370,13 @@ function bindBuilderActions() {
     event.preventDefault();
     const equipmentId = Number(button.dataset.addEquipment);
     const status = button.dataset.status || "carried";
+    const preserveScrollY = window.scrollY;
+    const catalogScrollTop = document.querySelector(".vault-equipment-catalog-scroll")?.scrollTop || 0;
     await addOrUpdateInventoryItem(equipmentId, status);
     state.equipmentFeedback[equipmentId] = status === "equipped" ? "equipped" : "added";
     state.draft = initialDraft();
     toast(status === "equipped" ? "Equipped." : "Added.", "success");
-    renderBuilder();
+    renderBuilder({ preserveScrollY, catalogScrollTop, keepInventoryVisible: true });
   }));
   document.querySelectorAll("[data-preview-equipment]").forEach((button) => button.addEventListener("click", async (event) => {
     event.preventDefault();
@@ -1419,7 +1422,7 @@ function bindBuilderActions() {
       toast(readableError(error));
     }
   }));
-  bindInventoryActions(() => renderBuilder());
+  bindInventoryActions((renderOptions) => renderBuilder(renderOptions));
   document.querySelector("[name='equipment_search']")?.addEventListener("input", (event) => { state.equipmentFilters.q = event.target.value; filterEquipment(); });
   document.querySelector("[name='equipment_type']")?.addEventListener("change", (event) => { state.equipmentFilters.type = event.target.value; filterEquipment(); });
   document.querySelector("[name='allowed_only']")?.addEventListener("change", (event) => { state.equipmentFilters.allowedOnly = event.target.checked; filterEquipment(); });
@@ -1770,6 +1773,7 @@ function bindInventoryActions(afterAction) {
     const [id, status, value] = button.dataset.inventoryAction.split(":");
     const item = (state.character.inventory || []).find((entry) => String(entry.id) === String(id));
     const preserveScrollY = window.scrollY;
+    const catalogScrollTop = document.querySelector(".vault-equipment-catalog-scroll")?.scrollTop;
     try {
       if (status === "delete") {
         if (!(await confirmDropItem(item))) return;
@@ -1794,7 +1798,7 @@ function bindInventoryActions(afterAction) {
       state.draft = initialDraft();
       state.sheetDisclosure.inventoryOpen = true;
       toast(inventoryActionMessage(status), "success");
-      afterAction({ preserveScrollY, changedInventoryId: id, keepInventoryVisible: true });
+      afterAction({ preserveScrollY, catalogScrollTop, changedInventoryId: id, keepInventoryVisible: true });
     } catch (error) {
       toast(readableError(error));
     }
@@ -1811,6 +1815,24 @@ function restoreSheetPosition(options = {}) {
       window.scrollTo({ top: options.preserveScrollY, left: 0 });
     } else if (options.keepInventoryVisible) {
       document.querySelector(".vault-sheet-inventory")?.scrollIntoView({ block: "nearest" });
+    }
+  });
+}
+
+function restoreBuilderPosition(options = {}) {
+  if (options.catalogScrollTop !== undefined) {
+    const catalog = document.querySelector(".vault-equipment-catalog-scroll");
+    if (catalog) catalog.scrollTop = options.catalogScrollTop;
+  }
+  if (options.preserveScrollY === undefined && !options.changedInventoryId && !options.keepInventoryVisible) return;
+  window.requestAnimationFrame(() => {
+    const row = options.changedInventoryId ? document.querySelector(`[data-inventory-row="${options.changedInventoryId}"]`) : null;
+    if (row) {
+      row.scrollIntoView({ block: "nearest" });
+    } else if (options.keepInventoryVisible) {
+      document.querySelector("[data-builder-inventory]")?.scrollIntoView({ block: "nearest" });
+    } else if (options.preserveScrollY !== undefined) {
+      window.scrollTo({ top: options.preserveScrollY, left: 0 });
     }
   });
 }

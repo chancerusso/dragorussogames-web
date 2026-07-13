@@ -39,7 +39,7 @@ test("Rules route is wrapped in an error boundary inside the DM shell", () => {
 test("Classic character sheet assets are versioned for cache busting", () => {
   const appSource = readFileSync(new URL("./App.jsx", import.meta.url), "utf8");
 
-  assert.match(appSource, /const CLASSIC_STATIC_VERSION = "2026-07-13-facing-ac-v13"/);
+  assert.match(appSource, /const CLASSIC_STATIC_VERSION = "2026-07-13-facing-ac-v14"/);
   assert.match(appSource, /versionedClassicAsset\("\/styles\/character-vault\.css"\)/);
   assert.match(appSource, /versionedClassicAsset\("\/components\/character-vault\.js"\)/);
   assert.match(appSource, /link\[data-classic-stylesheet="\$\{id\}"\]/);
