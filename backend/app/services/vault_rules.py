@@ -585,13 +585,17 @@ SWORD_KNIGHT_CLERIC_SLOTS = {
 }
 
 
+def normalized_class_name(class_name: str) -> str:
+    return " ".join(str(class_name or "").strip().split()).lower()
+
+
 def spell_slots(class_name: str, level: int) -> dict:
     if class_name == "Ranger":
         return {
             "druid": slots_from_rows(RANGER_DRUID_SLOTS, level),
             "magic-user": slots_from_rows(RANGER_MAGIC_USER_SLOTS, level),
         }
-    if class_name == "Knight of the Sword":
+    if normalized_class_name(class_name) == "knight of the sword":
         return slots_from_rows(SWORD_KNIGHT_CLERIC_SLOTS, level)
     table = SPELL_SLOT_TABLES.get(class_name)
     return slots_from_rows(table or {}, level)

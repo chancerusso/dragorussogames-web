@@ -689,7 +689,7 @@ def validate_character_choice(data: dict) -> None:
     alignment = data.get("alignment")
     if race and race not in RACES and race not in DRAGONLANCE_RACE_NAMES:
         raise HTTPException(status_code=422, detail=f"Unsupported race: {race}.")
-    if class_name and class_name not in CLASSES and class_name not in DRAGONLANCE_CLASS_NAMES:
+    if class_name and class_name not in CLASSES and class_name not in DRAGONLANCE_CLASS_NAMES and not is_sword_knight_class(class_name):
         raise HTTPException(status_code=422, detail=f"Unsupported class: {class_name}.")
     if alignment and alignment not in ALIGNMENTS:
         raise HTTPException(status_code=422, detail=f"Unsupported alignment: {alignment}.")
@@ -736,14 +736,22 @@ def character_spell_entries(character: VaultCharacter, exclude_id: int | None = 
     return entries
 
 
+def normalized_class_name(class_name: str) -> str:
+    return " ".join(str(class_name or "").strip().split()).lower()
+
+
+def is_sword_knight_class(class_name: str) -> bool:
+    return normalized_class_name(class_name) == "knight of the sword"
+
+
 def spell_rules_class_name(class_name: str) -> str:
-    if class_name == "Knight of the Sword":
+    if is_sword_knight_class(class_name):
         return "Knight of the Sword"
     return rules_class_name(class_name)
 
 
 def spell_class_info(class_name: str) -> dict:
-    if spell_rules_class_name(class_name) == "Knight of the Sword":
+    if is_sword_knight_class(class_name):
         return {
             "spellcaster": True,
             "spell_lists": ["cleric"],
@@ -753,6 +761,8 @@ def spell_class_info(class_name: str) -> dict:
 
 
 def rules_class_name(class_name: str) -> str:
+    if is_sword_knight_class(class_name):
+        return "Fighter"
     if class_name in CLASSES:
         return class_name
     aliases = {

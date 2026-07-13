@@ -114,6 +114,7 @@ class OSRICCanonicalizationTests(unittest.TestCase):
         self.assertFalse(vault_rules.class_allows_alignment("Paladin", "Chaotic Good"))
         self.assertEqual({"1": 1, "2": 0, "3": 0, "4": 0}, vault_rules.spell_slots("Paladin", 9))
         self.assertEqual({"1": 2, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0}, vault_rules.spell_slots("Knight of the Sword", 7))
+        self.assertEqual({"1": 2, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0}, vault_rules.spell_slots("Knight Of The Sword", 7))
 
     def test_no_database_writes_are_performed(self) -> None:
         before = set(self.records)

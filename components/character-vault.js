@@ -978,13 +978,21 @@ function knownSpellEntry(spellId) {
   return knownSpells().find((entry) => Number(entry.spell_id) === Number(spellId)) || null;
 }
 
+function normalizedClassName(className) {
+  return String(className || "").trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+function isSwordKnightClass(className) {
+  return normalizedClassName(className) === "knight of the sword";
+}
+
 function spellRulesClassName(className) {
-  if (className === "Knight of the Sword") return "Knight of the Sword";
+  if (isSwordKnightClass(className)) return "Knight of the Sword";
   return rulesClassName(className);
 }
 
 function spellClassInfo(className) {
-  if (spellRulesClassName(className) === "Knight of the Sword") {
+  if (isSwordKnightClass(className)) {
     return {
       spellcaster: true,
       spell_lists: ["cleric"],

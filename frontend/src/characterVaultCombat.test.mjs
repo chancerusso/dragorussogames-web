@@ -231,7 +231,8 @@ test("spell section is collapsible and tracks duplicate prepared spells", () => 
 });
 
 test("sword knights use cleric spell slots in the builder", () => {
-  assert.match(vaultSource, /if \(spellRulesClassName\(className\) === "Knight of the Sword"\)/);
+  assert.match(vaultSource, /function isSwordKnightClass\(className\)/);
+  assert.match(vaultSource, /normalizedClassName\(className\) === "knight of the sword"/);
   assert.match(vaultSource, /spell_lists: \["cleric"\]/);
   assert.match(vaultSource, /spellcasting_starts_level: 6/);
   assert.match(vaultSource, /const classInfo = spellClassInfo\(className\)/);

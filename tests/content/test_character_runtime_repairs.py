@@ -577,7 +577,7 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
             {
                 "name": "Sword Slot Test",
                 "race": "Human",
-                "class_name": "Knight of the Sword",
+                "class_name": "Knight Of The Sword",
                 "alignment": "Lawful Good",
                 "level": 7,
                 "xp": 189000,
