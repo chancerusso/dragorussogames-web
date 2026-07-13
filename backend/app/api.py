@@ -415,6 +415,8 @@ def character_payload(character: VaultCharacter) -> dict:
             "max_hp": combat.max_hp if combat else 1,
             "current_hp": combat.current_hp if combat else 1,
             "armor_class": derived.get("armor_class", combat.armor_class if combat else 10),
+            "flank_armor_class": derived.get("flank_armor_class"),
+            "rear_armor_class": derived.get("rear_armor_class"),
             "unarmored_ac": derived.get("unarmored_ac", combat.unarmored_ac if combat else 10),
             "shield_bonus": derived.get("shield_bonus", combat.shield_bonus if combat else 0),
             "dex_adjustment": derived.get("dex_adjustment", combat.dex_adjustment if combat else 0),
@@ -1042,6 +1044,51 @@ def advancement_service() -> AdvancementPreviewService:
     return AdvancementPreviewService(reference_service())
 
 
+def apply_advancement_to_character(character: VaultCharacter, data: dict, db: Session) -> dict:
+    target_level = int(data.get("target_level") or (int(character.level or 1) + 1))
+    if target_level <= int(character.level or 1):
+        raise HTTPException(status_code=422, detail="Target level must be higher than current level.")
+    if data.get("class_track") or data.get("mode") in {"multiclass", "dual_class"}:
+        raise HTTPException(status_code=422, detail="Multiclass and dual-class advancement require strict class-track state and are not writable yet.")
+    service = advancement_service()
+    preview = service.preview_advancement(character, target_level=target_level, proposed_xp=data.get("proposed_xp"))
+    blockers = list(preview.get("advancement_blockers") or [])
+    if blockers and not data.get("dm_override"):
+        raise HTTPException(status_code=422, detail={"message": "Advancement is blocked.", "blockers": blockers})
+    hp_preview = preview.get("hit_point_advancement") or {}
+    hp_gain = data.get("hp_gain")
+    if hp_preview.get("roll") and hp_gain is None:
+        raise HTTPException(status_code=422, detail="HP gain is required when the advancement preview calls for a hit-point roll.")
+    fixed_gain = int(hp_preview.get("fixed_hp_gain") or 0)
+    con_gain = int(hp_preview.get("constitution_modifier") or 0) if hp_preview.get("roll") else 0
+    total_hp_gain = fixed_gain
+    if hp_gain is not None:
+        total_hp_gain += int(hp_gain) + con_gain
+    if hp_preview.get("roll"):
+        total_hp_gain = max(int(hp_preview.get("minimum_gain") or 1), total_hp_gain)
+    character.level = target_level
+    if data.get("xp") is not None:
+        character.xp = int(data["xp"])
+    elif preview.get("xp_required"):
+        character.xp = max(int(character.xp or 0), int(preview["xp_required"]))
+    if total_hp_gain:
+        character.combat.max_hp = int(character.combat.max_hp or 0) + total_hp_gain
+        character.combat.current_hp = int(character.combat.current_hp or 0) + total_hp_gain
+    note = data.get("notes") or "Level-up applied from canonical advancement preview."
+    audit_note = f"[Level Up] Level {preview.get('current_class_level')} -> {target_level}; HP +{total_hp_gain}; sources: {', '.join(preview.get('source_records_used') or [])}. {note}"
+    character.notes = audit_note if not character.notes else f"{character.notes}\n{audit_note}"
+    recalculate_character(db, character)
+    db.commit()
+    db.refresh(character)
+    payload = character_payload(character)
+    payload["advancement_applied"] = {
+        "target_level": target_level,
+        "hp_gain_total": total_hp_gain,
+        "preview": preview,
+    }
+    return payload
+
+
 @router.get("/1e/characters/{character_id}/advancement-preview")
 def preview_vault_character_advancement(
     character_id: int,
@@ -1053,6 +1100,17 @@ def preview_vault_character_advancement(
 ) -> dict:
     character = get_vault_character_or_404(db, character_id)
     return advancement_service().preview_advancement(character, target_level=target_level, class_track=class_track, proposed_xp=proposed_xp)
+
+
+@router.post("/1e/characters/{character_id}/advance")
+def advance_vault_character(
+    character_id: int,
+    data: dict,
+    _: dict = Depends(require_jwt_admin),
+    db: Session = Depends(get_db),
+) -> dict:
+    character = get_vault_character_or_404(db, character_id)
+    return apply_advancement_to_character(character, data, db)
 
 
 @router.get("/player/characters/{character_id}/advancement-preview")
@@ -1067,6 +1125,18 @@ def preview_player_character_advancement(
     player = player_from_claims(db, claims)
     character = player_character_or_404(db, character_id, player.id)
     return advancement_service().preview_advancement(character, target_level=target_level, class_track=class_track, proposed_xp=proposed_xp)
+
+
+@router.post("/player/characters/{character_id}/advance")
+def advance_player_character(
+    character_id: int,
+    data: dict,
+    claims: dict = Depends(require_player),
+    db: Session = Depends(get_db),
+) -> dict:
+    player = player_from_claims(db, claims)
+    character = player_character_or_404(db, character_id, player.id)
+    return apply_advancement_to_character(character, data, db)
 
 
 @router.get("/1e/character-runtime-audit")

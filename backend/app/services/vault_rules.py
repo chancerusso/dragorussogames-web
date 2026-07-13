@@ -767,6 +767,8 @@ def derived_stats(
                     shield_reason = reason
     dex_adjustment = dex_ac_adjustment(int(abilities.get("dexterity", 10)))
     armor_class = armor_ac - shield_bonus + dex_adjustment
+    flank_armor_class = armor_class + shield_bonus
+    rear_armor_class = flank_armor_class - dex_adjustment
     armor_adjustment = armor_ac - 10
     shield_adjustment = -shield_bonus
     ac_notes = ["Only equipped, legal armor and shields affect descending Armor Class."]
@@ -794,6 +796,18 @@ def derived_stats(
         "magical": {"label": "Magic", "value": 0, "automation_status": "not_modeled"},
         "miscellaneous": {"label": "Miscellaneous", "value": 0},
         "final": armor_class,
+        "flank": {
+            "label": "Flank AC",
+            "value": flank_armor_class,
+            "removed": ["shield"] if shield_bonus else [],
+            "source": "Final AC without shield bonus",
+        },
+        "rear": {
+            "label": "Rear AC",
+            "value": rear_armor_class,
+            "removed": [part for part, active in (("shield", shield_bonus), ("dexterity", dex_adjustment)) if active],
+            "source": "Final AC without shield bonus or Dexterity adjustment",
+        },
         "notes": ac_notes,
         "automation_status": "derived",
     }
@@ -811,6 +825,8 @@ def derived_stats(
     surprise = ability_modifiers(abilities, class_name)["dexterity"]["surprise_bonus"]
     return {
         "armor_class": armor_class,
+        "flank_armor_class": flank_armor_class,
+        "rear_armor_class": rear_armor_class,
         "unarmored_ac": 10 + dex_adjustment,
         "shield_bonus": shield_bonus,
         "dex_adjustment": dex_adjustment,

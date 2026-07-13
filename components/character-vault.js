@@ -1713,7 +1713,7 @@ function renderSheet(options = {}) {
   bindInventoryActions((renderOptions) => renderSheet(renderOptions));
   document.querySelectorAll("[data-rules-link]").forEach((button) => button.addEventListener("click", () => openRulesModal(button.dataset.rulesTitle, button.dataset.rulesLink)));
   document.querySelector("[data-quick-edit-open]")?.addEventListener("click", () => openQuickEditModal(state.character));
-  document.querySelector("[data-level-up-placeholder]")?.addEventListener("click", () => toast("Level Up tools coming soon."));
+  document.querySelector("[data-level-up-open]")?.addEventListener("click", () => openLevelUpModal(state.character));
   bindSpellActions(() => renderSheet());
   restoreSheetPosition(options);
 }
@@ -1887,6 +1887,76 @@ function openQuickEditModal(c) {
   document.body.appendChild(modal);
 }
 
+async function openLevelUpModal(c) {
+  if (!c?.id) return;
+  document.querySelector(".vault-level-modal")?.remove();
+  try {
+    const preview = await characterApi(`/${c.id}/advancement-preview`);
+    const hp = preview.hit_point_advancement || {};
+    const modal = document.createElement("div");
+    modal.className = "vault-rules-modal vault-level-modal";
+    const blockers = preview.advancement_blockers || [];
+    const spellLevels = preview.spellcasting?.new_spell_levels_unlocked || [];
+    modal.innerHTML = `<div class="vault-rules-popout vault-quick-popout"><button class="vault-modal-close" type="button" aria-label="Close">x</button><div class="vault-kicker">Level Up Preview</div>
+      <h2>Level ${h(preview.current_class_level)} &rarr; ${h(preview.next_level)}</h2>
+      <div class="vault-mini-stat-grid">
+        ${miniStat("XP Needed", preview.xp_required ?? 0)}
+        ${miniStat("HP Roll", hp.roll || (hp.fixed_hp_gain ? `+${hp.fixed_hp_gain}` : "None"))}
+        ${miniStat("Con", formatSigned(hp.constitution_modifier || 0))}
+        ${miniStat("Status", blockers.length ? "Blocked" : "Ready")}
+      </div>
+      ${blockers.length ? `<div class="vault-warning">${blockers.map((blocker) => `<p>${h(blocker)}</p>`).join("")}</div>` : ""}
+      <div class="vault-breakdown-list">
+        <div><span>Attack</span><strong>${h(preview.attack_progression?.changed ? "Updates" : "No change")}</strong></div>
+        <div><span>Saves</span><strong>${h(preview.saving_throws?.changed ? "Update" : "No change")}</strong></div>
+        <div><span>Spell Slots</span><strong>${h(preview.spellcasting?.changed ? "Update" : "No change")}</strong></div>
+        <div><span>New Spell Levels</span><strong>${h(spellLevels.length ? spellLevels.join(", ") : "None")}</strong></div>
+        <div><span>New Abilities</span><strong>${h((preview.new_class_abilities || []).map((ability) => ability.name).join(", ") || "None")}</strong></div>
+      </div>
+      <form class="vault-form" data-level-up-form>
+        ${hp.roll ? field(`HP Roll Result (${hp.roll})`, "hp_gain", "", "number") : ""}
+        ${field("XP After Level Up", "xp", Math.max(Number(c.xp || 0), Number(preview.xp_required || 0)), "number")}
+        <label class="vault-field full">Notes<textarea name="notes">Level-up reviewed and applied.</textarea></label>
+        <div class="vault-panel-toast vault-full" data-panel-toast></div>
+        <div class="vault-actions vault-full"><button class="vault-button" type="submit" ${blockers.length ? "disabled" : ""}>Apply Level Up</button></div>
+      </form>
+      <details class="vault-breakdown"><summary>Strict Class Rules</summary>
+        <p>Multiclass and dual-class advancement remain locked until class-track state exists. This prevents accidental modern-style advancement.</p>
+        <p>${h((preview.multiclass?.modeled_requirements || []).join(", "))}</p>
+        <p>${h((preview.dual_class?.modeled_requirements || []).join(", "))}</p>
+      </details>
+    </div>`;
+    modal.querySelector(".vault-modal-close").addEventListener("click", () => modal.remove());
+    modal.addEventListener("click", (event) => { if (event.target === modal) modal.remove(); });
+    modal.querySelector("[data-level-up-form]")?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const data = Object.fromEntries(new FormData(event.target));
+      try {
+        state.character = await characterApi(`/${c.id}/advance`, {
+          method: "POST",
+          body: JSON.stringify({
+            target_level: preview.next_level,
+            xp: Number(data.xp || preview.xp_required || c.xp || 0),
+            hp_gain: hp.roll ? Number(data.hp_gain || 0) : null,
+            notes: data.notes,
+          }),
+        });
+        state.draft = initialDraft();
+        invalidateCharacterCache(c.id);
+        toast("Level up applied.", "success");
+        modal.remove();
+        renderSheet();
+      } catch (error) {
+        const panel = modal.querySelector("[data-panel-toast]");
+        panel.textContent = readableError(error);
+      }
+    });
+    document.body.appendChild(modal);
+  } catch (error) {
+    toast(readableError(error));
+  }
+}
+
 function sheetHtml(c) {
   return `${sheetHeaderHtml(c)}
   <section class="vault-sheet-card vault-sheet-abilities">${sheetSectionHeading("Ability Scores")}${abilityStripHtml(c)}</section>
@@ -1927,7 +1997,7 @@ function sheetHeaderHtml(c) {
       </aside>
     </div>
     ${warningsHtml(c)}
-    <div class="vault-actions"><button class="vault-button secondary" type="button" data-quick-edit-open>Quick Edit</button><a class="vault-button secondary" href="${characterEditHref(c.id || "")}">Full Edit</a><button class="vault-button secondary" type="button" data-level-up-placeholder>Level Up</button></div>
+    <div class="vault-actions"><button class="vault-button secondary" type="button" data-quick-edit-open>Quick Edit</button><a class="vault-button secondary" href="${characterEditHref(c.id || "")}">Full Edit</a><button class="vault-button secondary" type="button" data-level-up-open>Level Up</button></div>
   </section>`;
 }
 
@@ -2118,6 +2188,8 @@ function armorClassDetailsHtml(c) {
     ["Magic", ac.magical?.value || 0, true],
     ["Misc", ac.miscellaneous?.value || 0, true],
     ["Final AC", ac.final ?? c.combat?.armor_class ?? baseAc, false, true],
+    ["Flank AC", ac.flank?.value ?? c.combat?.flank_armor_class ?? c.combat?.armor_class ?? baseAc, false, true],
+    ["Rear AC", ac.rear?.value ?? c.combat?.rear_armor_class ?? c.combat?.armor_class ?? baseAc, false, true],
   ].filter(([, value, signed, always]) => always || !signed || Number(value || 0) !== 0);
   return `<div class="vault-tile-details">${rows.map(([label, value, signed]) => `<div><span>${h(label)}</span><strong>${h(signed ? formatSigned(value) : value)}</strong></div>`).join("")}</div>`;
 }

@@ -17,6 +17,7 @@ os.environ.setdefault("DATABASE_URL", "sqlite:////private/tmp/drg1e-runtime-repa
 
 from app.api import (  # noqa: E402
     add_inventory_record,
+    apply_advancement_to_character,
     character_weapon_preview,
     character_payload,
     create_vault_character_for_player,
@@ -331,6 +332,67 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertEqual(-1, ac["shield"]["value"])
         self.assertEqual(9, ac["final"])
         self.assertIn("Only equipped, legal armor", " ".join(ac["notes"]))
+
+    def test_flank_and_rear_ac_remove_shield_and_dexterity(self) -> None:
+        character = create_vault_character_for_player(
+            {
+                "name": "Shield Facing Test",
+                "race": "Human",
+                "class_name": "Fighter",
+                "alignment": "Lawful Good",
+                "level": 1,
+                "abilities": {"strength": 12, "intelligence": 10, "wisdom": 10, "dexterity": 16, "constitution": 10, "charisma": 10},
+                "combat": {"max_hp": 10, "current_hp": 10},
+                "coins": {},
+            },
+            self.player,
+            self.db,
+        )
+        model = self.db.get(VaultCharacter, character["id"])
+        payload = add_inventory_record(model, {"equipment_id": self.equipment("Splint").id, "status": "equipped"}, self.db)
+        payload = add_inventory_record(model, {"equipment_id": self.equipment("Shield, large").id, "status": "equipped"}, self.db)
+        ac = payload["combat"]["armor_class_breakdown"]
+
+        self.assertEqual(1, payload["combat"]["armor_class"])
+        self.assertEqual(2, payload["combat"]["flank_armor_class"])
+        self.assertEqual(4, payload["combat"]["rear_armor_class"])
+        self.assertEqual(2, ac["flank"]["value"])
+        self.assertEqual(4, ac["rear"]["value"])
+
+    def test_apply_advancement_updates_level_hp_xp_and_recalculates_runtime(self) -> None:
+        character = create_vault_character_for_player(
+            {
+                "name": "Level Ready Fighter",
+                "race": "Human",
+                "class_name": "Fighter",
+                "alignment": "Lawful Good",
+                "level": 1,
+                "xp": 2000,
+                "abilities": {"strength": 12, "intelligence": 10, "wisdom": 10, "dexterity": 10, "constitution": 16, "charisma": 10},
+                "combat": {"max_hp": 10, "current_hp": 10},
+                "coins": {},
+            },
+            self.player,
+            self.db,
+        )
+        model = self.db.get(VaultCharacter, character["id"])
+
+        payload = apply_advancement_to_character(model, {"target_level": 2, "hp_gain": 6, "xp": 2000}, self.db)
+
+        self.assertEqual(2, payload["level"])
+        self.assertEqual(18, payload["combat"]["max_hp"])
+        self.assertEqual(18, payload["combat"]["current_hp"])
+        self.assertEqual(2000, payload["xp"])
+        self.assertEqual(2, payload["advancement_applied"]["target_level"])
+        self.assertEqual(8, payload["advancement_applied"]["hp_gain_total"])
+        self.assertIn("[Level Up]", payload["notes"])
+
+    def test_apply_advancement_rejects_multiclass_and_dual_class_writes(self) -> None:
+        with self.assertRaises(Exception) as raised:
+            apply_advancement_to_character(self.character_model, {"target_level": 8, "mode": "multiclass", "hp_gain": 5}, self.db)
+
+        self.assertEqual(422, raised.exception.status_code)
+        self.assertIn("Multiclass and dual-class advancement require strict class-track state", raised.exception.detail)
 
     def test_saving_throw_breakdown_reports_knight_fighter_source_and_dwarf_adjustment(self) -> None:
         payload = character_payload(self.character_model)
