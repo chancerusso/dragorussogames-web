@@ -949,7 +949,7 @@ function spellRows(spells) {
   return spells.map((spell) => {
     const entry = knownSpellEntry(spell.id);
     const prepared = entry && (entry.prepared || Number(entry.memorized_count || 0) > 0);
-    return `<tr><td><strong>${h(spell.name)}</strong><br><a class="vault-mini" href="${h(spell.rules_reference)}">Rules</a></td><td>${spell.spell_level}<br><span class="vault-mini">${h(spell.class_list.join(", "))}</span></td><td>${h(spell.range || "")}</td><td>${h(spell.duration || "")}</td><td>${h(spell.area_of_effect || "")}</td><td>${entry ? "Known" : "Not known"}${prepared ? "<br><span class=\"vault-mini\">Prepared</span>" : ""}</td><td><button class="vault-button secondary" type="button" data-add-known-spell="${spell.id}" ${entry ? "disabled" : ""}>${entry ? "Known ✓" : "Add Known"}</button></td></tr>`;
+    return `<tr><td><strong>${h(spell.name)}</strong><br><a class="vault-mini" href="${h(spell.rules_reference)}">Rules</a></td><td>${spell.spell_level}<br><span class="vault-mini">${h(spell.class_list.join(", "))}</span></td><td>${h(spell.range || "")}</td><td>${h(spell.duration || "")}</td><td>${h(spell.area_of_effect || "")}</td><td>${entry ? "Selected" : "Available"}${prepared ? "<br><span class=\"vault-mini\">Prepared</span>" : ""}</td><td><button class="vault-button secondary" type="button" data-add-known-spell="${spell.id}" ${entry ? "disabled" : ""}>${entry ? "Selected ✓" : "Select Spell"}</button></td></tr>`;
   }).join("");
 }
 

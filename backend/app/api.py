@@ -756,8 +756,16 @@ def spell_class_info(class_name: str) -> dict:
             "spellcaster": True,
             "spell_lists": ["cleric"],
             "spellcasting_starts_level": 6,
-        }
+    }
     return CLASSES.get(spell_rules_class_name(class_name), {})
+
+
+def spell_filter_lists(class_name: str | None) -> set[str]:
+    if not class_name:
+        return set()
+    normalized = class_name.lower().replace(" ", "-")
+    class_info = spell_class_info(class_name)
+    return set(class_info.get("spell_lists") or [normalized])
 
 
 def rules_class_name(class_name: str) -> str:
@@ -1372,7 +1380,7 @@ def list_vault_spells(
     for spell in spells:
         if q and q.lower() not in spell.name.lower():
             continue
-        if class_name and class_name.lower().replace(" ", "-") not in (spell.class_list or []):
+        if class_name and not spell_filter_lists(class_name).intersection(set(spell.class_list or [])):
             continue
         if spell_level is not None and spell.spell_level != spell_level:
             continue

@@ -17,6 +17,7 @@ os.environ.setdefault("DATABASE_URL", "sqlite:////private/tmp/drg1e-runtime-repa
 
 from app.api import (  # noqa: E402
     add_inventory_record,
+    add_spell_record,
     apply_advancement_to_character,
     character_weapon_preview,
     character_payload,
@@ -25,13 +26,15 @@ from app.api import (  # noqa: E402
     delete_player_vault_inventory,
     get_player_vault_character,
     get_vault_character,
+    list_vault_spells,
     remove_weapon_proficiency,
     update_inventory_record,
+    update_spell_record,
     update_vault_character_record,
     upsert_weapon_proficiency,
 )
 from app.db.base import Base  # noqa: E402
-from app.db.models import EquipmentCatalog, Player, VaultCharacter, WeaponProficiency  # noqa: E402
+from app.db.models import EquipmentCatalog, Player, SpellsCatalog, VaultCharacter, WeaponProficiency  # noqa: E402
 from app.services.vault_rules import seed_vault_catalogs  # noqa: E402
 from app.services.vault_rules import character_warnings, encumbrance  # noqa: E402
 from app.services.combat_runtime import combat_payload, load_attack_progression, weapon_combat  # noqa: E402
@@ -593,6 +596,37 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertEqual("Fighter", payload["class_details"]["rules_class_name"])
         self.assertEqual({"1": 2, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0}, payload["spell_slots"]["slots"])
         self.assertEqual({"1": 2, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7": 0}, payload["spell_slots"]["remaining"])
+
+    def test_knight_of_the_sword_can_add_and_prepare_cleric_spells(self) -> None:
+        character = create_vault_character_for_player(
+            {
+                "name": "Sword Spell Test",
+                "race": "Human",
+                "class_name": "Knight Of The Sword",
+                "alignment": "Lawful Good",
+                "level": 7,
+                "xp": 189000,
+                "abilities": {"strength": 17, "intelligence": 9, "wisdom": 10, "dexterity": 14, "constitution": 12, "charisma": 10},
+                "combat": {"max_hp": 33, "current_hp": 33},
+                "coins": {},
+            },
+            self.player,
+            self.db,
+        )
+        model = self.db.get(VaultCharacter, character["id"])
+        cleric_spells = list_vault_spells(class_name="Knight Of The Sword", spell_level=1, _={}, db=self.db)
+        self.assertTrue(cleric_spells)
+        self.assertTrue(all("cleric" in spell["class_list"] for spell in cleric_spells))
+        spell = self.db.get(SpellsCatalog, cleric_spells[0]["id"])
+
+        payload = add_spell_record(model, {"spell_id": spell.id, "known": True, "prepared": False, "memorized_count": 0}, self.db)
+        entry = payload["spells"][0]
+        self.assertTrue(entry["known"])
+        self.assertEqual(2, payload["spell_slots"]["remaining"]["1"])
+
+        payload = update_spell_record(self.db.get(VaultCharacter, character["id"]), entry["id"], {"prepared": True, "memorized_count": 1}, self.db)
+        self.assertEqual(1, payload["spell_slots"]["used"]["1"])
+        self.assertEqual(1, payload["spell_slots"]["remaining"]["1"])
 
     def test_magic_user_and_cleric_combat_sources_are_separate(self) -> None:
         magic_user = create_vault_character_for_player(

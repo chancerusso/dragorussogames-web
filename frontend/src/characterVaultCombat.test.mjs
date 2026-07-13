@@ -236,6 +236,7 @@ test("sword knights use cleric spell slots in the builder", () => {
   assert.match(vaultSource, /spell_lists: \["cleric"\]/);
   assert.match(vaultSource, /spellcasting_starts_level: 6/);
   assert.match(vaultSource, /const classInfo = spellClassInfo\(className\)/);
+  assert.match(vaultSource, /Select Spell/);
 });
 
 test("saving throws use compact classic rows without source text", () => {
