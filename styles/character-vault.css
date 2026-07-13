@@ -722,8 +722,8 @@
   align-items:center;
   border-top:1px solid rgba(75,47,31,.18);
   display:flex;
-  flex-wrap:wrap;
-  gap:8px 10px;
+  flex-wrap:nowrap;
+  gap:8px;
   justify-content:space-between;
   margin-top:8px;
   padding-top:7px;
@@ -743,7 +743,14 @@
 
 .vault-sheet-header-controls .vault-actions{
   flex:1 1 auto;
+  flex-wrap:nowrap;
   justify-content:flex-end;
+}
+
+.vault-sheet-header-controls .vault-button{
+  font-size:.68rem;
+  padding:7px 10px;
+  white-space:nowrap;
 }
 
 .vault-summary-list div{

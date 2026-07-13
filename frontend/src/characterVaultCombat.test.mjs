@@ -106,6 +106,9 @@ test("sheet header actions sit inline with race class details", () => {
   assert.ok(header.indexOf("vault-sheet-header-controls") < header.indexOf("data-quick-edit-open"));
   assert.ok(header.indexOf("Open Details") < header.indexOf("data-level-up-open"));
   assert.match(vaultCss, /\.vault-sheet-header-controls\{[\s\S]*?display:flex/);
+  assert.match(vaultCss, /\.vault-sheet-header-controls\{[\s\S]*?flex-wrap:nowrap/);
+  assert.match(vaultCss, /\.vault-sheet-header-controls \.vault-actions\{[\s\S]*?flex-wrap:nowrap/);
+  assert.match(vaultCss, /\.vault-sheet-header-controls \.vault-button\{[\s\S]*?font-size:\.68rem/);
   assert.match(vaultCss, /\.vault-sheet-header-controls \.vault-breakdown\[open\]\{[\s\S]*?flex-basis:100%/);
   assert.match(vaultCss, /\.vault-hero-compact\{[\s\S]*?gap:8px/);
 });
