@@ -2029,11 +2029,13 @@ function sheetHeaderHtml(c) {
       <aside class="vault-sheet-race-class">
         <div class="vault-kicker">Race / Class</div>
         ${raceClassSummaryHtml(c)}
-        <details class="vault-breakdown"><summary>Open Details</summary>${raceClassDetailsHtml(c)}</details>
+        <div class="vault-sheet-header-controls">
+          <details class="vault-breakdown"><summary>Open Details</summary>${raceClassDetailsHtml(c)}</details>
+          <div class="vault-actions"><button class="vault-button secondary" type="button" data-quick-edit-open>Quick Edit</button><a class="vault-button secondary" href="${characterEditHref(c.id || "")}">Full Edit</a><button class="vault-button secondary" type="button" data-level-up-open>Level Up</button></div>
+        </div>
       </aside>
     </div>
     ${warningsHtml(c)}
-    <div class="vault-actions"><button class="vault-button secondary" type="button" data-quick-edit-open>Quick Edit</button><a class="vault-button secondary" href="${characterEditHref(c.id || "")}">Full Edit</a><button class="vault-button secondary" type="button" data-level-up-open>Level Up</button></div>
   </section>`;
 }
 

@@ -27,8 +27,9 @@
 
 .vault-hero-compact{
   align-items:start;
+  gap:8px;
   grid-template-columns:1fr;
-  padding:12px 16px;
+  padding:10px 16px;
 }
 
 .vault-hero-compact h1{
@@ -685,7 +686,7 @@
   background:rgba(251,244,230,.98);
   color:#231c18;
   margin-bottom:12px;
-  padding:12px 14px;
+  padding:10px 14px;
 }
 
 .vault-sheet-title{
@@ -707,14 +708,42 @@
   border:1px solid rgba(75,47,31,.18);
   border-radius:8px;
   background:rgba(255,250,240,.72);
-  padding:10px;
+  padding:8px 10px;
 }
 
 .vault-summary-list{
   display:grid;
   gap:6px;
   grid-template-columns:repeat(2,minmax(0,1fr));
-  margin:8px 0 0;
+  margin:6px 0 0;
+}
+
+.vault-sheet-header-controls{
+  align-items:center;
+  border-top:1px solid rgba(75,47,31,.18);
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 10px;
+  justify-content:space-between;
+  margin-top:8px;
+  padding-top:7px;
+}
+
+.vault-sheet-header-controls .vault-breakdown{
+  border-top:0;
+  margin-top:0;
+  min-width:max-content;
+  padding-top:0;
+}
+
+.vault-sheet-header-controls .vault-breakdown[open]{
+  flex-basis:100%;
+  order:2;
+}
+
+.vault-sheet-header-controls .vault-actions{
+  flex:1 1 auto;
+  justify-content:flex-end;
 }
 
 .vault-summary-list div{

@@ -98,6 +98,18 @@ test("sheet top line shows constant combat stats and HP", () => {
   assert.match(vaultCss, /\.vault-topline\{[\s\S]*?grid-template-columns:repeat\(6,minmax\(0,1fr\)\)/);
 });
 
+test("sheet header actions sit inline with race class details", () => {
+  const headerMatch = vaultSource.match(/function sheetHeaderHtml\(c\) \{([\s\S]*?)function raceClassSummaryHtml/);
+  assert.ok(headerMatch);
+  const header = headerMatch[1];
+  assert.match(header, /vault-sheet-header-controls/);
+  assert.ok(header.indexOf("vault-sheet-header-controls") < header.indexOf("data-quick-edit-open"));
+  assert.ok(header.indexOf("Open Details") < header.indexOf("data-level-up-open"));
+  assert.match(vaultCss, /\.vault-sheet-header-controls\{[\s\S]*?display:flex/);
+  assert.match(vaultCss, /\.vault-sheet-header-controls \.vault-breakdown\[open\]\{[\s\S]*?flex-basis:100%/);
+  assert.match(vaultCss, /\.vault-hero-compact\{[\s\S]*?gap:8px/);
+});
+
 test("character sheet hierarchy is full-width and combat-centered", () => {
   const sheetMatch = vaultSource.match(/function sheetHtml\(c\) \{([\s\S]*?)function sheetSectionHeading/);
   assert.ok(sheetMatch);
