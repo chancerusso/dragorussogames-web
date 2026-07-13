@@ -120,6 +120,7 @@ test("character sheet hierarchy is full-width and combat-centered", () => {
   assert.match(sheet, /vault-sheet-combat/);
   assert.match(sheet, /vault-sheet-inventory/);
   assert.match(sheet, /vault-sheet-spells/);
+  assert.match(sheet, /data-sheet-disclosure="spellsOpen"/);
   assert.match(sheet, /vault-sheet-notes/);
   assert.ok(sheet.indexOf("vault-sheet-combat") < sheet.indexOf("vault-sheet-inventory"));
   assert.ok(sheet.indexOf("vault-sheet-inventory") < sheet.indexOf("vault-sheet-spells"));
@@ -212,9 +213,21 @@ test("saves column can show compact daily magic summary", () => {
   assert.match(vaultSource, /dailyMagicSummaryHtml\(c\)/);
   assert.match(vaultSource, /function dailyMagicSummaryHtml/);
   assert.match(vaultSource, /function compactSpellSlotRows/);
+  assert.match(vaultSource, /\$\{h\(row\.used\)\}\/\$\{h\(row\.total\)\} slots/);
   assert.match(vaultCss, /\.vault-daily-magic/);
   assert.match(vaultCss, /\.vault-magic-slot-list/);
   assert.match(vaultCss, /\.vault-prepared-spell-list/);
+});
+
+test("spell section is collapsible and tracks duplicate prepared spells", () => {
+  const spellsMatch = vaultSource.match(/function spellsHtml\(c\) \{([\s\S]*?)function hasSpellSlots/);
+  assert.ok(spellsMatch);
+  const spells = spellsMatch[1];
+  assert.ok(spells.indexOf("Prepared Spells") < spells.indexOf("Known Spells"));
+  assert.match(vaultSource, /data-spell-action="\$\{entry\.id\}:cast"/);
+  assert.match(vaultSource, /data-spell-action="\$\{entry\.id\}:prepare">Prepare \+1/);
+  assert.match(vaultSource, /memorized_count: currentCount \+ 1/);
+  assert.match(vaultSource, /memorized_count: Math\.max\(0, currentCount - 1\)/);
 });
 
 test("saving throws use compact classic rows without source text", () => {

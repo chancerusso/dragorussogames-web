@@ -541,6 +541,30 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertEqual("osric.attack.fighter", runtime["thac0"]["attack_progression_ref"])
         self.assertEqual("3 attacks every 2 rounds", runtime["attacks_per_round"]["value"])
 
+    def test_core_class_thac0_fallbacks_advance(self) -> None:
+        cases = [
+            ("Fighter", 9, 12),
+            ("Cleric", 8, 16),
+            ("Druid", 8, 16),
+            ("Thief", 8, 18),
+            ("Assassin", 8, 18),
+            ("Magic-User", 8, 18),
+            ("Illusionist", 8, 18),
+            ("Paladin", 9, 12),
+            ("Ranger", 9, 12),
+        ]
+        for class_name, level, expected in cases:
+            with self.subTest(class_name=class_name, level=level):
+                payload = combat_payload(
+                    {"strength": 10, "dexterity": 10, "constitution": 10, "intelligence": 10, "wisdom": 10, "charisma": 10},
+                    [],
+                    class_name,
+                    "Human",
+                    level,
+                    [],
+                )
+                self.assertEqual(expected, payload["thac0"]["final_thac0"])
+
     def test_knight_of_the_crown_uses_fighter_combat_runtime(self) -> None:
         payload = character_payload(self.character_model)
 

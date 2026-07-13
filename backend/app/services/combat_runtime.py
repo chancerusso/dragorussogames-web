@@ -53,10 +53,43 @@ FIGHTER_THAC0_BANDS = [
     ((17, 99), 4),
 ]
 
+CLERIC_THAC0_BANDS = [
+    ((1, 3), 20),
+    ((4, 6), 18),
+    ((7, 9), 16),
+    ((10, 12), 14),
+    ((13, 15), 12),
+    ((16, 18), 10),
+    ((19, 99), 8),
+]
+
+THIEF_THAC0_BANDS = [
+    ((1, 4), 20),
+    ((5, 8), 18),
+    ((9, 12), 16),
+    ((13, 16), 14),
+    ((17, 20), 12),
+    ((21, 99), 10),
+]
+
+MAGE_THAC0_BANDS = [
+    ((1, 5), 20),
+    ((6, 10), 18),
+    ((11, 15), 16),
+    ((16, 20), 14),
+    ((21, 99), 12),
+]
+
 THAC0_FALLBACK_BANDS = {
+    "Assassin": THIEF_THAC0_BANDS,
+    "Cleric": CLERIC_THAC0_BANDS,
+    "Druid": CLERIC_THAC0_BANDS,
     "Fighter": FIGHTER_THAC0_BANDS,
+    "Illusionist": MAGE_THAC0_BANDS,
+    "Magic-User": MAGE_THAC0_BANDS,
     "Paladin": FIGHTER_THAC0_BANDS,
     "Ranger": FIGHTER_THAC0_BANDS,
+    "Thief": THIEF_THAC0_BANDS,
 }
 
 DRAGOLANCE_RACE_RUNTIME_BASE = {
@@ -127,7 +160,7 @@ def thac0(class_name: str, level: int) -> dict[str, Any]:
     notes = []
     if progression.get("progression_status") != "complete":
         notes.append(
-            "Attack progression record is partial; THAC0 uses the encoded fighter-type fallback progression."
+            "Attack progression record is partial; THAC0 uses the encoded class-group fallback progression."
             if fallback_used
             else "Attack progression record is partial; THAC0 uses the available canonical AC 0 row."
         )
@@ -385,7 +418,7 @@ def combat_payload(
 
 def runtime_matrix() -> list[dict[str, str]]:
     rows = [
-        ("THAC0", "content/osric/core/attacks/*.json plus fighter-type fallback bands", "combat_runtime.thac0", "none; derived at payload time", "visible in combat_runtime payload", "available in character payload", "fighter-types advance; non-fighter attack matrices still need full normalization"),
+        ("THAC0", "content/osric/core/attacks/*.json plus class-group fallback bands", "combat_runtime.thac0", "none; derived at payload time", "visible in combat_runtime payload", "available in character payload", "core class groups advance; full attack matrices still need canonical normalization"),
         ("attack progression", "canonical attack_progression records", "combat_runtime.load_attack_progression", "none", "not directly shown", "source carried in THAC0 payload", "partial canonical tables"),
         ("attacks per round", "attack progression rows", "combat_runtime.attacks_per_round", "none", "not edited by builder", "available per character and per weapon", "specialization extra attacks are flagged, not automated"),
         ("missile rate of fire", "EquipmentCatalog.rate_of_fire", "combat_runtime.weapon_combat", "equipment catalog", "catalog display only", "available per weapon", "complete for seeded OSRIC equipment"),

@@ -934,10 +934,10 @@ function spellManager() {
     <div class="vault-actions"><input name="spell_search" placeholder="Search spells"><select name="spell_class"><option value="">${h(state.draft.class_name)} list</option><option value="cleric">Cleric</option><option value="druid">Druid</option><option value="magic-user">Magic-User</option><option value="illusionist">Illusionist</option></select><select name="spell_level"><option value="">All levels</option>${[1,2,3,4,5,6,7,8,9].map((n) => `<option value="${n}">${n}</option>`).join("")}</select></div>
     <p class="vault-muted">${h(state.draft.class_name)} spellcasting starts at level ${starts}. Add known spells first, then prepare from that known list.</p>
     ${savedSlots}
-    <h3>Known Spells</h3>
-    ${known.length ? spellBookTable(known, false) : `<p class="vault-muted">No known spells recorded.</p>`}
     <h3>Prepared Spells</h3>
     ${prepared.length ? spellBookTable(prepared, true) : `<p class="vault-muted">None prepared.</p>`}
+    <h3>Known Spells</h3>
+    ${known.length ? spellBookTable(known, false) : `<p class="vault-muted">No known spells recorded.</p>`}
     <h3>Spell Catalog</h3>
     ${spells.length ? `<table class="vault-table"><thead><tr><th>Spell</th><th>Level</th><th>Range</th><th>Duration</th><th>Area/Effect</th><th>Status</th><th></th></tr></thead><tbody data-spell-results>${spellRows(spells)}</tbody></table>` : `<p class="vault-muted">This class has no spells at this level.</p>`}
     <p class="vault-rules">Rules: <a href="/1e/how-to-play/magic/">Magic</a> and spell reference pages.</p>
@@ -960,8 +960,8 @@ function spellBookRow(entry, preparedOnly = false) {
   const prepared = entry.prepared || Number(entry.memorized_count || 0) > 0;
   const removeButton = !prepared ? ` <button class="vault-button secondary" type="button" data-spell-action="${entry.id}:remove">Remove Known</button>` : "";
   const action = preparedOnly
-    ? `<button class="vault-button secondary" type="button" data-spell-action="${entry.id}:unprepare">Unprepare</button>`
-    : `<button class="vault-button secondary" type="button" data-spell-action="${entry.id}:prepare">Prepare</button>${removeButton}`;
+    ? `<button class="vault-button secondary" type="button" data-spell-action="${entry.id}:cast">Cast</button><button class="vault-button secondary" type="button" data-spell-action="${entry.id}:prepare">Prepare +1</button><button class="vault-button secondary" type="button" data-spell-action="${entry.id}:unprepare">Clear</button>`
+    : `<button class="vault-button secondary" type="button" data-spell-action="${entry.id}:prepare">Prepare +1</button>${removeButton}`;
   return `<tr><td><strong>${h(entry.spell.name)}</strong><br>${spellBadges(entry)}<br><a class="vault-mini" href="${h(entry.spell.rules_reference)}">Rules</a></td><td>${h(entry.spell.spell_level)}<br><span class="vault-mini">${h((entry.spell.class_list || []).join(", "))}</span></td><td>${h(entry.spell.range || "")}</td><td>${h(entry.spell.duration || "")}</td><td>${h(entry.spell.area_of_effect || "")}</td><td>${h(entry.memorized_count || 0)}</td><td>${action}</td></tr>`;
 }
 
@@ -1742,11 +1742,14 @@ function bindSpellActions(afterAction) {
         state.character = await spellApi(id, { method: "DELETE" });
         toast("Known spell removed.", "success");
       } else {
+        const currentCount = Number(spell.memorized_count || 0);
         const next = action === "prepare"
-          ? { known: true, in_spellbook: spell.in_spellbook, prepared: true, memorized_count: Math.max(1, Number(spell.memorized_count || 0)) }
-          : { prepared: false, memorized_count: 0 };
+          ? { known: true, in_spellbook: spell.in_spellbook, prepared: true, memorized_count: currentCount + 1 }
+          : action === "cast"
+            ? { known: true, in_spellbook: spell.in_spellbook, prepared: currentCount > 1, memorized_count: Math.max(0, currentCount - 1) }
+            : { prepared: false, memorized_count: 0 };
         state.character = await spellApi(id, { method: "PUT", body: JSON.stringify(next) });
-        toast("Spell updated.", "success");
+        toast(action === "cast" ? "Spell cast." : "Spell updated.", "success");
       }
       state.draft = initialDraft();
       afterAction?.();
@@ -1986,7 +1989,7 @@ function sheetHtml(c) {
   <div class="vault-sheet-layout">
     <section class="vault-sheet-card vault-sheet-combat">${sheetSectionHeading("Combat")}${combatSummaryHtml(c)}</section>
     <section class="vault-sheet-card vault-sheet-inventory"><details data-sheet-disclosure="inventoryOpen" ${state.sheetDisclosure.inventoryOpen ? "open" : ""}><summary>${sheetSectionHeading("Inventory")}</summary>${inventoryHtml(c)}</details></section>
-    <section class="vault-sheet-card vault-sheet-spells">${sheetSectionHeading("Spells")}${spellsHtml(c)}</section>
+    <section class="vault-sheet-card vault-sheet-spells"><details data-sheet-disclosure="spellsOpen" ${state.sheetDisclosure.spellsOpen ? "open" : ""}><summary>${sheetSectionHeading("Spells")}</summary>${spellsHtml(c)}</details></section>
     <section class="vault-sheet-card vault-sheet-notes"><details data-sheet-disclosure="campaignOpen" ${state.sheetDisclosure.campaignOpen ? "open" : ""}><summary>${sheetSectionHeading("Campaign")}</summary><p>Day ${h(c.campaign_day)} at ${h(c.current_location)}.</p><p>${h(c.notes || "No notes.")}</p></details></section>
   </div>`;
 }
@@ -2197,7 +2200,7 @@ function dailyMagicSummaryHtml(c) {
   const prepared = (c.spells || []).filter((spell) => spell.prepared || Number(spell.memorized_count || 0) > 0);
   if (!slots.length && !prepared.length) return "";
   return `<div class="vault-daily-magic"><h4>Daily Magic</h4>
-    ${slots.length ? `<div class="vault-magic-slot-list">${slots.map((row) => `<span><strong>${h(row.label)}</strong>${h(row.used)}/${h(row.total)} used</span>`).join("")}</div>` : ""}
+    ${slots.length ? `<div class="vault-magic-slot-list">${slots.map((row) => `<span><strong>${h(row.label)}</strong>${h(row.used)}/${h(row.total)} slots</span>`).join("")}</div>` : ""}
     <div class="vault-prepared-spell-list">${prepared.length ? prepared.slice(0, 8).map((spell) => `<span>${h(spell.spell?.name || spell.name || "Spell")}${Number(spell.memorized_count || 0) > 1 ? ` x${h(spell.memorized_count)}` : ""}</span>`).join("") : `<em>None prepared.</em>`}</div>
   </div>`;
 }
@@ -2527,7 +2530,7 @@ function spellsHtml(c) {
   if (!known.length && !hasSpellSlots(c.spell_slots)) return `<p class="vault-compact-empty">No spellcasting ability at this class and level.</p>`;
   const slots = spellSlotsHtml(c);
   if (!known.length) return `${slots}<p>No known spells recorded.</p>`;
-  return `${slots}<h3>Known Spells</h3>${spellBookTable(known, false)}<h3>Prepared Spells</h3>${prepared.length ? spellBookTable(prepared, true) : "<p>None prepared.</p>"}`;
+  return `${slots}<h3>Prepared Spells</h3>${prepared.length ? spellBookTable(prepared, true) : "<p>None prepared.</p>"}<h3>Known Spells</h3>${spellBookTable(known, false)}`;
 }
 
 function hasSpellSlots(summary = {}) {
