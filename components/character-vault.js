@@ -595,7 +595,6 @@ function initialDraft() {
     campaign_id: campaignIdParam() || state.campaign?.id || "",
     campaign_day: 1,
     current_location: "Town",
-    safe_storage_location: "",
     original_rolls: [],
     assigned_rolls: {},
     abilities: Object.fromEntries(abilities.map((ability) => [ability, 10])),
@@ -698,8 +697,6 @@ function builderStep() {
     ${campaignSelectHtml(d)}
     ${field("Campaign Day", "campaign_day", d.campaign_day, "number")}
     ${field("Current Location", "current_location", d.current_location)}
-    ${field("Personal Storage Location", "safe_storage_location", d.safe_storage_location || "", "text", "wide")}
-    <p class="vault-muted vault-full">Use this for items, coins, or gear not carried by the character.</p>
     <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/">Character Creation</a></p>
     ${navButtons()}`;
   if (state.step === 0) return `
@@ -711,8 +708,6 @@ function builderStep() {
     ${campaignSelectHtml(d)}
     ${field("Campaign Day", "campaign_day", d.campaign_day, "number")}
     ${field("Current Location", "current_location", d.current_location)}
-    ${field("Personal Storage Location", "safe_storage_location", d.safe_storage_location || "", "text", "wide")}
-    <p class="vault-muted vault-full">Use this for items, coins, or gear not carried by the character.</p>
     <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/">Character Creation</a></p>
     ${navButtons()}`;
   if (state.step === 1) return `
@@ -1508,7 +1503,7 @@ async function addOrUpdateInventoryItem(equipmentId, status = "carried") {
       method: "PUT",
       body: JSON.stringify({
         status,
-        storage_location: status === "stored" ? character.safe_storage_location || "Personal Storage Location" : null,
+        storage_location: status === "stored" ? "Stored" : null,
         dm_override: state.dmOverride,
       }),
     });
@@ -1520,7 +1515,7 @@ async function addOrUpdateInventoryItem(equipmentId, status = "carried") {
       equipment_id: Number(equipmentId),
       quantity: initialEquipmentQuantity(equipmentId),
       status,
-      storage_location: status === "stored" ? character.safe_storage_location || "Personal Storage Location" : null,
+      storage_location: status === "stored" ? "Stored" : null,
       dm_override: state.dmOverride,
     }),
   });
@@ -1567,7 +1562,6 @@ function characterSavePayload(d) {
     life_status: d.life_status || "alive",
     campaign_day: Number(d.campaign_day || 1),
     current_location: d.current_location || "Town",
-    safe_storage_location: d.safe_storage_location || null,
     notes: d.notes || "",
     original_rolls: Array.isArray(d.original_rolls) ? d.original_rolls.map((roll) => Number(roll)).filter((roll) => Number.isFinite(roll)) : [],
     abilities: Object.fromEntries(abilities.map((ability) => [ability, Number(d.abilities?.[ability] || 10)])),
@@ -1786,7 +1780,7 @@ function bindInventoryActions(afterAction) {
           method: "PUT",
           body: JSON.stringify({
             status,
-            storage_location: status === "stored" ? state.character.safe_storage_location || "Personal Storage Location" : null,
+            storage_location: status === "stored" ? "Stored" : null,
           }),
         });
       }
@@ -1861,8 +1855,6 @@ function openQuickEditModal(c) {
     ${field("XP", "xp", c.xp ?? 0, "number")}
     ${field("Campaign Day", "campaign_day", c.campaign_day ?? 1, "number")}
     ${field("Current Location", "current_location", c.current_location || "Town", "text", "wide")}
-    ${field("Personal Storage Location", "safe_storage_location", c.safe_storage_location || "", "text", "wide")}
-    <p class="vault-muted vault-full">Use this for items, coins, or gear not carried by the character.</p>
     ${coins.map((coin) => field(title(coin), `coin_${coin}`, c.coins?.[coin] ?? 0, "number")).join("")}
     <label class="vault-field full">Notes<textarea name="notes">${h(c.notes || "")}</textarea></label>
     <div class="vault-panel-toast vault-full" data-panel-toast></div>
@@ -1879,7 +1871,6 @@ function openQuickEditModal(c) {
       campaign_day: Number(data.campaign_day || 1),
       current_location: data.current_location,
       notes: data.notes,
-      safe_storage_location: data.safe_storage_location,
       coins: coinsPatch,
       combat: { current_hp: Number(data.current_hp || 0), max_hp: Number(data.max_hp || 0), temporary_hp: Number(data.temporary_hp || 0) },
     };
@@ -1927,7 +1918,7 @@ async function openLevelUpModal(c) {
         ${field("Current XP", "current_xp", Number(c.xp || 0), "number")}
         ${hp.roll ? field(`HP Roll Result (${hp.roll})`, "hp_gain", "", "number") : ""}
         ${field("XP After Level Up", "xp_after", Math.max(Number(c.xp || 0), Number(preview.xp_required || 0)), "number")}
-        <label class="vault-field full">Notes<textarea name="notes">Level-up reviewed and applied.</textarea></label>
+        <label class="vault-field full">Player Notes<textarea name="notes"></textarea></label>
         <div class="vault-panel-toast vault-full" data-panel-toast></div>
         <div class="vault-actions vault-full"><button class="vault-button secondary" type="button" data-level-up-save-xp>Save XP / Refresh Preview</button><button class="vault-button" type="submit" ${blockers.length ? "disabled" : ""}>Apply Level Up</button></div>
       </form>
@@ -1996,7 +1987,7 @@ function sheetHtml(c) {
     <section class="vault-sheet-card vault-sheet-combat">${sheetSectionHeading("Combat")}${combatSummaryHtml(c)}</section>
     <section class="vault-sheet-card vault-sheet-inventory"><details data-sheet-disclosure="inventoryOpen" ${state.sheetDisclosure.inventoryOpen ? "open" : ""}><summary>${sheetSectionHeading("Inventory")}</summary>${inventoryHtml(c)}</details></section>
     <section class="vault-sheet-card vault-sheet-spells">${sheetSectionHeading("Spells")}${spellsHtml(c)}</section>
-    <section class="vault-sheet-card vault-sheet-notes"><details data-sheet-disclosure="campaignOpen" ${state.sheetDisclosure.campaignOpen ? "open" : ""}><summary>${sheetSectionHeading("Campaign")}</summary><p>Day ${h(c.campaign_day)} at ${h(c.current_location)}.</p><p>Storage: ${h(c.safe_storage_location || "No storage location set")}.</p><p>${h(c.notes || "No notes.")}</p></details></section>
+    <section class="vault-sheet-card vault-sheet-notes"><details data-sheet-disclosure="campaignOpen" ${state.sheetDisclosure.campaignOpen ? "open" : ""}><summary>${sheetSectionHeading("Campaign")}</summary><p>Day ${h(c.campaign_day)} at ${h(c.current_location)}.</p><p>${h(c.notes || "No notes.")}</p></details></section>
   </div>`;
 }
 

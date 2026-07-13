@@ -1075,9 +1075,9 @@ def apply_advancement_to_character(character: VaultCharacter, data: dict, db: Se
     if total_hp_gain:
         character.combat.max_hp = int(character.combat.max_hp or 0) + total_hp_gain
         character.combat.current_hp = int(character.combat.current_hp or 0) + total_hp_gain
-    note = data.get("notes") or "Level-up applied from canonical advancement preview."
-    audit_note = f"[Level Up] Level {preview.get('current_class_level')} -> {target_level}; HP +{total_hp_gain}; sources: {', '.join(preview.get('source_records_used') or [])}. {note}"
-    character.notes = audit_note if not character.notes else f"{character.notes}\n{audit_note}"
+    note = str(data.get("notes") or "").strip()
+    if note:
+        character.notes = note if not character.notes else f"{character.notes}\n{note}"
     recalculate_character(db, character)
     db.commit()
     db.refresh(character)

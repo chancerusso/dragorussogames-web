@@ -41,6 +41,24 @@ RACIAL_COMBAT_MODIFIERS = {
     ],
 }
 
+FIGHTER_THAC0_BANDS = [
+    ((1, 2), 20),
+    ((3, 4), 18),
+    ((5, 6), 16),
+    ((7, 8), 14),
+    ((9, 10), 12),
+    ((11, 12), 10),
+    ((13, 14), 8),
+    ((15, 16), 6),
+    ((17, 99), 4),
+]
+
+THAC0_FALLBACK_BANDS = {
+    "Fighter": FIGHTER_THAC0_BANDS,
+    "Paladin": FIGHTER_THAC0_BANDS,
+    "Ranger": FIGHTER_THAC0_BANDS,
+}
+
 DRAGOLANCE_RACE_RUNTIME_BASE = {
     "Hill Dwarf": "Dwarf",
     "Mountain Dwarf": "Dwarf",
@@ -80,6 +98,13 @@ def _row_matches_level(row: dict[str, Any], level: int) -> bool:
     return low <= level and (high is None or level <= int(high))
 
 
+def fallback_thac0(class_name: str, level: int) -> int | None:
+    for (low, high), value in THAC0_FALLBACK_BANDS.get(class_name, []):
+        if low <= level <= high:
+            return value
+    return None
+
+
 def thac0(class_name: str, level: int) -> dict[str, Any]:
     progression = load_attack_progression(class_name)
     if not progression:
@@ -95,9 +120,17 @@ def thac0(class_name: str, level: int) -> dict[str, Any]:
     attack_rows = [row for row in progression.get("rows", []) if row.get("rolls_to_hit")]
     matching = next((row for row in attack_rows if _row_matches_level(row, level)), None) or (attack_rows[0] if attack_rows else None)
     base = (matching or {}).get("rolls_to_hit", {}).get("ac_0")
+    fallback = fallback_thac0(class_name, level)
+    fallback_used = progression.get("progression_status") != "complete" and fallback is not None
+    if fallback_used:
+        base = fallback
     notes = []
     if progression.get("progression_status") != "complete":
-        notes.append("Attack progression record is partial; THAC0 uses the available canonical AC 0 row.")
+        notes.append(
+            "Attack progression record is partial; THAC0 uses the encoded fighter-type fallback progression."
+            if fallback_used
+            else "Attack progression record is partial; THAC0 uses the available canonical AC 0 row."
+        )
     return {
         "base_thac0": base,
         "final_thac0": base,
@@ -352,7 +385,7 @@ def combat_payload(
 
 def runtime_matrix() -> list[dict[str, str]]:
     rows = [
-        ("THAC0", "content/osric/core/attacks/*.json", "combat_runtime.thac0", "none; derived at payload time", "visible in combat_runtime payload", "available in character payload", "partial until attack progressions are complete"),
+        ("THAC0", "content/osric/core/attacks/*.json plus fighter-type fallback bands", "combat_runtime.thac0", "none; derived at payload time", "visible in combat_runtime payload", "available in character payload", "fighter-types advance; non-fighter attack matrices still need full normalization"),
         ("attack progression", "canonical attack_progression records", "combat_runtime.load_attack_progression", "none", "not directly shown", "source carried in THAC0 payload", "partial canonical tables"),
         ("attacks per round", "attack progression rows", "combat_runtime.attacks_per_round", "none", "not edited by builder", "available per character and per weapon", "specialization extra attacks are flagged, not automated"),
         ("missile rate of fire", "EquipmentCatalog.rate_of_fire", "combat_runtime.weapon_combat", "equipment catalog", "catalog display only", "available per weapon", "complete for seeded OSRIC equipment"),

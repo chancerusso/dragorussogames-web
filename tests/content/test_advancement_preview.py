@@ -33,6 +33,8 @@ class AdvancementPreviewTests(unittest.TestCase):
         self.assertEqual("osric.class.fighter", preview["class_track"]["class_id"])
         self.assertEqual("1d10", preview["hit_point_advancement"]["roll"])
         self.assertTrue(preview["attack_progression"]["changed"])
+        self.assertEqual(16, preview["attack_progression"]["old"]["final_thac0"])
+        self.assertEqual(14, preview["attack_progression"]["new"]["final_thac0"])
         self.assertIn("osric.progression.class.fighter", preview["source_records_used"])
 
     def test_osric_cleric_spell_slot_unlock_preview(self) -> None:
@@ -63,6 +65,9 @@ class AdvancementPreviewTests(unittest.TestCase):
     def test_knight_of_crown_preview(self) -> None:
         preview = self.service.preview_advancement(self.character("Fighter", 2, 3000, "Knight of the Crown"), target_level=3)
         self.assertEqual("dragolance.progression.solamnic.crown", preview["class_track"]["progression_id"])
+        self.assertTrue(preview["attack_progression"]["changed"])
+        self.assertEqual(20, preview["attack_progression"]["old"]["final_thac0"])
+        self.assertEqual(18, preview["attack_progression"]["new"]["final_thac0"])
         self.assertTrue(any("solamnic" in gate["id"] for gate in preview["gates"]))
 
     def test_knight_class_name_preview_uses_solamnic_progression(self) -> None:
@@ -100,6 +105,7 @@ class AdvancementPreviewTests(unittest.TestCase):
     def test_runtime_audit_classifies_progression_fields(self) -> None:
         audit = {entry["field"]: entry["classification"] for entry in runtime_audit_payload()}
         self.assertEqual("manually editable", audit["level"])
+        self.assertEqual("canonical-derived", audit["THAC0"])
         self.assertEqual("missing", audit["multiclass records"])
         self.assertEqual("legacy-only", audit["High Sorcery order"])
 

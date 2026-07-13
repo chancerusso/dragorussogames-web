@@ -274,6 +274,19 @@ test("character mutations reuse returned payloads instead of immediate duplicate
   assert.match(vaultSource, /function invalidateCharacterCache/);
 });
 
+test("quick edit keeps notes player-owned and omits personal storage", () => {
+  const quickEditMatch = vaultSource.match(/function openQuickEditModal[\s\S]*?async function openLevelUpModal/);
+  assert.ok(quickEditMatch);
+  const quickEdit = quickEditMatch[0];
+  assert.match(quickEdit, /<label class="vault-field full">Notes/);
+  assert.doesNotMatch(quickEdit, /Personal Storage Location/);
+  assert.doesNotMatch(quickEdit, /safe_storage_location/);
+  const levelUpMatch = vaultSource.match(/async function openLevelUpModal[\s\S]*?function strictClassRulesHtml/);
+  assert.ok(levelUpMatch);
+  assert.match(levelUpMatch[0], /Player Notes<textarea name="notes"><\/textarea>/);
+  assert.doesNotMatch(levelUpMatch[0], /Level-up reviewed and applied/);
+});
+
 test("equipment catalog is scrollable and no longer hard-caps first rows", () => {
   assert.match(vaultSource, /vault-equipment-catalog-scroll/);
   assert.match(vaultCss, /\.vault-equipment-catalog-scroll/);

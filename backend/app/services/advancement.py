@@ -8,6 +8,7 @@ from fastapi import HTTPException
 
 from app.db.models import VaultCharacter
 from app.services.canonical_content import CanonicalContentService
+from app.services.combat_runtime import thac0
 from app.services.vault_rules import constitution_hp_adjustment
 
 
@@ -84,8 +85,8 @@ CHARACTER_RUNTIME_AUDIT: list[RuntimeAuditField] = [
     RuntimeAuditField("XP", "manually editable", "vault_characters.xp", "Stored and editable directly on the character."),
     RuntimeAuditField("hit points", "manually editable", "character_combat_stats.max_hp/current_hp", "Stored; current level edits only return a review note."),
     RuntimeAuditField("hit dice", "canonical-derived", "canonical class_progression.levels", "Not stored; preview derives from progression records."),
-    RuntimeAuditField("attack values", "missing", "canonical attack_progression", "No stored attack value; canonical attack rows are partial in current content."),
-    RuntimeAuditField("THAC0", "missing", "none", "No explicit THAC0 field in the current schema."),
+    RuntimeAuditField("attack values", "canonical-derived", "canonical attack_progression / fighter fallback", "Derived at runtime; some canonical attack rows remain partial."),
+    RuntimeAuditField("THAC0", "canonical-derived", "combat_runtime.thac0", "Derived at payload time; fighter-types use encoded fallback bands until full attack matrices are normalized."),
     RuntimeAuditField("saving throws", "copied at recalculation", "character_combat_stats.saving_throws", "Recalculated from vault_rules and stored on character combat stats."),
     RuntimeAuditField("spell slots", "canonical-derived", "vault_rules.spell_slot_summary / canonical spell_slot_progression", "Runtime displays derived summary; slots are not persisted as level records."),
     RuntimeAuditField("known spells", "manual", "character_spells.known", "Stored per spell row."),
@@ -139,7 +140,7 @@ class AdvancementPreviewService:
             blockers.append(f"{xp_required - current_xp} XP required for level {next_level}.")
         review_flags.extend(self._review_flags([class_record, progression]))
 
-        attack = self._change_for_levels(class_record.get("attack_progression_ref"), current_level, next_level)
+        attack = self._attack_change_for_levels(class_track or character.class_name, class_record.get("attack_progression_ref"), current_level, next_level)
         saves = self._change_for_levels(class_record.get("saving_throw_ref"), current_level, next_level)
         spell_slots = self._spell_slot_change(character, class_record, progression, current_level, next_level)
         abilities = self._new_abilities(current_row, next_row)
@@ -258,6 +259,25 @@ class AdvancementPreviewService:
         old = self._row_for_band(record_id, current_level)
         new = self._row_for_band(record_id, next_level)
         return {"source_record_id": record_id, "old": old, "new": new, "changed": old != new}
+
+    def _attack_change_for_levels(self, class_name: str, record_id: str | None, current_level: int, next_level: int) -> dict[str, Any]:
+        old = thac0(self._runtime_class_name(class_name), current_level)
+        new = thac0(self._runtime_class_name(class_name), next_level)
+        return {
+            "source_record_id": record_id or new.get("attack_progression_ref"),
+            "old": old,
+            "new": new,
+            "changed": old.get("final_thac0") != new.get("final_thac0"),
+        }
+
+    def _runtime_class_name(self, class_name: str) -> str:
+        return {
+            "knight of solamnia": "Fighter",
+            "knight of the crown": "Fighter",
+            "knight of the sword": "Fighter",
+            "knight of the rose": "Fighter",
+            "magic user": "Magic-User",
+        }.get(str(class_name or "").strip().lower(), str(class_name or "Fighter"))
 
     def _spell_slot_change(self, character: VaultCharacter, class_record: dict[str, Any], progression: dict[str, Any], current_level: int, next_level: int) -> dict[str, Any]:
         spell_slot_id = PROGRESSION_TO_SPELL_SLOTS.get(progression["id"])

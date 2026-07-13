@@ -386,7 +386,32 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertEqual(2000, payload["xp"])
         self.assertEqual(2, payload["advancement_applied"]["target_level"])
         self.assertEqual(8, payload["advancement_applied"]["hp_gain_total"])
-        self.assertIn("[Level Up]", payload["notes"])
+        self.assertIsNone(payload["notes"])
+
+    def test_apply_advancement_only_appends_player_supplied_notes(self) -> None:
+        character = create_vault_character_for_player(
+            {
+                "name": "Level Notes Fighter",
+                "race": "Human",
+                "class_name": "Fighter",
+                "alignment": "Lawful Good",
+                "level": 1,
+                "xp": 2000,
+                "abilities": {"strength": 12, "intelligence": 10, "wisdom": 10, "dexterity": 10, "constitution": 10, "charisma": 10},
+                "combat": {"max_hp": 10, "current_hp": 10},
+                "coins": {},
+                "notes": "Player note.",
+            },
+            self.player,
+            self.db,
+        )
+        model = self.db.get(VaultCharacter, character["id"])
+
+        payload = apply_advancement_to_character(model, {"target_level": 2, "hp_gain": 4, "xp": 2000, "notes": "Trained at the keep."}, self.db)
+
+        self.assertIn("Player note.", payload["notes"])
+        self.assertIn("Trained at the keep.", payload["notes"])
+        self.assertNotIn("[Level Up]", payload["notes"])
 
     def test_fighter_optional_specialization_is_not_sheet_warning(self) -> None:
         self.assertNotIn("Weapon specialization is optional campaign policy.", character_warnings("Human", "Fighter", "Lawful Good"))
@@ -512,7 +537,7 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         payload = add_inventory_record(self.character_model, {"equipment_id": sword.id, "status": "carried"}, self.db)
 
         runtime = payload["combat"]["runtime"]
-        self.assertEqual(20, runtime["thac0"]["base_thac0"])
+        self.assertEqual(14, runtime["thac0"]["base_thac0"])
         self.assertEqual("osric.attack.fighter", runtime["thac0"]["attack_progression_ref"])
         self.assertEqual("3 attacks every 2 rounds", runtime["attacks_per_round"]["value"])
 
@@ -520,6 +545,7 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         payload = character_payload(self.character_model)
 
         self.assertEqual("osric.attack.fighter", payload["combat"]["runtime"]["thac0"]["attack_progression_ref"])
+        self.assertEqual(14, payload["combat"]["runtime"]["thac0"]["final_thac0"])
         self.assertEqual("3 attacks every 2 rounds", payload["combat"]["runtime"]["attacks_per_round"]["value"])
 
     def test_magic_user_and_cleric_combat_sources_are_separate(self) -> None:
