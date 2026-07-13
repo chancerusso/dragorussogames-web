@@ -111,16 +111,19 @@ test("equipped weapons and saves live inside combat", () => {
 
 test("armor class tile exposes standard flank and rear values", () => {
   assert.match(vaultSource, /function armorClassValue/);
+  assert.match(vaultSource, /function armorClassFacingValues/);
   assert.match(vaultSource, /function armorClassFacingSummary/);
+  assert.match(vaultSource, /calculatedFlankAc = finalAc - shieldFacingAdjustment/);
+  assert.match(vaultSource, /calculatedRearAc = flankAc - dexterityFacingAdjustment/);
   assert.match(vaultSource, /`\$\{finalAc\} \/ \$\{flankAc\} \/ \$\{rearAc\}`/);
-  assert.match(vaultSource, /\["Flank AC", flankAc/);
-  assert.match(vaultSource, /\["Rear AC", rearAc/);
+  assert.match(vaultSource, /\["Flank AC", facingAc\.flankAc/);
+  assert.match(vaultSource, /\["Rear AC", facingAc\.rearAc/);
 });
 
 test("player sheet hero is compact and no longer says level up is coming soon", () => {
   assert.match(vaultSource, /playerCharacterPage = isPlayerCharacterMode\(\)/);
   assert.match(vaultSource, /dmPage \|\| playerCharacterPage \? "vault-hero-compact"/);
-  assert.match(vaultCss, /\.vault-hero-compact p\{/);
+  assert.match(vaultCss, /\.vault-hero\.vault-hero-compact p\{/);
   assert.match(vaultCss, /white-space:nowrap/);
   assert.doesNotMatch(vaultSource, /Level Up tools coming soon/);
 });

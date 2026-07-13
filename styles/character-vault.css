@@ -83,6 +83,24 @@
   color:#4b392f;
 }
 
+.vault-hero.vault-hero-compact h1{
+  font-size:clamp(1.7rem,3vw,2.35rem);
+  white-space:nowrap;
+}
+
+.vault-hero.vault-hero-compact p{
+  color:#7a211b;
+  font-family:'Cinzel',serif;
+  font-size:.78rem;
+  font-weight:800;
+  letter-spacing:.04em;
+  line-height:1.2;
+  margin:4px 0 0;
+  max-width:none;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
 .vault-actions{
   display:flex;
   flex-wrap:wrap;

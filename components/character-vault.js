@@ -2181,9 +2181,7 @@ function armorClassBreakdownHtml(c) {
 function armorClassDetailsHtml(c) {
   const ac = c.combat?.armor_class_breakdown || {};
   const baseAc = ac.base?.value ?? 10;
-  const finalAc = armorClassValue(c, "armor_class", "final", baseAc);
-  const flankAc = armorClassValue(c, "flank_armor_class", "flank", finalAc);
-  const rearAc = armorClassValue(c, "rear_armor_class", "rear", flankAc);
+  const facingAc = armorClassFacingValues(c);
   const rows = [
     [ac.base?.label || "Base AC", baseAc, false, true],
     [ac.armor?.label || "Armor", ac.armor?.value || 0, true],
@@ -2191,9 +2189,9 @@ function armorClassDetailsHtml(c) {
     ["Dexterity", ac.dexterity?.value || 0, true],
     ["Magic", ac.magical?.value || 0, true],
     ["Misc", ac.miscellaneous?.value || 0, true],
-    ["Final AC", finalAc, false, true],
-    ["Flank AC", flankAc, false, true],
-    ["Rear AC", rearAc, false, true],
+    ["Final AC", facingAc.finalAc, false, true],
+    ["Flank AC", facingAc.flankAc, false, true],
+    ["Rear AC", facingAc.rearAc, false, true],
   ].filter(([, value, signed, always]) => always || !signed || Number(value || 0) !== 0);
   return `<div class="vault-tile-details">${rows.map(([label, value, signed]) => `<div><span>${h(label)}</span><strong>${h(signed ? formatSigned(value) : value)}</strong></div>`).join("")}</div>`;
 }
@@ -2203,11 +2201,20 @@ function armorClassValue(c, combatKey, breakdownKey, fallback) {
   return ac[breakdownKey]?.value ?? ac[breakdownKey] ?? c.combat?.[combatKey] ?? fallback;
 }
 
-function armorClassFacingSummary(c) {
+function armorClassFacingValues(c) {
   const baseAc = c.combat?.armor_class_breakdown?.base?.value ?? 10;
+  const shieldFacingAdjustment = Number(c.combat?.armor_class_breakdown?.shield?.value || 0);
+  const dexterityFacingAdjustment = Number(c.combat?.armor_class_breakdown?.dexterity?.value || 0);
   const finalAc = armorClassValue(c, "armor_class", "final", baseAc);
-  const flankAc = armorClassValue(c, "flank_armor_class", "flank", finalAc);
-  const rearAc = armorClassValue(c, "rear_armor_class", "rear", flankAc);
+  const calculatedFlankAc = finalAc - shieldFacingAdjustment;
+  const flankAc = armorClassValue(c, "flank_armor_class", "flank", calculatedFlankAc);
+  const calculatedRearAc = flankAc - dexterityFacingAdjustment;
+  const rearAc = armorClassValue(c, "rear_armor_class", "rear", calculatedRearAc);
+  return { finalAc, flankAc, rearAc };
+}
+
+function armorClassFacingSummary(c) {
+  const { finalAc, flankAc, rearAc } = armorClassFacingValues(c);
   return `${finalAc} / ${flankAc} / ${rearAc}`;
 }
 
