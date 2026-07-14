@@ -668,6 +668,14 @@ function selectField(label, name, value, options, extra = "") {
   return `<label class="vault-field ${extra}">${label}<select name="${name}">${options.map((option) => `<option ${option === value ? "selected" : ""}>${h(option)}</option>`).join("")}</select></label>`;
 }
 
+function selectOptionsHtml(options = [], value = "") {
+  return options.map((option) => {
+    const optionValue = String(option.value ?? option);
+    const label = String(option.label ?? option);
+    return `<option value="${h(optionValue)}" ${optionValue === String(value) ? "selected" : ""}>${h(label)}</option>`;
+  }).join("");
+}
+
 function abilityAssignmentHtml(d) {
   const rolls = d.original_rolls || [];
   const assigned = d.assigned_rolls || {};
@@ -1937,11 +1945,7 @@ function openMagicBaseEquipmentModal(record) {
   modal.innerHTML = `<div class="vault-rules-popout vault-quick-popout"><button class="vault-modal-close" type="button" aria-label="Close">x</button><div class="vault-kicker">Choose Base Item</div>
     <form class="vault-form" data-magic-base-form>
       <div class="vault-magic-item-source vault-full"><strong>${h(record.name)}</strong><span>${h(magicItemSourceLabel(record))}</span></div>
-      ${selectField("Base Weapon / Armor / Shield", "base_equipment_id", "", ["", ...baseItems.map((item) => String(item.id))]).replace(/<option value="([^"]+)">([^<]*)<\/option>/g, (match, value) => {
-        if (!value) return '<option value="">Choose base item</option>';
-        const item = baseItems.find((entry) => String(entry.id) === value);
-        return `<option value="${h(value)}">${h(item?.name || value)}</option>`;
-      })}
+      <label class="vault-field wide">Base Weapon / Armor / Shield<select name="base_equipment_id">${selectOptionsHtml([{ value: "", label: "Choose base item" }, ...baseItems.map((item) => ({ value: item.id, label: item.name }))])}</select></label>
       <div class="vault-panel-toast vault-full" data-panel-toast>${baseItems.length ? "The magic item will use this base item's weight, weapon damage, armor AC, and rules." : "No matching base equipment found."}</div>
       <div class="vault-actions vault-full"><button class="vault-button" type="submit" ${baseItems.length ? "" : "disabled"}>Add Magic Item</button></div>
     </form></div>`;

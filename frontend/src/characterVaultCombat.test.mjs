@@ -378,6 +378,13 @@ test("magic items are managed separately from standard equipment", () => {
   assert.doesNotMatch(vaultSource, /state\.equipment\.push\([^)]*magic_items/);
 });
 
+test("magic base item chooser displays item names instead of ids", () => {
+  assert.match(vaultSource, /function selectOptionsHtml/);
+  assert.match(vaultSource, /label: item\.name/);
+  assert.match(vaultSource, /Choose base item/);
+  assert.doesNotMatch(vaultSource, /baseItems\.map\(\(item\) => String\(item\.id\)\)/);
+});
+
 test("OSRIC magic item catalog contains real catalog records", () => {
   assert.equal(magicItemCatalog.source, "OSRIC Core Rules");
   assert.ok(magicItemCatalog.items.length > 300);
