@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy import func, select
@@ -218,6 +218,81 @@ def inventory_payload(item: CharacterInventory) -> dict:
     }
 
 
+def _numeric_effect(effects: dict[str, Any], *keys: str) -> int:
+    for key in keys:
+        if effects.get(key) not in (None, ""):
+            try:
+                return int(effects[key])
+            except (TypeError, ValueError):
+                return 0
+    return 0
+
+
+def applied_magic_equipment_payload(item: dict) -> dict | None:
+    base = item.get("applied_equipment") if isinstance(item.get("applied_equipment"), dict) else None
+    if not base:
+        return None
+    effects = item.get("equipment_effects") if isinstance(item.get("equipment_effects"), dict) else {}
+    equipment = dict(base)
+    properties = dict(equipment.get("properties") or {})
+    magic_bonus = _numeric_effect(effects, "magic_bonus")
+    attack_bonus = _numeric_effect(effects, "attack_bonus")
+    damage_bonus = _numeric_effect(effects, "damage_bonus")
+    ac_adjustment = _numeric_effect(effects, "armor_class_adjustment")
+    if magic_bonus:
+        properties["magic_bonus"] = magic_bonus
+    if attack_bonus:
+        properties["attack_bonus"] = attack_bonus
+    if damage_bonus:
+        properties["damage_bonus"] = damage_bonus
+    if equipment.get("type") == "armor" and equipment.get("armor_class_value") is not None and ac_adjustment:
+        equipment["armor_class_value"] = int(equipment["armor_class_value"]) + ac_adjustment
+    if equipment.get("type") == "shield" and ac_adjustment:
+        properties["shield_bonus"] = max(1, 1 + abs(ac_adjustment))
+    equipment.update(
+        {
+            "name": item.get("name") or equipment.get("name"),
+            "properties": properties,
+            "is_magic_item": True,
+            "magic_item_id": item.get("id"),
+            "magic_catalog_id": item.get("catalog_id"),
+            "magic_description": item.get("description") or "",
+        }
+    )
+    return equipment
+
+
+def magic_item_inventory_payload(item: dict) -> dict | None:
+    if item.get("status") in {"lost", "destroyed"}:
+        return None
+    equipment = applied_magic_equipment_payload(item)
+    if not equipment:
+        return None
+    quantity = 1
+    stack_value = equipment_stack_value(equipment, quantity)
+    return {
+        "id": item.get("id"),
+        "magic_item_id": item.get("id"),
+        "equipment_id": equipment.get("id"),
+        "quantity": quantity,
+        "status": item.get("status") or "carried",
+        "container_id": None,
+        "storage_location": None,
+        "notes": item.get("notes") or "",
+        "equipment": equipment,
+        "is_magic_item": True,
+        "is_ammunition": False,
+        "ammunition_kind": None,
+        "ammunition_display_name": None,
+        "compatible_weapon_terms": [],
+        "unit_weight": float(equipment.get("weight") or 0),
+        "total_weight": round(equipment_total_weight(equipment, quantity), 4),
+        "unit_cost": equipment.get("cost_amount"),
+        "stack_value": round(stack_value, 4) if stack_value is not None else None,
+        "stack_value_coin": equipment.get("cost_coin"),
+    }
+
+
 def spell_payload(spell: SpellsCatalog) -> dict:
     return {
         "id": spell.id,
@@ -330,6 +405,12 @@ def character_payload(character: VaultCharacter) -> dict:
         inventory_payload(item)
         for item in character.inventory
     ]
+    magic_inventory = [
+        payload
+        for payload in (magic_item_inventory_payload(item) for item in (character.magic_items or []))
+        if payload is not None
+    ]
+    runtime_inventory = [*inventory, *magic_inventory]
     spell_entries = [
         {
             "id": spell.id,
@@ -366,7 +447,7 @@ def character_payload(character: VaultCharacter) -> dict:
     }
     derived = derived_stats(
         adjusted_scores,
-        inventory,
+        runtime_inventory,
         coins_payload,
         rules_class_name(character.class_name),
         rules_race_name(character.race),
@@ -376,7 +457,7 @@ def character_payload(character: VaultCharacter) -> dict:
     combat_runtime = character_combat_runtime(
         character.id,
         adjusted_scores,
-        inventory,
+        runtime_inventory,
         rules_class_name(character.class_name),
         rules_race_name(character.race),
         character.level,
@@ -443,7 +524,7 @@ def character_payload(character: VaultCharacter) -> dict:
             "rules_class_name": rules_class_name(character.class_name),
         },
         "race_details": RACES.get(rules_race_name(character.race), {}),
-        "inventory": inventory,
+        "inventory": runtime_inventory,
         "weapon_proficiencies": weapon_proficiencies,
         "spells": spell_entries,
         "spell_slots": spell_slot_summary(spell_rules_class_name(character.class_name), character.level, spell_entries),
@@ -701,6 +782,7 @@ def normalize_magic_items(items: list[dict] | None) -> list[dict]:
         max_charges = None if max_charges_raw in (None, "") else max(0, int(max_charges_raw))
         effects = item.get("equipment_effects") if isinstance(item.get("equipment_effects"), dict) else {}
         source_ref = item.get("source_ref") if isinstance(item.get("source_ref"), dict) else {}
+        applied_equipment = item.get("applied_equipment") if isinstance(item.get("applied_equipment"), dict) else None
         weight_raw = item.get("weight")
         try:
             weight = None if weight_raw in (None, "") else max(0, float(weight_raw))
@@ -717,6 +799,7 @@ def normalize_magic_items(items: list[dict] | None) -> list[dict]:
                 "description": str(item.get("description") or "").strip()[:1200],
                 "weight": weight,
                 "equipment_effects": effects,
+                "applied_equipment": applied_equipment,
                 "status": status,
                 "identified": bool(item.get("identified", False)),
                 "charges": charges,

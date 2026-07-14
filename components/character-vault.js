@@ -1451,6 +1451,7 @@ function bindBuilderActions() {
     }
   }));
   bindInventoryActions((renderOptions) => renderBuilder(renderOptions));
+  bindMagicItemActions((renderOptions) => renderBuilder(renderOptions));
   document.querySelector("[name='equipment_search']")?.addEventListener("input", (event) => { state.equipmentFilters.q = event.target.value; filterEquipment(); });
   document.querySelector("[name='equipment_type']")?.addEventListener("change", (event) => { state.equipmentFilters.type = event.target.value; filterEquipment(); });
   document.querySelector("[name='allowed_only']")?.addEventListener("change", (event) => { state.equipmentFilters.allowedOnly = event.target.checked; filterEquipment(); });
@@ -1890,6 +1891,7 @@ async function openMagicItemCatalogModal() {
   document.body.appendChild(modal);
   try {
     const catalog = await loadMagicItemCatalog();
+    await loadEquipmentCatalog();
     const toastNode = modal.querySelector("[data-panel-toast]");
     const resultsNode = modal.querySelector("[data-magic-catalog-results]");
     const filterNode = modal.querySelector("[data-magic-catalog-filter]");
@@ -1906,6 +1908,11 @@ async function openMagicItemCatalogModal() {
       resultsNode.querySelectorAll("[data-magic-catalog-add]").forEach((button) => button.addEventListener("click", async () => {
         const record = catalog.find((entry) => entry.id === button.dataset.magicCatalogAdd);
         if (!record) return;
+        if (magicItemNeedsBaseEquipment(record)) {
+          close();
+          openMagicBaseEquipmentModal(record);
+          return;
+        }
         const items = state.character?.magic_items || [];
         await saveMagicItems([...items, magicItemFromCatalogRecord(record)]);
         state.sheetDisclosure.magicItemsOpen = true;
@@ -1920,6 +1927,44 @@ async function openMagicItemCatalogModal() {
   } catch (error) {
     modal.querySelector("[data-panel-toast]").textContent = readableError(error);
   }
+}
+
+function openMagicBaseEquipmentModal(record) {
+  document.querySelector(".vault-magic-item-modal")?.remove();
+  const modal = document.createElement("div");
+  modal.className = "vault-rules-modal vault-magic-item-modal";
+  const baseItems = magicBaseEquipmentOptions(record);
+  modal.innerHTML = `<div class="vault-rules-popout vault-quick-popout"><button class="vault-modal-close" type="button" aria-label="Close">x</button><div class="vault-kicker">Choose Base Item</div>
+    <form class="vault-form" data-magic-base-form>
+      <div class="vault-magic-item-source vault-full"><strong>${h(record.name)}</strong><span>${h(magicItemSourceLabel(record))}</span></div>
+      ${selectField("Base Weapon / Armor / Shield", "base_equipment_id", "", ["", ...baseItems.map((item) => String(item.id))]).replace(/<option value="([^"]+)">([^<]*)<\/option>/g, (match, value) => {
+        if (!value) return '<option value="">Choose base item</option>';
+        const item = baseItems.find((entry) => String(entry.id) === value);
+        return `<option value="${h(value)}">${h(item?.name || value)}</option>`;
+      })}
+      <div class="vault-panel-toast vault-full" data-panel-toast>${baseItems.length ? "The magic item will use this base item's weight, weapon damage, armor AC, and rules." : "No matching base equipment found."}</div>
+      <div class="vault-actions vault-full"><button class="vault-button" type="submit" ${baseItems.length ? "" : "disabled"}>Add Magic Item</button></div>
+    </form></div>`;
+  modal.querySelector(".vault-modal-close").addEventListener("click", () => modal.remove());
+  modal.addEventListener("click", (event) => { if (event.target === modal) modal.remove(); });
+  modal.querySelector("[data-magic-base-form]").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const data = Object.fromEntries(new FormData(event.target));
+    const base = baseItems.find((item) => String(item.id) === String(data.base_equipment_id));
+    if (!base) {
+      modal.querySelector("[data-panel-toast]").textContent = "Choose a base item first.";
+      return;
+    }
+    const items = state.character?.magic_items || [];
+    const magicItem = magicItemFromCatalogRecord(record, base);
+    await saveMagicItems([...items, magicItem]);
+    state.sheetDisclosure.magicItemsOpen = true;
+    state.sheetDisclosure.inventoryOpen = true;
+    toast(`${magicItem.name} added.`, "success");
+    modal.remove();
+    renderSheet({ keepMagicItemsVisible: true });
+  });
+  document.body.appendChild(modal);
 }
 
 function openMagicItemModal(item = null) {
@@ -1953,6 +1998,7 @@ function openMagicItemModal(item = null) {
       description: item?.description || "",
       weight: item?.weight ?? null,
       equipment_effects: item?.equipment_effects || {},
+      applied_equipment: item?.applied_equipment || null,
       status: data.status || "carried",
       identified: data.identified === "on",
       charges: data.charges === "" ? null : Number(data.charges),
@@ -2394,6 +2440,7 @@ function inventoryRow(item, proficiencies = []) {
   const equipment = item.equipment || {};
   const isEquipped = item.status === "equipped";
   const isStored = item.status === "stored";
+  const isMagicInventory = Boolean(item.is_magic_item || equipment.is_magic_item);
   const ammo = item.is_ammunition || isAmmunition(equipment);
   const damage = equipment.type === "weapon" && !ammo ? [equipment.damage_small_medium, equipment.damage_large].filter(Boolean).join(" / ") : "";
   const proficiency = equipment.type === "weapon" && !ammo ? weaponProficiencyLabel(equipment.id, proficiencies) : "";
@@ -2402,22 +2449,26 @@ function inventoryRow(item, proficiencies = []) {
   const status = isStored && item.storage_location ? `${labelize(item.status)} at ${item.storage_location}` : labelize(item.status);
   const proficiencyClass = proficiency === "Proficient" ? "vault-status-good" : "vault-muted";
   const weight = formatWeight(item.total_weight ?? ((equipment.weight || 0) * item.quantity));
-  const quantityActions = `<span class="vault-ammo-quantity"><button type="button" class="vault-button secondary" data-inventory-action="${item.id}:quantity:${Math.max(0, Number(item.quantity || 0) - 1)}">-</button><strong>${h(item.quantity || 0)}</strong><button type="button" class="vault-button secondary" data-inventory-action="${item.id}:quantity:${Number(item.quantity || 0) + 1}">+</button></span>`;
-  return `<tr class="${isEquipped ? "vault-equipped-row" : ""}" data-inventory-row="${h(item.id)}"><td>${ammo ? `<strong>${h(itemName)}</strong> ×${h(item.quantity || 0)}` : `${h(item.quantity)} x <strong>${h(itemName)}</strong>`}<br><span class="vault-mini">${damage ? `Damage ${h(damage)}` : ""}${damage && proficiency ? " / " : ""}${proficiency ? `<span class="${proficiencyClass}">${h(proficiency)}</span>` : ""}</span></td><td>${h(equipmentDisplayType(equipment))}</td><td>${h(weight)}</td><td>${h(cost)}</td><td>${h(status)}</td><td>${quantityActions}${isEquipped ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Unequip</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:equipped">Equip</button>`} ${isStored ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Carry</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:stored">Store</button>`} <button type="button" class="vault-button secondary" data-inventory-action="${item.id}:delete">Drop</button></td></tr>`;
+  const quantityActions = isMagicInventory ? "" : `<span class="vault-ammo-quantity"><button type="button" class="vault-button secondary" data-inventory-action="${item.id}:quantity:${Math.max(0, Number(item.quantity || 0) - 1)}">-</button><strong>${h(item.quantity || 0)}</strong><button type="button" class="vault-button secondary" data-inventory-action="${item.id}:quantity:${Number(item.quantity || 0) + 1}">+</button></span>`;
+  const normalActions = `${quantityActions}${isEquipped ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Unequip</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:equipped">Equip</button>`} ${isStored ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Carry</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:stored">Store</button>`} <button type="button" class="vault-button secondary" data-inventory-action="${item.id}:delete">Drop</button>`;
+  const magicActions = `${isEquipped ? `<button class="vault-button secondary" type="button" data-magic-item-action="${h(item.magic_item_id || item.id)}:status:carried">Unequip</button>` : `<button class="vault-button secondary" type="button" data-magic-item-action="${h(item.magic_item_id || item.id)}:status:equipped">Equip</button>`} ${isStored ? `<button class="vault-button secondary" type="button" data-magic-item-action="${h(item.magic_item_id || item.id)}:status:carried">Carry</button>` : `<button class="vault-button secondary" type="button" data-magic-item-action="${h(item.magic_item_id || item.id)}:status:stored">Store</button>`} <button class="vault-button secondary" type="button" data-magic-item-action="${h(item.magic_item_id || item.id)}:delete">Remove</button>`;
+  return `<tr class="${isEquipped ? "vault-equipped-row" : ""}" data-inventory-row="${h(item.id)}"><td>${ammo ? `<strong>${h(itemName)}</strong> ×${h(item.quantity || 0)}` : `${h(item.quantity)} x <strong>${h(itemName)}</strong>`}<br><span class="vault-mini">${damage ? `Damage ${h(damage)}` : ""}${damage && proficiency ? " / " : ""}${proficiency ? `<span class="${proficiencyClass}">${h(proficiency)}</span>` : ""}${isMagicInventory ? `${damage || proficiency ? " / " : ""}Magic item` : ""}</span></td><td>${h(equipmentDisplayType(equipment))}</td><td>${h(weight)}</td><td>${h(cost)}</td><td>${h(status)}</td><td>${isMagicInventory ? magicActions : normalActions}</td></tr>`;
 }
 
-function magicItemFromCatalogRecord(record) {
+function magicItemFromCatalogRecord(record, baseEquipment = null) {
   const effects = record.equipment_effects || {};
+  const appliedEquipment = baseEquipment ? magicAppliedEquipmentPayload(baseEquipment) : null;
   return {
     id: `magic-${Date.now()}-${Math.random().toString(16).slice(2)}`,
     catalog_id: record.id,
-    name: record.name,
+    name: appliedEquipment ? appliedMagicItemName(record, appliedEquipment) : record.name,
     category: record.category,
     source: record.source || "OSRIC",
     source_ref: record.source_ref || {},
     description: record.description || "",
-    weight: record.weight ?? effects.weight ?? null,
+    weight: appliedEquipment?.weight ?? record.weight ?? effects.weight ?? null,
     equipment_effects: effects,
+    applied_equipment: appliedEquipment,
     status: "carried",
     identified: false,
     charges: null,
@@ -2426,10 +2477,57 @@ function magicItemFromCatalogRecord(record) {
   };
 }
 
+function magicItemNeedsBaseEquipment(record = {}) {
+  return ["weapon", "armor", "shield"].includes(String(record.equipment_effects?.kind || "").toLowerCase());
+}
+
+function magicBaseEquipmentOptions(record = {}) {
+  const effects = record.equipment_effects || {};
+  const kind = String(effects.kind || "").toLowerCase();
+  const baseTerm = String(effects.base_item || "").toLowerCase();
+  return state.equipment.filter((item) => {
+    if (kind === "weapon" && item.type !== "weapon") return false;
+    if (kind === "armor" && item.type !== "armor") return false;
+    if (kind === "shield" && item.type !== "shield") return false;
+    if (baseTerm && baseTerm !== "weapon" && baseTerm !== "armor" && baseTerm !== "armour" && baseTerm !== "shield") {
+      return item.name.toLowerCase().includes(baseTerm);
+    }
+    return true;
+  }).sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function magicAppliedEquipmentPayload(item = {}) {
+  return {
+    id: item.id,
+    name: item.name,
+    type: item.type,
+    subtype: item.subtype,
+    cost_amount: item.cost_amount,
+    cost_coin: item.cost_coin,
+    weight: item.weight,
+    damage_small_medium: item.damage_small_medium,
+    damage_large: item.damage_large,
+    rate_of_fire: item.rate_of_fire,
+    range: item.range,
+    armor_class_value: item.armor_class_value,
+    armor_class_adjustment: item.armor_class_adjustment,
+    properties: item.properties || {},
+    rules_reference: item.rules_reference,
+  };
+}
+
+function appliedMagicItemName(record = {}, base = {}) {
+  const bonus = record.name.match(/[+-]\d+/)?.[0] || "";
+  const baseName = base.name || "Item";
+  if (bonus && !baseName.includes(bonus)) return `${baseName} ${bonus}`;
+  return `${baseName} (${record.name})`;
+}
+
 function magicCatalogRowHtml(item) {
+  const addLabel = magicItemNeedsBaseEquipment(item) ? "Choose Base" : "Add";
   return `<article class="vault-magic-catalog-row">
     <div><h4>${h(item.name)}</h4><p>${h(item.category)} &bull; ${h(magicItemSourceLabel(item))}</p>${magicItemDescriptionHtml(item)}${magicItemMechanicsHtml(item)}</div>
-    <button class="vault-button secondary" type="button" data-magic-catalog-add="${h(item.id)}">Add</button>
+    <button class="vault-button secondary" type="button" data-magic-catalog-add="${h(item.id)}">${h(addLabel)}</button>
   </article>`;
 }
 
@@ -2444,11 +2542,13 @@ function magicItemsHtml(c) {
 function magicItemCardHtml(item) {
   const charges = magicItemChargesHtml(item);
   const status = item.status || "carried";
+  const applied = item.applied_equipment ? `<p class="vault-mini">Base: ${h(item.applied_equipment.name || "equipment")}</p>` : "";
   return `<article class="vault-magic-item-card">
     <div class="vault-magic-item-head">
       <div><h4>${h(item.name || "Magic Item")}</h4><p>${h(item.category || "Misc Magic")} &bull; ${h(labelize(status))}${item.identified ? " &bull; Identified" : " &bull; Unidentified"}${item.catalog_id ? ` &bull; ${h(magicItemSourceLabel(item))}` : ""}</p></div>
       <button class="vault-button secondary" type="button" data-magic-item-edit="${h(item.id)}">Edit</button>
     </div>
+    ${applied}
     ${magicItemDescriptionHtml(item)}
     ${magicItemMechanicsHtml(item)}
     ${charges}

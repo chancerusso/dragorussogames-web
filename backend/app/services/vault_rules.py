@@ -784,7 +784,7 @@ def derived_stats(
             if equipment.get("type") == "shield":
                 allowed, reason = is_allowed_equipment(class_name, equipment)
                 if allowed:
-                    shield_bonus = max(shield_bonus, 1)
+                    shield_bonus = max(shield_bonus, int((equipment.get("properties") or {}).get("shield_bonus") or 1))
                     shield_name = equipment.get("name")
                     shield_reason = reason
                 else:

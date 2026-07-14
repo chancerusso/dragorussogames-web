@@ -774,6 +774,89 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertEqual(19, result["final_attack_value"])
         self.assertEqual("1d8+1", result["damage"]["final_small_medium"])
 
+    def test_applied_magic_weapon_uses_base_weapon_and_magic_bonus(self) -> None:
+        sword = self.equipment("Sword, long")
+        self.character_model.magic_items = [
+            {
+                "id": "magic-long-sword-plus-2",
+                "catalog_id": "osric.magic_item.magic_sword_plus_2",
+                "name": "Sword, long +2",
+                "category": "Magic Sword",
+                "source": "OSRIC",
+                "source_ref": {},
+                "description": "A magic sword applied to a selected sword form.",
+                "weight": sword.weight,
+                "equipment_effects": {"kind": "weapon", "magic_bonus": 2, "attack_bonus": 2, "damage_bonus": 2},
+                "applied_equipment": {
+                    "id": sword.id,
+                    "name": sword.name,
+                    "type": sword.type,
+                    "subtype": sword.subtype,
+                    "weight": sword.weight,
+                    "damage_small_medium": sword.damage_small_medium,
+                    "damage_large": sword.damage_large,
+                    "rate_of_fire": sword.rate_of_fire,
+                    "range": sword.range,
+                    "properties": sword.properties,
+                    "rules_reference": sword.rules_reference,
+                },
+                "status": "equipped",
+                "identified": True,
+                "charges": None,
+                "max_charges": None,
+                "notes": "",
+            }
+        ]
+        self.db.commit()
+
+        payload = character_payload(self.character_model)
+        magic_row = next(item for item in payload["inventory"] if item.get("magic_item_id") == "magic-long-sword-plus-2")
+        runtime = next(weapon for weapon in payload["combat"]["runtime"]["weapons"] if weapon["weapon"] == "Sword, long +2")
+
+        self.assertEqual("Sword, long +2", magic_row["equipment"]["name"])
+        self.assertEqual(2, runtime["attack_modifiers"]["magical"])
+        self.assertEqual(2, runtime["damage"]["magical"])
+        self.assertEqual("1d8+2", runtime["damage"]["final_small_medium"])
+
+    def test_applied_magic_armor_uses_base_armor_and_ac_adjustment(self) -> None:
+        splint = self.equipment("Splint")
+        self.character_model.magic_items = [
+            {
+                "id": "magic-splint-plus-1",
+                "catalog_id": "osric.magic_item.magic_armour_plus_1",
+                "name": "Splint +1",
+                "category": "Magic Armour / Shield",
+                "source": "OSRIC",
+                "source_ref": {},
+                "description": "Magic armour applied to a selected armour form.",
+                "weight": splint.weight,
+                "equipment_effects": {"kind": "armor", "magic_bonus": 1, "armor_class_adjustment": -1},
+                "applied_equipment": {
+                    "id": splint.id,
+                    "name": splint.name,
+                    "type": splint.type,
+                    "subtype": splint.subtype,
+                    "weight": splint.weight,
+                    "armor_class_value": splint.armor_class_value,
+                    "armor_class_adjustment": splint.armor_class_adjustment,
+                    "properties": splint.properties,
+                    "rules_reference": splint.rules_reference,
+                },
+                "status": "equipped",
+                "identified": True,
+                "charges": None,
+                "max_charges": None,
+                "notes": "",
+            }
+        ]
+        self.db.commit()
+
+        payload = character_payload(self.character_model)
+
+        self.assertEqual("Splint +1", payload["combat"]["armor_class_breakdown"]["armor"]["label"])
+        self.assertEqual(3, payload["combat"]["armor_class_breakdown"]["armor"]["armor_class_value"])
+        self.assertEqual(3, payload["combat"]["armor_class"])
+
     def test_illegal_weapon_selection_is_blocked_for_magic_user(self) -> None:
         sword = self.equipment("Sword, long")
         magic_user = create_vault_character_for_player(
