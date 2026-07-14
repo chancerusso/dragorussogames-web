@@ -819,6 +819,8 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertEqual("1d8+2", runtime["damage"]["final_small_medium"])
 
     def test_hammer_of_thunderbolts_equips_as_special_warhammer(self) -> None:
+        heavy_hammer = self.equipment("Hammer, war, heavy")
+        self.db.add(WeaponProficiency(character_id=self.character_model.id, equipment_id=heavy_hammer.id, proficient=True))
         self.character_model.magic_items = [
             {
                 "id": "magic-hammer-of-thunderbolts",
@@ -848,6 +850,8 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertEqual(15, magic_row["total_weight"])
         self.assertEqual("thrown", runtime["mode"])
         self.assertEqual(3, runtime["attack_modifiers"]["magical"])
+        self.assertEqual(0, runtime["attack_modifiers"]["proficiency"])
+        self.assertTrue(runtime["proficiency"]["proficient"])
         self.assertEqual(0, runtime["damage"]["magical"])
         self.assertEqual("4d6", runtime["damage"]["final_small_medium"])
         self.assertEqual({"short": 30, "medium": 60, "long": 90, "raw": "30 ft"}, runtime["range"])

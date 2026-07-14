@@ -232,9 +232,14 @@ def _property_bonus(equipment: dict[str, Any], *keys: str) -> int:
     return 0
 
 
-def _proficiency_entry(equipment_id: int | None, proficiencies: list[dict[str, Any]]) -> dict[str, Any] | None:
+def _proficiency_entry(equipment: dict[str, Any], proficiencies: list[dict[str, Any]]) -> dict[str, Any] | None:
+    equipment_id = equipment.get("id")
+    proficiency_name = str((equipment.get("properties") or {}).get("proficiency_equipment_name") or "").lower()
     for entry in proficiencies:
         if int(entry.get("equipment_id") or 0) == int(equipment_id or 0):
+            return entry
+        entry_name = str((entry.get("equipment") or {}).get("name") or "").lower()
+        if proficiency_name and entry_name == proficiency_name:
             return entry
     return None
 
@@ -262,7 +267,7 @@ def weapon_combat(
 ) -> dict[str, Any]:
     proficiencies = proficiencies or []
     mode = weapon_mode(equipment)
-    prof = _proficiency_entry(equipment.get("id"), proficiencies)
+    prof = _proficiency_entry(equipment, proficiencies)
     specialized = bool((prof or {}).get("specialization"))
     class_info = CLASSES.get(class_name, {})
     non_prof_penalty = int(class_info.get("non_proficiency_penalty") or 0)

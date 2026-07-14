@@ -2459,7 +2459,7 @@ function inventoryRow(item, proficiencies = []) {
   const isMagicInventory = Boolean(item.is_magic_item || equipment.is_magic_item);
   const ammo = item.is_ammunition || isAmmunition(equipment);
   const damage = equipment.type === "weapon" && !ammo ? [equipment.damage_small_medium, equipment.damage_large].filter(Boolean).join(" / ") : "";
-  const proficiency = equipment.type === "weapon" && !ammo ? weaponProficiencyLabel(equipment.id, proficiencies) : "";
+  const proficiency = equipment.type === "weapon" && !ammo ? weaponProficiencyLabel(equipment, proficiencies) : "";
   const itemName = inventoryItemName(item);
   const cost = inventoryItemValue(item);
   const status = isStored && item.storage_location ? `${labelize(item.status)} at ${item.storage_location}` : labelize(item.status);
@@ -2509,7 +2509,7 @@ function magicDefaultAppliedEquipment(record = {}) {
     damage_large: "4d6",
     rate_of_fire: null,
     range: "30 ft",
-    properties: { ...(heavyHammer.properties || {}), weapon_mode: "thrown" },
+    properties: { ...(heavyHammer.properties || {}), weapon_mode: "thrown", proficiency_equipment_name: "Hammer, war, heavy" },
     rules_reference: "/1e/how-to-play/magic/",
   };
 }
@@ -2897,7 +2897,7 @@ function equippedWeaponsHtml(c) {
   const runtimeByEquipment = new Map(runtimeWeapons.map((entry) => [Number(entry.equipment_id), entry]));
   const weaponCards = weapons.filter((item) => item.status === "equipped").map((item) => {
     const runtime = runtimeByEquipment.get(Number(item.equipment_id));
-    return runtime ? weaponCardHtml(runtime, item.equipment, weaponProficiencyLabel(item.equipment_id, profs), c) : "";
+    return runtime ? weaponCardHtml(runtime, item.equipment, weaponProficiencyLabel(item.equipment, profs), c) : "";
   }).filter(Boolean).join("");
   return weaponCards ? `<div class="vault-equipped-weapon-grid">${weaponCards}</div>` : `<p class="vault-muted">No equipped weapons.</p>`;
 }
@@ -3495,14 +3495,20 @@ function displayReference(value) {
   return labels[value] || value || "";
 }
 
-function weaponProficiencyLabel(equipmentId, proficiencies = []) {
-  const proficiency = weaponProficiencyEntry(equipmentId, proficiencies);
+function weaponProficiencyLabel(equipmentOrId, proficiencies = []) {
+  const proficiency = weaponProficiencyEntry(equipmentOrId, proficiencies);
   if (!proficiency) return "Non-proficient";
   return proficiency.proficient ? "Proficient" : "Non-proficient";
 }
 
-function weaponProficiencyEntry(equipmentId, proficiencies = []) {
-  return proficiencies.find((entry) => Number(entry.equipment_id) === Number(equipmentId)) || null;
+function weaponProficiencyEntry(equipmentOrId, proficiencies = []) {
+  const equipment = typeof equipmentOrId === "object" ? equipmentOrId : null;
+  const equipmentId = equipment ? equipment.id : equipmentOrId;
+  const proficiencyName = String(equipment?.properties?.proficiency_equipment_name || "").toLowerCase();
+  return proficiencies.find((entry) => {
+    if (Number(entry.equipment_id) === Number(equipmentId)) return true;
+    return proficiencyName && String(entry.equipment?.name || "").toLowerCase() === proficiencyName;
+  }) || null;
 }
 
 function isAmmunition(item = {}) {
