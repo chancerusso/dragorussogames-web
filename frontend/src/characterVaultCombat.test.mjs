@@ -6,6 +6,7 @@ import test from "node:test";
 const repoRoot = resolve(import.meta.dirname, "..", "..");
 const vaultSource = readFileSync(resolve(repoRoot, "components", "character-vault.js"), "utf8");
 const vaultCss = readFileSync(resolve(repoRoot, "styles", "character-vault.css"), "utf8");
+const magicItemCatalog = JSON.parse(readFileSync(resolve(repoRoot, "content", "osric", "core", "magic_items", "index.json"), "utf8"));
 
 test("character sheet renders combat summary from runtime payload", () => {
   assert.match(vaultSource, /function combatSummaryHtml/);
@@ -364,10 +365,22 @@ test("magic items are managed separately from standard equipment", () => {
   assert.match(vaultSource, /vault-sheet-magic-items/);
   assert.match(vaultSource, /data-magic-item-add/);
   assert.match(vaultSource, /function bindMagicItemActions/);
+  assert.match(vaultSource, /OSRIC_MAGIC_ITEM_CATALOG_PATH/);
+  assert.match(vaultSource, /function loadMagicItemCatalog/);
+  assert.match(vaultSource, /function openMagicItemCatalogModal/);
+  assert.match(vaultSource, /catalog_id/);
   assert.match(vaultSource, /magic_items/);
   assert.match(vaultSource, /function magicItemCategories/);
   assert.match(vaultSource, /Magic Armour \/ Shield/);
   assert.doesNotMatch(vaultSource, /state\.equipment\.push\([^)]*magic_items/);
+});
+
+test("OSRIC magic item catalog contains real catalog records", () => {
+  assert.equal(magicItemCatalog.source, "OSRIC Core Rules");
+  assert.ok(magicItemCatalog.items.length > 300);
+  assert.ok(magicItemCatalog.items.some((item) => item.name === "Magic Sword +1" && item.equipment_effects.attack_bonus === 1));
+  assert.ok(magicItemCatalog.items.some((item) => item.name === "Bleeding Sword" && item.equipment_effects.damage_bonus === 1));
+  assert.ok(magicItemCatalog.items.some((item) => item.name === "Large Shield +1, Missile Deflector" && item.equipment_effects.missile_armor_class_adjustment === -4));
 });
 
 test("ammunition is separated from weapons and shown on compatible missile cards", () => {

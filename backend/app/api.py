@@ -699,11 +699,23 @@ def normalize_magic_items(items: list[dict] | None) -> list[dict]:
         max_charges_raw = item.get("max_charges")
         charges = None if charges_raw in (None, "") else max(0, int(charges_raw))
         max_charges = None if max_charges_raw in (None, "") else max(0, int(max_charges_raw))
+        effects = item.get("equipment_effects") if isinstance(item.get("equipment_effects"), dict) else {}
+        source_ref = item.get("source_ref") if isinstance(item.get("source_ref"), dict) else {}
+        weight_raw = item.get("weight")
+        try:
+            weight = None if weight_raw in (None, "") else max(0, float(weight_raw))
+        except (TypeError, ValueError):
+            weight = None
         normalized.append(
             {
                 "id": str(item.get("id") or f"magic-{index}"),
+                "catalog_id": str(item.get("catalog_id") or "").strip()[:160],
                 "name": name[:160],
                 "category": str(item.get("category") or "Misc Magic").strip()[:80],
+                "source": str(item.get("source") or "").strip()[:80],
+                "source_ref": source_ref,
+                "weight": weight,
+                "equipment_effects": effects,
                 "status": status,
                 "identified": bool(item.get("identified", False)),
                 "charges": charges,

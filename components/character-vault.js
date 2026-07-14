@@ -7,6 +7,7 @@ const abilityLabels = { strength: "STR", intelligence: "INT", wisdom: "WIS", dex
 const coins = ["platinum", "gold", "electrum", "silver", "copper"];
 const DRAGONLANCE_RACE_PATH = "/content/settings/dragonlance/races/";
 const DRAGONLANCE_CLASS_PATH = "/content/settings/dragonlance/classes/";
+const OSRIC_MAGIC_ITEM_CATALOG_PATH = "/content/osric/core/magic_items/index.json";
 const DRAGONLANCE_HIDDEN_CLASS_NAMES = new Set([
   "Barbarian",
   "Cavalier",
@@ -147,7 +148,7 @@ const fallbackDragonlanceRaces = [
     advanced: true,
   },
 ];
-const state = { characters: [], equipment: [], spells: [], campaigns: [], players: [], dragonlanceRaces: [], dragonlanceClasses: [], campaign: null, rules: null, character: null, currentPlayer: null, step: 0, draft: null, hpRollMessage: "", moneyRollMessage: "", equipmentFeedback: {}, equipmentPreviews: {}, inventoryFilter: "equipped", dmOverride: false, dmCharacterFilters: { campaign_id: "", user_id: "", status: "" }, equipmentFilters: { q: "", type: "", allowedOnly: false }, editEquipmentId: null, dmCampaignTab: "overview", sheetDisclosure: { inventoryOpen: false, magicItemsOpen: false, spellsOpen: true, campaignOpen: false } };
+const state = { characters: [], equipment: [], spells: [], campaigns: [], players: [], dragonlanceRaces: [], dragonlanceClasses: [], magicItemCatalog: [], campaign: null, rules: null, character: null, currentPlayer: null, step: 0, draft: null, hpRollMessage: "", moneyRollMessage: "", equipmentFeedback: {}, equipmentPreviews: {}, inventoryFilter: "equipped", dmOverride: false, dmCharacterFilters: { campaign_id: "", user_id: "", status: "" }, equipmentFilters: { q: "", type: "", allowedOnly: false }, editEquipmentId: null, dmCampaignTab: "overview", sheetDisclosure: { inventoryOpen: false, magicItemsOpen: false, spellsOpen: true, campaignOpen: false } };
 const sessionDataCache = {
   api: new Map(),
   content: new Map(),
@@ -287,6 +288,13 @@ async function loadEquipmentCatalog() {
 async function loadSpellsCatalog() {
   state.spells = await cachedApi("/spells");
   return state.spells;
+}
+
+async function loadMagicItemCatalog() {
+  if (state.magicItemCatalog.length) return state.magicItemCatalog;
+  const osric = await fetchJson(OSRIC_MAGIC_ITEM_CATALOG_PATH);
+  state.magicItemCatalog = Array.isArray(osric?.items) ? osric.items : [];
+  return state.magicItemCatalog;
 }
 
 function playerAuthHeaders() {
@@ -1827,7 +1835,7 @@ function bindInventoryActions(afterAction) {
 }
 
 function bindMagicItemActions(afterAction) {
-  document.querySelector("[data-magic-item-add]")?.addEventListener("click", () => openMagicItemModal());
+  document.querySelector("[data-magic-item-add]")?.addEventListener("click", () => openMagicItemCatalogModal());
   document.querySelectorAll("[data-magic-item-edit]").forEach((button) => button.addEventListener("click", () => {
     const item = (state.character?.magic_items || []).find((entry) => String(entry.id) === String(button.dataset.magicItemEdit));
     openMagicItemModal(item);
@@ -1864,14 +1872,64 @@ async function saveMagicItems(items) {
   state.draft = initialDraft();
 }
 
+async function openMagicItemCatalogModal() {
+  document.querySelector(".vault-magic-item-modal")?.remove();
+  const modal = document.createElement("div");
+  modal.className = "vault-rules-modal vault-magic-item-modal";
+  modal.innerHTML = `<div class="vault-rules-popout vault-quick-popout vault-magic-catalog-popout"><button class="vault-modal-close" type="button" aria-label="Close">x</button><div class="vault-kicker">Add OSRIC Magic Item</div>
+    <div class="vault-magic-catalog-tools">
+      <label class="vault-field wide">Search OSRIC Magic Items<input type="search" data-magic-catalog-filter placeholder="Sword, ring, wand, shield..."></label>
+      ${selectField("Category", "catalog_category", "All", ["All", ...magicItemCategories()]).replace('name="catalog_category"', 'name="catalog_category" data-magic-catalog-category')}
+    </div>
+    <div class="vault-panel-toast vault-full" data-panel-toast>Loading OSRIC magic item catalog...</div>
+    <div class="vault-magic-catalog-results" data-magic-catalog-results></div>
+  </div>`;
+  const close = () => modal.remove();
+  modal.querySelector(".vault-modal-close").addEventListener("click", close);
+  modal.addEventListener("click", (event) => { if (event.target === modal) close(); });
+  document.body.appendChild(modal);
+  try {
+    const catalog = await loadMagicItemCatalog();
+    const toastNode = modal.querySelector("[data-panel-toast]");
+    const resultsNode = modal.querySelector("[data-magic-catalog-results]");
+    const filterNode = modal.querySelector("[data-magic-catalog-filter]");
+    const categoryNode = modal.querySelector("[data-magic-catalog-category]");
+    const renderCatalog = () => {
+      const query = filterNode.value.trim().toLowerCase();
+      const category = categoryNode.value;
+      const rows = catalog.filter((item) => {
+        const haystack = `${item.name} ${item.category} ${item.equipment_effects?.notes || ""}`.toLowerCase();
+        return (!query || haystack.includes(query)) && (category === "All" || item.category === category);
+      });
+      toastNode.textContent = `${rows.length} OSRIC magic item${rows.length === 1 ? "" : "s"} found.`;
+      resultsNode.innerHTML = rows.slice(0, 80).map(magicCatalogRowHtml).join("") || `<p class="vault-compact-empty">No OSRIC magic items match that search.</p>`;
+      resultsNode.querySelectorAll("[data-magic-catalog-add]").forEach((button) => button.addEventListener("click", async () => {
+        const record = catalog.find((entry) => entry.id === button.dataset.magicCatalogAdd);
+        if (!record) return;
+        const items = state.character?.magic_items || [];
+        await saveMagicItems([...items, magicItemFromCatalogRecord(record)]);
+        state.sheetDisclosure.magicItemsOpen = true;
+        toast(`${record.name} added.`, "success");
+        close();
+        renderSheet({ keepMagicItemsVisible: true });
+      }));
+    };
+    filterNode.addEventListener("input", renderCatalog);
+    categoryNode.addEventListener("change", renderCatalog);
+    renderCatalog();
+  } catch (error) {
+    modal.querySelector("[data-panel-toast]").textContent = readableError(error);
+  }
+}
+
 function openMagicItemModal(item = null) {
   document.querySelector(".vault-magic-item-modal")?.remove();
   const current = item || { name: "", category: "Misc Magic", status: "carried", identified: false, charges: "", max_charges: "", notes: "" };
+  const catalogMeta = current.catalog_id ? `<div class="vault-magic-item-source vault-full"><strong>${h(current.name || "Magic Item")}</strong><span>${h(magicItemSourceLabel(current))}</span></div><input type="hidden" name="name" value="${h(current.name || "")}"><input type="hidden" name="category" value="${h(current.category || "Misc Magic")}">` : `${field("Name", "name", current.name || "", "text", "wide")}${selectField("Category", "category", current.category || "Misc Magic", magicItemCategories())}`;
   const modal = document.createElement("div");
   modal.className = "vault-rules-modal vault-magic-item-modal";
   modal.innerHTML = `<div class="vault-rules-popout vault-quick-popout"><button class="vault-modal-close" type="button" aria-label="Close">x</button><div class="vault-kicker">${item ? "Edit" : "Add"} Magic Item</div><form class="vault-form" data-magic-item-form>
-    ${field("Name", "name", current.name || "", "text", "wide")}
-    ${selectField("Category", "category", current.category || "Misc Magic", magicItemCategories())}
+    ${catalogMeta}
     ${selectField("Status", "status", current.status || "carried", ["equipped", "carried", "stored", "lost", "destroyed"])}
     ${field("Charges", "charges", current.charges ?? "", "number")}
     ${field("Max Charges", "max_charges", current.max_charges ?? "", "number")}
@@ -1889,6 +1947,11 @@ function openMagicItemModal(item = null) {
       id: item?.id || `magic-${Date.now()}`,
       name: data.name,
       category: data.category,
+      catalog_id: item?.catalog_id || "",
+      source: item?.source || "",
+      source_ref: item?.source_ref || {},
+      weight: item?.weight ?? null,
+      equipment_effects: item?.equipment_effects || {},
       status: data.status || "carried",
       identified: data.identified === "on",
       charges: data.charges === "" ? null : Number(data.charges),
@@ -2342,10 +2405,36 @@ function inventoryRow(item, proficiencies = []) {
   return `<tr class="${isEquipped ? "vault-equipped-row" : ""}" data-inventory-row="${h(item.id)}"><td>${ammo ? `<strong>${h(itemName)}</strong> ×${h(item.quantity || 0)}` : `${h(item.quantity)} x <strong>${h(itemName)}</strong>`}<br><span class="vault-mini">${damage ? `Damage ${h(damage)}` : ""}${damage && proficiency ? " / " : ""}${proficiency ? `<span class="${proficiencyClass}">${h(proficiency)}</span>` : ""}</span></td><td>${h(equipmentDisplayType(equipment))}</td><td>${h(weight)}</td><td>${h(cost)}</td><td>${h(status)}</td><td>${quantityActions}${isEquipped ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Unequip</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:equipped">Equip</button>`} ${isStored ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Carry</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:stored">Store</button>`} <button type="button" class="vault-button secondary" data-inventory-action="${item.id}:delete">Drop</button></td></tr>`;
 }
 
+function magicItemFromCatalogRecord(record) {
+  const effects = record.equipment_effects || {};
+  return {
+    id: `magic-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    catalog_id: record.id,
+    name: record.name,
+    category: record.category,
+    source: record.source || "OSRIC",
+    source_ref: record.source_ref || {},
+    weight: record.weight ?? effects.weight ?? null,
+    equipment_effects: effects,
+    status: "carried",
+    identified: false,
+    charges: null,
+    max_charges: null,
+    notes: "",
+  };
+}
+
+function magicCatalogRowHtml(item) {
+  return `<article class="vault-magic-catalog-row">
+    <div><h4>${h(item.name)}</h4><p>${h(item.category)} &bull; ${h(magicItemSourceLabel(item))}</p>${magicItemMechanicsHtml(item)}</div>
+    <button class="vault-button secondary" type="button" data-magic-catalog-add="${h(item.id)}">Add</button>
+  </article>`;
+}
+
 function magicItemsHtml(c) {
   const items = c.magic_items || [];
   return `<div class="vault-magic-item-panel">
-    <div class="vault-actions"><button class="vault-button" type="button" data-magic-item-add>Add Magic Item</button></div>
+    <div class="vault-actions"><button class="vault-button" type="button" data-magic-item-add>Add OSRIC Magic Item</button></div>
     ${items.length ? `<div class="vault-magic-item-grid">${items.map(magicItemCardHtml).join("")}</div>` : `<p class="vault-compact-empty">No magic items recorded.</p>`}
   </div>`;
 }
@@ -2355,9 +2444,10 @@ function magicItemCardHtml(item) {
   const status = item.status || "carried";
   return `<article class="vault-magic-item-card">
     <div class="vault-magic-item-head">
-      <div><h4>${h(item.name || "Magic Item")}</h4><p>${h(item.category || "Misc Magic")} &bull; ${h(labelize(status))}${item.identified ? " &bull; Identified" : " &bull; Unidentified"}</p></div>
+      <div><h4>${h(item.name || "Magic Item")}</h4><p>${h(item.category || "Misc Magic")} &bull; ${h(labelize(status))}${item.identified ? " &bull; Identified" : " &bull; Unidentified"}${item.catalog_id ? ` &bull; ${h(magicItemSourceLabel(item))}` : ""}</p></div>
       <button class="vault-button secondary" type="button" data-magic-item-edit="${h(item.id)}">Edit</button>
     </div>
+    ${magicItemMechanicsHtml(item)}
     ${charges}
     ${item.notes ? `<p class="vault-magic-item-notes">${h(item.notes)}</p>` : ""}
     <div class="vault-actions vault-magic-item-actions">
@@ -2376,8 +2466,33 @@ function magicItemChargesHtml(item = {}) {
   return `<div class="vault-magic-charges"><span>Charges</span><strong>${h(current)}${h(max)}</strong><span class="vault-ammo-quantity"><button type="button" class="vault-button secondary" data-magic-item-action="${h(item.id)}:charges:${Math.max(0, current - 1)}">-</button><button type="button" class="vault-button secondary" data-magic-item-action="${h(item.id)}:charges:${current + 1}">+</button></span></div>`;
 }
 
+function magicItemMechanicsHtml(item = {}) {
+  const effects = item.equipment_effects || {};
+  const chips = [];
+  if (item.weight !== null && item.weight !== undefined) chips.push(`Wt ${formatWeight(item.weight)}`);
+  if (effects.attack_bonus !== null && effects.attack_bonus !== undefined) chips.push(`Hit ${signed(effects.attack_bonus)}`);
+  if (effects.damage_bonus !== null && effects.damage_bonus !== undefined) chips.push(`Dmg ${signed(effects.damage_bonus)}`);
+  if (effects.armor_class_adjustment !== null && effects.armor_class_adjustment !== undefined) chips.push(`AC ${signed(effects.armor_class_adjustment)}`);
+  if (effects.missile_armor_class_adjustment !== null && effects.missile_armor_class_adjustment !== undefined) chips.push(`Missile AC ${signed(effects.missile_armor_class_adjustment)}`);
+  if (effects.charge_formula) chips.push(`Charges ${effects.charge_formula}`);
+  const note = effects.notes ? `<p class="vault-magic-effect-note">${h(effects.notes)}</p>` : "";
+  if (!chips.length && !note) return "";
+  return `<div class="vault-magic-effects">${chips.map((chip) => `<span>${h(chip)}</span>`).join("")}</div>${note}`;
+}
+
+function magicItemSourceLabel(item = {}) {
+  const source = item.source || "OSRIC";
+  const page = item.source_ref?.page ? ` p. ${item.source_ref.page}` : "";
+  return `${source}${page}`;
+}
+
+function signed(value) {
+  const number = Number(value || 0);
+  return number > 0 ? `+${number}` : `${number}`;
+}
+
 function magicItemCategories() {
-  return ["Potion", "Scroll", "Rod", "Staff", "Wand", "Magic Armour / Shield", "Magic Sword", "Magic Weapon", "Misc Magic", "Ring", "Cursed Item", "Artifact", "Other"];
+  return ["Potion", "Scroll", "Rod / Staff / Wand", "Magic Armour / Shield", "Magic Sword", "Magic Weapon", "Misc Magic", "Ring", "Cursed Item", "Artifact", "Other"];
 }
 
 function savingThrowsHtml(c) {
