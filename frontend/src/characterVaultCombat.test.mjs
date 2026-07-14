@@ -369,9 +369,12 @@ test("magic items are managed separately from standard equipment", () => {
   assert.match(vaultSource, /function loadMagicItemCatalog/);
   assert.match(vaultSource, /function openMagicItemCatalogModal/);
   assert.match(vaultSource, /catalog_id/);
+  assert.match(vaultSource, /function magicItemDescriptionHtml/);
+  assert.match(vaultSource, /item\.description/);
   assert.match(vaultSource, /magic_items/);
   assert.match(vaultSource, /function magicItemCategories/);
   assert.match(vaultSource, /Magic Armour \/ Shield/);
+  assert.doesNotMatch(vaultSource, /source_ref\?\.page \? ` p\. /);
   assert.doesNotMatch(vaultSource, /state\.equipment\.push\([^)]*magic_items/);
 });
 
@@ -381,6 +384,8 @@ test("OSRIC magic item catalog contains real catalog records", () => {
   assert.ok(magicItemCatalog.items.some((item) => item.name === "Magic Sword +1" && item.equipment_effects.attack_bonus === 1));
   assert.ok(magicItemCatalog.items.some((item) => item.name === "Bleeding Sword" && item.equipment_effects.damage_bonus === 1));
   assert.ok(magicItemCatalog.items.some((item) => item.name === "Large Shield +1, Missile Deflector" && item.equipment_effects.missile_armor_class_adjustment === -4));
+  assert.ok(magicItemCatalog.items.every((item) => item.description && !item.description.startsWith("OSRIC catalog item.")));
+  assert.match(magicItemCatalog.items.find((item) => item.name === "Potion of Healing").description, /2d4\+2 hp/);
 });
 
 test("ammunition is separated from weapons and shown on compatible missile cards", () => {

@@ -714,6 +714,7 @@ def normalize_magic_items(items: list[dict] | None) -> list[dict]:
                 "category": str(item.get("category") or "Misc Magic").strip()[:80],
                 "source": str(item.get("source") or "").strip()[:80],
                 "source_ref": source_ref,
+                "description": str(item.get("description") or "").strip()[:1200],
                 "weight": weight,
                 "equipment_effects": effects,
                 "status": status,

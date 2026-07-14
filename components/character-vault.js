@@ -1898,7 +1898,7 @@ async function openMagicItemCatalogModal() {
       const query = filterNode.value.trim().toLowerCase();
       const category = categoryNode.value;
       const rows = catalog.filter((item) => {
-        const haystack = `${item.name} ${item.category} ${item.equipment_effects?.notes || ""}`.toLowerCase();
+        const haystack = `${item.name} ${item.category} ${item.description || ""} ${item.equipment_effects?.notes || ""}`.toLowerCase();
         return (!query || haystack.includes(query)) && (category === "All" || item.category === category);
       });
       toastNode.textContent = `${rows.length} OSRIC magic item${rows.length === 1 ? "" : "s"} found.`;
@@ -1950,6 +1950,7 @@ function openMagicItemModal(item = null) {
       catalog_id: item?.catalog_id || "",
       source: item?.source || "",
       source_ref: item?.source_ref || {},
+      description: item?.description || "",
       weight: item?.weight ?? null,
       equipment_effects: item?.equipment_effects || {},
       status: data.status || "carried",
@@ -2414,6 +2415,7 @@ function magicItemFromCatalogRecord(record) {
     category: record.category,
     source: record.source || "OSRIC",
     source_ref: record.source_ref || {},
+    description: record.description || "",
     weight: record.weight ?? effects.weight ?? null,
     equipment_effects: effects,
     status: "carried",
@@ -2426,7 +2428,7 @@ function magicItemFromCatalogRecord(record) {
 
 function magicCatalogRowHtml(item) {
   return `<article class="vault-magic-catalog-row">
-    <div><h4>${h(item.name)}</h4><p>${h(item.category)} &bull; ${h(magicItemSourceLabel(item))}</p>${magicItemMechanicsHtml(item)}</div>
+    <div><h4>${h(item.name)}</h4><p>${h(item.category)} &bull; ${h(magicItemSourceLabel(item))}</p>${magicItemDescriptionHtml(item)}${magicItemMechanicsHtml(item)}</div>
     <button class="vault-button secondary" type="button" data-magic-catalog-add="${h(item.id)}">Add</button>
   </article>`;
 }
@@ -2447,6 +2449,7 @@ function magicItemCardHtml(item) {
       <div><h4>${h(item.name || "Magic Item")}</h4><p>${h(item.category || "Misc Magic")} &bull; ${h(labelize(status))}${item.identified ? " &bull; Identified" : " &bull; Unidentified"}${item.catalog_id ? ` &bull; ${h(magicItemSourceLabel(item))}` : ""}</p></div>
       <button class="vault-button secondary" type="button" data-magic-item-edit="${h(item.id)}">Edit</button>
     </div>
+    ${magicItemDescriptionHtml(item)}
     ${magicItemMechanicsHtml(item)}
     ${charges}
     ${item.notes ? `<p class="vault-magic-item-notes">${h(item.notes)}</p>` : ""}
@@ -2480,10 +2483,12 @@ function magicItemMechanicsHtml(item = {}) {
   return `<div class="vault-magic-effects">${chips.map((chip) => `<span>${h(chip)}</span>`).join("")}</div>${note}`;
 }
 
+function magicItemDescriptionHtml(item = {}) {
+  return item.description ? `<p class="vault-magic-item-description">${h(item.description)}</p>` : "";
+}
+
 function magicItemSourceLabel(item = {}) {
-  const source = item.source || "OSRIC";
-  const page = item.source_ref?.page ? ` p. ${item.source_ref.page}` : "";
-  return `${source}${page}`;
+  return item.source || "OSRIC";
 }
 
 function signed(value) {

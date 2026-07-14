@@ -29,7 +29,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This ancient tome appears to be a non-descript and well used travelling spellbook of the type favoured by adventuring wizards. This artifact grants to any player of any class the ability to cast the spells contained within its pages, though any character of a class unable to cast spells will function at one level lower while in possession of the artifact."
     },
     {
       "id": "osric.magic_item.deck_of_many_things",
@@ -56,7 +56,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This artifact is the ultimate two-edged sword, conferring effects both beneficial and baneful. It consists of a deck of 22 finely-carved ivory plaques in an intricately-carved box of polished ebony."
     },
     {
       "id": "osric.magic_item.hammer_of_thunderbolts",
@@ -83,7 +83,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This powerful weapon appears as a square-headed, 15 lb war hammer with a shorter than normal haft. The hammer of thunderbolts strikes as a +3 weapon and deals 4d6 damage, and can also be hurled as a missile weapon (30 ft range bands) which will return to the wielder after the attack is resolved."
     },
     {
       "id": "osric.magic_item.philosophers_stone",
@@ -110,7 +110,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Produced by an alchemist of some long-forgotten civilisation, the philosophers stone appears as an unremarkable, dull black rock of irregular shape and about the size of a clenched fist. Upon inspection the stone seems heavy for its size and, if spun on a flat surface the stone wobbles about its axis as if the centre were liquid."
     },
     {
       "id": "osric.magic_item.sphere_of_annihilation",
@@ -137,7 +137,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This object is not so much something as pure nothing, a spherical wound in reality consisting of a malignant absence of matter. Any matter from the Prime Material Plane coming into contact with the sphere is sucked into its utter blackness, instantly and irrevocably destroyed."
     },
     {
       "id": "osric.magic_item.talisman_of_pure_evil",
@@ -164,7 +164,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Any cleric of evil alignment (LE, NE, CE) can use this artifact to banish a good cleric or paladin (LG, NG, CG) up to 100 ft away to an icy prison. When the talisman is activated, the ground cracks open at the victims feet, chunks of ice flying upward as the victim is sent hurtling down to the very centre of the earth."
     },
     {
       "id": "osric.magic_item.talisman_of_pure_good",
@@ -191,7 +191,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Any cleric or paladin of good alignment (LG, NG, CG) can use this artifact to damn an evil cleric (LE, NE, CE) up to 100 ft away to a fiery judgment. When the talisman is activated, the ground cracks open at the clerics feet, flames shooting upward as the victim is sent hurtling down to the very centre of the earth."
     },
     {
       "id": "osric.magic_item.talisman_of_the_sphere",
@@ -218,7 +218,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This item is only usable by arcane or phantasmal spellcasters. Any character unable to cast arcane or phantasmal spells cannot use the talisman and, in fact, will take 5d6 points of damage if they attempt to pick it up."
     },
     {
       "id": "osric.magic_item.amulet_of_inescapable_location",
@@ -245,7 +245,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Identify will falsely indicate this item grants the wearer immunity from detection, location, and mind-reading. Once donned, however, the item changes from a normal appearing gold amulet with gemstone inlay into a rather large and garish piece of cheap costume jewellery."
     },
     {
       "id": "osric.magic_item.armour_of_arrow_attraction",
@@ -272,7 +272,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This armour appears to both mundane and magical inspection as a strongly magicked suit of plate armour. Only in actual use, however, will its cursed nature be revealed."
     },
     {
       "id": "osric.magic_item.armour_of_rage",
@@ -299,7 +299,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Resembling armour of com mand, when worn this plate +1 will cause a -4 penalty to the wearers charisma."
     },
     {
       "id": "osric.magic_item.bag_of_devouring",
@@ -326,7 +326,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This item appears as an everyday sack and mystical means of identification will indicate it is a bag of holding. The bag of devouring actually has the same capacity for storage as a regular bag of holding but in fact the bag is a lure and feeding orifice for an extradimensional creature."
     },
     {
       "id": "osric.magic_item.boots_of_dancing",
@@ -353,7 +353,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Footwear which appears to be any one of a number of magicked boots. When the wearer is engaged in or fleeing from combat, however, the boots of dancing will show their true nature."
     },
     {
       "id": "osric.magic_item.bracers_of_defencelessness",
@@ -380,7 +380,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "These serve as bracers of defence +5 until the wearer is engaged in actual combat with an enemy of equal or greater level. At once the bracers lose the +5 bonus and immediately and permanently become -5 to AC."
     },
     {
       "id": "osric.magic_item.broom_of_animated_attack",
@@ -407,7 +407,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Appears as a broom of flying to all attempts to identify. When used by speaking the command word, usually found engraved on the handle, the cursed nature becomes obvious."
     },
     {
       "id": "osric.magic_item.cloak_of_poisonousness",
@@ -434,7 +434,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Identify spells will reveal nothing but a rather sturdy woollen cloak. This article of clothing can be handled without harm but when worn the victim is instantly slain unless he or she rolls a save vs death."
     },
     {
       "id": "osric.magic_item.crystal_hypnosis_ball",
@@ -461,7 +461,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This item appears as a typical crystal ball, used by many mages to assist with scrying and communication across long distances. Anyone looking into the ball will be hypnotised for 1d6 minutes, during which time they will do nothing but stare into the ball, enthralled by what is seen therein."
     },
     {
       "id": "osric.magic_item.dust_of_sneezing_choking",
@@ -488,7 +488,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Cursed dust that appears beneficial but causes violent sneezing and choking when scattered; victims may be disabled or harmed by the cloud."
     },
     {
       "id": "osric.magic_item.flask_of_curses",
@@ -515,7 +515,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This container appears as any one of a number of containers encountered during the course of an adventure. Sometimes it looks like a potion flask, sometimes as a bottle or beaker, still others as a jug."
     },
     {
       "id": "osric.magic_item.gauntlets_of_fumbling",
@@ -542,7 +542,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "These appear to be gauntlets of two differing types, suitable for use with heavy armour or made for use with leather armour or clothing. These obviously magicked articles detect for ability bo nuses depending upon type."
     },
     {
       "id": "osric.magic_item.incense_of_obsession",
@@ -569,7 +569,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "These faintly magical cones or blocks of incense appear to be an aid to divine spell memorisation in like manner to incense of meditation. In essence the incense of obsession causes any cleric using it as an aid to acquiring spells to become completely convinced the incense has granted him or her superior divine magic us ing ability."
     },
     {
       "id": "osric.magic_item.mace_of_blood",
@@ -596,7 +596,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Functions as a mace +3 but only if coated with the blood of an opponent it has slain every day. If it is not, the +3 bonus fades away until it is again bathed in blood."
     },
     {
       "id": "osric.magic_item.medallion_of_thought_projection",
@@ -623,7 +623,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This cursed medallion appears both to be proof against detection by scrying or magical thought reading and a device for reading the thoughts of others. Instead of reading the thoughts of all creatures within the area of effect, the medallion instead transmits illusory thoughts of a mud dled and confusing nature, requiring a save vs spells to focus into..."
     },
     {
       "id": "osric.magic_item.necklace_of_strangulation",
@@ -650,7 +650,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This extravagantly beautiful necklace appears to be made with the finest craftsmanship and flawless gems, usually diamonds. Short of extraordinary means such as a wish, this necklace ap pears innocuous until worn."
     },
     {
       "id": "osric.magic_item.net_of_snaring",
@@ -677,7 +677,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "While not technically a cursed item, the net of snaring may only be used underwater, thus rendering it less than useful to most adventurers. The net grants a +3 bonus to underwater attacks and can be commanded to launch from the users hand and ensnare a creature up to 30 ft away (as the 1st level druid spell ensnare)."
     },
     {
       "id": "osric.magic_item.periapt_of_foul_rotting",
@@ -704,7 +704,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This item is a semi-pre cious, ornately-engraved gem of little apparent value beyond the artistic. Any character retaining possession of this pestilential stone for more than 24 hours, however, contracts a horrible rotting skin disease."
     },
     {
       "id": "osric.magic_item.plate_mail_of_vulnerability",
@@ -731,7 +731,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "To any magical means of detection, this armour appears as +1, +2, or even +3 magic armour. As soon as a blow is struck in anger against the wearer however, the true nature of this cursed item reveals itself."
     },
     {
       "id": "osric.magic_item.ring_of_clumsiness",
@@ -758,7 +758,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Looks, acts, and responds to detect magic exactly like a ring of feather falling until placed on the finger, then the wearer becomes very clumsy. The victim of this curse takes a -4 penalty to dexterity, and magic spells requiring a somatic component have a 20% chance of failure when cast."
     },
     {
       "id": "osric.magic_item.ring_of_contrariness",
@@ -785,7 +785,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A cursed item that renders the victim unable to agree with any suggestion or order. The ring can only be removed with a remove curse spell but, naturally, the rings influence will cause the wearer to resist any such attempts."
     },
     {
       "id": "osric.magic_item.ring_of_weakness",
@@ -812,7 +812,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This dreadful ring reduces the strength and constitution ability scores of the wearer by 1 point per round until both are at 3. This cursed effect is disguised by the ring granting the wearer the ability to become invisible at will as per the ring of invisibility , but becoming invisible doubles the rate of ability score drain."
     },
     {
       "id": "osric.magic_item.robe_of_powerlessness",
@@ -839,7 +839,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This magical robe appears to be a beneficial magic item, usually a robe of protection +2. As soon as the robe is worn the character takes a penalty of -3 to strength and intelligence, possibly forgetting spells and magic knowledge or becoming over-encum bered accordingly."
     },
     {
       "id": "osric.magic_item.robe_of_vermin",
@@ -866,7 +866,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This robe radiates strong protec tive magic, as a robe of protection +4 , until the curse is revealed. When the person wearing the robe attempts to concentrate in order to cast a spell against an opponent, the wearer is assaulted by a multitude of bites and stings from the vermin magically infesting the robe."
     },
     {
       "id": "osric.magic_item.scarab_of_death",
@@ -893,7 +893,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Though this small oval pin appears to be any one of the many beneficial jewellery items known to exist, it is actually very dangerous. If carried, held, or worn for more than 1 round by any living creature the pin turns into a burrowing beetle-like monster."
     },
     {
       "id": "osric.magic_item.shield_1_missile_attractor",
@@ -923,7 +923,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "AC +1. Cursed shield penalty; missile attraction effect requires DM adjudication."
     },
     {
       "id": "osric.magic_item.spear_cursed_backbiter",
@@ -950,7 +950,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This +2 weapon is suitable for either melee or use as a missile. If the user rolls a natural 1 when attacking a foe in anger, however, the cursed nature of the backbiter causes the shaft of the spear to curve back upon the wielder and strike him or her for damage, instead."
     },
     {
       "id": "osric.magic_item.stone_of_weight_loadstone",
@@ -977,7 +977,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Cursed stone that burdens its owner with severe extra weight until the curse is removed or the stone is discarded by proper means."
     },
     {
       "id": "osric.magic_item.sword_1_cursed",
@@ -1009,7 +1009,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+1 to hit and damage. Cursed sword effect requires DM adjudication."
     },
     {
       "id": "osric.magic_item.sword_2_cursed",
@@ -1041,7 +1041,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "-2 to hit and damage. Cursed sword effect requires DM adjudication."
     },
     {
       "id": "osric.magic_item.sword_of_the_berserker_2",
@@ -1073,7 +1073,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+2 to hit and damage. Cursed sword effect requires DM adjudication."
     },
     {
       "id": "osric.magic_item.vacuous_grimoire",
@@ -1100,7 +1100,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This vile tome is thought by some sages to be the prison for a low level malevolent entity, an imp or quasit, perhaps. When the book is placed with other books it tends to alter appearance to blend in with the surrounding volumes and the title, scribed in gold on the spine and on the front, tends to appear as a subject of interest to the person viewing..."
     },
     {
       "id": "osric.magic_item.large_shield_plus_1_missile_deflector",
@@ -1139,7 +1139,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC named magic shield with encoded melee and missile AC adjustments."
+      "description": "AC -1. +1 AC vs melee, +4 AC vs missiles/hurled weapons, 20% magic resistance vs frontal magic missiles."
     },
     {
       "id": "osric.magic_item.magic_armour_plus_1",
@@ -1185,7 +1185,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "Generic OSRIC magic armour bonus from the master magic item tables."
+      "description": "Generic OSRIC magic armour with +1 armour bonus; choose the armour form when awarded."
     },
     {
       "id": "osric.magic_item.magic_armour_plus_2",
@@ -1231,7 +1231,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "Generic OSRIC magic armour bonus from the master magic item tables."
+      "description": "Generic OSRIC magic armour with +2 armour bonus; choose the armour form when awarded."
     },
     {
       "id": "osric.magic_item.magic_armour_plus_3",
@@ -1277,7 +1277,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "Generic OSRIC magic armour bonus from the master magic item tables."
+      "description": "Generic OSRIC magic armour with +3 armour bonus; choose the armour form when awarded."
     },
     {
       "id": "osric.magic_item.magic_armour_plus_4",
@@ -1323,7 +1323,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "Generic OSRIC magic armour bonus from the master magic item tables."
+      "description": "Generic OSRIC magic armour with +4 armour bonus; choose the armour form when awarded."
     },
     {
       "id": "osric.magic_item.magic_armour_plus_5",
@@ -1369,7 +1369,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "Generic OSRIC magic armour bonus from the master magic item tables."
+      "description": "Generic OSRIC magic armour with +5 armour bonus; choose the armour form when awarded."
     },
     {
       "id": "osric.magic_item.magic_shield_plus_1",
@@ -1409,7 +1409,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "Generic OSRIC magic shield bonus from the master magic item tables."
+      "description": "Generic OSRIC magic shield with +1 shield bonus; choose the shield form when awarded."
     },
     {
       "id": "osric.magic_item.magic_shield_plus_2",
@@ -1449,7 +1449,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "Generic OSRIC magic shield bonus from the master magic item tables."
+      "description": "Generic OSRIC magic shield with +2 shield bonus; choose the shield form when awarded."
     },
     {
       "id": "osric.magic_item.magic_shield_plus_3",
@@ -1489,7 +1489,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "Generic OSRIC magic shield bonus from the master magic item tables."
+      "description": "Generic OSRIC magic shield with +3 shield bonus; choose the shield form when awarded."
     },
     {
       "id": "osric.magic_item.magic_shield_plus_4",
@@ -1529,7 +1529,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "Generic OSRIC magic shield bonus from the master magic item tables."
+      "description": "Generic OSRIC magic shield with +4 shield bonus; choose the shield form when awarded."
     },
     {
       "id": "osric.magic_item.magic_shield_plus_5",
@@ -1569,7 +1569,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "Generic OSRIC magic shield bonus from the master magic item tables."
+      "description": "Generic OSRIC magic shield with +5 shield bonus; choose the shield form when awarded."
     },
     {
       "id": "osric.magic_item.plate_mail_of_aethereality",
@@ -1598,7 +1598,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Magic plate mail that can shift the wearer into an ethereal state for a limited number of uses; it still functions as powerful magic armour."
     },
     {
       "id": "osric.magic_item.bleeding_sword",
@@ -1630,7 +1630,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+1 to hit and damage. Progressive bleeding damage; healing limits require DM adjudication."
     },
     {
       "id": "osric.magic_item.dancing_sword",
@@ -1662,7 +1662,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+1 to hit and damage. Bonus increases each round to +4, then can fight independently for 4 rounds."
     },
     {
       "id": "osric.magic_item.defender",
@@ -1694,7 +1694,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+4 to hit and damage. Wielder may allocate some or all +4 between attack/damage and AC each round."
     },
     {
       "id": "osric.magic_item.dragonbane",
@@ -1726,7 +1726,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+2 to hit and damage. +4 vs dragons; triple damage vs one selected dragon type."
     },
     {
       "id": "osric.magic_item.flaming_blade",
@@ -1758,7 +1758,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+1 to hit and damage. +2 vs regenerating creatures, +3 vs inflammable/cold-using/bird-like creatures, +4 vs undead."
     },
     {
       "id": "osric.magic_item.frost_brand",
@@ -1790,7 +1790,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+3 to hit and damage. +6 vs fire-using or fire-dwelling creatures; grants fire resistance effect."
     },
     {
       "id": "osric.magic_item.giantbane",
@@ -1822,7 +1822,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+2 to hit and damage. +3 vs giant-like humanoids; double damage vs true giants."
     },
     {
       "id": "osric.magic_item.holy_sword",
@@ -1854,7 +1854,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+2 to hit and damage. +5 in a paladin hand; special lawful good powers and chaotic evil damage."
     },
     {
       "id": "osric.magic_item.keenblade",
@@ -1886,7 +1886,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+1 to hit and damage. +3 for hit eligibility; severing effect on high natural attack rolls."
     },
     {
       "id": "osric.magic_item.luck_blade",
@@ -1918,7 +1918,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+1 to hit and damage. +1 saving throws and stored wishes; AC wording requires DM review."
     },
     {
       "id": "osric.magic_item.magebane",
@@ -1950,7 +1950,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+1 to hit and damage. +2 vs magic users, spell-casting monsters, spell-like creatures, and summoned/conjured foes."
     },
     {
       "id": "osric.magic_item.magic_sword_plus_1",
@@ -1994,7 +1994,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "Generic OSRIC magic sword bonus from the master magic item tables."
+      "description": "Generic OSRIC magic sword with +1 to hit and damage; choose the sword form when awarded."
     },
     {
       "id": "osric.magic_item.magic_sword_plus_2",
@@ -2038,7 +2038,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "Generic OSRIC magic sword bonus from the master magic item tables."
+      "description": "Generic OSRIC magic sword with +2 to hit and damage; choose the sword form when awarded."
     },
     {
       "id": "osric.magic_item.magic_sword_plus_3",
@@ -2082,7 +2082,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "Generic OSRIC magic sword bonus from the master magic item tables."
+      "description": "Generic OSRIC magic sword with +3 to hit and damage; choose the sword form when awarded."
     },
     {
       "id": "osric.magic_item.magic_sword_plus_4",
@@ -2126,7 +2126,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "Generic OSRIC magic sword bonus from the master magic item tables."
+      "description": "Generic OSRIC magic sword with +4 to hit and damage; choose the sword form when awarded."
     },
     {
       "id": "osric.magic_item.magic_sword_plus_5",
@@ -2170,7 +2170,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "Generic OSRIC magic sword bonus from the master magic item tables."
+      "description": "Generic OSRIC magic sword with +5 to hit and damage; choose the sword form when awarded."
     },
     {
       "id": "osric.magic_item.nine_lives_stealer",
@@ -2202,7 +2202,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+2 to hit and damage. Natural 20 can slay, consuming one of nine life-stealing charges."
     },
     {
       "id": "osric.magic_item.trollbane",
@@ -2234,7 +2234,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+1 to hit and damage. +3 vs regenerating creatures."
     },
     {
       "id": "osric.magic_item.vampire_blade",
@@ -2266,7 +2266,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+2 to hit and damage. Natural 20 drains life force and heals wielder up to normal HP."
     },
     {
       "id": "osric.magic_item.vorpal_blade",
@@ -2298,7 +2298,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+3 to hit and damage. Decapitation effect on high natural attack rolls."
     },
     {
       "id": "osric.magic_item.werebane",
@@ -2330,7 +2330,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+1 to hit and damage. +2 vs shapechangers, were-creatures, polymorphed, or shapechanged creatures."
     },
     {
       "id": "osric.magic_item.wyrmbane",
@@ -2362,7 +2362,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+1 to hit and damage. +4 vs reptiles including dragons, hydras, lizards, snakes, and wyverns."
     },
     {
       "id": "osric.magic_item.arrow_of_slaying",
@@ -2394,7 +2394,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+3 to hit and damage. Instant slaying effect against one creature type on a successful hit."
     },
     {
       "id": "osric.magic_item.axe_of_hurling",
@@ -2426,7 +2426,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+2 to hit and damage. Retains attack and damage bonus when thrown up to 60 ft."
     },
     {
       "id": "osric.magic_item.crossbow_of_accuracy",
@@ -2458,7 +2458,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+3 to hit and damage. All attacks are treated as short range; 10% are heavy crossbows."
     },
     {
       "id": "osric.magic_item.crossbow_of_range",
@@ -2490,7 +2490,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+1 to hit and damage. Doubles all range categories; 20% are heavy crossbows."
     },
     {
       "id": "osric.magic_item.crossbow_of_speed",
@@ -2522,7 +2522,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+0 to hit and damage. Doubles normal crossbow firing rate; 10% are heavy crossbows."
     },
     {
       "id": "osric.magic_item.dagger_of_venom",
@@ -2554,7 +2554,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+1 to hit and damage. Natural 20 injects poison if the hilt reservoir has doses remaining."
     },
     {
       "id": "osric.magic_item.hammer_of_the_dwarfs",
@@ -2586,7 +2586,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+2 to hit and damage. +3 as a warhammer for a dwarfish fighter using the command word; special thrown damage."
     },
     {
       "id": "osric.magic_item.holy_mace",
@@ -2618,7 +2618,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+1 to hit and damage. Special damage vs evil creatures and turning/disruption effects vs demons, devils, and undead."
     },
     {
       "id": "osric.magic_item.magic_weapon_plus_1",
@@ -2673,7 +2673,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "Generic OSRIC magic weapon bonus from the master magic item tables."
+      "description": "Generic OSRIC magic weapon with +1 to hit and damage; choose the weapon form when awarded."
     },
     {
       "id": "osric.magic_item.magic_weapon_plus_2",
@@ -2728,7 +2728,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "Generic OSRIC magic weapon bonus from the master magic item tables."
+      "description": "Generic OSRIC magic weapon with +2 to hit and damage; choose the weapon form when awarded."
     },
     {
       "id": "osric.magic_item.magic_weapon_plus_3",
@@ -2783,7 +2783,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "Generic OSRIC magic weapon bonus from the master magic item tables."
+      "description": "Generic OSRIC magic weapon with +3 to hit and damage; choose the weapon form when awarded."
     },
     {
       "id": "osric.magic_item.magic_weapon_plus_4",
@@ -2838,7 +2838,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "Generic OSRIC magic weapon bonus from the master magic item tables."
+      "description": "Generic OSRIC magic weapon with +4 to hit and damage; choose the weapon form when awarded."
     },
     {
       "id": "osric.magic_item.magic_weapon_plus_5",
@@ -2893,7 +2893,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "Generic OSRIC magic weapon bonus from the master magic item tables."
+      "description": "Generic OSRIC magic weapon with +5 to hit and damage; choose the weapon form when awarded."
     },
     {
       "id": "osric.magic_item.sling_of_the_halfling",
@@ -2925,7 +2925,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+2 to hit and damage. +1 for determining which creatures can be affected."
     },
     {
       "id": "osric.magic_item.trident_fork",
@@ -2957,7 +2957,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "+3 to hit and damage. Can lengthen into a full pole arm by command word."
     },
     {
       "id": "osric.magic_item.afreeti_bottle",
@@ -2984,7 +2984,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "An ornate bronze or brass bottle sealed with a lead stopper engraved with many runes of power, though often a thin stream of smoke can be seen leaking from the seal. Once per day the command word can be spoken, allowing the bottle to be opened."
     },
     {
       "id": "osric.magic_item.ahmeks_copious_coin_purse",
@@ -3011,7 +3011,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Ahmek was a wizard turned sage who, legends say, was always forgetting to put money in his purse. This magic item is an exquisitelycrafted leather poke sewn from four leather panels, alternating black with a golden yellow colour."
     },
     {
       "id": "osric.magic_item.alchemy_jug",
@@ -3038,7 +3038,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This jug appears as an ordinary ewer or beaker, but will, on command, produce various liquids when poured. The type and quantity of liquid is as follows: Salt water 16 gallons Oil 1 pint Fresh water 8 gallons Aqua regia 8 ounces Beer 4 gallons Alcohol 4 ounces Vinegar 2 gallons Chlorine 1 ounce Wine 1 gallon Cyanide 12 ounce Ammonia 1 quart The amount..."
     },
     {
       "id": "osric.magic_item.amulet_of_health",
@@ -3065,7 +3065,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This magic necklace grants the wearer a constitution bonus of +1. Amulet of Mighty Fists (any): A magical necklace which, when worn, bestows a bonus of +1 to hit on all weaponless physical attacks."
     },
     {
       "id": "osric.magic_item.amulet_of_life_protection",
@@ -3092,7 +3092,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "The wearer of this broach is protected against attacks on his or her soul. The charm completely safeguards its wearer from possession, whether as the result of a spell or through the efforts of a demon, devil or like being."
     },
     {
       "id": "osric.magic_item.amulet_of_mighty_fists",
@@ -3119,7 +3119,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A magical necklace which, when worn, bestows a bonus of +1 to hit on all weaponless physical attacks."
     },
     {
       "id": "osric.magic_item.amulet_of_natural_armour",
@@ -3146,7 +3146,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A magical amulet granting the wearer +1 to +4 to AC (roll 1d4 to determine the bonus). Determine gp value according to AC bonus; +1 = 2,000gp, +2 = 8,000gp, +3 = 18,000gp, +4 = 32,000gp."
     },
     {
       "id": "osric.magic_item.amulet_of_proof_against_detection_or_location",
@@ -3173,7 +3173,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This amulet provides protection against all forms of scrying. Thus spells such as clairvoyance or clairaudi ence, devices such as crystal balls, and mental or magical powers such as ESP or telepathy (or, in fact, anything short of consulting a major extra-planar power) are completely ineffective in locating its wearer."
     },
     {
       "id": "osric.magic_item.amulet_of_the_planes",
@@ -3200,7 +3200,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This amulet enables its wearer, once experienced with its use, to instantaneously and without error travel to extra-planar realities. Until the wearer learns how to use the amulet, however, the destination will be entirely random!"
     },
     {
       "id": "osric.magic_item.apparatus_of_the_lobster",
@@ -3227,7 +3227,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This device appears to be a large iron barrel. A secret compartment at one end contains 10 levers, each of which controlling a different aspect of the apparatus."
     },
     {
       "id": "osric.magic_item.arrow_of_direction",
@@ -3254,7 +3254,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This appears to be an ordinary arrow, although a detect magic spell will reveal that it has eldritch properties. Unlike other magic arrows, its enchantment does not aid in combat, however."
     },
     {
       "id": "osric.magic_item.bag_of_holding",
@@ -3281,7 +3281,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A most wonderful item, this is a bag larger on the inside than on the outside. This magical sack also reduces the apparent weight of the contents of the bag."
     },
     {
       "id": "osric.magic_item.bag_of_tricks",
@@ -3308,7 +3308,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "There are 3 known types of this particular magic item, detailed below, but all work the same way. The owner reaches into the bag and draws out the small, fuzzy ball inside."
     },
     {
       "id": "osric.magic_item.bead_of_force",
@@ -3335,7 +3335,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A tiny bead of what appears to be made of dull, black glass. This item can be hurled up to 60 ft with no range penalty incurred, exploding on impact and dealing 5d6 points of damage to all creatures within TREASURE 346 10 ft of the point of impact."
     },
     {
       "id": "osric.magic_item.belt_of_dwarfkind",
@@ -3362,7 +3362,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This magical girdle grants anyone putting it on a +4 to charisma when dealing with dwarfs, +2 charisma when dealing with halflings or gnomes, and -2 for all other races. If the wearer is not a dwarf, he or she also gains all the engineering based racial abilities of a dwarf (slanting passages, detect traps, et."
     },
     {
       "id": "osric.magic_item.belt_of_giant_strength",
@@ -3389,7 +3389,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This wide leather belt grants the wearer a strength bonus of +3 to +6 (1d4+2) on to hit rolls and +7 to +12 (1d6+6) on damage, except that it does not enhance to hit or damage rolls with missile weapons. However, while wearing the belt, a character may throw rocks as a hill giant does."
     },
     {
       "id": "osric.magic_item.blemish_blotter",
@@ -3416,7 +3416,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A blue crystalline object about the size and shape of a sling bullet, the blemish blotter soaks up imperfections from gemstones. Any gemstone within 6 inches of a blemish blotter for more than 1 minute has a 20% chance of increasing in value by 20%."
     },
     {
       "id": "osric.magic_item.blessed_book",
@@ -3443,7 +3443,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "An exceptionally well-made travel ling spell book with magical properties, the blessed book is about 12 in 8 in and 1 in thick, with 1,000 pages. The book is quite durable; iron bound and inlaid with silver protective runes and a sturdy lock."
     },
     {
       "id": "osric.magic_item.boat_folding",
@@ -3470,7 +3470,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A 12 in 12 in 6 in wooden box which can be used as an ordinary storage container. The box is capable of unfolding itself into two different sized water vessels, depending upon the command word used."
     },
     {
       "id": "osric.magic_item.boots_of_elvenkind",
@@ -3497,7 +3497,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Soft leather footwear which allows one to move silently, even in the worst of condi tions such as a creaky stair. Chance of success varies from about 95% for the absolute worst conditions to 100% for most conditions."
     },
     {
       "id": "osric.magic_item.boots_of_levitation",
@@ -3524,7 +3524,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Allow the user to levitate or descend up to 20 ft per round, no limit on usage. These boots are not capable of lifting a total weight of more than about 600 lbs."
     },
     {
       "id": "osric.magic_item.boots_of_speed",
@@ -3551,7 +3551,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "When activated by clicking ones heels together, the wearers movement speed is doubled and his or her AC improves by +2."
     },
     {
       "id": "osric.magic_item.boots_of_striding_springing",
@@ -3578,7 +3578,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Boots that greatly improve overland movement and allow exceptional leaps while worn."
     },
     {
       "id": "osric.magic_item.boots_of_teleportation",
@@ -3605,7 +3605,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Allow the user to teleport, as the spell, up to 3 times per day. Boots of the Winterlands (any): These boots allow movement at normal rates across snow and the wearer will leave no tracks to mark his or her passage."
     },
     {
       "id": "osric.magic_item.boots_of_the_winterlands",
@@ -3632,7 +3632,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "These boots allow movement at normal rates across snow and the wearer will leave no tracks to mark his or her passage. Boots of the winterlands also allow normal movement across ice and icy surfaces without slipping or falling, though the surface must be horizontal."
     },
     {
       "id": "osric.magic_item.boots_winged",
@@ -3659,7 +3659,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "When the command word is spoken, these ordinary appearing boots sprout wings at the heel and allow the wearer to fly, as the spell (aerial agility: level IV). This power is usable up to 3 times per day with a maximum duration of 5 minutes per flight."
     },
     {
       "id": "osric.magic_item.bottle_of_air",
@@ -3686,7 +3686,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "An ordinary-appearing stoppered glass bottle. When uncorked in an airless environment, however, the bottle will produce a steady stream of air until it is again within a breathable atmosphere or the bottle is recapped."
     },
     {
       "id": "osric.magic_item.bowl_commanding_water_elementals",
@@ -3713,7 +3713,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A stone ware bowl 1 ft in diameter, 6 inches deep, and usually 347 T REASURE made of a semi-precious stone; malachite, jade, or lapis lazuli are particularly favoured for this purpose. Filling the bowl with water and chanting the summoning words for 1 round causes a 12HD water elemental to appear."
     },
     {
       "id": "osric.magic_item.bracelet_of_friends",
@@ -3740,7 +3740,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A finely-made silver charm bracelet with four charms. The wearer may key each charm to a specific person and thereafter when the charm is grasped and the keyed individuals name spoken, that person is summoned to the wearers location, along with all of his or her equipment."
     },
     {
       "id": "osric.magic_item.bracers_of_archery_greater",
@@ -3767,7 +3767,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This pair of items grants proficiency in the use of any bow or crossbow. If the wearer is already proficient in the use of a bow he or she will gain +2 to attack and +1 damage when using that weapon."
     },
     {
       "id": "osric.magic_item.bracers_of_archery_lesser",
@@ -3794,7 +3794,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Similar to the greater bracers of archery , but these only grant +1 to hit and no damage bonus for wearers already proficient with a bow or crossbow."
     },
     {
       "id": "osric.magic_item.bracers_of_armour",
@@ -3821,7 +3821,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "When worn, this pair of armoured wrist guards grant from +1 to +8 magical enhancement to the wearers ACbut only when the wearer wears no other armour, nor a shield. These brac ers are therefore highly prized by magic users."
     },
     {
       "id": "osric.magic_item.brazier_of_commanding_fire_elementals",
@@ -3848,7 +3848,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "When a fire is lit in this black iron brazier, and the words of sum moning chanted for 1 round, a 12 HD fire elemental ap pears and behaves as if called by a conjure elemental spell. If brimstone is added to the fire before chanting, the fire elemental will be of 16 HD."
     },
     {
       "id": "osric.magic_item.brooch_of_instigation",
@@ -3875,7 +3875,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This shoulder pin grants the wearer a +1 to AC and saving throws, and also has the affect of sending a silent boast to all living creatures in the area. This boast is a mental effect much like ESP, touting the wearers prowess in battle, and therefore does not work on the undead or mindless creatures."
     },
     {
       "id": "osric.magic_item.brooch_of_shielding",
@@ -3902,7 +3902,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "In addition to its mundane function as a clasp for a cloak or cape, this brooch can absorb magic missiles generated either by spell or spell-like ability. After absorbing 101 points of magic missile damage, the brooch melts into a useless clump of metal."
     },
     {
       "id": "osric.magic_item.broom_of_flying",
@@ -3929,7 +3929,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This broom allows the user to fly up to 9 hours cumulative per day. Carrying up to 200 lbs the broom travels at 40 ft and carrying up to 400 lbs the broom travels 30 ft."
     },
     {
       "id": "osric.magic_item.candle_of_invocation",
@@ -3956,7 +3956,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "These candles come in 9 dif ferent types, each specific to an alignment. Any individual within 30 ft of a burning candle of like alignment is at +2 to hit and saving throws."
     },
     {
       "id": "osric.magic_item.candle_of_truth",
@@ -3983,7 +3983,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "When burned, this pure white candle creates a zone of truthfulness in a 5 ft radius around the candle for 1 hour. Within this zone any question put to a creature must be truthfully answered."
     },
     {
       "id": "osric.magic_item.cape_of_the_mountebank",
@@ -4010,7 +4010,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This brightly coloured (some might say gaudy) cape allows the wearer to cast dimension door upon himor herself once per day, disappearing in a cloud of smoke and arriving the same way at his or her new location."
     },
     {
       "id": "osric.magic_item.carpet_of_flying",
@@ -4037,7 +4037,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Allows unlimited flight or hovering, and is activated by speaking the command word. The owner need only be within voice range to activate the rug and it may be controlled with spoken directions."
     },
     {
       "id": "osric.magic_item.censer_of_controlling_air_elementals",
@@ -4064,7 +4064,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A 6 in wide, 1 in high golden vessel. When filled with incense and lit, chanting the words of summoning for 1 round causes a 12 HD air elemental to appear as if summoned by a conjure elemental spell."
     },
     {
       "id": "osric.magic_item.chime_of_interruption",
@@ -4091,7 +4091,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "The loud, clear sound of this instrument prevents any spell requiring a verbal component from being cast within 30 ft unless a saving throw vs wands is made. The chiming sound lasts for 3 full minutes and the chime of interruption can be struck once every 10 minutes."
     },
     {
       "id": "osric.magic_item.chime_of_opening",
@@ -4118,7 +4118,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Striking this magical chime causes whatever it is pointed at to open. The sound of the chime of opening affects all doors, lids, locks, portals, and valves."
     },
     {
       "id": "osric.magic_item.circlet_of_blasting_major",
@@ -4145,7 +4145,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "An elaborate golden headband with a large red ruby set in the middle. Once per day the ruby can emit a 60 ft beam of searing light which causes 40 points of damage."
     },
     {
       "id": "osric.magic_item.circlet_of_blasting_minor",
@@ -4172,7 +4172,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A simple golden headband with a small red ruby set in the middle. Once per day the ruby can emit a 60 ft beam of searing light that causes 3d8 points of damage."
     },
     {
       "id": "osric.magic_item.circlet_of_persuasion",
@@ -4199,7 +4199,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "An ornate silver headband which increases the wearers charisma by+3 while worn. Cloak of Arachnida (any): A black garment of silk, woven in patterns reminiscent of spider webs."
     },
     {
       "id": "osric.magic_item.cloak_of_aetherealness",
@@ -4226,7 +4226,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Cloak that lets the wearer become ethereal for limited durations, passing beyond normal physical reach while the magic lasts."
     },
     {
       "id": "osric.magic_item.cloak_of_arachnida",
@@ -4253,7 +4253,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A black garment of silk, woven in patterns reminiscent of spider webs. This magic cloak grants the wearer immunity to entrapment by mundane or magical webs, allows movement at half speed through any webbed area, and allows the owner to cast web as a 10th level magic user once per day."
     },
     {
       "id": "osric.magic_item.cloak_of_charisma",
@@ -4280,7 +4280,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A finely-made cloak suitable for a lord or lady, this garment enhances the wearers charisma by +2."
     },
     {
       "id": "osric.magic_item.cloak_of_elvenkind",
@@ -4307,7 +4307,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This neutral grey or green cloak appears normal until the hood is drawn up over the head. At that point the wearer becomes 100% invisible in natural outdoor settings, with effectiveness decreasing as natural growth decreases, down to about 95% in open fields."
     },
     {
       "id": "osric.magic_item.cloak_of_resistance",
@@ -4334,7 +4334,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This cloak grants a bonus on all saving throws. When it is first put on, roll d% to determine its effect: d% Effect Value (gp) 01-50 +1 to all saves 1,000 51-75 +2 to all saves 4,000 76-90 +3 to all saves 9,000 349 T REASURE d% Effect Value (gp) 91-99 +4 to all saves 16,000 00 +5 to all saves 25,000"
     },
     {
       "id": "osric.magic_item.cloak_of_the_bat",
@@ -4361,7 +4361,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This black or dark brown cloth robe allows the user to fly for up to 7 minutes, followed by a like number of minutes resting during which the cloak recharges itself. The cloak of the bat actually allows flying in 2 different modes, but both require darkness or a near lightless environment in which to operate."
     },
     {
       "id": "osric.magic_item.cloak_of_the_manta_ray",
@@ -4388,7 +4388,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A magical garment which appears as an ordinary leather cloak until the wearer enters salt water. At that time the cloak adheres to the wearer, making him or her 90% identical in appearance to a manta ray."
     },
     {
       "id": "osric.magic_item.crystal_ball",
@@ -4415,7 +4415,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This magic crystal sphere of about 6 in diameter allows the user to see over any distance and even into other planes. The more well known to the user the person or place sought is, the higher the chance of suc cess."
     },
     {
       "id": "osric.magic_item.cube_of_force",
@@ -4442,7 +4442,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This item appears as a normal sized six-sided die of ancient yellowed ivory, or carved bone, or any one of a number of hard minerals. The cube projects a square wall of force 10 ft on a side around the user, moving with him and rendering him impervious to a specific type of attack."
     },
     {
       "id": "osric.magic_item.cube_of_frost_resistance",
@@ -4469,7 +4469,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A crystalline but fea tureless cube about 34 in square. Activating this device creases a cube-shaped wall of force with 10 ft sides centred around the user and moving with him or her unless he or she places the device on a surface after activation."
     },
     {
       "id": "osric.magic_item.cubic_gate",
@@ -4496,7 +4496,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This 34 in square magic item is a sixsided die of the finest carnelian and adorned with gold inlaid pips. Each of the sides of the Cubic Gate can be activated by pressing it, opening a gate to random point on a specific plane."
     },
     {
       "id": "osric.magic_item.dark_skull",
@@ -4523,7 +4523,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This likeness of a human skull is artfully and cunningly carved from a block of darkest ebony, and it is unrelentingly and entirely evil. The presence of the Dark Skull makes any site, building, or structure an unholy site and gains 3 major effects in a 40 ft radius around the skull."
     },
     {
       "id": "osric.magic_item.decanter_of_endless_water",
@@ -4550,7 +4550,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A leathern flask of ordinary workmanship and appearance. When the user TREASURE 350 removes the stopper and speaks the proper command word, often inscribed on the bottom of the flask, the de canter produces fresh or salt water in various volumes and at different velocities, with separate command words for each."
     },
     {
       "id": "osric.magic_item.deck_of_illusions",
@@ -4577,7 +4577,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A set of 34 parchment cards often found in a leather bag or wooden box. Drawing a card from the deck and casting it to the ground creates a convincing illusion of a creature or creatures."
     },
     {
       "id": "osric.magic_item.dimensional_shackles",
@@ -4604,7 +4604,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Sturdy shackles forged of cold iron with runes traced in gold upon the surface. Any creature restrained with the shackles will be bound to the Prime Material Plane, no save allowed, until the shackles are removed."
     },
     {
       "id": "osric.magic_item.drums_of_panic",
@@ -4631,7 +4631,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A pair of kettle drums about 18 in around, mounted on stands. A simply-scribed K can be seen on both drum-heads when light hits the skin from a certain angle."
     },
     {
       "id": "osric.magic_item.dust_of_appearance",
@@ -4658,7 +4658,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Simply put, this fine white powder makes things visible. A handful of this substance projected into the air coats all objects within a 10 ft radius and lasts 5 minutes, making even invisible objects appear in plain sight."
     },
     {
       "id": "osric.magic_item.dust_of_disappearance",
@@ -4685,7 +4685,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This fine white powder makes things invisible, as per the 4th level illusionist spell improved invisibility but with a duration of 2d6 rounds, though the affected creature will not know when the invisibility ends. A creature coated with dust of disappearance cannot be seen by any means mundane or magical with but one exception: dust of appearance (see..."
     },
     {
       "id": "osric.magic_item.dust_of_dryness",
@@ -4712,7 +4712,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "One application of this wonderful substance will absorb up to 100 gallons of water (fresh, salt, or alkaline) and forming a small 1 in pellet, either floating or resting where it was cast. This pellet can be forcibly hurled, causing it to break open and release the same volume of water in a most energetic fashion."
     },
     {
       "id": "osric.magic_item.dust_of_illusion",
@@ -4739,7 +4739,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "When this magic dust is applied to a living creature, the creature alters appearance as per the 1st level illusionist spell change self according to the users whim, lasting for 2 hours. An unwilling target may save vs spells to negate."
     },
     {
       "id": "osric.magic_item.dust_of_tracelessness",
@@ -4766,7 +4766,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "One application of dust of tracelessness can cause up to 100 sq ft of floor space to become dusty and cobwebbed as if abandoned for years, concealing all evidence of anyone passing through the area. The dust can be used on outdoor trails as well, concealing for 250 ft of back-trail the passage of up to a dozen troops and their mounts."
     },
     {
       "id": "osric.magic_item.efficient_quiver",
@@ -4793,7 +4793,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "An ordinary-appearing quiver with three compartments, each of which can magically hold many more objects than would seem possible at first look. The first compartment can hold up to 60 arrows or similar objects such as wands."
     },
     {
       "id": "osric.magic_item.elemental_gem",
@@ -4820,7 +4820,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "An enchanted gem keyed to one of the four major Elemental Planes. Its appearance var ies by plane."
     },
     {
       "id": "osric.magic_item.elixir_of_fire_breath",
@@ -4847,7 +4847,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This potion enables the drinker to breathe fire up to thrice, targeting a single creature up to 25 ft away for 4d6 damage per attack. The target gets a saving throw vs dragon breath for half damage."
     },
     {
       "id": "osric.magic_item.elixir_of_hiding",
@@ -4874,7 +4874,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Imbibing this potion grants a nonthief character the hide in shadows ability of a 10th level thief for 1 hour. A thief character of 10th level or above drinking the potion gains a 20% bonus to hide in shadows checks for the same period."
     },
     {
       "id": "osric.magic_item.elixir_of_swimming",
@@ -4901,7 +4901,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Anyone drinking this liquid ignores all clothing, armour, equipment, or any other type of encumbrance while swimming for a period of 1 hour. Thus, an individual wearing plate armour and wearing a fully loaded backpack can swim as if in his or her small clothes."
     },
     {
       "id": "osric.magic_item.elixir_of_truth",
@@ -4928,7 +4928,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Drinking this elixir will cause one to answer any question truthfully for a period of 10 minutes, though a resisting imbiber is allowed a save vs magic to negate. While under the influence of the potion a person will answer 1 question per round and a secondary save for each question is rolled."
     },
     {
       "id": "osric.magic_item.elixir_of_vision",
@@ -4955,7 +4955,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "The drinker of this potion will detect secret and concealed doors and similarly hidden objects like an elf for 1 hour."
     },
     {
       "id": "osric.magic_item.eversmoking_bottle",
@@ -4982,7 +4982,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This item looks exactly like an afreeti bottle (see above) but, when unstoppered, thick grey smoke begins to issue forth from the bottle. Vision within 50 ft of the bottle will be impossible in 1 round, and each consecutive round the radius of the smoke cloud increases 10 ft until a maximum of 100 ft has been reached."
     },
     {
       "id": "osric.magic_item.eyes_of_charming",
@@ -5009,7 +5009,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "The eyes of charming are a pair of crystal lenses which fit over the eyes, granting charm person as a gaze attack. A saving throw is allowed vs spells to negate."
     },
     {
       "id": "osric.magic_item.eyes_of_doom",
@@ -5036,7 +5036,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Eye lenses which cause an intense feeling of dread as a gaze attack against a single target. The target is allowed a saving throw vs petrifaction to negate."
     },
     {
       "id": "osric.magic_item.eyes_of_petrifaction",
@@ -5063,7 +5063,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This item is only effective when used in pairs, granting a petrifaction gaze attack 10 times per day. A saving throw is allowed vs petrifaction to ne gate effects."
     },
     {
       "id": "osric.magic_item.eyes_of_the_eagle",
@@ -5090,7 +5090,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Wearing both of these crystal lenses allows the user to detect secret and concealed doors and similarly hidden objects as an elf. These lenses work best in pairs."
     },
     {
       "id": "osric.magic_item.feather_token",
@@ -5117,7 +5117,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A small feather ensorcelled to provide a specific item suitable for a special need. A feather token is a single-use item."
     },
     {
       "id": "osric.magic_item.gauntlet_of_rust",
@@ -5144,7 +5144,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A single item. On a successful hit affects metal objects like a rust monsters special attack."
     },
     {
       "id": "osric.magic_item.gauntlets_of_ogre_power",
@@ -5171,7 +5171,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Similar to a belt of giant strength, the gauntlets of ogre power permit an ad ditional strength bonusbut the effects are lesser than a belt of giant strength , being +1d3 to hit and +1d6 on damage. The effect of the gauntlets is not cumulative with a belt of giant strength (exception: hammer of thunderbolts, see below) and both gauntlets must be worn to..."
     },
     {
       "id": "osric.magic_item.gem_of_brightness",
@@ -5198,7 +5198,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "An ordinary prism-shaped crystal with three powers, activated by command words. The gems number of charges is determined in the same way as a rod (see Rods, Staves and Wands)."
     },
     {
       "id": "osric.magic_item.gem_of_seeing",
@@ -5225,7 +5225,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A finely-cut gem that bestows the benefits of a true seeing spell when looked through. May be used no more than 30 minutes per day."
     },
     {
       "id": "osric.magic_item.glove_of_storing",
@@ -5252,7 +5252,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A single plain-appearing leather glove. Any item up to 20 lbs of weight held in the hand wearing the glove can be commanded to disappear."
     },
     {
       "id": "osric.magic_item.gloves_of_arrow_snaring",
@@ -5279,7 +5279,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Extremely light leather gloves that twice per day allow the wearer to snatch a missile out of the air. Both gloves must be worn and at least one hand must be free for the magic to work."
     },
     {
       "id": "osric.magic_item.gloves_of_dexterity",
@@ -5306,7 +5306,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Supple leather gloves. When both are worn the wearer receives a dexterity bonus of +1."
     },
     {
       "id": "osric.magic_item.goggles_of_minute_seeing",
@@ -5333,7 +5333,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Crystal magnifying lenses allowing the wearer a 90% chance to detect nonmagical traps, secret and concealed doors, and hidden items."
     },
     {
       "id": "osric.magic_item.goggles_of_night",
@@ -5360,7 +5360,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Dark, opaque crystal lenses which do not impede normal vision in any way. They grant 60 ft infravision."
     },
     {
       "id": "osric.magic_item.golem_manual",
@@ -5387,7 +5387,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Allows creation of the type of golem specified in the books title. Each manual contains detailed instructions and all necessary spells for creation of a golem, though the cost of the materials to assemble the construct must still be borne by the maker."
     },
     {
       "id": "osric.magic_item.handy_haversack",
@@ -5414,7 +5414,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A well-made but otherwise plain leather haversack with two side pouches and brass hardware. Each side pouch functions as a bag of holding and both will hold up to either 20 cubic ft of material or 20 lbs in weight."
     },
     {
       "id": "osric.magic_item.harp_of_charming",
@@ -5441,7 +5441,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A harp that enables the per former to implant a suggestion into the minds of the listeners, at the rate of one suggestion every 10 minutes. Each listener may attempt a saving throw vs spells for each suggestion attempted and anyone saving is immune to the harp for 24 hours."
     },
     {
       "id": "osric.magic_item.hat_of_disguise",
@@ -5468,7 +5468,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "On command, alters the wearers appearance as per the change self spell. The hat alters itself to blend in with the disguise."
     },
     {
       "id": "osric.magic_item.helm_of_brilliance",
@@ -5495,7 +5495,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "An ordinary appearing helm that transforms into a brightly polished silver helm encrusted with jewels when donned and the command word spoken. TREASURE 354 The gems are imbued with magic abilities."
     },
     {
       "id": "osric.magic_item.helm_of_comprehend_languages",
@@ -5522,7 +5522,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Helm that lets the wearer understand languages and read magical writing, similar to comprehend languages and read magic effects."
     },
     {
       "id": "osric.magic_item.helm_of_telepathy",
@@ -5549,7 +5549,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Grants the wearer the 2nd level arcane spell ESP , except the helm also allows twoway telepathic communication between the wearer of the helm and the mind being read. The helm can also implant a suggestion, per the spell (and saving throw al lowed), once per day."
     },
     {
       "id": "osric.magic_item.helm_of_teleportation",
@@ -5576,7 +5576,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Grants the wearer the ability teleport up to 3 times per day, as per the spell. Helm of Underwater"
     },
     {
       "id": "osric.magic_item.helm_of_underwater_action",
@@ -5603,7 +5603,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This helm has two lenses which slide down into place in front of the wear ers eyes. These thick lenses bestow the ability to see five times further underwater than normally possible for landdwelling humans and demi-humans."
     },
     {
       "id": "osric.magic_item.horn_of_blasting",
@@ -5630,7 +5630,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "When the command word is spoken and the horn sounded, a 40 ft cone of sonic energy deals 5d6 damage and deafens targets for 2d6 rounds. Saving throw vs wand negates deafening effect and halves damage."
     },
     {
       "id": "osric.magic_item.horn_of_blasting_greater",
@@ -5657,7 +5657,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "As the horn of blasting above, but damage is increased to 10d6 points, the targets are stunned for 1 round and deafened for 4d6 rounds. A save vs wands reduces damage by half and negates stunning and deafening."
     },
     {
       "id": "osric.magic_item.horn_of_fog",
@@ -5684,7 +5684,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Creates a thick, vision obscuring fog covering a 10 ft cube starting next to the user and increasing 10 ft in a straight line each round the horn is blown. The fog can be blocked by any substantial structure such as a wall."
     },
     {
       "id": "osric.magic_item.horn_of_goodness_evil",
@@ -5711,7 +5711,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Depending on the owners alignment, blowing this brass horn will produce either a protection from evil, 10 ft radius for good aligned users or protection from good, 10 ft radius for evil aligned users. In either case, the duration of the spell-like effect is 1 hour."
     },
     {
       "id": "osric.magic_item.horn_of_valhalla",
@@ -5738,7 +5738,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "When the command word is spoken and the horn sounded, human fighters appear to fight on behalf of the summoner. There are four variations of this item listed below, along with their specific powers and prerequisites."
     },
     {
       "id": "osric.magic_item.horn_of_the_tritons",
@@ -5765,7 +5765,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "When sounded, the horn of the tritons grants one of the following three powers, per the users choice. Calm Waters: Rough waters within a 1 mile radius of the horn will immediately be calmed."
     },
     {
       "id": "osric.magic_item.horseshoes_of_speed",
@@ -5792,7 +5792,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "An animal shod with four of these magic items increases land travelling speed by 30 ft with a proportional increase to jumping distances."
     },
     {
       "id": "osric.magic_item.horseshoes_of_the_zephyr",
@@ -5819,7 +5819,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "An animal shod with four of these magic items moves ap proximately 4-6 in above any roughly horizontal surface. This allows travel over water or other unstable or nonsolid surfaces."
     },
     {
       "id": "osric.magic_item.incense_of_meditation",
@@ -5846,7 +5846,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "If a cleric meditates for spells while burning the incense of meditation, any spells gained will have their maximum stated effects (so a cure light wounds spell would heal 8hp regardless of the roll)."
     },
     {
       "id": "osric.magic_item.instant_fortress",
@@ -5873,7 +5873,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A small metal cube approximately the size of a standard d6. When activated with the com mand word the cube takes 1 round to grow into a metal tower 20 ft square at the base and walls that are 30 ft high and extend another 10 ft into the ground."
     },
     {
       "id": "osric.magic_item.ioun_stones",
@@ -5900,7 +5900,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "These are magical crystals that orbit the users head at a distance of 1d3 ft and grant various benefits. The stones each have an AC -5, 10 hp, and ignore the first 5 points of damage from all attacks."
     },
     {
       "id": "osric.magic_item.iron_bands_of_binding",
@@ -5927,7 +5927,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Metal sphere that can unfold into bands and bind a target creature when thrown successfully."
     },
     {
       "id": "osric.magic_item.iron_flask",
@@ -5954,7 +5954,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This cold iron container is inscribed around with runes of great power and is sealed with a brass stopper inlaid with arcane symbols and ancient sigils. The owner of the flask can command any extra-planar creature short of demigod power within 60 ft into the flask by speaking the command word."
     },
     {
       "id": "osric.magic_item.javelin_of_the_raptor",
@@ -5981,7 +5981,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Like a hunting bird of prey, the command word will cause this missile weapon to launch itself from the wielders hand. The attacking javelin is +5 to hit and damage, and strikes up to 60 ft away with no to hit penalty."
     },
     {
       "id": "osric.magic_item.lantern_of_revealing",
@@ -6008,7 +6008,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A hooded lantern, the light of which reveals all invisible objects and creatures within 25 ft. Note: invisibility is not removed."
     },
     {
       "id": "osric.magic_item.lyre_of_building",
@@ -6035,7 +6035,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "The music of this stringed instrument negates all attacks which deal damage to inanimate construction (such as castle walls) within 300 ft. This in cludes magic based attacks like disintegrate or horn of blasting as well as physical attacks from a battering ram or catapult missile."
     },
     {
       "id": "osric.magic_item.mantle_of_faith",
@@ -6062,7 +6062,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "An overgarment, suitable for wearing over clothing or armour, which allows the wearer to ignore the first 5 points of damage from each physical or magical attack."
     },
     {
       "id": "osric.magic_item.mantle_of_magic_resistance",
@@ -6089,7 +6089,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "An overgarment, suitable for wearing over clothing or armour, which grants 50% magic resistance. The target can still make normal saving throws and magic resistance applies only to spells and spell-like abilities; an attack from a +3 weapon would still have an attack and damage bonus of 3."
     },
     {
       "id": "osric.magic_item.manual_of_bodily_health",
@@ -6116,7 +6116,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Reading and following the health and fitness tips in this book for six days per manently increases the constitution ability score of the reader by +1."
     },
     {
       "id": "osric.magic_item.manual_of_gainful_exercise",
@@ -6143,7 +6143,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Reading and follow ing the body-building regimen in this book for six days permanently increases the strength ability score of the reader by +1."
     },
     {
       "id": "osric.magic_item.manual_of_quickness_of_action",
@@ -6170,7 +6170,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Reading and following the coordination drills and balancing exercises in this book over the course of six days permanently increases the dexterity ability score of the reader by +1."
     },
     {
       "id": "osric.magic_item.marvellous_pigments",
@@ -6197,7 +6197,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Magical paints that allow the user to draw and thereby create real three dimensional objects. The user must concentrate as he or she draws and creation of an object with the pigments takes about 10 minutes."
     },
     {
       "id": "osric.magic_item.mask_of_the_skull",
@@ -6224,7 +6224,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "An ivory mask skilfully carved to resemble a human skull. Once per day the wearer can command the mask to attack a target up to 50 ft away."
     },
     {
       "id": "osric.magic_item.mattock_of_the_titans",
@@ -6251,7 +6251,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This sturdy digging tool is 10 ft long and can only be properly wielded by creatures at least 20 ft tall or long. In the hands of such a being the mattock can dig earth or knock down earthen works such as ramparts, taking 10 minutes to move 10 cubic ft of earth."
     },
     {
       "id": "osric.magic_item.maul_of_the_titans",
@@ -6278,7 +6278,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "An 8 ft long mallet which serves as a +3 weapon (base 1d10 damage) and can be used to attack inanimate objects, such as a castle wall. The maul can break through a mortared-stone structure in 1 turn, or an un-mortared one in 1 round."
     },
     {
       "id": "osric.magic_item.medallion_of_thoughts",
@@ -6305,7 +6305,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A necklace which grants the wearer ESP as the 2nd level magic user spell of the same name."
     },
     {
       "id": "osric.magic_item.mirror_of_life_trapping",
@@ -6332,7 +6332,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A magical trap in the guise of a 4 ft square mirror activated by hanging it on a wall and speaking the command word. Any creature within 30 ft of the activated mirror and unaware of the mirrors true nature will see his or her reflection and be pulled bodily into the mirror."
     },
     {
       "id": "osric.magic_item.mirror_of_mental_prowess",
@@ -6359,7 +6359,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A powerful scrying de vice in the form of a 5 ft tall and 2 ft wide mirror. Through the use of command words, the following powers are available."
     },
     {
       "id": "osric.magic_item.mirror_of_opposition",
@@ -6386,7 +6386,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Upon activation by command word, this 4 ft tall by 3 ft wide mirror can create a hostile duplicate of anyone looking into the mirror. The duplicate will step through and immediately engage the original in a fight to the death."
     },
     {
       "id": "osric.magic_item.necklace_of_adaptation",
@@ -6413,7 +6413,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Magic jewellery which surrounds the wearer with a bubble of fresh, breathable air. This negates the effects of poisonous vapours and gasses, including spell effects such as cloudkill, and even allows breathing underwater or in hard vacuum."
     },
     {
       "id": "osric.magic_item.necklace_of_fireballs",
@@ -6440,7 +6440,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "The beads of this necklace can easily be detached by the wearer only and hurled up to 70 ft. Upon reaching its target the bead explodes as a fireball ; the target is allowed a saving throw vs spells for half damage."
     },
     {
       "id": "osric.magic_item.oil_of_famishing",
@@ -6467,7 +6467,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This item appears as a container of standard lamp oil. When burned the aroma given off will cause all creatures within 60 ft to become famished."
     },
     {
       "id": "osric.magic_item.orb_of_storms",
@@ -6494,7 +6494,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "An 8 in glass sphere which enables the owner to control weather as the spell once daily. Once per month the bearer of the orb can completely change the weather into a mighty storm."
     },
     {
       "id": "osric.magic_item.pearl_of_power",
@@ -6521,7 +6521,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A magical pearl that enables a spell user to recall once per day a spell he or she has prepared and cast. This benefit applies to any spell caster who memorises spells, but the pearl only works on spells of a certain level."
     },
     {
       "id": "osric.magic_item.pearl_of_the_sirines",
@@ -6548,7 +6548,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "An expensive-appearing pearl which, when grasped in the hand or held to the breast, grants the ability to breathe underwater, swim at move ment rate 60 ft, and speak or cast spells underwater without penalty."
     },
     {
       "id": "osric.magic_item.periapt_of_health",
@@ -6575,7 +6575,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A magical necklace granting immunities to all diseases, including magical or supernatural diseases."
     },
     {
       "id": "osric.magic_item.periapt_of_wisdom",
@@ -6602,7 +6602,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A magical necklace which in creases the wearers wisdom by +1. Periapt of Wound Closure (any): A magical necklace which will automatically stabilise the wearers condition if his or her hit points drop below zero (-1 to -9)."
     },
     {
       "id": "osric.magic_item.periapt_of_wound_closure",
@@ -6629,7 +6629,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A magical necklace which will automatically stabilise the wearers condition if his or her hit points drop below zero (-1 to -9). The periapt also doubles the wearers normal healing rate and allows a normal rate of healing to wounds which do not normally permit this (e.g."
     },
     {
       "id": "osric.magic_item.phylactery_of_faithfulness",
@@ -6656,7 +6656,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This sacred headband enables the wearer to know whether any action he or she is contemplating will adversely affect his or her alignment and his or her standing with his or her deity. The phylactery will even allow him or her to detect magical items which could change his or her alignment."
     },
     {
       "id": "osric.magic_item.pipes_of_haunting",
@@ -6683,7 +6683,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This magical set of pan pipes can be used twice per day to produce music which scares (per the 2nd level magic user spell) anyone within 30 ft who has less than 6 HD."
     },
     {
       "id": "osric.magic_item.pipes_of_pain",
@@ -6710,7 +6710,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A magic instrument which will cause all hearing it to save vs wands or become enraptured, stopping all actions and listening to the music. When the music stops the victims are cursed with an extreme sensitivity to sound and will immediately take 1d4 points of damage for 2d4 rounds unless in a completely sound-free area."
     },
     {
       "id": "osric.magic_item.pipes_of_sounding",
@@ -6737,7 +6737,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "These magic pipes produce an audible glamour as the magic user spell as if cast by a 3rd level magic user."
     },
     {
       "id": "osric.magic_item.pipes_of_the_sewers",
@@ -6764,7 +6764,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This magical instrument can be used to summon up to 101 normal rats, if any are within 400 ft. The rats take a turn to travel 50 ft and the pipes must be played continuously."
     },
     {
       "id": "osric.magic_item.plentiful_vessel",
@@ -6791,7 +6791,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "The magic of this item is usually contained in a metallic flask that vaguely resembles a cornucopia if turned on its side. If its contents are drunk, or poured into another container, a random potion will be dispensed."
     },
     {
       "id": "osric.magic_item.restorative_ointment",
@@ -6818,7 +6818,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A palm-sized jar contains 5 uses of ointment. One application will neutralise any poison or heal any disease suffered by the person receiving the application."
     },
     {
       "id": "osric.magic_item.ring_gates",
@@ -6845,7 +6845,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Paired 18 in diameter iron rings. When the pair are located on the same plane of existence and within 100 miles of each other, anything pushed through one ring will at once come out of the other ring."
     },
     {
       "id": "osric.magic_item.robe_of_blending",
@@ -6872,7 +6872,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Magical robes which communicate to the wearer its power. Anyone wearing the robe of blending is 75% unlikely to be detected if stationary, 50% in motion."
     },
     {
       "id": "osric.magic_item.robe_of_bones",
@@ -6899,7 +6899,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "An enchanted robe bearing a variety of tokens visible to and recognizable only by the wearer. One token can be detached per round, causing the token to become the type of undead it resembles."
     },
     {
       "id": "osric.magic_item.robe_of_eyes",
@@ -6926,7 +6926,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "The wearer of this magical clothing is able to see in all directions at once. The robe also grants infravision to 120 ft, and can see invisible and thereal objects within the same distance."
     },
     {
       "id": "osric.magic_item.robe_of_scintillating_colours",
@@ -6953,7 +6953,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "An iridescent magical garment that provides constant 30 ft radius illumination. Upon command, the colours of the robe begin scintillating and after 1 round the swirling colours create an effect similar to a gaze attack; anyone within 30 ft of the robes wearer will be dazed 1d4+1 rounds (saving throw vs staves allowed to negate effects)."
     },
     {
       "id": "osric.magic_item.robe_of_stars",
@@ -6980,7 +6980,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Dark-coloured robes embroidered with silver or white stars. This magical garment allows the wearer, and everything he or she is wearing or carrying, to enter the Astral Plane."
     },
     {
       "id": "osric.magic_item.robe_of_useful_items",
@@ -7007,7 +7007,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "An enchanted robe bearing a variety of tokens visible to and recognisable only by the wearer. One token can be detached per round, causing the token to become the item depicted."
     },
     {
       "id": "osric.magic_item.robe_of_the_archmagi",
@@ -7034,7 +7034,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A magical garment which grants various powers to arcane and phantasmal spellcasters. The wearers alignment must match that of the robe, as indicated by colour."
     },
     {
       "id": "osric.magic_item.rope_of_climbing",
@@ -7061,7 +7061,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A thin and strong 60 ft length of rope that can support up to 3,000 lbs. The rope will become animated upon command, climbing or otherwise moving at a rate of 10 ft per round and attaching itself to any point the user commands."
     },
     {
       "id": "osric.magic_item.rope_of_entanglement",
@@ -7088,7 +7088,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This item appears as an ordinary 30 ft long hemp rope. The rope can be com manded to entangle any victim up to 20 ft away or 10 ft above."
     },
     {
       "id": "osric.magic_item.sagacious_volume",
@@ -7115,7 +7115,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This magical book grants the reader one complete level of experience, provided he or she is of the correct class. Determine which class the volume enhances according to the following table: d10 Class d10 Class 1 Assassin 6 Magic user 2 Cleric 7 Paladin 3 Druid 8 Ranger 4 Fighter 9 Thief 5 Illusionist 10 Re-roll The experience gained is sufficient to put..."
     },
     {
       "id": "osric.magic_item.scabbard_of_keen_edges",
@@ -7142,7 +7142,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This weapon scabbard will magically change size to fit an edged weapon as small as a dagger or as large as a two-handed sword. Thrice per day the scabbard can cause the weapon normally carried within it to gain +2 to attack and damage for 10 combat rounds; during the enchantment such a weapon will cause double damage on an unmodified attack roll of 19 or 20."
     },
     {
       "id": "osric.magic_item.scarab_of_golem_bane",
@@ -7169,7 +7169,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This beetle shaped pin allows the possessor to detect any golem of any type within 60 ft. He or she must concentrate for a round to use this power."
     },
     {
       "id": "osric.magic_item.scarab_of_protection",
@@ -7196,7 +7196,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A beetle shaped pin that, if held or worn for at least 1 round, communicates its ability to the person holding it. The scarab will absorb any death magic (being magic that directly causes death, such as a death spell petrifaction effects, for example, or effects that kill through hp loss rather than instant death, are unaffected), energy draining..."
     },
     {
       "id": "osric.magic_item.shrouds_of_disintegration",
@@ -7223,7 +7223,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "When a body is wrapped in these finely made burial clothes, a command word will cause the body to disintegrate into dust. The shrouds function only once."
     },
     {
       "id": "osric.magic_item.silversheen",
@@ -7250,7 +7250,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A viscous liquid. When applied to a weapon, silversheen bestows the ability for the weapon to hit any creature, negating any immunities (a werewolf may be hit with a regular sword, for instance)."
     },
     {
       "id": "osric.magic_item.slippers_of_spider_climbing",
@@ -7277,7 +7277,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Supple footwear that grants the ability for the wearer to climb all surfaces and even move upside down across ceilings at a rate of 20 ft. The wearer is hands free when climbing with the slip pers."
     },
     {
       "id": "osric.magic_item.sovereign_glue",
@@ -7304,7 +7304,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Simply put, this glue will stick anything to anything else, permanently. A vial of sovereign glue will contain 1d8-1 (minimum 1) oz of glue."
     },
     {
       "id": "osric.magic_item.stone_horse",
@@ -7331,7 +7331,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Appears as a life-sized statue of a stone horse of one of two types; a draft horse or a heavy war horse, animated by a command word. Both types can carry up to 1,000 lbs, never need rest or food, and can attack as a real horse of their respective types."
     },
     {
       "id": "osric.magic_item.stone_salve",
@@ -7358,7 +7358,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A vial contains 1d4+1 ounces. The salve can be applied to a petrified creature, restoring it to flesh as does a stone to flesh spell."
     },
     {
       "id": "osric.magic_item.stone_of_alarm",
@@ -7385,7 +7385,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "When the command word is spoken, this 3 in square stone cube affixes itself to an object. Thereafter, anyone touching the object without first speaking the command word will cause the stone to emit an ear-piercing shriek of alarm for a complete round which can be heard up to a quarter mile away."
     },
     {
       "id": "osric.magic_item.stone_of_controlling_earth",
@@ -7412,7 +7412,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Magic stone tied to earth elemental power, used to command or control earth/stone effects at the DM table."
     },
     {
       "id": "osric.magic_item.stone_of_good_luck",
@@ -7439,7 +7439,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Also known as the luckstone, this item grants +1 to all saving throws and to hit rolls. 361"
     },
     {
       "id": "osric.magic_item.strand_of_prayer_beads",
@@ -7466,7 +7466,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A cleric carrying or holding the prayer beads will intuitively know the powers they grant and how to use the beads as soon as he or she casts a spell. Each strand has at least two beads on it, granting a different power according to the table below."
     },
     {
       "id": "osric.magic_item.sustaining_spoon",
@@ -7493,7 +7493,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Placing this magical spoon into an empty bowl will cause the bowl to fill with a bland but nourishing gruel capable of sustaining any 1 living creature for 1 day."
     },
     {
       "id": "osric.magic_item.thunder_spear",
@@ -7520,7 +7520,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A +2 melee weapon with a blue steel head. When hurled as a missile the spear becomes a bolt of blue lightning and incurs no to hit penalty for up to 70 ft."
     },
     {
       "id": "osric.magic_item.tome_of_clear_thought",
@@ -7547,7 +7547,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A character studying this book a minimum of 48 hours over the course of a single week and diligently performing the mental exercises contained within its pages will gain 1 point of permanent increase to his or her intelligence score."
     },
     {
       "id": "osric.magic_item.tome_of_understanding",
@@ -7574,7 +7574,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A character studying this book a minimum of 48 hours over the course of a single week and diligently pondering the logic puzzles and ethical dilemmas contained within its pages will gain 1 point of permanent increase to his or her wisdom score."
     },
     {
       "id": "osric.magic_item.unguent_of_timelessness",
@@ -7601,7 +7601,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "When applied to any formerly living matter, this unguent slows the effect of time upon that object, such that a years passing ages the item but a day. The item gains +1 to all saving throws."
     },
     {
       "id": "osric.magic_item.universal_solvent",
@@ -7628,7 +7628,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This solvent will unstick any thing glued or rusted together, including items joined together with sovereign glue . Universal solvent is always found in a blue and yellow container."
     },
     {
       "id": "osric.magic_item.vest_of_escape",
@@ -7655,7 +7655,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This silk waistcoat contains magi cally concealed secret compartments holding lockpicks which grant a +20% bonus to a thief or assassins open lock chance. Only the wearer of the vest can detect the compartments; to all others they cannot be located by even the most thorough of searches."
     },
     {
       "id": "osric.magic_item.vestment_druids",
@@ -7682,7 +7682,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A lightweight overgarment which is generally green with woodland designs. Any druid with shapeshift ability wearing the vestment will gain an extra use of that ability per day."
     },
     {
       "id": "osric.magic_item.well_of_many_worlds",
@@ -7709,7 +7709,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This item looks just like a portable hole (see above) but instead of creating a hole it creates an opening into another plane of existence, determined randomly each time the well is opened. The well TREASURE 362 is two-way, meaning creatures or objects from whatever plane it contacts can enter the Prime Material Plane just as easily as objects pass..."
     },
     {
       "id": "osric.magic_item.wind_fan",
@@ -7736,7 +7736,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A magical hand fan which, upon com mand, creates a gust of wind as the spell. The fan can be used once per day without risk; additional uses in a day garner a 20% cumulative chance of destroying the fan."
     },
     {
       "id": "osric.magic_item.wings_of_flying",
@@ -7763,7 +7763,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Upon command, this cape will transform itself into a pair of wings, allowing the wearer to fly at 60 ft movement rate (aerial agility level IVsee Chapter III). When in cape form the wings of flying take on a variety of styles and appearances and the wings formed can be either feathered or bat-wing style."
     },
     {
       "id": "osric.magic_item.oil_of_aetherealness",
@@ -7795,7 +7795,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Oil that can coat a creature and gear, allowing an ethereal state for the duration of the magic."
     },
     {
       "id": "osric.magic_item.oil_of_slipperiness",
@@ -7827,7 +7827,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This oil is applied to the char acter in the same way as oil of therealness. Any character so coated cannot be restrained or grabbed, and neither wrapped in the grip of constrictor snakes or any other grasping attacks, including binding ropes, chains, or cuffs, magical or otherwise."
     },
     {
       "id": "osric.magic_item.philtre_of_love",
@@ -7859,7 +7859,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "The imbiber of this potion may become charmed by the next person or creature upon whom he or she lays eyes. The drinker will actually be come charmed and besotted by the person or creature if it is of the opposite sex and of similar racial stock."
     },
     {
       "id": "osric.magic_item.philtre_of_persuasiveness",
@@ -7891,7 +7891,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "When this potion is quaffed, the drinker gains the ability to make a suggestion, as the magic user spell, to all creatures within 30 ft. Further, this potion makes the imbiber more alluring and grants a 25% bonus to reaction rolls."
     },
     {
       "id": "osric.magic_item.potion_of_animal_control",
@@ -7923,7 +7923,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Anyone taking this potion gains the ability to relate to, understand, and manipulate the emotions of a particular type of animal. The type of animal is determined by a die roll (see below), and the number of animals affected depends on the size of the animal."
     },
     {
       "id": "osric.magic_item.potion_of_clairaudience",
@@ -7955,7 +7955,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This potion lasts for 2 turns and grants the drinker the spell-like ability to hear as the similarly named third level magic user spell. This effect can be used further to hear what is happening out of sight within 30 ft."
     },
     {
       "id": "osric.magic_item.potion_of_clairvoyance",
@@ -7987,7 +7987,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This potion lasts for 1 turn and grants the drinker the spell-like ability of clairvoyance like the third level magic user spell. Unlike the spell, this potion grants the ability to see what is happening outside of the known area within 30 ft."
     },
     {
       "id": "osric.magic_item.potion_of_climbing",
@@ -8019,7 +8019,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This potion lasts for 1 turn + 5d5 rounds, during which time the drinker gains the ability to climb like a thief with 99% ability (a roll of 00 means failure). However, the odds of failure increase by 1% for every 1,000 gp worth of weight carried."
     },
     {
       "id": "osric.magic_item.potion_of_delusion",
@@ -8051,7 +8051,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This potion is aptly named, for it con vinces the drinker that the potion is of another type. If more than one person tastes this potion, there is a 90% chance they all will believe the potion to be of the same type."
     },
     {
       "id": "osric.magic_item.potion_of_diminution",
@@ -8083,7 +8083,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This potion lasts for 1d4+7 turns. When drunk, the imbiber and everything carried will shrink to 5% of the persons original size."
     },
     {
       "id": "osric.magic_item.potion_of_dragon_control",
@@ -8115,7 +8115,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Drinking this potion grants the imbiber power equivalent to charm monster upon a dragon of a type determined by the table below. Each potion affects only one type of dragon unless otherwise indicated."
     },
     {
       "id": "osric.magic_item.potion_of_esp",
@@ -8147,7 +8147,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This potion grants a spell-like ability equivalent to the magic user spell ESP for the duration of 5d8 rounds."
     },
     {
       "id": "osric.magic_item.potion_of_extra_healing",
@@ -8179,7 +8179,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Imbibing the full dose of this potion replenishes damage up to 3d8 + 3 hit points. Unlike most other potions, this can be imbibed in three equal portions for 1d8 hp of healing each."
     },
     {
       "id": "osric.magic_item.potion_of_fire_resistance",
@@ -8211,7 +8211,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "The imbiber of this potion is impervious to all forms of ordinary flame, whether as small as a torch or as large as a raging bonfire, for 1 turn. Further, this potion reduces damage from other kinds of fire by 2 per die of damage."
     },
     {
       "id": "osric.magic_item.potion_of_flying",
@@ -8243,7 +8243,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This potion grants the spell-like ability equivalent to the magic user spell of the same name."
     },
     {
       "id": "osric.magic_item.potion_of_gaseous_form",
@@ -8275,7 +8275,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "The person who quaffs this potion, in addition to all items on his or her person, takes on a translucent, gaseous consistency and floats at 30 ft per round. This speed can be different depending on natural wind speed in the environment or due to the effects of wind-altering spells."
     },
     {
       "id": "osric.magic_item.potion_of_giant_control",
@@ -8307,7 +8307,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "When imbibed, the drinker is able to control up to two giants in the same manner as the spell charm monster for 5d6 rounds. A saving throw is allowed, and if only one giant is affected it receives 4 to this roll."
     },
     {
       "id": "osric.magic_item.potion_of_giant_strength",
@@ -8339,7 +8339,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "There is a separate potion for each type of giant, and the imbiber of this potion temporarily gains the strength score of the appropriate type of giant. This bonus in strength is accompanied by the giant ability to toss rocks at opponents."
     },
     {
       "id": "osric.magic_item.potion_of_growth",
@@ -8371,7 +8371,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "The imbiber of this potion increases in size up to a maximum of an additional 24 ft. This potion can be quaffed in one-quarter increments such that one onequarter portion increases size by 6 ft."
     },
     {
       "id": "osric.magic_item.potion_of_healing",
@@ -8403,7 +8403,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "The imbiber of this potion regains 2d4+2 hp. This potion can only be quaffed in total for effect."
     },
     {
       "id": "osric.magic_item.potion_of_heroism",
@@ -8435,7 +8435,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Extra levels and their accompanied benefits to combat are temporarily granted to the imbiber, determined by his or her experience level as shown in the table below. Characters above 9th level receive no benefit."
     },
     {
       "id": "osric.magic_item.potion_of_human_control",
@@ -8467,7 +8467,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Once quaffed, this potion grants the spell-like ability of charm person to the drinker for 5d6 rounds. Many kinds of humanoids, demi-humans, and humans can be affected by this potion (see the table below), 331 T REASURE and 32 hit dice/levels of these beings are affected."
     },
     {
       "id": "osric.magic_item.potion_of_invisibility",
@@ -8499,7 +8499,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "When this potion is quaffed, the drinker is bestowed with the spell-like ability of invisibility. This potion can be consumed in 1/8 increments, in which case the invisibility granted lasts 1d4 + 2 turns per dose."
     },
     {
       "id": "osric.magic_item.potion_of_invulnerability",
@@ -8531,7 +8531,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "An invulnerability potion makes the drinker impenetrable to normal attacks, attacks by non-magical beings, and attacks by creatures under 4 hit dice. Further, the drinker gains +2 to all saving throws and grants a reduction in armour class by two ranks."
     },
     {
       "id": "osric.magic_item.potion_of_levitation",
@@ -8563,7 +8563,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "When this potion is quaffed, the drinker is bestowed with the spell-like ability of levitation. The effects of this potion extend to the drinker only, but allow up to 6,000 gp of weight to be transported as well."
     },
     {
       "id": "osric.magic_item.potion_of_longevity",
@@ -8595,7 +8595,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This potion makes the drinker 1d12 years younger. This restored youth is possible not only for natural ageing, but also for ageing from magic or creature effects."
     },
     {
       "id": "osric.magic_item.potion_of_plant_control",
@@ -8627,7 +8627,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "The imbiber of a potion of plant control is able to control plants or plant-like creatures (including fungi and moulds) within an area of 20 ft squared, to a distance of 90 ft. This ability lasts for 5d4 rounds."
     },
     {
       "id": "osric.magic_item.potion_of_polymorph",
@@ -8659,7 +8659,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This potion grants the spell-like abil ity to polymorph self, as the fourth level magic user spell."
     },
     {
       "id": "osric.magic_item.potion_of_speed",
@@ -8691,7 +8691,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This potion doubles combat and movement ability for 5d4 rounds. Thus, if the imbiber can normally move at 90 ft, for the duration of this potions effect the imbiber can move at 180 ft."
     },
     {
       "id": "osric.magic_item.potion_of_super_heroism",
@@ -8723,7 +8723,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Unlike the potion of heroism , the effects of this potion last 5d6 rounds. Extra levels and their accompanied benefits to combat are temporarily granted to the imbiber, determined by his or her experience level as shown in the table below."
     },
     {
       "id": "osric.magic_item.potion_of_treasure_finding",
@@ -8755,7 +8755,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "For 5d4 rounds, the imbiber of this potion can sense any treasure within 240 ft containing valuable metals or gems. In order to be detected, the total value of the treasure must meet or exceed any combination of 50 gp or 100 gems."
     },
     {
       "id": "osric.magic_item.potion_of_undead_control",
@@ -8787,7 +8787,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Normally undead are immune to charm. However, when quaffed this potion grants the drinker the ability to charm undead (intelligent or otherwise) as the charm person spell."
     },
     {
       "id": "osric.magic_item.potion_of_water_breathing",
@@ -8819,7 +8819,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "The imbiber of this potion is granted the ability to breathe when submerged in any liquid that contains oxygen (rivers, lakes, oceans, etc.). The duration is 1 hour + 1d10 rounds per dose."
     },
     {
       "id": "osric.magic_item.sweet_water",
@@ -8851,7 +8851,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This sweet-tasting liquid can be used to cleanse water (including turning salt water into fresh water) or otherwise transform poisons, acid, etc. into drinkable liquid."
     },
     {
       "id": "osric.magic_item.ring_of_charisma",
@@ -8878,7 +8878,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "When worn, this ring increases the wearers charisma ability score to 18. Note this is not a permanent increase; if the ring is removed the wearers charisma returns to its normal value."
     },
     {
       "id": "osric.magic_item.ring_of_feather_falling",
@@ -8905,7 +8905,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "The wearer of this ring is protected by a feather fall spell any time he or she falls more than 5 ft."
     },
     {
       "id": "osric.magic_item.ring_of_fire_resistance",
@@ -8932,7 +8932,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This ring grants immunity to normal fires such as torches or flaming oil. Very hot fires such as molten lava or hell hound breath inflict only 1 hp of damage per segment, and even then only if the wearer is directly touching or targeted by such."
     },
     {
       "id": "osric.magic_item.ring_of_free_action",
@@ -8959,7 +8959,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This magic item permits the wearer to move freely under any conditions. This applies even if the wearer is attacked by a hold person, slow, or web spell; and also negates environmental effects such as the individual being underwater."
     },
     {
       "id": "osric.magic_item.ring_of_genie_summoning",
@@ -8986,7 +8986,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This powerful magic ring can call a mighty genie from the Elemental Plane of Air to do the wearers bidding. The genie takes 1 round to appear and will follow the letter (not necessarily the spirit) of the wearers command to the best of its ability."
     },
     {
       "id": "osric.magic_item.ring_of_invisibility",
@@ -9013,7 +9013,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "When donned, this ring grants the wearer the ability to become instantly invisible at will as per the 2nd level magic user spell. There is a 10% chance the ring has the secondary effect of making the user in audible as well."
     },
     {
       "id": "osric.magic_item.ring_of_protection",
@@ -9040,7 +9040,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This useful item increases the wearers AC and saving throw vs all forms of attack. The protective properties of the ring are cumulative with other forms of protection (bless, for instance) subject to the following limitations: if magic armour is worn the wearers AC will not be increased, though the saving throw bonus will still apply."
     },
     {
       "id": "osric.magic_item.ring_of_regeneration",
@@ -9067,7 +9067,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Wearing this ring allows the user to regenerate 1 hp per turn, regrow lost limbs and organs, and even return from the dead with no constitution penalty or roll. If the cause of death was due to poison, however, the poison will need to be neutralised or a saving throw made or the wearer will die again."
     },
     {
       "id": "osric.magic_item.ring_of_spell_storing",
@@ -9094,7 +9094,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A ring that can magically store 2-5 spells and grants the wearer the ability to cast them as if he or she were a spell caster of the required type. Casting a spell from the ring requires 5 segments."
     },
     {
       "id": "osric.magic_item.ring_of_spell_turning",
@@ -9121,7 +9121,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This magic ring creates a powerful magic aura around the wearer that will partially reflect any spells cast at him or her back onto the spell caster. There are three exceptions to the spell turning ability the ring bestows: Area effect spells which are not directly targeted upon the ring bearer cannot be turned."
     },
     {
       "id": "osric.magic_item.ring_of_swimming",
@@ -9148,7 +9148,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This magic jewellery bestows the ability to swim at a movement rate of 210 ft, if the wearer is clad in appropriate garments. The wearer can also dive up to 50 ft into the water without injury, assuming a water depth of 112 ft for every 10 ft of diving distance."
     },
     {
       "id": "osric.magic_item.ring_of_three_wishes",
@@ -9175,7 +9175,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This rare and powerful magic ring grants the wearer 3 wishes, as per the 9th level magic user spell. On a roll of 01-25 on d% the ring will instead contain 3 limited wish spells as per the 7th level magic user spell of the same name."
     },
     {
       "id": "osric.magic_item.ring_of_warmth",
@@ -9202,7 +9202,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "The wearer will be completely comfortable and can maintain normal body temperature even in conditions of extreme cold. The ring also grants the ability to regenerate cold based damage at a rate of 1 hp per turn, grants a +2 to all saving throws vs cold based attacks, and reduces damage from cold based attacks by -1 per die (minimum damage of 1 point per..."
     },
     {
       "id": "osric.magic_item.ring_of_water_walking",
@@ -9229,7 +9229,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This ring grants the ability to walk upon the surface of any liquid without sinking into it at the wearers normal rate of movement. This includes but is not limited to running water, snow, quicksand, oil, mud, or even lava (though heat damage would still apply)."
     },
     {
       "id": "osric.magic_item.ring_of_wizardry",
@@ -9256,7 +9256,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This ring is only of benefit to magic users, doubling the number of spells of a certain level they can prepare each day. There are several known versions; roll d% and consult the table below."
     },
     {
       "id": "osric.magic_item.rod_of_absorption",
@@ -9290,7 +9290,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This rod acts as a magnet, drawing spells into itself. The magic absorbed must be a single-target spell or a ray directed at either the character possessing the rod or his or her gear."
     },
     {
       "id": "osric.magic_item.rod_of_cancellation",
@@ -9324,7 +9324,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This dreaded rod is a bane to magic items, for its touch drains an item of all magical properties. The item touched must make a saving throw to prevent the rod from draining it."
     },
     {
       "id": "osric.magic_item.rod_of_captivation",
@@ -9358,7 +9358,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "With the expenditure of 1 charge, all monsters and characters within a 20 ft radius are charmed by the wielder for 1 turn so long as they are at least minimally intelligent. All charmed beings will hold nothing but respect and awe for the wielder, and will seek to please him or her by doing nearly anything short of harming themselves or violating their..."
     },
     {
       "id": "osric.magic_item.rod_of_lordly_might",
@@ -9392,7 +9392,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This rod has functions that are spell-like, and it can also be used as a magic weapon of various sorts. It also has several more mundane uses."
     },
     {
       "id": "osric.magic_item.rod_of_resurrection",
@@ -9426,7 +9426,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This rod may be used to the same effect as the cleric spell resurrection, except the wielder does not age or need to rest after using the rod. The rod may resurrect both humans and demi-humans, including half-orcs and elves."
     },
     {
       "id": "osric.magic_item.rod_of_rulership",
@@ -9460,7 +9460,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This rod looks like a royal sceptre. The wielder can command the obedience and fealty of crea tures within 120 ft when he or she activates the device."
     },
     {
       "id": "osric.magic_item.rod_of_striking",
@@ -9494,7 +9494,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A rod of striking deals 1d8+3 hp damage, and functions as a +3 weapon of magical nature. When this rod is used against golems, it always costs 1 charge per successful hit in combat, and deals 2d8+6 hp damage."
     },
     {
       "id": "osric.magic_item.staff_of_compulsion",
@@ -9528,7 +9528,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A staff of compulsion has three primary uses, which are variable in effect and availability depending on whether the staff is wielded by a cleric or a magic user. First, the staff can replicate the effects of a potion of plant control when wielded by a cleric."
     },
     {
       "id": "osric.magic_item.staff_of_healing",
@@ -9562,7 +9562,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This staff can cure the following conditions, two times each per day: blindness, disease, injury (3d8+3 hp), and insanity. This staff may only be employed on an individual humanoid one time per function, per day."
     },
     {
       "id": "osric.magic_item.staff_of_power",
@@ -9596,7 +9596,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "The staff of power is a very potent magic item, with offensive and defensive abilities. Each of the TREASURE 336 following spell-like powers cost 1 charge: magic missile, ray of enfeeblement, continual light, darkness 15 ft radius, levitate, lightning bolt, fireball, and cone of cold."
     },
     {
       "id": "osric.magic_item.staff_of_withering",
@@ -9630,7 +9630,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A staff of withering acts as a +1 weapon that deals 1d4+1 hit points of damage. In addition, if the wielder chooses to spend 2 charges on a hit, the victim will age 10 years."
     },
     {
       "id": "osric.magic_item.staff_of_wizardry",
@@ -9664,7 +9664,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "The staff of wizardry is a powerful device, granting several spells at the wielders disposal. The staff may be used to effect the following spell-like abilities: detect magic, enlarge, hold portal, light, and protection from good (evil)."
     },
     {
       "id": "osric.magic_item.staff_of_the_serpent",
@@ -9698,7 +9698,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Two forms of this staff are known to exist, a python form (60%) and a viper form (40%). Neither form uses charges."
     },
     {
       "id": "osric.magic_item.wand_of_detecting_magic",
@@ -9732,7 +9732,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "When activated, this wand will vibrate and point to the most powerful magic within 30 ft of the wand wielder. If used continuously for more than 1 round, in further rounds the wand will reveal additional sources of magic, in approximate descending rank of their relative power."
     },
     {
       "id": "osric.magic_item.wand_of_detecting_minerals_and_metals",
@@ -9766,7 +9766,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Like other wands of detection, this wand will vibrate and point to the item 337 T REASURE it is enchanted to detect, in this case, the largest quantity of a mineral or metal within a 30 ft range. The wand may also be used to detect all samples of a specific mineral or metal within range, such as gold or diamonds."
     },
     {
       "id": "osric.magic_item.wand_of_detecting_traps_and_secret_doors",
@@ -9800,7 +9800,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "The wielder of this wand may choose, each round, to detect traps (range of 30 ft) or a secret door (range of 15 ft). The wand will vibrate and point to the desired object."
     },
     {
       "id": "osric.magic_item.wand_of_enemy_detection",
@@ -9834,7 +9834,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A wand of enemy detection can, at the expenditure of 1 charge, detect any being with harmful or unkind intentions toward the wand wielder, within 60 ft. The wand will throb in the users hand and point in the direction of such a being."
     },
     {
       "id": "osric.magic_item.wand_of_fear",
@@ -9868,7 +9868,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "Once per round, by spending 1 charge, this wand will emit a ray of sinister purple light that takes 1 segment to appear. The ray is shaped as a cone 20 ft wide at its terminal end and 60 ft long."
     },
     {
       "id": "osric.magic_item.wand_of_fire",
@@ -9902,7 +9902,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A wand of fire produces several spell-like ef fects, and may only produce one effect per round. The following effects require the expenditure of 1 charge: burning hands shoots forth a triangular cone of fire 12 ft long with a 10 ft ending width."
     },
     {
       "id": "osric.magic_item.wand_of_ice",
@@ -9936,7 +9936,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A wand of ice produces several spell-like effects, and may only produce one effect per round. The following effects require the expenditure of 1 charge: an ice storm (as the magic user spell) wreaks its cold havoc to a distance of 60 ft, and appears in 1 segment; a wall of ice can be brought into existence, taking 2 segments to appear."
     },
     {
       "id": "osric.magic_item.wand_of_illusion",
@@ -9970,7 +9970,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This wand is capable of producing both visual and audible illusions, each requiring a charge per round the illusion is maintained. The illusory effect worked by the wielder manifests in 3 segments, and requires full concentration to maintain."
     },
     {
       "id": "osric.magic_item.wand_of_light",
@@ -10004,7 +10004,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A wand of light produces several spell-like effects, and may only produce one effect per round. The following effects require the expenditure of 1 charge: dancing lights as the magic user spell, which appears in 1 segment, and light as the magic user spell, which appears in 2 segments."
     },
     {
       "id": "osric.magic_item.wand_of_lightning",
@@ -10038,7 +10038,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "If the wielder of a wand of lighting hits an opponent (in melee) with the wand and spends 1 charge, he or she may deliver an electrical charge to his or her victim, which inflicts 1d10 hp damage. No saving throw is permitted, and for AC purposes a victim wearing metal armour has an AC of 10, regardless of magical armour bonuses."
     },
     {
       "id": "osric.magic_item.wand_of_magic_missiles",
@@ -10072,7 +10072,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This wand may fire 1 or 2 magic missiles (wielders choice), as the spell, each round. Each missile requires 1 charge and 3 segments before it manifests."
     },
     {
       "id": "osric.magic_item.wand_of_negation",
@@ -10106,7 +10106,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This device negates the spell or spelllike function or functions of magic items. The wielder points the rod at the magic item, and a pale grey beam TREASURE 338 shoots forth to touch the target device or being after 1 segment."
     },
     {
       "id": "osric.magic_item.wand_of_paralysation",
@@ -10140,7 +10140,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A wand of paralysation may fire a ghoulish green beam of energy once per round, to a range of 60 ft. The beam will paralyse any one victim who fails a save vs wands."
     },
     {
       "id": "osric.magic_item.wand_of_polymorphing",
@@ -10174,7 +10174,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "By pointing the wand and giving a command, the wielder may fire a crackling beam of pure black energy at a target. If the victim fails a saving throw vs wands, he or she is affected as if by the magic user spell polymorph other, to transform into any creature the wielder desires."
     },
     {
       "id": "osric.magic_item.wand_of_summoning",
@@ -10208,7 +10208,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "The wielder of this wand, when holding the wand by hand (not when it is packed away) is able to instantly identify spells of a conjuration or summoning nature, either when seen written or actively cast. The wielder may spend a charge to cast the spells unseen servant or monster summoning ."
     },
     {
       "id": "osric.magic_item.wand_of_wonder",
@@ -10242,7 +10242,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "A wand of wonder is a strange and unpredictable device that randomly generates any number of weird effects each time it is used. Each use costs 1 charge."
     },
     {
       "id": "osric.magic_item.scroll_of_ward_of_demons",
@@ -10274,7 +10274,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "All demons are unable to enter the protected area for 5d4 rounds. This scroll takes a variable amount of time to read, to be determined by the power level of the demon."
     },
     {
       "id": "osric.magic_item.scroll_of_ward_of_devils",
@@ -10306,7 +10306,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This scroll is effective for warding against all devils for 5d4 rounds. If the scroll is read for 1 round, it will repel all devil types."
     },
     {
       "id": "osric.magic_item.scroll_of_ward_of_elementals",
@@ -10338,7 +10338,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This scroll takes 6 segments to read and wards against elementals for 5d8 rounds. If the scroll wards against only one type of elemental, it is effective against 24 HD of elementals."
     },
     {
       "id": "osric.magic_item.scroll_of_ward_of_lycanthropes",
@@ -10370,7 +10370,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This warding scroll takes 4 segments to read and its effects last for 5d6 rounds. A total of 49 HD of creatures are warded off, and for this calculation any + is rounded up if 3 or more, or down if 2 or fewer."
     },
     {
       "id": "osric.magic_item.scroll_of_ward_of_magic",
@@ -10402,7 +10402,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This scroll of warding takes 8 seg ments to read and has a duration of 5d6 rounds. Unlike other scrolls of warding, the protection offered by this scroll is confined to a 5 ft radius of the scroll reader."
     },
     {
       "id": "osric.magic_item.scroll_of_ward_of_petrifaction",
@@ -10434,7 +10434,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This scroll of warding is read in 5 segments and lasts for 5d4 rounds. All characters within the area of protection are immune to all sources of pet rifaction, whether from spells, gaze, breath weapons, or any other source."
     },
     {
       "id": "osric.magic_item.scroll_of_ward_of_possession",
@@ -10466,7 +10466,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This scroll is read in 1 round. Most of these scrolls (1-9 on 1d10) have a duration of 10d6 rounds."
     },
     {
       "id": "osric.magic_item.scroll_of_ward_of_undead",
@@ -10498,7 +10498,7 @@
       "dm_only": {
         "hidden_by_default": false
       },
-      "description": "OSRIC catalog item. Use source reference for full rules text; encoded fields contain only deterministic sheet mechanics."
+      "description": "This scroll of warding takes 4 segments to read, and has a duration of 10d8 rounds. The area of effect is a 5 ft radius from the scroll reader."
     }
   ]
 }
