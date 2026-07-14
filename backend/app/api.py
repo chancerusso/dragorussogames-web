@@ -241,6 +241,9 @@ def applied_magic_equipment_payload(item: dict) -> dict | None:
     attack_bonus = _numeric_effect(effects, "attack_bonus")
     damage_bonus = _numeric_effect(effects, "damage_bonus")
     ac_adjustment = _numeric_effect(effects, "armor_class_adjustment")
+    if item.get("catalog_id") == "osric.magic_item.hammer_of_thunderbolts":
+        attack_bonus = attack_bonus or 3
+        damage_bonus = damage_bonus or 3
     if magic_bonus:
         properties["magic_bonus"] = magic_bonus
     if attack_bonus:
@@ -297,7 +300,7 @@ def default_applied_magic_equipment(item: dict) -> dict | None:
         "range": "30 ft",
         "armor_class_value": None,
         "armor_class_adjustment": None,
-        "properties": {"weapon_mode": "melee", "attack_ability": "strength", "proficiency_equipment_name": "Hammer, war, heavy"},
+        "properties": {"weapon_mode": "melee", "attack_ability": "strength", "attack_bonus": 3, "damage_bonus": 3, "proficiency_equipment_name": "Hammer, war, heavy"},
         "rules_reference": "/1e/how-to-play/magic/",
     }
 

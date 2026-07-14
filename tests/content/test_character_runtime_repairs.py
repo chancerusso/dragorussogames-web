@@ -835,7 +835,7 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
                 "source_ref": {},
                 "description": "A 15 lb war hammer that strikes as a +3 weapon and deals 4d6 damage.",
                 "weight": None,
-                "equipment_effects": {"kind": "weapon", "attack_bonus": 3, "damage_small_medium": "4d6", "damage_large": "4d6", "weight": 15, "range": "30 ft", "weapon_mode": "melee", "attack_ability": "strength"},
+                "equipment_effects": {"kind": "weapon", "attack_bonus": 3, "damage_bonus": 3, "damage_small_medium": "4d6", "damage_large": "4d6", "weight": 15, "range": "30 ft", "weapon_mode": "melee", "attack_ability": "strength"},
                 "status": "equipped",
                 "identified": True,
                 "charges": None,
@@ -858,9 +858,9 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertEqual(3, runtime["attack_modifiers"]["magical"])
         self.assertEqual(0, runtime["attack_modifiers"]["proficiency"])
         self.assertTrue(runtime["proficiency"]["proficient"])
-        self.assertEqual(0, runtime["damage"]["magical"])
+        self.assertEqual(3, runtime["damage"]["magical"])
         self.assertEqual(1, runtime["damage"]["strength"])
-        self.assertEqual("4d6+1", runtime["damage"]["final_small_medium"])
+        self.assertEqual("4d6+4", runtime["damage"]["final_small_medium"])
         self.assertEqual({"short": 30, "medium": 60, "long": 90, "raw": "30 ft"}, runtime["range"])
 
     def test_applied_magic_armor_uses_base_armor_and_ac_adjustment(self) -> None:

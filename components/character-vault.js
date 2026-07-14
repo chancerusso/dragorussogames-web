@@ -2509,7 +2509,7 @@ function magicDefaultAppliedEquipment(record = {}) {
     damage_large: "4d6",
     rate_of_fire: null,
     range: "30 ft",
-    properties: { ...(heavyHammer.properties || {}), weapon_mode: "melee", attack_ability: "strength", proficiency_equipment_name: "Hammer, war, heavy" },
+    properties: { ...(heavyHammer.properties || {}), weapon_mode: "melee", attack_ability: "strength", attack_bonus: 3, damage_bonus: 3, proficiency_equipment_name: "Hammer, war, heavy" },
     rules_reference: "/1e/how-to-play/magic/",
   };
 }
