@@ -818,6 +818,40 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertEqual(2, runtime["damage"]["magical"])
         self.assertEqual("1d8+2", runtime["damage"]["final_small_medium"])
 
+    def test_hammer_of_thunderbolts_equips_as_special_warhammer(self) -> None:
+        self.character_model.magic_items = [
+            {
+                "id": "magic-hammer-of-thunderbolts",
+                "catalog_id": "osric.magic_item.hammer_of_thunderbolts",
+                "name": "Hammer of Thunderbolts",
+                "category": "Artifact",
+                "source": "OSRIC",
+                "source_ref": {},
+                "description": "A 15 lb war hammer that strikes as a +3 weapon and deals 4d6 damage.",
+                "weight": None,
+                "equipment_effects": {"kind": "weapon", "attack_bonus": 3, "damage_small_medium": "4d6", "damage_large": "4d6", "weight": 15, "range": "30 ft", "weapon_mode": "thrown"},
+                "status": "equipped",
+                "identified": True,
+                "charges": None,
+                "max_charges": None,
+                "notes": "",
+            }
+        ]
+        self.db.commit()
+
+        payload = character_payload(self.character_model)
+        magic_row = next(item for item in payload["inventory"] if item.get("magic_item_id") == "magic-hammer-of-thunderbolts")
+        runtime = next(weapon for weapon in payload["combat"]["runtime"]["weapons"] if weapon["weapon"] == "Hammer of Thunderbolts")
+
+        self.assertEqual("weapon", magic_row["equipment"]["type"])
+        self.assertEqual(15, magic_row["equipment"]["weight"])
+        self.assertEqual(15, magic_row["total_weight"])
+        self.assertEqual("thrown", runtime["mode"])
+        self.assertEqual(3, runtime["attack_modifiers"]["magical"])
+        self.assertEqual(0, runtime["damage"]["magical"])
+        self.assertEqual("4d6", runtime["damage"]["final_small_medium"])
+        self.assertEqual({"short": 30, "medium": 60, "long": 90, "raw": "30 ft"}, runtime["range"])
+
     def test_applied_magic_armor_uses_base_armor_and_ac_adjustment(self) -> None:
         splint = self.equipment("Splint")
         self.character_model.magic_items = [

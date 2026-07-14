@@ -231,6 +231,8 @@ def _numeric_effect(effects: dict[str, Any], *keys: str) -> int:
 def applied_magic_equipment_payload(item: dict) -> dict | None:
     base = item.get("applied_equipment") if isinstance(item.get("applied_equipment"), dict) else None
     if not base:
+        base = default_applied_magic_equipment(item)
+    if not base:
         return None
     effects = item.get("equipment_effects") if isinstance(item.get("equipment_effects"), dict) else {}
     equipment = dict(base)
@@ -245,6 +247,16 @@ def applied_magic_equipment_payload(item: dict) -> dict | None:
         properties["attack_bonus"] = attack_bonus
     if damage_bonus:
         properties["damage_bonus"] = damage_bonus
+    for key in ("damage_small_medium", "damage_large", "range", "rate_of_fire"):
+        if effects.get(key) not in (None, ""):
+            equipment[key] = effects[key]
+    if effects.get("weight") not in (None, ""):
+        try:
+            equipment["weight"] = max(0, float(effects["weight"]))
+        except (TypeError, ValueError):
+            pass
+    if effects.get("weapon_mode") in {"melee", "missile", "thrown"}:
+        properties["weapon_mode"] = effects["weapon_mode"]
     if equipment.get("type") == "armor" and equipment.get("armor_class_value") is not None and ac_adjustment:
         equipment["armor_class_value"] = int(equipment["armor_class_value"]) + ac_adjustment
     if equipment.get("type") == "shield" and ac_adjustment:
@@ -260,6 +272,28 @@ def applied_magic_equipment_payload(item: dict) -> dict | None:
         }
     )
     return equipment
+
+
+def default_applied_magic_equipment(item: dict) -> dict | None:
+    if item.get("catalog_id") != "osric.magic_item.hammer_of_thunderbolts":
+        return None
+    return {
+        "id": 0,
+        "name": "Hammer of Thunderbolts",
+        "type": "weapon",
+        "subtype": "melee",
+        "cost_amount": None,
+        "cost_coin": None,
+        "weight": 15,
+        "damage_small_medium": "4d6",
+        "damage_large": "4d6",
+        "rate_of_fire": None,
+        "range": "30 ft",
+        "armor_class_value": None,
+        "armor_class_adjustment": None,
+        "properties": {"weapon_mode": "thrown"},
+        "rules_reference": "/1e/how-to-play/magic/",
+    }
 
 
 def magic_item_inventory_payload(item: dict) -> dict | None:

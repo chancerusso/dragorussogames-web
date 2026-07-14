@@ -391,6 +391,7 @@ test("OSRIC magic item catalog contains real catalog records", () => {
   assert.ok(magicItemCatalog.items.some((item) => item.name === "Magic Sword +1" && item.equipment_effects.attack_bonus === 1));
   assert.ok(magicItemCatalog.items.some((item) => item.name === "Bleeding Sword" && item.equipment_effects.damage_bonus === 1));
   assert.ok(magicItemCatalog.items.some((item) => item.name === "Large Shield +1, Missile Deflector" && item.equipment_effects.missile_armor_class_adjustment === -4));
+  assert.ok(magicItemCatalog.items.some((item) => item.name === "Hammer of Thunderbolts" && item.equipment_effects.kind === "weapon" && item.equipment_effects.attack_bonus === 3 && item.equipment_effects.damage_small_medium === "4d6"));
   assert.ok(magicItemCatalog.items.every((item) => item.description && !item.description.startsWith("OSRIC catalog item.")));
   assert.match(magicItemCatalog.items.find((item) => item.name === "Potion of Healing").description, /2d4\+2 hp/);
 });

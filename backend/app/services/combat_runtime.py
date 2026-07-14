@@ -198,6 +198,9 @@ def attacks_per_round(class_name: str, level: int, specialized: bool = False) ->
 
 
 def weapon_mode(equipment: dict[str, Any]) -> str:
+    mode = (equipment.get("properties") or {}).get("weapon_mode")
+    if mode in {"melee", "missile", "thrown"}:
+        return mode
     name = (equipment.get("name") or "").lower()
     if name in THROWN_WEAPON_NAMES:
         return "thrown"

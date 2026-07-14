@@ -1916,6 +1916,18 @@ async function openMagicItemCatalogModal() {
       resultsNode.querySelectorAll("[data-magic-catalog-add]").forEach((button) => button.addEventListener("click", async () => {
         const record = catalog.find((entry) => entry.id === button.dataset.magicCatalogAdd);
         if (!record) return;
+        const defaultBase = magicDefaultAppliedEquipment(record);
+        if (defaultBase) {
+          const items = state.character?.magic_items || [];
+          const magicItem = magicItemFromCatalogRecord(record, defaultBase);
+          await saveMagicItems([...items, magicItem]);
+          state.sheetDisclosure.magicItemsOpen = true;
+          state.sheetDisclosure.inventoryOpen = true;
+          toast(`${magicItem.name} added.`, "success");
+          close();
+          renderSheet({ keepMagicItemsVisible: true });
+          return;
+        }
         if (magicItemNeedsBaseEquipment(record)) {
           close();
           openMagicBaseEquipmentModal(record);
@@ -2481,6 +2493,27 @@ function magicItemFromCatalogRecord(record, baseEquipment = null) {
   };
 }
 
+function magicDefaultAppliedEquipment(record = {}) {
+  if (record.id !== "osric.magic_item.hammer_of_thunderbolts") return null;
+  const heavyHammer = state.equipment.find((item) => item.name === "Hammer, war, heavy") || {};
+  return {
+    ...magicAppliedEquipmentPayload(heavyHammer),
+    id: heavyHammer.id || 0,
+    name: "Hammer of Thunderbolts",
+    type: "weapon",
+    subtype: heavyHammer.subtype || "melee",
+    cost_amount: null,
+    cost_coin: null,
+    weight: 15,
+    damage_small_medium: "4d6",
+    damage_large: "4d6",
+    rate_of_fire: null,
+    range: "30 ft",
+    properties: { ...(heavyHammer.properties || {}), weapon_mode: "thrown" },
+    rules_reference: "/1e/how-to-play/magic/",
+  };
+}
+
 function magicItemNeedsBaseEquipment(record = {}) {
   return ["weapon", "armor", "shield"].includes(String(record.equipment_effects?.kind || "").toLowerCase());
 }
@@ -2521,6 +2554,7 @@ function magicAppliedEquipmentPayload(item = {}) {
 }
 
 function appliedMagicItemName(record = {}, base = {}) {
+  if (record.name && record.name === base.name) return record.name;
   const bonus = record.name.match(/[+-]\d+/)?.[0] || "";
   const baseName = base.name || "Item";
   if (bonus && !baseName.includes(bonus)) return `${baseName} ${bonus}`;
