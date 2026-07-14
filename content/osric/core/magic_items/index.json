@@ -81,7 +81,8 @@
         "damage_large": "4d6",
         "weight": 15,
         "range": "30 ft",
-        "weapon_mode": "thrown",
+        "weapon_mode": "melee",
+        "attack_ability": "strength",
         "notes": "Treat as a 15 lb war hammer: +3 to hit, 4d6 damage, may be hurled with 30 ft range bands and returns after the attack."
       },
       "charges": null,

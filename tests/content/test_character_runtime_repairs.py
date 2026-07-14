@@ -821,6 +821,10 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
     def test_hammer_of_thunderbolts_equips_as_special_warhammer(self) -> None:
         heavy_hammer = self.equipment("Hammer, war, heavy")
         self.db.add(WeaponProficiency(character_id=self.character_model.id, equipment_id=heavy_hammer.id, proficient=True))
+        self.character_model.abilities.strength = 17
+        self.character_model.abilities.racial_adjusted_strength = 17
+        self.character_model.abilities.dexterity = 16
+        self.character_model.abilities.racial_adjusted_dexterity = 16
         self.character_model.magic_items = [
             {
                 "id": "magic-hammer-of-thunderbolts",
@@ -831,7 +835,7 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
                 "source_ref": {},
                 "description": "A 15 lb war hammer that strikes as a +3 weapon and deals 4d6 damage.",
                 "weight": None,
-                "equipment_effects": {"kind": "weapon", "attack_bonus": 3, "damage_small_medium": "4d6", "damage_large": "4d6", "weight": 15, "range": "30 ft", "weapon_mode": "thrown"},
+                "equipment_effects": {"kind": "weapon", "attack_bonus": 3, "damage_small_medium": "4d6", "damage_large": "4d6", "weight": 15, "range": "30 ft", "weapon_mode": "melee", "attack_ability": "strength"},
                 "status": "equipped",
                 "identified": True,
                 "charges": None,
@@ -848,12 +852,15 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertEqual("weapon", magic_row["equipment"]["type"])
         self.assertEqual(15, magic_row["equipment"]["weight"])
         self.assertEqual(15, magic_row["total_weight"])
-        self.assertEqual("thrown", runtime["mode"])
+        self.assertEqual("melee", runtime["mode"])
+        self.assertEqual(1, runtime["attack_modifiers"]["strength"])
+        self.assertEqual(0, runtime["attack_modifiers"]["dexterity_missile"])
         self.assertEqual(3, runtime["attack_modifiers"]["magical"])
         self.assertEqual(0, runtime["attack_modifiers"]["proficiency"])
         self.assertTrue(runtime["proficiency"]["proficient"])
         self.assertEqual(0, runtime["damage"]["magical"])
-        self.assertEqual("4d6", runtime["damage"]["final_small_medium"])
+        self.assertEqual(1, runtime["damage"]["strength"])
+        self.assertEqual("4d6+1", runtime["damage"]["final_small_medium"])
         self.assertEqual({"short": 30, "medium": 60, "long": 90, "raw": "30 ft"}, runtime["range"])
 
     def test_applied_magic_armor_uses_base_armor_and_ac_adjustment(self) -> None:

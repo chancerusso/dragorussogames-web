@@ -257,6 +257,8 @@ def applied_magic_equipment_payload(item: dict) -> dict | None:
             pass
     if effects.get("weapon_mode") in {"melee", "missile", "thrown"}:
         properties["weapon_mode"] = effects["weapon_mode"]
+    if effects.get("attack_ability") in {"strength", "dexterity"}:
+        properties["attack_ability"] = effects["attack_ability"]
     if effects.get("base_item"):
         properties["proficiency_equipment_name"] = effects["base_item"]
     elif base.get("name") and not properties.get("proficiency_equipment_name"):
@@ -295,7 +297,7 @@ def default_applied_magic_equipment(item: dict) -> dict | None:
         "range": "30 ft",
         "armor_class_value": None,
         "armor_class_adjustment": None,
-        "properties": {"weapon_mode": "thrown", "proficiency_equipment_name": "Hammer, war, heavy"},
+        "properties": {"weapon_mode": "melee", "attack_ability": "strength", "proficiency_equipment_name": "Hammer, war, heavy"},
         "rules_reference": "/1e/how-to-play/magic/",
     }
 

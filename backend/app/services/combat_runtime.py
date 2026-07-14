@@ -283,8 +283,9 @@ def weapon_combat(
     magic_damage = _property_bonus(equipment, "magic_bonus", "damage_bonus")
     misc_attack = _property_bonus(equipment, "misc_attack_bonus")
     misc_damage = _property_bonus(equipment, "misc_damage_bonus")
-    strength_attack = strength["attack"] if mode == "melee" else 0
-    dex_attack = dex if mode in {"missile", "thrown"} else 0
+    attack_ability = (equipment.get("properties") or {}).get("attack_ability")
+    strength_attack = strength["attack"] if mode == "melee" or attack_ability == "strength" else 0
+    dex_attack = dex if mode in {"missile", "thrown"} and attack_ability != "strength" else 0
     strength_damage = strength["damage"] if mode in {"melee", "thrown"} else 0
     base = thac0(class_name, level)
     total_attack_bonus = strength_attack + dex_attack + racial["bonus"] + magic_attack + proficiency_modifier + misc_attack
