@@ -834,10 +834,13 @@ function DragoTablePage() {
     const rect = grid.getBoundingClientRect();
     const cellWidth = rect.width / activeGrid.columns;
     const cellHeight = rect.height / activeGrid.rows;
-    const size = token.size || 2;
-    const x = Math.max(1, Math.min(activeGrid.columns - size + 1, Math.floor((event.clientX - rect.left) / cellWidth) + 1));
-    const y = Math.max(1, Math.min(activeGrid.rows - size + 1, Math.floor((event.clientY - rect.top) / cellHeight) + 1));
-    setTokenPositions((positions) => ({ ...positions, [token.id]: { x, y } }));
+    const relativeX = Math.max(0, Math.min(rect.width - 1, event.clientX - rect.left));
+    const relativeY = Math.max(0, Math.min(rect.height - 1, event.clientY - rect.top));
+    const x = Math.max(1, Math.min(activeGrid.columns, Math.floor(relativeX / cellWidth) + 1));
+    const y = Math.max(1, Math.min(activeGrid.rows, Math.floor(relativeY / cellHeight) + 1));
+    const slotX = (relativeX % cellWidth) >= cellWidth / 2 ? 1 : 0;
+    const slotY = (relativeY % cellHeight) >= cellHeight / 2 ? 1 : 0;
+    setTokenPositions((positions) => ({ ...positions, [token.id]: { x, y, slotX, slotY } }));
   }
 
   if (loading || error || !campaign) return <PageState loading={loading} error={error} />;
@@ -858,7 +861,7 @@ function DragoTablePage() {
           <span>{modeLabel}</span>
           <span>Session #{campaign.session_number || 1}</span>
           <span>Day {campaign.current_campaign_day || 1}</span>
-          <span>10 ft squares / 4 placement cells</span>
+          <span>10 ft squares / four token slots</span>
         </div>
       </Header>
 
@@ -981,21 +984,21 @@ const DRAGO_TABLE_MODES = [
   ["outdoors", "Outdoors"],
 ];
 
-const DRAGO_MARCHING_GRID = { columns: 8, rows: 24, majorEvery: 4 };
-const DRAGO_COMBAT_GRID = { columns: 32, rows: 32, majorEvery: 4 };
-const DRAGO_OUTDOORS_GRID = { columns: 48, rows: 32, majorEvery: 4 };
+const DRAGO_MARCHING_GRID = { columns: 2, rows: 6 };
+const DRAGO_COMBAT_GRID = { columns: 8, rows: 8 };
+const DRAGO_OUTDOORS_GRID = { columns: 12, rows: 8 };
 
 const DRAGO_SAMPLE_PLAYERS = [
-  { id: "pc-1", name: "Aldren", label: "AL", color: "#9fb36a", hp: "18 / 24", ac: "5", move: "9", status: "Ready", x: 1, y: 1, size: 2 },
-  { id: "pc-2", name: "Brinna", label: "BR", color: "#b56d5d", hp: "12 / 16", ac: "7", move: "12", status: "Ready", x: 3, y: 1, size: 2 },
-  { id: "pc-3", name: "Cairn", label: "CA", color: "#5d8fb5", hp: "9 / 11", ac: "8", move: "12", status: "Hidden", x: 1, y: 3, size: 2 },
-  { id: "pc-4", name: "Damaia", label: "DA", color: "#b59b5d", hp: "6 / 9", ac: "10", move: "12", status: "Light", x: 3, y: 3, size: 2 },
+  { id: "pc-1", name: "Aldren", label: "AL", color: "#9fb36a", hp: "18 / 24", ac: "5", move: "9", status: "Ready", x: 1, y: 1, slotX: 0, slotY: 0 },
+  { id: "pc-2", name: "Brinna", label: "BR", color: "#b56d5d", hp: "12 / 16", ac: "7", move: "12", status: "Ready", x: 1, y: 1, slotX: 1, slotY: 0 },
+  { id: "pc-3", name: "Cairn", label: "CA", color: "#5d8fb5", hp: "9 / 11", ac: "8", move: "12", status: "Hidden", x: 1, y: 1, slotX: 0, slotY: 1 },
+  { id: "pc-4", name: "Damaia", label: "DA", color: "#b59b5d", hp: "6 / 9", ac: "10", move: "12", status: "Light", x: 1, y: 1, slotX: 1, slotY: 1 },
 ];
 
 const DRAGO_MONSTER_TOKENS = [
-  { id: "goblin-1-token", name: "Goblin 1", label: "G1", color: "#7f8f45", x: 17, y: 13, size: 2 },
-  { id: "goblin-2-token", name: "Goblin 2", label: "G2", color: "#7f8f45", x: 19, y: 13, size: 2 },
-  { id: "goblin-3-token", name: "Goblin 3", label: "G3", color: "#7f8f45", x: 17, y: 15, size: 2 },
+  { id: "goblin-1-token", name: "Goblin 1", label: "G1", color: "#7f8f45", x: 5, y: 4, slotX: 0, slotY: 0 },
+  { id: "goblin-2-token", name: "Goblin 2", label: "G2", color: "#7f8f45", x: 5, y: 4, slotX: 1, slotY: 0 },
+  { id: "goblin-3-token", name: "Goblin 3", label: "G3", color: "#7f8f45", x: 5, y: 4, slotX: 0, slotY: 1 },
 ];
 
 const DRAGO_SAMPLE_MONSTERS = [
@@ -1016,9 +1019,10 @@ function buildPlayerTokens(characters) {
     ac: character.armor_class ?? character.ac ?? "-",
     move: character.movement_rate ?? character.move ?? "12",
     status: character.life_status || character.status || "Ready",
-    x: (index % 2) * 2 + 1,
-    y: Math.floor(index / 2) * 2 + 1,
-    size: 2,
+    x: 1,
+    y: Math.floor(index / 4) + 1,
+    slotX: index % 2,
+    slotY: Math.floor((index % 4) / 2),
   }));
 }
 
@@ -1028,12 +1032,7 @@ function applyTokenPositions(tokens, positions) {
 
 function gridCells(grid) {
   return Array.from({ length: grid.columns * grid.rows }).map((_, index) => {
-    const column = (index % grid.columns) + 1;
-    const row = Math.floor(index / grid.columns) + 1;
-    const classes = [];
-    if (column % grid.majorEvery === 0) classes.push("major-right");
-    if (row % grid.majorEvery === 0) classes.push("major-bottom");
-    return { index, className: classes.join(" ") };
+    return { index, className: "" };
   });
 }
 
@@ -1043,7 +1042,7 @@ function TableToken({ token, monster = false, onDragStart }) {
       type="button"
       className={`table-token ${monster ? "monster-token" : ""}`}
       title={token.name}
-      style={{ "--token-x": token.x, "--token-y": token.y, "--token-size": token.size || 2, "--token-color": token.color }}
+      style={{ "--token-x": token.x, "--token-y": token.y, "--slot-x": token.slotX || 0, "--slot-y": token.slotY || 0, "--token-color": token.color }}
       onPointerDown={(event) => {
         event.currentTarget.setPointerCapture(event.pointerId);
         onDragStart(event);
