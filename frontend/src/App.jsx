@@ -821,11 +821,30 @@ function DragoTablePage() {
   const { id } = useParams();
   const { data: campaign, error, loading } = useLoad(() => api(`/1e/campaigns/${id}`), [id]);
   const [mode, setMode] = useState("marching");
-  const playerTokens = useMemo(() => buildPlayerTokens(campaign?.characters || []), [campaign]);
+  const [tokenPositions, setTokenPositions] = useState({});
+  const [draggedToken, setDraggedToken] = useState(null);
+  const basePlayerTokens = useMemo(() => buildPlayerTokens(campaign?.characters || []), [campaign]);
   const monsterCards = DRAGO_SAMPLE_MONSTERS;
-  const activeGrid = mode === "combat" ? DRAGO_COMBAT_GRID : DRAGO_MARCHING_GRID;
+  const activeGrid = mode === "combat" ? DRAGO_COMBAT_GRID : mode === "outdoors" ? DRAGO_OUTDOORS_GRID : DRAGO_MARCHING_GRID;
+  const playerTokens = useMemo(() => applyTokenPositions(basePlayerTokens, tokenPositions), [basePlayerTokens, tokenPositions]);
+  const monsterTokens = useMemo(() => applyTokenPositions(DRAGO_MONSTER_TOKENS, tokenPositions), [tokenPositions]);
+
+  function moveToken(token, event) {
+    const grid = event.currentTarget;
+    const rect = grid.getBoundingClientRect();
+    const cellWidth = rect.width / activeGrid.columns;
+    const cellHeight = rect.height / activeGrid.rows;
+    const size = token.size || 2;
+    const x = Math.max(1, Math.min(activeGrid.columns - size + 1, Math.floor((event.clientX - rect.left) / cellWidth) + 1));
+    const y = Math.max(1, Math.min(activeGrid.rows - size + 1, Math.floor((event.clientY - rect.top) / cellHeight) + 1));
+    setTokenPositions((positions) => ({ ...positions, [token.id]: { x, y } }));
+  }
 
   if (loading || error || !campaign) return <PageState loading={loading} error={error} />;
+
+  const modeLabel = mode === "combat" ? "Combat Mode" : mode === "outdoors" ? "Outdoors Mode" : "Marching Mode";
+  const gridTitle = mode === "combat" ? "8 x 8 Ten-Foot Area" : mode === "outdoors" ? "12 x 8 Ten-Foot Area" : "2 x 6 Ten-Foot Column";
+  const gridEyebrow = mode === "combat" ? "10-Foot Tactical Grid" : mode === "outdoors" ? "Outdoor Ground" : "Marching Order";
 
   return (
     <section className="drago-table-page">
@@ -836,10 +855,10 @@ function DragoTablePage() {
         action={<Link className="secondary-button" to={`/campaigns/${campaign.id}`}>Campaign Workspace</Link>}
       >
         <div className="workspace-meta">
-          <span>{mode === "combat" ? "Combat Mode" : mode === "rest" ? "Rest Mode" : mode === "travel" ? "Travel Mode" : "Marching Mode"}</span>
+          <span>{modeLabel}</span>
           <span>Session #{campaign.session_number || 1}</span>
           <span>Day {campaign.current_campaign_day || 1}</span>
-          <span>Shared state model next</span>
+          <span>10 ft squares / 4 placement cells</span>
         </div>
       </Header>
 
@@ -847,6 +866,7 @@ function DragoTablePage() {
         <Tabs tabs={DRAGO_TABLE_MODES} activeTab={mode} onChange={setMode} className="drago-mode-tabs" />
         <div className="drago-live-actions">
           <button type="button" className="ghost-button">Player View</button>
+          <button type="button" className="ghost-button">Rules</button>
           <button type="button">Start Session</button>
         </div>
       </div>
@@ -855,15 +875,19 @@ function DragoTablePage() {
         <aside className="panel drago-side-panel">
           <p className="eyebrow">Trackers</p>
           <div className="tracker-stack">
-            <TrackerCard label="Round" value="3" note="Combat clock" />
-            <TrackerCard label="Turn" value="7" note="Exploration turn" />
-            <TrackerCard label="Torch" value="34 min" note="2 torches lit" />
-            <TrackerCard label="Location" value="Lower Halls" note="Visible to players" />
+            <TrackerCard label="Round" value="3" note="Combat clock" meta="Side initiative" />
+            <TrackerCard label="Turn" value="7" note="Exploration turn" meta="10 minutes" />
+            <TrackerCard label="Torch" value="34 min" note="2 torches lit" meta="Public timer" />
+            <TrackerCard label="Location" value="Lower Halls" note="Visible to players" meta="Dungeon level 1" />
+            <TrackerCard label="Morale" value="Check" note="When first death lands" meta="DM reminder" />
+            <TrackerCard label="Noise" value="Low" note="No wandering check yet" meta="Hidden" />
           </div>
           <div className="drago-command-list">
             <button type="button" className="table-button">Advance Round</button>
             <button type="button" className="table-button">Advance Turn</button>
             <button type="button" className="table-button">Add Monster</button>
+            <button type="button" className="table-button">Monsters</button>
+            <button type="button" className="table-button">Open Rules</button>
             <button type="button" className="table-button">Add Treasure</button>
           </div>
         </aside>
@@ -871,21 +895,32 @@ function DragoTablePage() {
         <main className="panel drago-map-panel">
           <div className="drago-map-toolbar">
             <div>
-              <p className="eyebrow">{mode === "combat" ? "Blank Room Template" : "Marching Order"}</p>
-              <h2>{mode === "combat" ? "20 x 20 Tactical Grid" : "2 x 6 Party Column"}</h2>
+              <p className="eyebrow">{gridEyebrow}</p>
+              <h2>{gridTitle}</h2>
             </div>
-            <select aria-label="Grid template" defaultValue={mode === "combat" ? "20x20" : "2x6"}>
-              <option value="2x6">2 x 6 Marching</option>
-              <option value="10x10">10 x 10 Room</option>
-              <option value="20x20">20 x 20 Room</option>
-              <option value="40x20">40 x 20 Room</option>
-              <option value="10x90">10 x 90 Corridor</option>
+            <select aria-label="Grid template" value={mode === "combat" ? "8x8-ten" : mode === "outdoors" ? "12x8-ten" : "2x6-ten"} onChange={() => {}}>
+              <option value="2x6-ten">2 x 6 Marching</option>
+              <option value="8x8-ten">8 x 8 Ten-Foot Area</option>
+              <option value="12x8-ten">12 x 8 Outdoor Area</option>
+              <option value="corridor-ten">2 x 12 Ten-Foot Corridor</option>
             </select>
           </div>
-          <div className={`drago-grid ${mode === "combat" ? "combat-grid" : "marching-grid"}`} style={{ "--grid-columns": activeGrid.columns, "--grid-rows": activeGrid.rows }}>
-            {Array.from({ length: activeGrid.columns * activeGrid.rows }).map((_, index) => <span key={index} />)}
-            {playerTokens.map((token) => <TableToken key={token.id} token={token} />)}
-            {mode === "combat" ? DRAGO_MONSTER_TOKENS.map((token) => <TableToken key={token.id} token={token} monster />) : null}
+          <div
+            className={`drago-grid ${mode === "combat" ? "combat-grid" : mode === "outdoors" ? "outdoors-grid" : "marching-grid"}`}
+            style={{ "--grid-columns": activeGrid.columns, "--grid-rows": activeGrid.rows }}
+            onPointerMove={(event) => {
+              if (draggedToken) moveToken(draggedToken, event);
+            }}
+            onPointerUp={() => setDraggedToken(null)}
+            onPointerLeave={() => setDraggedToken(null)}
+          >
+            {gridCells(activeGrid).map((cell) => <span className={cell.className} key={cell.index} />)}
+            {playerTokens.map((token) => (
+              <TableToken key={token.id} token={token} onDragStart={(event) => { setDraggedToken(token); moveToken(token, event); }} />
+            ))}
+            {mode === "combat" ? monsterTokens.map((token) => (
+              <TableToken key={token.id} token={token} monster onDragStart={(event) => { setDraggedToken(token); moveToken(token, event); }} />
+            )) : null}
           </div>
         </main>
 
@@ -943,24 +978,24 @@ function DragoTablePage() {
 const DRAGO_TABLE_MODES = [
   ["marching", "Marching"],
   ["combat", "Combat"],
-  ["rest", "Rest"],
-  ["travel", "Travel"],
+  ["outdoors", "Outdoors"],
 ];
 
-const DRAGO_MARCHING_GRID = { columns: 2, rows: 6 };
-const DRAGO_COMBAT_GRID = { columns: 20, rows: 20 };
+const DRAGO_MARCHING_GRID = { columns: 8, rows: 24, majorEvery: 4 };
+const DRAGO_COMBAT_GRID = { columns: 32, rows: 32, majorEvery: 4 };
+const DRAGO_OUTDOORS_GRID = { columns: 48, rows: 32, majorEvery: 4 };
 
 const DRAGO_SAMPLE_PLAYERS = [
-  { id: "pc-1", name: "Aldren", label: "AL", color: "#9fb36a", hp: "18 / 24", ac: "5", move: "9", status: "Ready", x: 1, y: 1 },
-  { id: "pc-2", name: "Brinna", label: "BR", color: "#b56d5d", hp: "12 / 16", ac: "7", move: "12", status: "Ready", x: 2, y: 1 },
-  { id: "pc-3", name: "Cairn", label: "CA", color: "#5d8fb5", hp: "9 / 11", ac: "8", move: "12", status: "Hidden", x: 1, y: 2 },
-  { id: "pc-4", name: "Damaia", label: "DA", color: "#b59b5d", hp: "6 / 9", ac: "10", move: "12", status: "Light", x: 2, y: 2 },
+  { id: "pc-1", name: "Aldren", label: "AL", color: "#9fb36a", hp: "18 / 24", ac: "5", move: "9", status: "Ready", x: 1, y: 1, size: 2 },
+  { id: "pc-2", name: "Brinna", label: "BR", color: "#b56d5d", hp: "12 / 16", ac: "7", move: "12", status: "Ready", x: 3, y: 1, size: 2 },
+  { id: "pc-3", name: "Cairn", label: "CA", color: "#5d8fb5", hp: "9 / 11", ac: "8", move: "12", status: "Hidden", x: 1, y: 3, size: 2 },
+  { id: "pc-4", name: "Damaia", label: "DA", color: "#b59b5d", hp: "6 / 9", ac: "10", move: "12", status: "Light", x: 3, y: 3, size: 2 },
 ];
 
 const DRAGO_MONSTER_TOKENS = [
-  { id: "goblin-1-token", name: "Goblin 1", label: "G1", color: "#7f8f45", x: 13, y: 8 },
-  { id: "goblin-2-token", name: "Goblin 2", label: "G2", color: "#7f8f45", x: 15, y: 9 },
-  { id: "goblin-3-token", name: "Goblin 3", label: "G3", color: "#7f8f45", x: 14, y: 11 },
+  { id: "goblin-1-token", name: "Goblin 1", label: "G1", color: "#7f8f45", x: 17, y: 13, size: 2 },
+  { id: "goblin-2-token", name: "Goblin 2", label: "G2", color: "#7f8f45", x: 19, y: 13, size: 2 },
+  { id: "goblin-3-token", name: "Goblin 3", label: "G3", color: "#7f8f45", x: 17, y: 15, size: 2 },
 ];
 
 const DRAGO_SAMPLE_MONSTERS = [
@@ -981,30 +1016,51 @@ function buildPlayerTokens(characters) {
     ac: character.armor_class ?? character.ac ?? "-",
     move: character.movement_rate ?? character.move ?? "12",
     status: character.life_status || character.status || "Ready",
-    x: (index % 2) + 1,
-    y: Math.floor(index / 2) + 1,
+    x: (index % 2) * 2 + 1,
+    y: Math.floor(index / 2) * 2 + 1,
+    size: 2,
   }));
 }
 
-function TableToken({ token, monster = false }) {
+function applyTokenPositions(tokens, positions) {
+  return tokens.map((token) => ({ ...token, ...(positions[token.id] || {}) }));
+}
+
+function gridCells(grid) {
+  return Array.from({ length: grid.columns * grid.rows }).map((_, index) => {
+    const column = (index % grid.columns) + 1;
+    const row = Math.floor(index / grid.columns) + 1;
+    const classes = [];
+    if (column % grid.majorEvery === 0) classes.push("major-right");
+    if (row % grid.majorEvery === 0) classes.push("major-bottom");
+    return { index, className: classes.join(" ") };
+  });
+}
+
+function TableToken({ token, monster = false, onDragStart }) {
   return (
     <button
       type="button"
       className={`table-token ${monster ? "monster-token" : ""}`}
       title={token.name}
-      style={{ "--token-x": token.x, "--token-y": token.y, "--token-color": token.color }}
+      style={{ "--token-x": token.x, "--token-y": token.y, "--token-size": token.size || 2, "--token-color": token.color }}
+      onPointerDown={(event) => {
+        event.currentTarget.setPointerCapture(event.pointerId);
+        onDragStart(event);
+      }}
     >
       {token.label}
     </button>
   );
 }
 
-function TrackerCard({ label, value, note }) {
+function TrackerCard({ label, value, note, meta }) {
   return (
     <div className="tracker-card">
       <span>{label}</span>
       <strong>{value}</strong>
       <small>{note}</small>
+      {meta ? <em>{meta}</em> : null}
     </div>
   );
 }
