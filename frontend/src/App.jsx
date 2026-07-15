@@ -917,12 +917,11 @@ function DragoTablePage() {
             onPointerUp={() => setDraggedToken(null)}
             onPointerLeave={() => setDraggedToken(null)}
           >
-            {gridCells(activeGrid).map((cell) => <span className={cell.className} key={cell.index} />)}
             {playerTokens.map((token) => (
-              <TableToken key={token.id} token={token} onDragStart={(event) => { setDraggedToken(token); moveToken(token, event); }} />
+              <TableToken key={token.id} grid={activeGrid} token={token} onDragStart={(event) => { setDraggedToken(token); moveToken(token, event); }} />
             ))}
             {mode === "combat" ? monsterTokens.map((token) => (
-              <TableToken key={token.id} token={token} monster onDragStart={(event) => { setDraggedToken(token); moveToken(token, event); }} />
+              <TableToken key={token.id} grid={activeGrid} token={token} monster onDragStart={(event) => { setDraggedToken(token); moveToken(token, event); }} />
             )) : null}
           </div>
         </main>
@@ -1030,19 +1029,19 @@ function applyTokenPositions(tokens, positions) {
   return tokens.map((token) => ({ ...token, ...(positions[token.id] || {}) }));
 }
 
-function gridCells(grid) {
-  return Array.from({ length: grid.columns * grid.rows }).map((_, index) => {
-    return { index, className: "" };
-  });
-}
-
-function TableToken({ token, monster = false, onDragStart }) {
+function TableToken({ grid, token, monster = false, onDragStart }) {
+  const slotX = token.slotX || 0;
+  const slotY = token.slotY || 0;
+  const width = 38 / grid.columns;
+  const height = 38 / grid.rows;
+  const left = ((token.x - 1) * 100) / grid.columns + (slotX * 50) / grid.columns + 6 / grid.columns;
+  const top = ((token.y - 1) * 100) / grid.rows + (slotY * 50) / grid.rows + 6 / grid.rows;
   return (
     <button
       type="button"
       className={`table-token ${monster ? "monster-token" : ""}`}
       title={token.name}
-      style={{ "--token-x": token.x, "--token-y": token.y, "--slot-x": token.slotX || 0, "--slot-y": token.slotY || 0, "--token-color": token.color }}
+      style={{ "--token-color": token.color, height: `${height}%`, left: `${left}%`, top: `${top}%`, width: `${width}%` }}
       onPointerDown={(event) => {
         event.currentTarget.setPointerCapture(event.pointerId);
         onDragStart(event);

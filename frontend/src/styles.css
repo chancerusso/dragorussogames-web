@@ -1993,7 +1993,7 @@ tbody tr:hover {
 }
 
 .drago-map-toolbar {
-  width: min(100%, 780px);
+  width: min(100%, 860px);
 }
 
 .drago-map-toolbar h2,
@@ -2012,25 +2012,35 @@ tbody tr:hover {
   --grid-rows: 20;
   aspect-ratio: 1 / 1;
   background:
+    repeating-linear-gradient(
+      to right,
+      rgba(214, 169, 83, 0.66) 0 2px,
+      transparent 2px calc(100% / var(--grid-columns))
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      rgba(214, 169, 83, 0.66) 0 2px,
+      transparent 2px calc(100% / var(--grid-rows))
+    ),
     linear-gradient(180deg, rgba(31, 28, 22, 0.94), rgba(12, 11, 9, 0.96)),
     #15120e;
   border: 1px solid rgba(150, 116, 51, 0.64);
   border-radius: 8px;
-  display: grid;
-  grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
-  grid-template-rows: repeat(var(--grid-rows), minmax(0, 1fr));
-  max-height: 72vh;
-  max-width: min(72vh, 780px);
+  max-height: 78vh;
+  max-width: min(78vh, 860px);
   overflow: hidden;
   position: relative;
   touch-action: none;
   width: 100%;
 }
 
-.drago-grid > span {
-  border-bottom: 2px solid rgba(214, 169, 83, 0.58);
-  border-right: 2px solid rgba(214, 169, 83, 0.58);
-  min-width: 0;
+.drago-grid::after {
+  border: 2px solid rgba(214, 169, 83, 0.66);
+  border-radius: 8px;
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
 }
 
 .marching-grid {
@@ -2054,18 +2064,11 @@ tbody tr:hover {
   display: grid;
   font-size: clamp(0.68rem, 1vw, 0.86rem);
   font-weight: 950;
-  grid-column: var(--token-x);
-  grid-row: var(--token-y);
-  height: 44%;
-  justify-self: start;
   min-height: 0;
   padding: 0;
   place-items: center;
-  align-self: start;
-  margin-left: calc(var(--slot-x) * 50% + 3%);
-  margin-top: calc(var(--slot-y) * 50% + 3%);
+  position: absolute;
   touch-action: none;
-  width: 44%;
   z-index: 2;
 }
 
