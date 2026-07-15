@@ -9,6 +9,7 @@ test("DM sidebar contains Rules & Settings in the actual navigation model", () =
 
   assert.deepEqual(labels, [
     "Command Center",
+    "Drago Table",
     "Campaigns",
     "Rules & Settings",
     "Players",
@@ -16,6 +17,15 @@ test("DM sidebar contains Rules & Settings in the actual navigation model", () =
     "Archive",
     "Settings",
   ]);
+});
+
+test("Drago Table has a sidebar entry and authenticated routes", () => {
+  const item = DM_NAV_ITEMS.find((navItem) => navItem.label === "Drago Table");
+  const appSource = readFileSync(new URL("./App.jsx", import.meta.url), "utf8");
+
+  assert.equal(item?.to, "/table");
+  assert.equal(appSource.includes('<Route path="/table" element={<DragoTableIndexPage />} />'), true);
+  assert.equal(appSource.includes('<Route path="/campaigns/:id/table" element={<DragoTablePage />} />'), true);
 });
 
 test("Rules & Settings routes inside the authenticated DM app", () => {

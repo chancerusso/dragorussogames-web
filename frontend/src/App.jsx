@@ -527,6 +527,7 @@ function CampaignsPage() {
 
       <div className="action-grid">
         <ActionCard tone="red" title="Campaigns" copy="Create, review, and prepare campaign workspaces." action="Create Campaign" onClick={() => setCreateOpen(true)} />
+        <ActionCard tone="gold" title="Drago Table" copy="Launch the DM screen for marching order, combat, trackers, monsters, treasure, and XP." action="Launch Table" to={activeCampaigns[0] ? `/campaigns/${activeCampaigns[0].id}/table` : "/table"} />
         <ActionCard tone="green" title="Players" copy="Manage the table roster and campaign membership." action="Manage Players" to="/players" />
         <ActionCard tone="blue" title="Characters" copy="Review characters and open the existing sheet tools." action="View Characters" to="/characters" />
         <ActionCard tone="violet" title="Rules & Settings" copy="Browse OSRIC rules, Dragolance records, and campaign reference material." action="Open Reference" to="/rules" />
@@ -610,7 +611,10 @@ function ActiveCampaignPanel({ campaign, onCreate }) {
         <div><strong>Next Session</strong><span>{displayDate(campaign.next_session_date)}</span></div>
         <Link className="table-link" to={`/campaigns/${campaign.id}`}>Schedule</Link>
       </div>
-      <Link className="wide-command" to={`/campaigns/${campaign.id}`}>View Campaign</Link>
+      <div className="launch-row">
+        <Link className="wide-command" to={`/campaigns/${campaign.id}/table`}>Launch Drago Table</Link>
+        <Link className="table-link" to={`/campaigns/${campaign.id}`}>View Campaign</Link>
+      </div>
     </section>
   );
 }
@@ -767,12 +771,267 @@ function CampaignOverviewTab({ campaign }) {
           <StatCard label="Characters" value={campaign.character_count || campaign.characters?.length || 0} />
           <StatCard label="Active PCs" value={campaign.active_characters?.length || 0} />
         </div>
+        <div className="table-launch-panel">
+          <div>
+            <strong>Drago Table</strong>
+            <p>Open the referee-first table view for marching order, tactical rooms, monsters, and pending rewards.</p>
+          </div>
+          <Link className="secondary-button" to={`/campaigns/${campaign.id}/table`}>Launch Table</Link>
+        </div>
         <div className="notes-box">
           <strong>Notes</strong>
           <p>{campaign.description || "No campaign notes yet."}</p>
         </div>
       </section>
     </div>
+  );
+}
+
+function DragoTableIndexPage() {
+  const { data, error, loading } = useLoad(() => api("/1e/campaigns?include_archived=true"), []);
+  const campaigns = (data || []).filter((campaign) => campaign.status !== "archived");
+  return (
+    <section className="drago-table-page">
+      <PlainHeader eyebrow="Drago Table" title="Choose A Campaign" copy="Launch the referee screen from an active campaign." />
+      <PageState loading={loading} error={error} />
+      <div className="card-grid">
+        {campaigns.map((campaign) => (
+          <Link className="campaign-card table-campaign-card" key={campaign.id} to={`/campaigns/${campaign.id}/table`}>
+            <div className="card-topline">
+              <span>Drago Table</span>
+              <span>{titleCase(campaign.setting || "greyhawk")}</span>
+            </div>
+            <h2>{campaign.name}</h2>
+            <dl className="campaign-facts">
+              <div><dt>Session</dt><dd>#{campaign.session_number || 1}</dd></div>
+              <div><dt>Campaign Day</dt><dd>{campaign.current_campaign_day || 1}</dd></div>
+              <div><dt>Players</dt><dd>{campaign.player_count || campaign.players?.length || 0}</dd></div>
+              <div><dt>Next Session</dt><dd>{displayDate(campaign.next_session_date)}</dd></div>
+            </dl>
+            <span className="action-button">Launch Table</span>
+          </Link>
+        ))}
+      </div>
+      {!loading && !error && campaigns.length === 0 ? <p className="muted">Create an active campaign before launching Drago Table.</p> : null}
+    </section>
+  );
+}
+
+function DragoTablePage() {
+  const { id } = useParams();
+  const { data: campaign, error, loading } = useLoad(() => api(`/1e/campaigns/${id}`), [id]);
+  const [mode, setMode] = useState("marching");
+  const playerTokens = useMemo(() => buildPlayerTokens(campaign?.characters || []), [campaign]);
+  const monsterCards = DRAGO_SAMPLE_MONSTERS;
+  const activeGrid = mode === "combat" ? DRAGO_COMBAT_GRID : DRAGO_MARCHING_GRID;
+
+  if (loading || error || !campaign) return <PageState loading={loading} error={error} />;
+
+  return (
+    <section className="drago-table-page">
+      <Header
+        eyebrow="Drago Table"
+        title={campaign.name}
+        className="workspace-header drago-table-header"
+        action={<Link className="secondary-button" to={`/campaigns/${campaign.id}`}>Campaign Workspace</Link>}
+      >
+        <div className="workspace-meta">
+          <span>{mode === "combat" ? "Combat Mode" : mode === "rest" ? "Rest Mode" : mode === "travel" ? "Travel Mode" : "Marching Mode"}</span>
+          <span>Session #{campaign.session_number || 1}</span>
+          <span>Day {campaign.current_campaign_day || 1}</span>
+          <span>Shared state model next</span>
+        </div>
+      </Header>
+
+      <div className="drago-modebar">
+        <Tabs tabs={DRAGO_TABLE_MODES} activeTab={mode} onChange={setMode} className="drago-mode-tabs" />
+        <div className="drago-live-actions">
+          <button type="button" className="ghost-button">Player View</button>
+          <button type="button">Start Session</button>
+        </div>
+      </div>
+
+      <div className="drago-table-layout">
+        <aside className="panel drago-side-panel">
+          <p className="eyebrow">Trackers</p>
+          <div className="tracker-stack">
+            <TrackerCard label="Round" value="3" note="Combat clock" />
+            <TrackerCard label="Turn" value="7" note="Exploration turn" />
+            <TrackerCard label="Torch" value="34 min" note="2 torches lit" />
+            <TrackerCard label="Location" value="Lower Halls" note="Visible to players" />
+          </div>
+          <div className="drago-command-list">
+            <button type="button" className="table-button">Advance Round</button>
+            <button type="button" className="table-button">Advance Turn</button>
+            <button type="button" className="table-button">Add Monster</button>
+            <button type="button" className="table-button">Add Treasure</button>
+          </div>
+        </aside>
+
+        <main className="panel drago-map-panel">
+          <div className="drago-map-toolbar">
+            <div>
+              <p className="eyebrow">{mode === "combat" ? "Blank Room Template" : "Marching Order"}</p>
+              <h2>{mode === "combat" ? "20 x 20 Tactical Grid" : "2 x 6 Party Column"}</h2>
+            </div>
+            <select aria-label="Grid template" defaultValue={mode === "combat" ? "20x20" : "2x6"}>
+              <option value="2x6">2 x 6 Marching</option>
+              <option value="10x10">10 x 10 Room</option>
+              <option value="20x20">20 x 20 Room</option>
+              <option value="40x20">40 x 20 Room</option>
+              <option value="10x90">10 x 90 Corridor</option>
+            </select>
+          </div>
+          <div className={`drago-grid ${mode === "combat" ? "combat-grid" : "marching-grid"}`} style={{ "--grid-columns": activeGrid.columns, "--grid-rows": activeGrid.rows }}>
+            {Array.from({ length: activeGrid.columns * activeGrid.rows }).map((_, index) => <span key={index} />)}
+            {playerTokens.map((token) => <TableToken key={token.id} token={token} />)}
+            {mode === "combat" ? DRAGO_MONSTER_TOKENS.map((token) => <TableToken key={token.id} token={token} monster />) : null}
+          </div>
+        </main>
+
+        <aside className="panel drago-monster-panel">
+          <p className="eyebrow">Encounter</p>
+          <div className="monster-card-stack">
+            {monsterCards.map((monster) => <MonsterCard key={monster.id} monster={monster} />)}
+          </div>
+        </aside>
+      </div>
+
+      <div className="drago-bottom-grid">
+        <section className="panel drago-roster-panel">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Party</p>
+              <h2>Character Snippets</h2>
+            </div>
+            <Link className="table-link" to={`/campaigns/${campaign.id}/characters`}>Manage</Link>
+          </div>
+          <div className="snippet-grid">
+            {playerTokens.map((token) => (
+              <div className="character-snippet" key={token.id}>
+                <span className="snippet-token" style={{ background: token.color }}>{token.label}</span>
+                <strong>{token.name}</strong>
+                <dl>
+                  <div><dt>HP</dt><dd>{token.hp}</dd></div>
+                  <div><dt>AC</dt><dd>{token.ac}</dd></div>
+                  <div><dt>Move</dt><dd>{token.move}</dd></div>
+                  <div><dt>Status</dt><dd>{token.status}</dd></div>
+                </dl>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="panel drago-reward-panel">
+          <p className="eyebrow">Rewards</p>
+          <div className="reward-ledger">
+            <div><span>Monster XP</span><strong>65</strong></div>
+            <div><span>Treasure XP</span><strong>0</strong></div>
+            <div><span>Bonus XP</span><strong>0</strong></div>
+            <div><span>Pending Total</span><strong>65</strong></div>
+          </div>
+          <div className="notes-box">
+            <strong>First Build Boundary</strong>
+            <p>This screen is the design scaffold. Next pass can add the Drago Table data model, shared player view, and saved session state.</p>
+          </div>
+        </section>
+      </div>
+    </section>
+  );
+}
+
+const DRAGO_TABLE_MODES = [
+  ["marching", "Marching"],
+  ["combat", "Combat"],
+  ["rest", "Rest"],
+  ["travel", "Travel"],
+];
+
+const DRAGO_MARCHING_GRID = { columns: 2, rows: 6 };
+const DRAGO_COMBAT_GRID = { columns: 20, rows: 20 };
+
+const DRAGO_SAMPLE_PLAYERS = [
+  { id: "pc-1", name: "Aldren", label: "AL", color: "#9fb36a", hp: "18 / 24", ac: "5", move: "9", status: "Ready", x: 1, y: 1 },
+  { id: "pc-2", name: "Brinna", label: "BR", color: "#b56d5d", hp: "12 / 16", ac: "7", move: "12", status: "Ready", x: 2, y: 1 },
+  { id: "pc-3", name: "Cairn", label: "CA", color: "#5d8fb5", hp: "9 / 11", ac: "8", move: "12", status: "Hidden", x: 1, y: 2 },
+  { id: "pc-4", name: "Damaia", label: "DA", color: "#b59b5d", hp: "6 / 9", ac: "10", move: "12", status: "Light", x: 2, y: 2 },
+];
+
+const DRAGO_MONSTER_TOKENS = [
+  { id: "goblin-1-token", name: "Goblin 1", label: "G1", color: "#7f8f45", x: 13, y: 8 },
+  { id: "goblin-2-token", name: "Goblin 2", label: "G2", color: "#7f8f45", x: 15, y: 9 },
+  { id: "goblin-3-token", name: "Goblin 3", label: "G3", color: "#7f8f45", x: 14, y: 11 },
+];
+
+const DRAGO_SAMPLE_MONSTERS = [
+  { id: "goblin-1", name: "Goblin 1", ac: 6, hp: "2 / 5", attacks: "Short sword +1", damage: "1d6", morale: "7", xp: 15, status: "Bloodied" },
+  { id: "goblin-2", name: "Goblin 2", ac: 6, hp: "5 / 5", attacks: "Spear +1", damage: "1d6", morale: "7", xp: 15, status: "Ready" },
+  { id: "goblin-3", name: "Goblin 3", ac: 6, hp: "0 / 4", attacks: "Short bow +1", damage: "1d6", morale: "7", xp: 35, status: "Dead" },
+];
+
+function buildPlayerTokens(characters) {
+  if (!characters.length) return DRAGO_SAMPLE_PLAYERS;
+  const colors = ["#9fb36a", "#b56d5d", "#5d8fb5", "#b59b5d", "#8f75b5", "#6ab0a1"];
+  return characters.slice(0, 6).map((character, index) => ({
+    id: `pc-${character.id}`,
+    name: character.name || `Character ${index + 1}`,
+    label: String(character.name || "PC").slice(0, 2).toUpperCase(),
+    color: colors[index % colors.length],
+    hp: `${character.current_hp ?? character.hit_points ?? "-"} / ${character.max_hp ?? character.hit_points ?? "-"}`,
+    ac: character.armor_class ?? character.ac ?? "-",
+    move: character.movement_rate ?? character.move ?? "12",
+    status: character.life_status || character.status || "Ready",
+    x: (index % 2) + 1,
+    y: Math.floor(index / 2) + 1,
+  }));
+}
+
+function TableToken({ token, monster = false }) {
+  return (
+    <button
+      type="button"
+      className={`table-token ${monster ? "monster-token" : ""}`}
+      title={token.name}
+      style={{ "--token-x": token.x, "--token-y": token.y, "--token-color": token.color }}
+    >
+      {token.label}
+    </button>
+  );
+}
+
+function TrackerCard({ label, value, note }) {
+  return (
+    <div className="tracker-card">
+      <span>{label}</span>
+      <strong>{value}</strong>
+      <small>{note}</small>
+    </div>
+  );
+}
+
+function MonsterCard({ monster }) {
+  return (
+    <article className={`monster-card ${monster.status === "Dead" ? "is-dead" : ""}`}>
+      <div className="monster-card-header">
+        <div>
+          <strong>{monster.name}</strong>
+          <span>{monster.status}</span>
+        </div>
+        <span className="status-pill">{monster.xp} XP</span>
+      </div>
+      <dl>
+        <div><dt>AC</dt><dd>{monster.ac}</dd></div>
+        <div><dt>HP</dt><dd>{monster.hp}</dd></div>
+        <div><dt>Attack</dt><dd>{monster.attacks}</dd></div>
+        <div><dt>Damage</dt><dd>{monster.damage}</dd></div>
+        <div><dt>Morale</dt><dd>{monster.morale}</dd></div>
+      </dl>
+      <div className="monster-actions">
+        <button type="button" className="table-button">Damage</button>
+        <button type="button" className="table-button">Heal</button>
+        <button type="button" className="table-button">Dead</button>
+      </div>
+    </article>
   );
 }
 
@@ -2856,7 +3115,9 @@ export default function App() {
         </Route>
         <Route element={<Protected><Shell /></Protected>}>
           <Route path="/campaigns" element={<CampaignsPage />} />
+          <Route path="/table" element={<DragoTableIndexPage />} />
           <Route path="/campaigns/:id" element={<CampaignWorkspace />} />
+          <Route path="/campaigns/:id/table" element={<DragoTablePage />} />
           <Route path="/campaigns/:id/players" element={<CampaignWorkspace initialTab="players" />} />
           <Route path="/campaigns/:id/characters" element={<CampaignWorkspace initialTab="characters" />} />
           <Route path="/campaigns/:id/notes" element={<CampaignWorkspace initialTab="session-notes" />} />
