@@ -2326,7 +2326,26 @@ tbody tr:hover {
 
 .monster-token {
   background: var(--token-color);
+  border-radius: 28px;
   border-color: #f2b7ad;
+  font-size: clamp(0.7rem, 1.2vw, 1rem);
+  padding: 2px;
+  text-align: center;
+}
+
+.footprint-control {
+  color: var(--muted);
+  display: grid;
+  font-size: 0.62rem;
+  font-weight: 900;
+  gap: 3px;
+  text-transform: uppercase;
+}
+
+.footprint-control select {
+  font-size: 0.72rem;
+  min-height: 28px;
+  padding: 4px 6px;
 }
 
 .monster-card {

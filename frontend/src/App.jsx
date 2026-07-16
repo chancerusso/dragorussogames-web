@@ -892,12 +892,13 @@ function DragoTablePage() {
     const rect = grid.getBoundingClientRect();
     const cellWidth = rect.width / activeGrid.columns;
     const cellHeight = rect.height / activeGrid.rows;
+    const footprint = token.footprint || { columns: 1, rows: 1 };
     const relativeX = Math.max(0, Math.min(rect.width - 1, event.clientX - rect.left));
     const relativeY = Math.max(0, Math.min(rect.height - 1, event.clientY - rect.top));
-    const x = Math.max(1, Math.min(activeGrid.columns, Math.floor(relativeX / cellWidth) + 1));
-    const y = Math.max(1, Math.min(activeGrid.rows, Math.floor(relativeY / cellHeight) + 1));
-    const slotX = (relativeX % cellWidth) >= cellWidth / 2 ? 1 : 0;
-    const slotY = (relativeY % cellHeight) >= cellHeight / 2 ? 1 : 0;
+    const x = Math.max(1, Math.min(activeGrid.columns - footprint.columns + 1, Math.floor(relativeX / cellWidth) + 1));
+    const y = Math.max(1, Math.min(activeGrid.rows - footprint.rows + 1, Math.floor(relativeY / cellHeight) + 1));
+    const slotX = token.monster ? 0 : (relativeX % cellWidth) >= cellWidth / 2 ? 1 : 0;
+    const slotY = token.monster ? 0 : (relativeY % cellHeight) >= cellHeight / 2 ? 1 : 0;
     setTokenPositions((positions) => ({ ...positions, [token.id]: { x, y, slotX, slotY } }));
   }
 
@@ -906,6 +907,7 @@ function DragoTablePage() {
     setEncounterMonsters((current) => {
       const sameTypeCount = current.filter((entry) => entry.monster_id === monster.id).length;
       const maxHp = rollHitPoints(monster.hit_dice);
+      const footprint = monsterFootprint(monster);
       const next = {
         id: `enc-${monster.id}-${Date.now()}-${sameTypeCount + 1}`,
         monster_id: monster.id,
@@ -916,6 +918,7 @@ function DragoTablePage() {
         max_hp: maxHp,
         dead: false,
         on_grid: false,
+        footprint_key: footprint.key,
         token_label: monsterTokenLabel(monster.name, sameTypeCount + 1),
         monster,
       };
@@ -941,6 +944,10 @@ function DragoTablePage() {
 
   function markMonsterDead(instanceId) {
     updateEncounterMonster(instanceId, (monster) => ({ ...monster, current_hp: 0, dead: true }));
+  }
+
+  function updateMonsterFootprint(instanceId, footprintKey) {
+    updateEncounterMonster(instanceId, (monster) => ({ ...monster, footprint_key: footprintKey }));
   }
 
   function setTrackerModeAndState(nextMode) {
@@ -999,7 +1006,11 @@ function DragoTablePage() {
 
   function addPendingMonsterToGrid(event) {
     if (!pendingMonster || mode !== "combat") return;
-    moveToken({ id: `monster-token-${pendingMonster.id}` }, event);
+    moveToken({
+      id: `monster-token-${pendingMonster.id}`,
+      footprint: footprintByKey(pendingMonster.footprint_key || monsterFootprint(pendingMonster.monster).key),
+      monster: true,
+    }, event);
     setEncounterMonsters((current) => current.map((monster) => (
       monster.id === pendingMonster.id ? { ...monster, on_grid: true } : monster
     )));
@@ -1099,6 +1110,7 @@ function DragoTablePage() {
             onCloseHpEditor={() => setHpEditor(null)}
             onOpenHpEditor={(monsterId, direction) => setHpEditor({ monsterId, direction, amount: 1 })}
             onDead={markMonsterDead}
+            onFootprint={updateMonsterFootprint}
             onPrepareGrid={setPendingGridMonsterId}
             onSetHpEditor={setHpEditor}
           />
@@ -1437,7 +1449,7 @@ function MonsterGlossaryDetail({ monster }) {
   );
 }
 
-function EncounterList({ monsters, mode, pendingGridMonsterId, hpEditor, onApplyHp, onCloseHpEditor, onDead, onOpenHpEditor, onPrepareGrid, onSetHpEditor }) {
+function EncounterList({ monsters, mode, pendingGridMonsterId, hpEditor, onApplyHp, onCloseHpEditor, onDead, onFootprint, onOpenHpEditor, onPrepareGrid, onSetHpEditor }) {
   if (!monsters.length) {
     return <p className="muted">No monsters added yet.</p>;
   }
@@ -1454,6 +1466,11 @@ function EncounterList({ monsters, mode, pendingGridMonsterId, hpEditor, onApply
             <button type="button" className="table-button" onClick={() => onOpenHpEditor(monster.id, "heal")}>Heal</button>
             <button type="button" className="table-button" onClick={() => onDead(monster.id)}>Dead</button>
           </div>
+          <label className="footprint-control">Token
+            <select value={monster.footprint_key || monsterFootprint(monster.monster).key} onChange={(event) => onFootprint(monster.id, event.target.value)}>
+              {MONSTER_FOOTPRINTS.map((footprint) => <option key={footprint.key} value={footprint.key}>{footprint.label}</option>)}
+            </select>
+          </label>
           {hpEditor?.monsterId === monster.id ? (
             <form
               className="hp-popover"
@@ -1744,16 +1761,21 @@ function applyTokenPositions(tokens, positions) {
 function buildMonsterTokens(encounterMonsters) {
   return encounterMonsters
     .filter((monster) => monster.on_grid && !monster.dead)
-    .map((monster, index) => ({
-      id: `monster-token-${monster.id}`,
-      name: monster.label,
-      label: monster.token_label,
-      color: "#b76b5b",
-      x: 5 + (index % 4),
-      y: 4 + Math.floor(index / 4),
-      slotX: index % 2,
-      slotY: Math.floor((index % 4) / 2),
-    }));
+    .map((monster, index) => {
+      const footprint = footprintByKey(monster.footprint_key || monsterFootprint(monster.monster).key);
+      return {
+        id: `monster-token-${monster.id}`,
+        name: `${monster.label} (${footprint.label})`,
+        label: monster.token_label,
+        color: footprint.color || "#b76b5b",
+        footprint,
+        monster: true,
+        x: 5 + (index % 4),
+        y: 4 + Math.floor(index / 4),
+        slotX: 0,
+        slotY: 0,
+      };
+    });
 }
 
 function groupEncounterMonsters(encounterMonsters) {
@@ -1775,6 +1797,31 @@ function monsterTokenLabel(name, number) {
   const words = String(name || "M").replace(/[^A-Za-z0-9 ]/g, " ").split(/\s+/).filter(Boolean);
   const initials = words.slice(0, 2).map((word) => word[0]).join("").toUpperCase() || "M";
   return `${initials}${number > 1 ? number : ""}`.slice(0, 3);
+}
+
+const MONSTER_FOOTPRINTS = [
+  { key: "slot", label: "Slot", columns: 0.45, rows: 0.45, color: "#b76b5b" },
+  { key: "1x1", label: "1 x 1", columns: 1, rows: 1, color: "#b76b5b" },
+  { key: "2x1", label: "2 x 1", columns: 2, rows: 1, color: "#b76b5b" },
+  { key: "1x2", label: "1 x 2", columns: 1, rows: 2, color: "#b76b5b" },
+  { key: "2x2", label: "2 x 2", columns: 2, rows: 2, color: "#a8574e" },
+  { key: "1x3", label: "1 x 3", columns: 1, rows: 3, color: "#a8574e" },
+  { key: "3x1", label: "3 x 1", columns: 3, rows: 1, color: "#a8574e" },
+];
+
+function footprintByKey(key) {
+  return MONSTER_FOOTPRINTS.find((footprint) => footprint.key === key) || MONSTER_FOOTPRINTS[1];
+}
+
+function monsterFootprint(monster) {
+  const text = [monster?.name, monster?.size, monster?.description].filter(Boolean).join(" ").toLowerCase();
+  const lengthMatch = text.match(/(\d+)\s*ft\s+long/);
+  const length = lengthMatch ? Number(lengthMatch[1]) : 0;
+  if (/dragon|purple worm|giant snake|constrictor|crocodile|lizard|eel|serpent/.test(text) && length >= 25) return footprintByKey("2x2");
+  if (/huge|gargantuan|mammoth|whale|elephant|dinosaur/.test(text)) return footprintByKey("2x2");
+  if (/large/.test(text) && /long/.test(text) && length >= 20) return footprintByKey("2x1");
+  if (/large|giant|ogre|troll|minotaur|bear/.test(text)) return footprintByKey("1x1");
+  return footprintByKey("slot");
 }
 
 function parseHitDice(hitDice) {
@@ -1862,10 +1909,13 @@ function openTrackerStatusWindow(mode, tracker) {
 function TableToken({ grid, token, monster = false, onDragStart }) {
   const slotX = token.slotX || 0;
   const slotY = token.slotY || 0;
-  const width = 38 / grid.columns;
-  const height = 38 / grid.rows;
-  const left = ((token.x - 1) * 100) / grid.columns + (slotX * 50) / grid.columns + 6 / grid.columns;
-  const top = ((token.y - 1) * 100) / grid.rows + (slotY * 50) / grid.rows + 6 / grid.rows;
+  const footprint = monster ? (token.footprint || footprintByKey("1x1")) : { columns: 0.38, rows: 0.38 };
+  const insetX = monster ? 4 / grid.columns : 6 / grid.columns;
+  const insetY = monster ? 4 / grid.rows : 6 / grid.rows;
+  const width = monster ? Math.max(0.1, (footprint.columns * 100) / grid.columns - insetX * 2) : 38 / grid.columns;
+  const height = monster ? Math.max(0.1, (footprint.rows * 100) / grid.rows - insetY * 2) : 38 / grid.rows;
+  const left = ((token.x - 1) * 100) / grid.columns + (monster ? insetX : (slotX * 50) / grid.columns + 6 / grid.columns);
+  const top = ((token.y - 1) * 100) / grid.rows + (monster ? insetY : (slotY * 50) / grid.rows + 6 / grid.rows);
   return (
     <button
       type="button"
