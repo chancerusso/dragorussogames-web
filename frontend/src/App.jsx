@@ -933,10 +933,6 @@ function DragoTablePage() {
     window.open(url, name, "noopener,noreferrer,width=1200,height=820");
   }
 
-  function openMonsterGlossary() {
-    openMonsterGlossaryWindow(monsters, addMonsterToEncounter);
-  }
-
   function addPendingMonsterToGrid(event) {
     if (!pendingMonster || mode !== "combat") return;
     moveToken({ id: `monster-token-${pendingMonster.id}` }, event);
@@ -980,13 +976,9 @@ function DragoTablePage() {
       <div className="drago-table-layout">
         <aside className="panel drago-side-panel">
           <TrackerPanel mode={trackerMode} tracker={tracker} onModeChange={setTrackerModeAndState} onUpdate={updateTracker} />
-          <div className="drago-command-list">
+          <div className="drago-command-list compact-command-list">
             <button type="button" className="table-button">Advance Round</button>
             <button type="button" className="table-button">Advance Turn</button>
-            <button type="button" className="table-button" disabled={!selectedMonster} onClick={() => addMonsterToEncounter()}>Add Monster</button>
-            <button type="button" className="table-button" onClick={openMonsterGlossary}>Monsters</button>
-            <button type="button" className="table-button" onClick={() => openExternalWindow("/1e/", "drago-rules")}>Open Rules</button>
-            <button type="button" className="table-button">Add Treasure</button>
           </div>
           <MonsterLibrarySidebar
             error={monsterError}
@@ -995,7 +987,6 @@ function DragoTablePage() {
             query={monsterQuery}
             selectedMonster={selectedMonster}
             onAdd={addMonsterToEncounter}
-            onGlossary={openMonsterGlossary}
             onQueryChange={setMonsterQuery}
             onSelect={setSelectedMonsterId}
           />
@@ -1031,6 +1022,20 @@ function DragoTablePage() {
               <TableToken key={token.id} grid={activeGrid} token={token} monster onDragStart={(event) => { setDraggedToken(token); moveToken(token, event); }} />
             )) : null}
           </div>
+          <section className="monster-type-panel">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow">Monster Cards</p>
+                <h2>Initiative Groups</h2>
+              </div>
+              {pendingMonster ? <span className="status-pill">Click combat grid to place {pendingMonster.label}</span> : null}
+            </div>
+            <MonsterTypeCards
+              groups={encounterGroups}
+              expanded={expandedMonsterTypes}
+              onToggle={(key) => setExpandedMonsterTypes((current) => ({ ...current, [key]: !current[key] }))}
+            />
+          </section>
         </main>
 
         <aside className="panel drago-monster-panel">
@@ -1048,20 +1053,6 @@ function DragoTablePage() {
       </div>
 
       <div className="drago-bottom-grid">
-        <section className="panel monster-type-panel">
-          <div className="section-heading">
-            <div>
-              <p className="eyebrow">Monster Cards</p>
-              <h2>Initiative Groups</h2>
-            </div>
-            {pendingMonster ? <span className="status-pill">Click combat grid to place {pendingMonster.label}</span> : null}
-          </div>
-          <MonsterTypeCards
-            groups={encounterGroups}
-            expanded={expandedMonsterTypes}
-            onToggle={(key) => setExpandedMonsterTypes((current) => ({ ...current, [key]: !current[key] }))}
-          />
-        </section>
         <section className="panel drago-roster-panel">
           <div className="section-heading">
             <div>
@@ -1113,30 +1104,26 @@ const DRAGO_TABLE_MODES = [
 function filterMonsterCatalog(monsters, query) {
   const needle = query.trim().toLowerCase();
   if (!needle) return [];
-  return monsters.filter((monster) => {
-    const text = [
-      monster.name,
-      monster.hit_dice,
-      monster.armor_class,
-      monster.alignment,
-      monster.special_attacks,
-      monster.special_defences,
-      monster.description,
-    ].filter(Boolean).join(" ").toLowerCase();
-    return text.includes(needle);
-  });
+  return monsters
+    .filter((monster) => String(monster.name || "").toLowerCase().includes(needle))
+    .sort((a, b) => {
+      const aName = String(a.name || "").toLowerCase();
+      const bName = String(b.name || "").toLowerCase();
+      const aStarts = aName.startsWith(needle) ? 0 : 1;
+      const bStarts = bName.startsWith(needle) ? 0 : 1;
+      return aStarts - bStarts || aName.localeCompare(bName);
+    });
 }
 
-function MonsterLibrarySidebar({ error, loading, monsters, query, selectedMonster, onAdd, onGlossary, onQueryChange, onSelect }) {
+function MonsterLibrarySidebar({ error, loading, monsters, query, selectedMonster, onAdd, onQueryChange, onSelect }) {
   const showResults = query.trim().length > 0;
   return (
     <section className="monster-library">
       <div className="section-heading compact-heading">
         <div>
-          <p className="eyebrow">OSRIC Monsters</p>
-          <h2>Search</h2>
+          <p className="eyebrow">Monsters</p>
+          <h2>Add Monster</h2>
         </div>
-        <button type="button" className="icon-text-button" onClick={onGlossary}>Glossary</button>
       </div>
       <input
         aria-label="Search OSRIC monsters"
@@ -1145,13 +1132,7 @@ function MonsterLibrarySidebar({ error, loading, monsters, query, selectedMonste
         onChange={(event) => onQueryChange(event.target.value)}
       />
       <PageState loading={loading} error={error} />
-      {selectedMonster ? (
-        <div className="monster-search-selection">
-          <strong>{selectedMonster.name}</strong>
-          <span>AC {selectedMonster.armor_class || "-"} · HD {selectedMonster.hit_dice || "-"} · THAC0 {monsterThac0(selectedMonster.hit_dice)}</span>
-          <button type="button" className="table-button" onClick={() => onAdd(selectedMonster)}>Add Encounter</button>
-        </div>
-      ) : <p className="muted compact-help">Search, choose, then add to the encounter.</p>}
+      {selectedMonster ? <p className="compact-help">Last added: {selectedMonster.name}</p> : <p className="compact-help">Type a name, then click a result to add it.</p>}
       {showResults ? (
         <div className="monster-library-list">
           {monsters.map((monster) => (
@@ -1159,7 +1140,10 @@ function MonsterLibrarySidebar({ error, loading, monsters, query, selectedMonste
               className={selectedMonster?.id === monster.id ? "active" : ""}
               key={monster.id}
               type="button"
-              onClick={() => onSelect(monster.id)}
+              onClick={() => {
+                onSelect(monster.id);
+                onAdd(monster);
+              }}
             >
               <strong>{monster.name}</strong>
               <span>AC {monster.armor_class || "-"} · HD {monster.hit_dice || "-"} · XP {monster.level_xp || "-"}</span>
@@ -1169,6 +1153,143 @@ function MonsterLibrarySidebar({ error, loading, monsters, query, selectedMonste
       ) : null}
       {showResults && !loading && !error && monsters.length === 0 ? <p className="muted">No monsters match that search.</p> : null}
     </section>
+  );
+}
+
+function MonstersPage() {
+  const { data, error, loading } = useLoad(() => api("/1e/monsters?include_source_text=true"), []);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const query = searchParams.get("q") || "";
+  const selectedMonsterId = searchParams.get("monster") || "";
+  const monsters = data || [];
+  const sortedMonsters = useMemo(
+    () => [...monsters].sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""))),
+    [monsters],
+  );
+  const visibleMonsters = useMemo(
+    () => (query.trim() ? filterMonsterCatalog(monsters, query) : sortedMonsters),
+    [monsters, query, sortedMonsters],
+  );
+  const selectedMonster = useMemo(
+    () => monsters.find((monster) => String(monster.id) === selectedMonsterId) || visibleMonsters[0] || null,
+    [monsters, selectedMonsterId, visibleMonsters],
+  );
+
+  function updateQuery(value) {
+    const next = new URLSearchParams(searchParams);
+    if (value) next.set("q", value);
+    else next.delete("q");
+    next.delete("monster");
+    setSearchParams(next);
+  }
+
+  function selectMonster(monsterId) {
+    const next = new URLSearchParams(searchParams);
+    next.set("monster", monsterId);
+    setSearchParams(next);
+  }
+
+  return (
+    <section>
+      <Header
+        eyebrow="DM Reference"
+        title="Monsters"
+        copy="Browse the OSRIC monster glossary with complete stat blocks and source text."
+        action={<a className="secondary-button" href="/monsters" target="_blank" rel="noreferrer">Open in New Tab</a>}
+      />
+      <PageState loading={loading} error={error} />
+      {!loading && !error ? (
+        <div className="rules-browser monster-browser">
+          <Panel className="rules-sidebar">
+            <label>Search
+              <input value={query} onChange={(event) => updateQuery(event.target.value)} placeholder="Monster name..." />
+            </label>
+            <div className="tracker-status-box">
+              <strong>{visibleMonsters.length} monsters</strong>
+              <span>Click a name to view its full OSRIC entry.</span>
+            </div>
+          </Panel>
+
+          <Panel className="rules-results">
+            <div className="rules-panel-heading">
+              <div>
+                <p className="eyebrow">Glossary</p>
+                <h2>{query.trim() ? "Search Results" : "All Monsters"}</h2>
+              </div>
+            </div>
+            {visibleMonsters.length ? (
+              <div className="reference-list monster-glossary-list">
+                {visibleMonsters.map((monster) => (
+                  <button
+                    className={`reference-row ${selectedMonster?.id === monster.id ? "active" : ""}`}
+                    key={monster.id}
+                    type="button"
+                    onClick={() => selectMonster(monster.id)}
+                  >
+                    <div>
+                      <strong>{monster.name}</strong>
+                      <p>AC {monster.armor_class || "-"} · HD {monster.hit_dice || "-"} · XP {monster.level_xp || "-"}</p>
+                    </div>
+                    <div className="reference-meta">
+                      <span>OSRIC p. {monster.source_pdf_page || "-"}</span>
+                      <span>{monster.size || "Size -"}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="muted">No monsters match that search.</p>
+            )}
+          </Panel>
+
+          <Panel className="rules-detail">
+            {selectedMonster ? <MonsterGlossaryDetail monster={selectedMonster} /> : <p className="muted">Select a monster to view the complete entry.</p>}
+          </Panel>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function MonsterGlossaryDetail({ monster }) {
+  const facts = [
+    ["AC", monster.armor_class],
+    ["HD", monster.hit_dice],
+    ["Move", monster.movement],
+    ["Attacks", monster.attacks],
+    ["Damage", monster.damage],
+    ["THAC0", monsterThac0(monster.hit_dice)],
+    ["Hit +", monsterAttackBonus(monster)],
+    ["Size", monster.size],
+    ["Morale", monster.morale],
+    ["Alignment", monster.alignment],
+    ["XP", monster.level_xp],
+    ["Lair", monster.in_lair],
+  ];
+  return (
+    <article className="reference-detail-view monster-glossary-detail">
+      <div className="detail-title-row">
+        <div>
+          <p className="eyebrow">OSRIC p. {monster.source_pdf_page || "-"}</p>
+          <h2>{monster.name}</h2>
+        </div>
+      </div>
+      <dl className="reference-facts monster-detail-facts">
+        {facts.map(([label, value]) => (
+          <div key={label}><dt>{label}</dt><dd>{value || "-"}</dd></div>
+        ))}
+      </dl>
+      <MonsterTextSection title="Special Attacks" value={monster.special_attacks} />
+      <MonsterTextSection title="Special Defences" value={monster.special_defences} />
+      <MonsterTextSection title="Description" value={monster.description} />
+      <MonsterTextSection title="Treasure" value={monster.treasure} />
+      {monster.source_text ? (
+        <details className="monster-source-block">
+          <summary>Full Source Block</summary>
+          <pre>{monster.source_text}</pre>
+        </details>
+      ) : null}
+    </article>
   );
 }
 
@@ -1490,39 +1611,6 @@ function openTrackerStatusWindow(mode, tracker) {
     </article></body></html>
   `);
   popup.document.close();
-}
-
-function openMonsterGlossaryWindow(monsters) {
-  const popup = window.open("", "osric-monster-glossary", "width=980,height=820");
-  if (!popup) return;
-  const rows = monsters.map((monster) => `
-    <details>
-      <summary><strong>${escapeHtml(monster.name)}</strong> <span>AC ${escapeHtml(monster.armor_class || "-")} · HD ${escapeHtml(monster.hit_dice || "-")} · XP ${escapeHtml(monster.level_xp || "-")}</span></summary>
-      <dl>
-        <div><dt>Move</dt><dd>${escapeHtml(monster.movement || "-")}</dd></div>
-        <div><dt>Attacks</dt><dd>${escapeHtml(monster.attacks || "-")}</dd></div>
-        <div><dt>Damage</dt><dd>${escapeHtml(monster.damage || "-")}</dd></div>
-        <div><dt>Size</dt><dd>${escapeHtml(monster.size || "-")}</dd></div>
-      </dl>
-      <p><strong>Special Attacks:</strong> ${escapeHtml(monster.special_attacks || "-")}</p>
-      <p><strong>Special Defences:</strong> ${escapeHtml(monster.special_defences || "-")}</p>
-      <p>${escapeHtml(monster.description || "")}</p>
-    </details>
-  `).join("");
-  popup.document.write(`
-    <html><head><title>OSRIC Monster Glossary</title><style>
-      body{background:#100e0b;color:#f1e6d3;font-family:Arial,sans-serif;margin:0;padding:20px}
-      h1{font-family:Georgia,serif;margin-top:0} details{border:1px solid #5d4520;border-radius:6px;margin:8px 0;padding:10px;background:#17130e}
-      summary{cursor:pointer} summary span{color:#bda66d;font-size:12px;margin-left:8px}
-      dl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px} dt{color:#bda66d;font-size:11px;text-transform:uppercase;font-weight:bold} dd{margin:0}
-      p{line-height:1.45}
-    </style></head><body><h1>OSRIC Monster Glossary</h1>${rows}</body></html>
-  `);
-  popup.document.close();
-}
-
-function escapeHtml(value) {
-  return String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]));
 }
 
 function TableToken({ grid, token, monster = false, onDragStart }) {
@@ -3672,6 +3760,7 @@ export default function App() {
           <Route path="/campaigns/:id/characters" element={<CampaignWorkspace initialTab="characters" />} />
           <Route path="/campaigns/:id/notes" element={<CampaignWorkspace initialTab="session-notes" />} />
           <Route path="/rules" element={<RulesBrowserBoundary><RulesSettingsPage /></RulesBrowserBoundary>} />
+          <Route path="/monsters" element={<MonstersPage />} />
           <Route path="/players" element={<PlayersPage />} />
           <Route path="/characters" element={<CharactersPage />} />
           <Route path="/sessions" element={<Navigate to="/campaigns" replace />} />

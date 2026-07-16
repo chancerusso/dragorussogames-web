@@ -12,6 +12,7 @@ test("DM sidebar contains Rules & Settings in the actual navigation model", () =
     "Drago Table",
     "Campaigns",
     "Rules & Settings",
+    "Monsters",
     "Players",
     "Characters",
     "Archive",
@@ -33,6 +34,14 @@ test("Rules & Settings routes inside the authenticated DM app", () => {
 
   assert.equal(item?.to, "/rules");
   assert.equal(item?.href, undefined);
+});
+
+test("Monsters opens the OSRIC monster glossary inside the DM app", () => {
+  const item = DM_NAV_ITEMS.find((navItem) => navItem.label === "Monsters");
+  const appSource = readFileSync(new URL("./App.jsx", import.meta.url), "utf8");
+
+  assert.equal(item?.to, "/monsters");
+  assert.equal(appSource.includes('<Route path="/monsters" element={<MonstersPage />} />'), true);
 });
 
 test("Classic portal link remains separate from the DM rules browser", () => {

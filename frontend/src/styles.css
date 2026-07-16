@@ -1930,12 +1930,14 @@ tbody tr:hover {
 
 .tracker-console {
   display: grid;
-  gap: 10px;
-  margin-bottom: 14px;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
 .tracker-console select {
   max-width: 126px;
+  min-height: 28px;
+  padding: 4px 7px;
 }
 
 .tracker-status-box {
@@ -1944,10 +1946,10 @@ tbody tr:hover {
   border-radius: 8px;
   color: #ddcfbd;
   display: grid;
-  font-size: 0.78rem;
-  gap: 3px;
-  line-height: 1.35;
-  padding: 10px;
+  font-size: 0.68rem;
+  gap: 2px;
+  line-height: 1.22;
+  padding: 7px;
 }
 
 .tracker-status-box strong {
@@ -1957,7 +1959,7 @@ tbody tr:hover {
 .tracker-button-group,
 .tracker-stack {
   display: grid;
-  gap: 9px;
+  gap: 5px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
@@ -1966,8 +1968,9 @@ tbody tr:hover {
 }
 
 .tracker-button-group .table-button {
-  min-height: 34px;
-  padding: 7px 8px;
+  font-size: 0.7rem;
+  min-height: 26px;
+  padding: 4px 5px;
 }
 
 .tracker-card {
@@ -2014,30 +2017,44 @@ tbody tr:hover {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.compact-command-list {
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.compact-command-list .table-button {
+  font-size: 0.74rem;
+  min-height: 28px;
+  padding: 5px 6px;
+}
+
 .monster-library {
   border-top: 1px solid var(--line);
   display: grid;
-  gap: 8px;
-  margin-top: 16px;
-  padding-top: 12px;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 9px;
 }
 
 .compact-heading h2,
 .monster-type-card h2 {
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 1.08rem;
+  font-size: 0.98rem;
   margin: 0;
 }
 
 .monster-library input {
+  font-size: 0.78rem;
+  min-height: 30px;
   min-width: 0;
+  padding: 5px 7px;
   width: 100%;
 }
 
 .monster-library-list {
   display: grid;
-  gap: 5px;
-  max-height: 180px;
+  gap: 4px;
+  max-height: 146px;
   overflow: auto;
   padding-right: 3px;
 }
@@ -2048,11 +2065,15 @@ tbody tr:hover {
   border-color: var(--line);
   color: var(--text);
   display: grid;
-  gap: 3px;
+  gap: 2px;
   justify-items: start;
   min-height: 0;
-  padding: 7px 9px;
+  padding: 5px 7px;
   text-align: left;
+}
+
+.monster-library-list strong {
+  font-size: 0.78rem;
 }
 
 .monster-library-list button.active,
@@ -2062,7 +2083,7 @@ tbody tr:hover {
 
 .monster-library-list span {
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   font-weight: 800;
 }
 
@@ -2078,7 +2099,8 @@ tbody tr:hover {
 .monster-search-selection span,
 .compact-help {
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: 0.68rem;
+  margin: 0;
 }
 
 .icon-text-button {
@@ -2096,6 +2118,7 @@ tbody tr:hover {
 
 .drago-map-panel {
   display: grid;
+  gap: 12px;
   justify-items: center;
   min-height: 420px;
 }
@@ -2293,13 +2316,14 @@ tbody tr:hover {
 }
 
 .monster-type-panel {
-  grid-column: 1 / -1;
+  width: min(100%, 860px);
 }
 
 .monster-type-grid {
   display: grid;
   gap: 10px;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  width: 100%;
 }
 
 .monster-type-card {
@@ -2309,6 +2333,22 @@ tbody tr:hover {
   display: grid;
   gap: 9px;
   padding: 12px;
+}
+
+.monster-browser {
+  grid-template-columns: 240px minmax(280px, 0.85fr) minmax(380px, 1.15fr);
+}
+
+.monster-glossary-list {
+  max-height: 76vh;
+}
+
+.monster-glossary-detail .monster-text-section {
+  padding-top: 12px;
+}
+
+.monster-detail-facts {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .monster-type-facts {
