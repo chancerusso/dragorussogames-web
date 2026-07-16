@@ -1003,7 +1003,15 @@ def spell_seed() -> list[dict]:
 
 def monster_seed() -> list[dict]:
     monster_path = content_root().parent / "osric" / "core" / "monsters" / "osric_monsters.json"
-    return json.loads(monster_path.read_text())
+    seeds = json.loads(monster_path.read_text())
+    adventure_root = content_root().parent / "adventures"
+    for adventure_path in sorted(adventure_root.glob("*/monsters.json")):
+        adventure_monsters = json.loads(adventure_path.read_text())
+        if isinstance(adventure_monsters, list):
+            seeds.extend(adventure_monsters)
+        elif isinstance(adventure_monsters, dict):
+            seeds.extend(adventure_monsters.get("monsters", []))
+    return seeds
 
 
 def seed_vault_catalogs(db: Session) -> None:
@@ -1013,7 +1021,10 @@ def seed_vault_catalogs(db: Session) -> None:
     if db.scalar(select(SpellsCatalog.id).limit(1)) is None:
         for seed in spell_seed():
             db.add(SpellsCatalog(**seed))
-    if db.scalar(select(MonsterCatalog.id).limit(1)) is None:
-        for seed in monster_seed():
-            db.add(MonsterCatalog(**seed))
+    existing_monster_slugs = set(db.scalars(select(MonsterCatalog.slug)).all())
+    for seed in monster_seed():
+        if seed.get("slug") in existing_monster_slugs:
+            continue
+        db.add(MonsterCatalog(**seed))
+        existing_monster_slugs.add(seed.get("slug"))
     db.commit()

@@ -832,6 +832,7 @@ function DragoTablePage() {
   const { data: monsterCatalog, error: monsterError, loading: monsterLoading } = useLoad(() => api("/1e/monsters?include_source_text=true"), []);
   const savedTable = useMemo(() => loadDragoTableState(id), [id]);
   const [mode, setMode] = useState(savedTable.mode);
+  const [monsterSource, setMonsterSource] = useState("OSRIC Core Rules");
   const [monsterQuery, setMonsterQuery] = useState("");
   const [selectedMonsterId, setSelectedMonsterId] = useState(null);
   const [encounterMonsters, setEncounterMonsters] = useState(savedTable.encounterMonsters);
@@ -853,7 +854,12 @@ function DragoTablePage() {
   const tableHydrated = useRef(false);
   const basePlayerTokens = useMemo(() => buildPlayerTokens(campaign?.characters || [], playerColors), [campaign, playerColors]);
   const monsters = monsterCatalog || [];
-  const filteredMonsters = useMemo(() => filterMonsterCatalog(monsters, monsterQuery).slice(0, 12), [monsters, monsterQuery]);
+  const monsterSources = useMemo(() => uniqueMonsterSources(monsters), [monsters]);
+  const sourceMonsters = useMemo(
+    () => monsters.filter((monster) => (monster.source || "Unknown") === monsterSource),
+    [monsters, monsterSource],
+  );
+  const filteredMonsters = useMemo(() => filterMonsterCatalog(sourceMonsters, monsterQuery).slice(0, 12), [sourceMonsters, monsterQuery]);
   const selectedMonster = useMemo(
     () => monsters.find((monster) => monster.id === selectedMonsterId) || null,
     [filteredMonsters, monsters, selectedMonsterId],
@@ -897,6 +903,11 @@ function DragoTablePage() {
     }
     tableHydrated.current = true;
   }, [campaign]);
+
+  useEffect(() => {
+    if (!monsterSources.length || monsterSources.includes(monsterSource)) return;
+    setMonsterSource(monsterSources[0]);
+  }, [monsterSource, monsterSources]);
 
   useEffect(() => {
     const nextState = {
@@ -1102,9 +1113,12 @@ function DragoTablePage() {
             monsters={filteredMonsters}
             query={monsterQuery}
             selectedMonster={selectedMonster}
+            source={monsterSource}
+            sources={monsterSources}
             onAdd={addMonsterToEncounter}
             onQueryChange={setMonsterQuery}
             onSelect={setSelectedMonsterId}
+            onSourceChange={setMonsterSource}
           />
         </aside>
 
@@ -1308,6 +1322,22 @@ function filterMonsterCatalog(monsters, query) {
     });
 }
 
+function uniqueMonsterSources(monsters) {
+  const sources = Array.from(new Set(monsters.map((monster) => monster.source || "Unknown"))).sort((a, b) => {
+    if (a === "OSRIC Core Rules") return -1;
+    if (b === "OSRIC Core Rules") return 1;
+    return a.localeCompare(b);
+  });
+  return sources;
+}
+
+function monsterSourceReference(monster) {
+  if (!monster) return "";
+  const source = monster.source || (monster.is_core_osric ? "OSRIC Core Rules" : "Adventure");
+  const page = monster.source_pdf_page ? ` p. ${monster.source_pdf_page}` : "";
+  return `${source}${page}`;
+}
+
 function numericReward(value) {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? Math.max(0, Math.floor(parsed)) : 0;
@@ -1334,7 +1364,7 @@ function RewardPanel({ bonusXp, busy, message, monsterXp, onBonusXp, onDistribut
   );
 }
 
-function MonsterLibrarySidebar({ error, loading, monsters, query, selectedMonster, onAdd, onQueryChange, onSelect }) {
+function MonsterLibrarySidebar({ error, loading, monsters, query, selectedMonster, source, sources, onAdd, onQueryChange, onSelect, onSourceChange }) {
   const showResults = query.trim().length > 0;
   return (
     <section className="monster-library">
@@ -1344,8 +1374,21 @@ function MonsterLibrarySidebar({ error, loading, monsters, query, selectedMonste
           <h2>Add Monster</h2>
         </div>
       </div>
+      <select
+        aria-label="Monster source"
+        className="monster-source-select"
+        value={source}
+        onChange={(event) => {
+          onSourceChange(event.target.value);
+          onQueryChange("");
+        }}
+      >
+        {sources.length ? sources.map((option) => (
+          <option key={option} value={option}>{option}</option>
+        )) : <option value={source}>{source}</option>}
+      </select>
       <input
-        aria-label="Search OSRIC monsters"
+        aria-label="Search monsters"
         placeholder="Type monster name..."
         value={query}
         onChange={(event) => onQueryChange(event.target.value)}
@@ -1366,6 +1409,7 @@ function MonsterLibrarySidebar({ error, loading, monsters, query, selectedMonste
             >
               <strong>{monster.name}</strong>
               <span>AC {monster.armor_class || "-"} · HD {monster.hit_dice || "-"} · XP {monster.level_xp || "-"}</span>
+              <span>{monsterSourceReference(monster)}</span>
             </button>
           ))}
         </div>
@@ -1413,7 +1457,7 @@ function MonstersPage() {
       <Header
         eyebrow="DM Reference"
         title="Monsters"
-        copy="Browse the OSRIC monster glossary with complete stat blocks and source text."
+        copy="Browse OSRIC and adventure monster records with complete stat blocks and source notes."
         action={<a className="secondary-button" href="/monsters" target="_blank" rel="noreferrer">Open in New Tab</a>}
       />
       <PageState loading={loading} error={error} />
@@ -1425,7 +1469,7 @@ function MonstersPage() {
             </label>
             <div className="tracker-status-box">
               <strong>{visibleMonsters.length} monsters</strong>
-              <span>Click a name to view its full OSRIC entry.</span>
+              <span>Click a name to view its full monster entry.</span>
             </div>
           </Panel>
 
@@ -1450,7 +1494,7 @@ function MonstersPage() {
                       <p>AC {monster.armor_class || "-"} · HD {monster.hit_dice || "-"} · XP {monster.level_xp || "-"}</p>
                     </div>
                     <div className="reference-meta">
-                      <span>OSRIC p. {monster.source_pdf_page || "-"}</span>
+                      <span>{monsterSourceReference(monster)}</span>
                       <span>{monster.size || "Size -"}</span>
                     </div>
                   </button>
@@ -1489,7 +1533,7 @@ function MonsterGlossaryDetail({ monster }) {
     <article className="reference-detail-view monster-glossary-detail">
       <div className="detail-title-row">
         <div>
-          <p className="eyebrow">OSRIC p. {monster.source_pdf_page || "-"}</p>
+          <p className="eyebrow">{monsterSourceReference(monster)}</p>
           <h2>{monster.name}</h2>
         </div>
       </div>
@@ -1687,7 +1731,7 @@ function MonsterTypeCard({ group, expanded, onToggle }) {
       <div className="monster-card-header">
         <div>
           <h2>{monster.name}</h2>
-          <span>{group.instances.length} in encounter · OSRIC p. {monster.source_pdf_page || "-"}</span>
+          <span>{group.instances.length} in encounter · {monsterSourceReference(monster)}</span>
         </div>
         <button type="button" className="expand-button" onClick={onToggle} aria-label={expanded ? "Collapse monster stat block" : "Expand monster stat block"}>
           {expanded ? "-" : "+"}

@@ -178,6 +178,13 @@ Possible later support:
 
 Monster cards are DM-only unless deliberately exposed.
 
+Monster sources:
+
+- OSRIC Core Rules is the default monster catalog.
+- Adventure packs can add module-specific monsters, named NPCs, and unique creatures.
+- The first adventure pack is N1 Against the Cult of the Reptile God.
+- Adventure records should be source-labelled so the DM can switch between OSRIC and a module pack without losing the standard catalog.
+
 Each monster should support:
 
 - name and ID

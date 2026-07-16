@@ -1610,6 +1610,7 @@ def list_vault_spells(
 @router.get("/1e/monsters")
 def list_vault_monsters(
     q: Optional[str] = None,
+    source: Optional[str] = None,
     alignment: Optional[str] = None,
     hit_dice: Optional[str] = None,
     include_source_text: bool = False,
@@ -1630,6 +1631,8 @@ def list_vault_monsters(
             needle = q.lower().strip()
             if needle and needle not in (monster.search_text or "").lower():
                 continue
+        if source and source.lower().strip() not in (monster.source or "").lower():
+            continue
         if alignment and alignment.lower() not in (monster.alignment or "").lower():
             continue
         if hit_dice and hit_dice.lower() not in (monster.hit_dice or "").lower():
