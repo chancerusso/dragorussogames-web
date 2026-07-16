@@ -1008,6 +1008,7 @@ function DragoTablePage() {
         <aside className="panel drago-side-panel">
           <TrackerPanel mode={trackerMode} tracker={tracker} onModeChange={setTrackerModeAndState} onUpdate={updateTracker} />
           <CombatTrackerPanel tracker={combatTracker} onUpdate={setCombatTracker} onEndCombat={endCombat} />
+          <DiceRollerPanel />
           <MonsterLibrarySidebar
             error={monsterError}
             loading={monsterLoading}
@@ -1440,6 +1441,63 @@ function CombatTrackerPanel({ tracker, onUpdate, onEndCombat }) {
         <button type="button" className="table-button" onClick={() => onUpdate((current) => ({ ...current, round: current.round + 1, activeSide: "party" }))}>Advance Round</button>
         <button type="button" className="table-button" onClick={onEndCombat}>End Combat</button>
       </div>
+    </section>
+  );
+}
+
+function DiceRollerPanel() {
+  const dice = [20, 12, 10, 8, 6, 4, 100];
+  const [count, setCount] = useState(1);
+  const [modifier, setModifier] = useState(0);
+  const [lastRoll, setLastRoll] = useState(null);
+
+  function rollDie(sides) {
+    const quantity = Math.max(1, count);
+    const rolls = Array.from({ length: quantity }, () => Math.floor(Math.random() * sides) + 1);
+    const subtotal = rolls.reduce((sum, value) => sum + value, 0);
+    setLastRoll({
+      formula: `${quantity}d${sides}${modifier ? `${modifier > 0 ? "+" : ""}${modifier}` : ""}`,
+      rolls,
+      total: subtotal + modifier,
+    });
+  }
+
+  return (
+    <section className="dice-roller">
+      <div className="section-heading compact-heading">
+        <div>
+          <p className="eyebrow">Dice</p>
+          <h2>Roller</h2>
+        </div>
+        {lastRoll ? <span className="status-pill">{lastRoll.formula}</span> : null}
+      </div>
+      <div className="dice-controls">
+        <label>Dice
+          <span>
+            <button type="button" onClick={() => setCount((value) => Math.max(1, value - 1))}>-</button>
+            <strong>{count}</strong>
+            <button type="button" onClick={() => setCount((value) => Math.min(20, value + 1))}>+</button>
+          </span>
+        </label>
+        <label>Mod
+          <span>
+            <button type="button" onClick={() => setModifier((value) => Math.max(-99, value - 1))}>-</button>
+            <strong>{modifier >= 0 ? `+${modifier}` : modifier}</strong>
+            <button type="button" onClick={() => setModifier((value) => Math.min(99, value + 1))}>+</button>
+          </span>
+        </label>
+      </div>
+      <div className="dice-button-grid">
+        {dice.map((sides) => (
+          <button key={sides} type="button" className="table-button" onClick={() => rollDie(sides)}>D{sides}</button>
+        ))}
+      </div>
+      {lastRoll ? (
+        <div className="dice-result">
+          <strong>{lastRoll.total}</strong>
+          <span>{lastRoll.rolls.join(" + ")}{modifier ? ` ${modifier > 0 ? "+" : "-"} ${Math.abs(modifier)}` : ""}</span>
+        </div>
+      ) : <p className="compact-help">Set dice and modifier, then tap a die.</p>}
     </section>
   );
 }
