@@ -848,6 +848,7 @@ function DragoTablePage() {
   const [rewardMessage, setRewardMessage] = useState("");
   const [tokenPositions, setTokenPositions] = useState(savedTable.tokenPositions);
   const [playerColors, setPlayerColors] = useState(savedTable.playerColors);
+  const [isSessionLive, setIsSessionLive] = useState(savedTable.isSessionLive);
   const [draggedToken, setDraggedToken] = useState(null);
   const tableHydrated = useRef(false);
   const basePlayerTokens = useMemo(() => buildPlayerTokens(campaign?.characters || [], playerColors), [campaign, playerColors]);
@@ -892,6 +893,7 @@ function DragoTablePage() {
       setBonusXp(shared.bonusXp);
       setTokenPositions(shared.tokenPositions);
       setPlayerColors(shared.playerColors);
+      setIsSessionLive(shared.isSessionLive);
     }
     tableHydrated.current = true;
   }, [campaign]);
@@ -906,6 +908,7 @@ function DragoTablePage() {
       pendingGridMonsterId,
       bonusXp,
       playerColors,
+      isSessionLive,
       tracker,
       trackerMode,
       treasureXp,
@@ -917,7 +920,7 @@ function DragoTablePage() {
       api(`/1e/campaigns/${id}/table-state`, { method: "PUT", body: JSON.stringify(nextState) }).catch(() => {});
     }, 350);
     return () => window.clearTimeout(timer);
-  }, [bonusXp, combatGrid, combatTracker, encounterMonsters, expandedMonsterTypes, id, mode, pendingGridMonsterId, playerColors, tokenPositions, tracker, trackerMode, treasureXp]);
+  }, [bonusXp, combatGrid, combatTracker, encounterMonsters, expandedMonsterTypes, id, isSessionLive, mode, pendingGridMonsterId, playerColors, tokenPositions, tracker, trackerMode, treasureXp]);
 
   function moveToken(token, event) {
     const grid = event.currentTarget;
@@ -1005,6 +1008,10 @@ function DragoTablePage() {
     setTokenPositions((positions) => Object.fromEntries(Object.entries(positions).filter(([key]) => !key.startsWith("monster-token-"))));
   }
 
+  function toggleSessionLive() {
+    setIsSessionLive((current) => !current);
+  }
+
   async function distributeXpAwards() {
     const recipients = (campaign.characters || []).filter((character) => character.status !== "archived");
     const monsterAward = encounterMonsters.filter((monster) => monster.dead).reduce((sum, monster) => sum + monsterXp(monster.monster, monster.max_hp), 0);
@@ -1078,7 +1085,9 @@ function DragoTablePage() {
         <div className="drago-live-actions">
           <button type="button" className="ghost-button" onClick={() => openExternalWindow(CLASSIC_PORTAL_URL, "drago-player-view")}>Player View</button>
           <button type="button" className="ghost-button" onClick={() => openExternalWindow("/1e/", "drago-rules")}>Rules</button>
-          <button type="button">Start Session</button>
+          <button type="button" className={isSessionLive ? "danger-button" : ""} onClick={toggleSessionLive}>
+            {isSessionLive ? "Stop Session" : "Start Session"}
+          </button>
         </div>
       </div>
 
@@ -1229,6 +1238,7 @@ function defaultDragoTableState() {
     combatTracker: createCombatTrackerState(),
     encounterMonsters: [],
     expandedMonsterTypes: {},
+    isSessionLive: false,
     mode: "marching",
     pendingGridMonsterId: null,
     playerColors: {},
@@ -1269,6 +1279,7 @@ function normalizeDragoTableState(state) {
     trackerMode: state.trackerMode || defaults.trackerMode,
     encounterMonsters: Array.isArray(state.encounterMonsters) ? state.encounterMonsters : [],
     expandedMonsterTypes: state.expandedMonsterTypes || {},
+    isSessionLive: Boolean(state.isSessionLive),
     playerColors: state.playerColors || {},
     tokenPositions: state.tokenPositions || {},
   };
@@ -2732,6 +2743,7 @@ function PlayerTableTab({ campaign, character }) {
   const myToken = placedPlayerTokens.find((token) => token.id === tokenId);
   const colorChoices = tokenId ? availablePlayerTokenColors(tableState, tokenId) : [];
   const selectedColor = tokenId ? tableState.playerColors?.[tokenId] : null;
+  const sessionLive = Boolean(tableState.isSessionLive);
 
   useEffect(() => {
     setCurrentCharacter(character);
@@ -2749,12 +2761,21 @@ function PlayerTableTab({ campaign, character }) {
     return () => window.clearInterval(timer);
   }, [campaign.id, currentCharacter?.id]);
 
+  useEffect(() => {
+    if (sessionLive) return;
+    setDraggedToken(null);
+    setColorRequestOpen(false);
+    setHpEditor(null);
+  }, [sessionLive]);
+
   function publish(nextState) {
+    if (!sessionLive) return;
     setTableState(nextState);
     api(`/player/campaigns/${campaign.id}/table-state`, { auth: "player", method: "PUT", body: JSON.stringify(nextState) }).catch(() => {});
   }
 
   function moveOwnToken(token, event) {
+    if (!sessionLive) return;
     if (!tokenId || token.id !== tokenId) return;
     const grid = event.currentTarget;
     const rect = grid.getBoundingClientRect();
@@ -2770,6 +2791,7 @@ function PlayerTableTab({ campaign, character }) {
   }
 
   function setOwnColor(color, nextPosition = null) {
+    if (!sessionLive) return;
     if (!tokenId) return;
     publish({
       ...tableState,
@@ -2780,6 +2802,7 @@ function PlayerTableTab({ campaign, character }) {
   }
 
   function addOwnToken() {
+    if (!sessionLive) return;
     if (!tokenId) return;
     const position = { x: 1, y: 1, slotX: 0, slotY: 0 };
     if (!selectedColor) {
@@ -2794,10 +2817,12 @@ function PlayerTableTab({ campaign, character }) {
   }
 
   function openHpEditor(direction) {
+    if (!sessionLive) return;
     setHpEditor({ direction, amount: "1" });
   }
 
   function updateCharacterHp(direction, amountValue) {
+    if (!sessionLive) return;
     if (!currentCharacter) return;
     const amount = Math.max(0, Number(amountValue) || 0);
     const hp = characterHpValues(currentCharacter);
@@ -2834,6 +2859,7 @@ function PlayerTableTab({ campaign, character }) {
           hpEditor={hpEditor}
           myToken={myToken}
           selectedColor={selectedColor}
+          sessionLive={sessionLive}
           onAddToken={addOwnToken}
           onChooseColor={chooseColorAndAdd}
           onCloseColorRequest={() => setColorRequestOpen(false)}
@@ -2848,7 +2874,9 @@ function PlayerTableTab({ campaign, character }) {
             <p className="eyebrow">Player View</p>
             <h2>{tableState.mode === "combat" ? `${activeGrid.columns} x ${activeGrid.rows} Combat Grid` : tableState.mode === "outdoors" ? "Outdoor View" : "Marching Order"}</h2>
           </div>
+          <span className={`status-pill ${sessionLive ? "live-pill" : ""}`}>{sessionLive ? "Live Session" : "Saved View"}</span>
         </div>
+        {!sessionLive ? <p className="table-lock-note">The DM has not started the session yet. You can view the saved table, but movement and HP controls are locked.</p> : null}
         <div
           className={`drago-grid ${tableState.mode === "combat" ? "combat-grid" : tableState.mode === "outdoors" ? "outdoors-grid" : "marching-grid"}`}
           style={{ "--grid-columns": activeGrid.columns, "--grid-rows": activeGrid.rows, aspectRatio: `${activeGrid.columns} / ${activeGrid.rows}` }}
@@ -2862,8 +2890,8 @@ function PlayerTableTab({ campaign, character }) {
               grid={activeGrid}
               token={token}
               monster={token.monster}
-              disabled={token.id !== tokenId}
-              onDragStart={token.id === tokenId ? (event) => { setDraggedToken(token); moveOwnToken(token, event); } : undefined}
+              disabled={!sessionLive || token.id !== tokenId}
+              onDragStart={sessionLive && token.id === tokenId ? (event) => { setDraggedToken(token); moveOwnToken(token, event); } : undefined}
             />
           ))}
         </div>
@@ -2882,6 +2910,7 @@ function PlayerCharacterCombatPanel({
   hpEditor,
   myToken,
   selectedColor,
+  sessionLive,
   onAddToken,
   onChooseColor,
   onCloseColorRequest,
@@ -2907,7 +2936,7 @@ function PlayerCharacterCombatPanel({
           <p className="eyebrow">My Character</p>
           <h2>{character.name}</h2>
         </div>
-        <span className="status-pill">{myToken ? "On Grid" : selectedColor ? "Ready" : "Choose Color"}</span>
+        <span className="status-pill">{!sessionLive ? "Locked" : myToken ? "On Grid" : selectedColor ? "Ready" : "Choose Color"}</span>
       </div>
       <dl className="player-combat-facts">
         <div><dt>HP</dt><dd>{hp.current} / {hp.max || "-"}</dd></div>
@@ -2918,8 +2947,8 @@ function PlayerCharacterCombatPanel({
         <div><dt>Status</dt><dd>{character.life_status || character.status || "Ready"}</dd></div>
       </dl>
       <div className="player-hp-actions">
-        <button type="button" className="table-button" onClick={() => onOpenHpEditor("damage")}>Damage</button>
-        <button type="button" className="table-button" onClick={() => onOpenHpEditor("heal")}>Heal</button>
+        <button type="button" className="table-button" disabled={!sessionLive} onClick={() => onOpenHpEditor("damage")}>Damage</button>
+        <button type="button" className="table-button" disabled={!sessionLive} onClick={() => onOpenHpEditor("heal")}>Heal</button>
       </div>
       {hpEditor ? (
         <form
@@ -2956,7 +2985,7 @@ function PlayerCharacterCombatPanel({
         ) : <p className="muted compact-note">No equipped weapons listed.</p>}
       </div>
       <div className="player-character-actions">
-        <button className="table-button" type="button" onClick={onAddToken}>Add To Grid</button>
+        <button className="table-button" type="button" disabled={!sessionLive} onClick={onAddToken}>Add To Grid</button>
         <a className="table-button" href={`/1e/characters/${character.id}/`} target="_blank" rel="noreferrer">Open Sheet</a>
       </div>
       {colorRequestOpen ? (

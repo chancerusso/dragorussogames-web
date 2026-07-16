@@ -1215,7 +1215,10 @@ def update_player_campaign_table_state(campaign_id: int, data: dict, claims: dic
     player = player_from_claims(db, claims)
     ensure_player_campaign_member(db, campaign_id, player.id)
     campaign = get_campaign_or_404(db, campaign_id)
-    campaign.table_state = data
+    current_state = campaign.table_state or {}
+    if not bool(current_state.get("isSessionLive")):
+        raise HTTPException(status_code=403, detail="The DM has not started the table session.")
+    campaign.table_state = {**data, "isSessionLive": True}
     db.commit()
     db.refresh(campaign)
     return {"ok": True, "table_state": campaign.table_state or {}}
