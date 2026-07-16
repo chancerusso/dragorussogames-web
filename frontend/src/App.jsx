@@ -827,7 +827,7 @@ function DragoTableIndexPage() {
 
 function DragoTablePage() {
   const { id } = useParams();
-  const { data: campaign, error, loading } = useLoad(() => api(`/1e/campaigns/${id}`), [id]);
+  const { data: campaign, error, loading, reload: reloadCampaign } = useLoad(() => api(`/1e/campaigns/${id}`), [id]);
   const { data: monsterCatalog, error: monsterError, loading: monsterLoading } = useLoad(() => api("/1e/monsters?include_source_text=true"), []);
   const savedTable = useMemo(() => loadDragoTableState(id), [id]);
   const [mode, setMode] = useState(savedTable.mode);
@@ -841,6 +841,10 @@ function DragoTablePage() {
   const [combatGrid, setCombatGrid] = useState(savedTable.combatGrid);
   const [combatTracker, setCombatTracker] = useState(savedTable.combatTracker);
   const [hpEditor, setHpEditor] = useState(null);
+  const [treasureXp, setTreasureXp] = useState(savedTable.treasureXp);
+  const [bonusXp, setBonusXp] = useState(savedTable.bonusXp);
+  const [rewardBusy, setRewardBusy] = useState(false);
+  const [rewardMessage, setRewardMessage] = useState("");
   const [tokenPositions, setTokenPositions] = useState(savedTable.tokenPositions);
   const [draggedToken, setDraggedToken] = useState(null);
   const basePlayerTokens = useMemo(() => buildPlayerTokens(campaign?.characters || []), [campaign]);
@@ -877,9 +881,11 @@ function DragoTablePage() {
       expandedMonsterTypes,
       mode,
       pendingGridMonsterId,
+      bonusXp,
+      treasureXp,
       tokenPositions,
     });
-  }, [combatGrid, combatTracker, encounterMonsters, expandedMonsterTypes, id, mode, pendingGridMonsterId, tokenPositions]);
+  }, [bonusXp, combatGrid, combatTracker, encounterMonsters, expandedMonsterTypes, id, mode, pendingGridMonsterId, tokenPositions, treasureXp]);
 
   function moveToken(token, event) {
     const grid = event.currentTarget;
@@ -960,6 +966,33 @@ function DragoTablePage() {
     setTokenPositions((positions) => Object.fromEntries(Object.entries(positions).filter(([key]) => !key.startsWith("monster-token-"))));
   }
 
+  async function distributeXpAwards() {
+    const recipients = (campaign.characters || []).filter((character) => character.status !== "archived");
+    const monsterAward = encounterMonsters.filter((monster) => monster.dead).reduce((sum, monster) => sum + monsterXp(monster.monster, monster.max_hp), 0);
+    const totalAward = monsterAward + numericReward(treasureXp) + numericReward(bonusXp);
+    if (!recipients.length || totalAward <= 0) return;
+    const share = Math.floor(totalAward / recipients.length);
+    const remainder = totalAward % recipients.length;
+    setRewardBusy(true);
+    setRewardMessage("");
+    try {
+      await Promise.all(recipients.map((character, index) => api(`/1e/characters/${character.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ xp: numericReward(character.xp) + share + (index < remainder ? 1 : 0) }),
+      })));
+      setTreasureXp(0);
+      setBonusXp(0);
+      setEncounterMonsters((current) => current.filter((monster) => !monster.dead));
+      setExpandedMonsterTypes({});
+      setRewardMessage(`Distributed ${totalAward} XP to ${recipients.length} character${recipients.length === 1 ? "" : "s"}.`);
+      await reloadCampaign();
+    } catch (err) {
+      setRewardMessage(err.message || "Could not distribute XP.");
+    } finally {
+      setRewardBusy(false);
+    }
+  }
+
   function openExternalWindow(url, name) {
     window.open(url, name, "noopener,noreferrer,width=1200,height=820");
   }
@@ -978,6 +1011,8 @@ function DragoTablePage() {
   const modeLabel = mode === "combat" ? "Combat Mode" : mode === "outdoors" ? "Outdoors Mode" : "Marching Mode";
   const gridTitle = mode === "combat" ? `${combatGrid.columns} x ${combatGrid.rows} Ten-Foot Area` : mode === "outdoors" ? "Outdoor Hex Crawl" : "2 x 6 Ten-Foot Column";
   const gridEyebrow = mode === "combat" ? "10-Foot Tactical Grid" : mode === "outdoors" ? "Outdoor Ground" : "Marching Order";
+  const monsterAward = encounterMonsters.filter((monster) => monster.dead).reduce((sum, monster) => sum + monsterXp(monster.monster, monster.max_hp), 0);
+  const pendingAward = monsterAward + numericReward(treasureXp) + numericReward(bonusXp);
 
   return (
     <section className="drago-table-page">
@@ -1111,15 +1146,21 @@ function DragoTablePage() {
 
         <section className="panel drago-reward-panel">
           <p className="eyebrow">Rewards</p>
-          <div className="reward-ledger">
-            <div><span>Monster XP</span><strong>{encounterMonsters.filter((monster) => monster.dead).reduce((sum, monster) => sum + monsterXp(monster.monster, monster.max_hp), 0)}</strong></div>
-            <div><span>Treasure XP</span><strong>0</strong></div>
-            <div><span>Bonus XP</span><strong>0</strong></div>
-            <div><span>Pending Total</span><strong>{encounterMonsters.filter((monster) => monster.dead).reduce((sum, monster) => sum + monsterXp(monster.monster, monster.max_hp), 0)}</strong></div>
-          </div>
+          <RewardPanel
+            bonusXp={bonusXp}
+            busy={rewardBusy}
+            message={rewardMessage}
+            monsterXp={monsterAward}
+            onBonusXp={setBonusXp}
+            onDistribute={distributeXpAwards}
+            onTreasureXp={setTreasureXp}
+            pendingXp={pendingAward}
+            recipients={(campaign.characters || []).filter((character) => character.status !== "archived").length}
+            treasureXp={treasureXp}
+          />
           <div className="notes-box">
             <strong>Encounter XP</strong>
-            <p>Monster XP is added when a monster is marked dead. Treasure and award flow still stay separate.</p>
+            <p>Monster XP is added when a monster is marked dead. Treasure and bonus XP can be distributed to the current character cards.</p>
           </div>
         </section>
       </div>
@@ -1139,12 +1180,14 @@ function createCombatTrackerState() {
 
 function defaultDragoTableState() {
   return {
+    bonusXp: 0,
     combatGrid: { columns: 8, rows: 8 },
     combatTracker: createCombatTrackerState(),
     encounterMonsters: [],
     expandedMonsterTypes: {},
     mode: "marching",
     pendingGridMonsterId: null,
+    treasureXp: 0,
     tokenPositions: {},
   };
 }
@@ -1188,6 +1231,32 @@ function filterMonsterCatalog(monsters, query) {
       const bStarts = bName.startsWith(needle) ? 0 : 1;
       return aStarts - bStarts || aName.localeCompare(bName);
     });
+}
+
+function numericReward(value) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? Math.max(0, Math.floor(parsed)) : 0;
+}
+
+function RewardPanel({ bonusXp, busy, message, monsterXp, onBonusXp, onDistribute, onTreasureXp, pendingXp, recipients, treasureXp }) {
+  const share = recipients > 0 ? Math.floor(pendingXp / recipients) : 0;
+  return (
+    <div className="reward-flow">
+      <div className="reward-ledger">
+        <div><span>Monster XP</span><strong>{monsterXp}</strong></div>
+        <label><span>Treasure XP</span><input type="number" min="0" value={treasureXp} onChange={(event) => onTreasureXp(event.target.value)} /></label>
+        <label><span>Bonus XP</span><input type="number" min="0" value={bonusXp} onChange={(event) => onBonusXp(event.target.value)} /></label>
+        <div><span>Pending Total</span><strong>{pendingXp}</strong></div>
+      </div>
+      <div className="reward-distribution">
+        <span>{recipients ? `${recipients} recipient${recipients === 1 ? "" : "s"} · ${share} XP each${pendingXp % Math.max(1, recipients) ? " + remainder" : ""}` : "No character cards"}</span>
+        <button type="button" className="table-button" disabled={busy || pendingXp <= 0 || recipients === 0} onClick={onDistribute}>
+          {busy ? "Distributing..." : "Distribute XP"}
+        </button>
+      </div>
+      {message ? <p className="compact-help">{message}</p> : null}
+    </div>
+  );
 }
 
 function MonsterLibrarySidebar({ error, loading, monsters, query, selectedMonster, onAdd, onQueryChange, onSelect }) {

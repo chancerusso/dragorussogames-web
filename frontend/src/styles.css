@@ -2645,11 +2645,52 @@ tbody tr:hover {
   margin-bottom: 14px;
 }
 
-.reward-ledger div {
+.reward-ledger div,
+.reward-ledger label {
   background: rgba(8, 7, 5, 0.72);
   border: 1px solid var(--line);
   border-radius: 8px;
+  display: grid;
+  gap: 5px;
   padding: 12px;
+}
+
+.reward-ledger label {
+  color: var(--muted);
+}
+
+.reward-ledger input {
+  font-size: 1rem;
+  font-weight: 900;
+  min-height: 34px;
+  padding: 4px 7px;
+}
+
+.reward-flow {
+  display: grid;
+  gap: 10px;
+}
+
+.reward-distribution {
+  align-items: center;
+  background: rgba(8, 7, 5, 0.54);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  padding: 9px;
+}
+
+.reward-distribution span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.reward-distribution .table-button {
+  min-height: 30px;
+  padding: 5px 9px;
 }
 
 .table-campaign-card .action-button {
