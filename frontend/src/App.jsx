@@ -192,7 +192,7 @@ function AppSidebar({ mode, title, subtitle, brandTo, navItems, account, onSignO
       <nav>
         {navItems.map((item) => (
           item.href ? (
-            <a key={item.label} href={item.href}>{item.label}</a>
+            <a key={item.label} href={item.href} target={item.target} rel={item.target ? "noreferrer" : undefined}>{item.label}</a>
           ) : (
             <NavLink
               key={item.label}
@@ -829,15 +829,19 @@ function DragoTablePage() {
   const { id } = useParams();
   const { data: campaign, error, loading } = useLoad(() => api(`/1e/campaigns/${id}`), [id]);
   const { data: monsterCatalog, error: monsterError, loading: monsterLoading } = useLoad(() => api("/1e/monsters?include_source_text=true"), []);
-  const [mode, setMode] = useState("marching");
+  const savedTable = useMemo(() => loadDragoTableState(id), [id]);
+  const [mode, setMode] = useState(savedTable.mode);
   const [monsterQuery, setMonsterQuery] = useState("");
   const [selectedMonsterId, setSelectedMonsterId] = useState(null);
-  const [encounterMonsters, setEncounterMonsters] = useState([]);
-  const [expandedMonsterTypes, setExpandedMonsterTypes] = useState({});
-  const [pendingGridMonsterId, setPendingGridMonsterId] = useState(null);
+  const [encounterMonsters, setEncounterMonsters] = useState(savedTable.encounterMonsters);
+  const [expandedMonsterTypes, setExpandedMonsterTypes] = useState(savedTable.expandedMonsterTypes);
+  const [pendingGridMonsterId, setPendingGridMonsterId] = useState(savedTable.pendingGridMonsterId);
   const [trackerMode, setTrackerMode] = useState(isDragonlanceCampaign(campaign) ? "dragonlance" : "greyhawk");
   const [tracker, setTracker] = useState(() => createTrackerState(isDragonlanceCampaign(campaign) ? "dragonlance" : "greyhawk"));
-  const [tokenPositions, setTokenPositions] = useState({});
+  const [combatGrid, setCombatGrid] = useState(savedTable.combatGrid);
+  const [combatTracker, setCombatTracker] = useState(savedTable.combatTracker);
+  const [hpEditor, setHpEditor] = useState(null);
+  const [tokenPositions, setTokenPositions] = useState(savedTable.tokenPositions);
   const [draggedToken, setDraggedToken] = useState(null);
   const basePlayerTokens = useMemo(() => buildPlayerTokens(campaign?.characters || []), [campaign]);
   const monsters = monsterCatalog || [];
@@ -851,7 +855,7 @@ function DragoTablePage() {
     () => encounterMonsters.find((monster) => monster.id === pendingGridMonsterId) || null,
     [encounterMonsters, pendingGridMonsterId],
   );
-  const activeGrid = mode === "combat" ? DRAGO_COMBAT_GRID : mode === "outdoors" ? DRAGO_OUTDOORS_GRID : DRAGO_MARCHING_GRID;
+  const activeGrid = mode === "combat" ? combatGrid : mode === "outdoors" ? DRAGO_OUTDOORS_GRID : DRAGO_MARCHING_GRID;
   const playerTokens = useMemo(() => applyTokenPositions(basePlayerTokens, tokenPositions), [basePlayerTokens, tokenPositions]);
   const monsterTokens = useMemo(
     () => applyTokenPositions(buildMonsterTokens(encounterMonsters), tokenPositions),
@@ -864,6 +868,18 @@ function DragoTablePage() {
     setTrackerMode(nextMode);
     setTracker(createTrackerState(nextMode));
   }, [campaign?.id]);
+
+  useEffect(() => {
+    saveDragoTableState(id, {
+      combatGrid,
+      combatTracker,
+      encounterMonsters,
+      expandedMonsterTypes,
+      mode,
+      pendingGridMonsterId,
+      tokenPositions,
+    });
+  }, [combatGrid, combatTracker, encounterMonsters, expandedMonsterTypes, id, mode, pendingGridMonsterId, tokenPositions]);
 
   function moveToken(token, event) {
     const grid = event.currentTarget;
@@ -905,8 +921,8 @@ function DragoTablePage() {
     setEncounterMonsters((current) => current.map((monster) => monster.id === instanceId ? updater(monster) : monster));
   }
 
-  function promptDamage(instanceId, direction) {
-    const amount = Number(window.prompt(direction === "damage" ? "Damage amount" : "Heal amount", "1"));
+  function applyHpAdjustment(instanceId, direction, amountValue) {
+    const amount = Number(amountValue);
     if (!Number.isFinite(amount) || amount <= 0) return;
     updateEncounterMonster(instanceId, (monster) => {
       const currentHp = direction === "damage"
@@ -914,6 +930,7 @@ function DragoTablePage() {
         : Math.min(monster.max_hp, monster.current_hp + amount);
       return { ...monster, current_hp: currentHp, dead: currentHp <= 0 };
     });
+    setHpEditor(null);
   }
 
   function markMonsterDead(instanceId) {
@@ -927,6 +944,20 @@ function DragoTablePage() {
 
   function updateTracker(update) {
     setTracker((current) => ({ ...current, ...update }));
+  }
+
+  function updateCombatGrid(key, value) {
+    const nextValue = Math.max(1, Math.min(30, Number(value) || 1));
+    setCombatGrid((current) => ({ ...current, [key]: nextValue }));
+  }
+
+  function endCombat() {
+    setEncounterMonsters([]);
+    setExpandedMonsterTypes({});
+    setPendingGridMonsterId(null);
+    setHpEditor(null);
+    setCombatTracker(createCombatTrackerState());
+    setTokenPositions((positions) => Object.fromEntries(Object.entries(positions).filter(([key]) => !key.startsWith("monster-token-"))));
   }
 
   function openExternalWindow(url, name) {
@@ -945,7 +976,7 @@ function DragoTablePage() {
   if (loading || error || !campaign) return <PageState loading={loading} error={error} />;
 
   const modeLabel = mode === "combat" ? "Combat Mode" : mode === "outdoors" ? "Outdoors Mode" : "Marching Mode";
-  const gridTitle = mode === "combat" ? "8 x 8 Ten-Foot Area" : mode === "outdoors" ? "12 x 8 Ten-Foot Area" : "2 x 6 Ten-Foot Column";
+  const gridTitle = mode === "combat" ? `${combatGrid.columns} x ${combatGrid.rows} Ten-Foot Area` : mode === "outdoors" ? "Outdoor Hex Crawl" : "2 x 6 Ten-Foot Column";
   const gridEyebrow = mode === "combat" ? "10-Foot Tactical Grid" : mode === "outdoors" ? "Outdoor Ground" : "Marching Order";
 
   return (
@@ -976,10 +1007,7 @@ function DragoTablePage() {
       <div className="drago-table-layout">
         <aside className="panel drago-side-panel">
           <TrackerPanel mode={trackerMode} tracker={tracker} onModeChange={setTrackerModeAndState} onUpdate={updateTracker} />
-          <div className="drago-command-list compact-command-list">
-            <button type="button" className="table-button">Advance Round</button>
-            <button type="button" className="table-button">Advance Turn</button>
-          </div>
+          <CombatTrackerPanel tracker={combatTracker} onUpdate={setCombatTracker} onEndCombat={endCombat} />
           <MonsterLibrarySidebar
             error={monsterError}
             loading={monsterLoading}
@@ -998,16 +1026,16 @@ function DragoTablePage() {
               <p className="eyebrow">{gridEyebrow}</p>
               <h2>{gridTitle}</h2>
             </div>
-            <select aria-label="Grid template" value={mode === "combat" ? "8x8-ten" : mode === "outdoors" ? "12x8-ten" : "2x6-ten"} onChange={() => {}}>
-              <option value="2x6-ten">2 x 6 Marching</option>
-              <option value="8x8-ten">8 x 8 Ten-Foot Area</option>
-              <option value="12x8-ten">12 x 8 Outdoor Area</option>
-              <option value="corridor-ten">2 x 12 Ten-Foot Corridor</option>
-            </select>
+            {mode === "combat" ? (
+              <div className="grid-size-controls">
+                <label>Width<input type="number" min="1" max="30" value={combatGrid.columns} onChange={(event) => updateCombatGrid("columns", event.target.value)} /></label>
+                <label>Length<input type="number" min="1" max="30" value={combatGrid.rows} onChange={(event) => updateCombatGrid("rows", event.target.value)} /></label>
+              </div>
+            ) : <span className="status-pill">{mode === "outdoors" ? "Hex crawl builder next phase" : "Locked 2 x 6"}</span>}
           </div>
           <div
             className={`drago-grid ${mode === "combat" ? "combat-grid" : mode === "outdoors" ? "outdoors-grid" : "marching-grid"}`}
-            style={{ "--grid-columns": activeGrid.columns, "--grid-rows": activeGrid.rows }}
+            style={{ "--grid-columns": activeGrid.columns, "--grid-rows": activeGrid.rows, aspectRatio: `${activeGrid.columns} / ${activeGrid.rows}` }}
             onPointerMove={(event) => {
               if (draggedToken) moveToken(draggedToken, event);
             }}
@@ -1022,20 +1050,6 @@ function DragoTablePage() {
               <TableToken key={token.id} grid={activeGrid} token={token} monster onDragStart={(event) => { setDraggedToken(token); moveToken(token, event); }} />
             )) : null}
           </div>
-          <section className="monster-type-panel">
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow">Monster Cards</p>
-                <h2>Initiative Groups</h2>
-              </div>
-              {pendingMonster ? <span className="status-pill">Click combat grid to place {pendingMonster.label}</span> : null}
-            </div>
-            <MonsterTypeCards
-              groups={encounterGroups}
-              expanded={expandedMonsterTypes}
-              onToggle={(key) => setExpandedMonsterTypes((current) => ({ ...current, [key]: !current[key] }))}
-            />
-          </section>
         </main>
 
         <aside className="panel drago-monster-panel">
@@ -1044,15 +1058,32 @@ function DragoTablePage() {
             monsters={encounterMonsters}
             mode={mode}
             pendingGridMonsterId={pendingGridMonsterId}
-            onDamage={(id) => promptDamage(id, "damage")}
-            onHeal={(id) => promptDamage(id, "heal")}
+            hpEditor={hpEditor}
+            onApplyHp={applyHpAdjustment}
+            onCloseHpEditor={() => setHpEditor(null)}
+            onOpenHpEditor={(monsterId, direction) => setHpEditor({ monsterId, direction, amount: 1 })}
             onDead={markMonsterDead}
             onPrepareGrid={setPendingGridMonsterId}
+            onSetHpEditor={setHpEditor}
           />
         </aside>
       </div>
 
       <div className="drago-bottom-grid">
+        <section className="panel monster-type-panel">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Monsters</p>
+              <h2>Stat Blocks</h2>
+            </div>
+            {pendingMonster ? <span className="status-pill">Click combat grid to place {pendingMonster.label}</span> : null}
+          </div>
+          <MonsterTypeCards
+            groups={encounterGroups}
+            expanded={expandedMonsterTypes}
+            onToggle={(key) => setExpandedMonsterTypes((current) => ({ [key]: !current[key] }))}
+          />
+        </section>
         <section className="panel drago-roster-panel">
           <div className="section-heading">
             <div>
@@ -1100,6 +1131,49 @@ const DRAGO_TABLE_MODES = [
   ["combat", "Combat"],
   ["outdoors", "Outdoors"],
 ];
+
+function createCombatTrackerState() {
+  return { round: 1, activeSide: "party" };
+}
+
+function defaultDragoTableState() {
+  return {
+    combatGrid: { columns: 8, rows: 8 },
+    combatTracker: createCombatTrackerState(),
+    encounterMonsters: [],
+    expandedMonsterTypes: {},
+    mode: "marching",
+    pendingGridMonsterId: null,
+    tokenPositions: {},
+  };
+}
+
+function loadDragoTableState(campaignId) {
+  const defaults = defaultDragoTableState();
+  if (typeof window === "undefined") return defaults;
+  try {
+    const saved = window.localStorage.getItem(`drago-table:${campaignId}`);
+    if (!saved) return defaults;
+    const parsed = JSON.parse(saved);
+    return {
+      ...defaults,
+      ...parsed,
+      combatGrid: { ...defaults.combatGrid, ...(parsed.combatGrid || {}) },
+      combatTracker: { ...defaults.combatTracker, ...(parsed.combatTracker || {}) },
+    };
+  } catch {
+    return defaults;
+  }
+}
+
+function saveDragoTableState(campaignId, state) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(`drago-table:${campaignId}`, JSON.stringify(state));
+  } catch {
+    // Local persistence is a convenience; storage failures should not interrupt play.
+  }
+}
 
 function filterMonsterCatalog(monsters, query) {
   const needle = query.trim().toLowerCase();
@@ -1293,7 +1367,7 @@ function MonsterGlossaryDetail({ monster }) {
   );
 }
 
-function EncounterList({ monsters, mode, pendingGridMonsterId, onDamage, onHeal, onDead, onPrepareGrid }) {
+function EncounterList({ monsters, mode, pendingGridMonsterId, hpEditor, onApplyHp, onCloseHpEditor, onDead, onOpenHpEditor, onPrepareGrid, onSetHpEditor }) {
   if (!monsters.length) {
     return <p className="muted">No monsters added yet.</p>;
   }
@@ -1306,10 +1380,33 @@ function EncounterList({ monsters, mode, pendingGridMonsterId, onDamage, onHeal,
             <span>{monster.current_hp}/{monster.max_hp} HP</span>
           </div>
           <div className="monster-actions compact-actions">
-            <button type="button" className="table-button" onClick={() => onDamage(monster.id)}>Damage</button>
-            <button type="button" className="table-button" onClick={() => onHeal(monster.id)}>Heal</button>
+            <button type="button" className="table-button" onClick={() => onOpenHpEditor(monster.id, "damage")}>Damage</button>
+            <button type="button" className="table-button" onClick={() => onOpenHpEditor(monster.id, "heal")}>Heal</button>
             <button type="button" className="table-button" onClick={() => onDead(monster.id)}>Dead</button>
           </div>
+          {hpEditor?.monsterId === monster.id ? (
+            <form
+              className="hp-popover"
+              onSubmit={(event) => {
+                event.preventDefault();
+                onApplyHp(monster.id, hpEditor.direction, hpEditor.amount);
+              }}
+            >
+              <label>{hpEditor.direction === "damage" ? "Damage" : "Heal"}
+                <input
+                  autoFocus
+                  type="number"
+                  min="1"
+                  value={hpEditor.amount}
+                  onChange={(event) => onSetHpEditor({ ...hpEditor, amount: event.target.value })}
+                />
+              </label>
+              <div>
+                <button type="submit" className="table-button">Apply</button>
+                <button type="button" className="table-button" onClick={onCloseHpEditor}>Cancel</button>
+              </div>
+            </form>
+          ) : null}
           <button
             type="button"
             className={`table-button add-grid-button ${pendingGridMonsterId === monster.id ? "active" : ""}`}
@@ -1321,6 +1418,29 @@ function EncounterList({ monsters, mode, pendingGridMonsterId, onDamage, onHeal,
         </article>
       ))}
     </div>
+  );
+}
+
+function CombatTrackerPanel({ tracker, onUpdate, onEndCombat }) {
+  const activeLabel = tracker.activeSide === "party" ? "Party Turn" : "Monster Turn";
+  return (
+    <section className="combat-tracker">
+      <div className="section-heading compact-heading">
+        <div>
+          <p className="eyebrow">Combat</p>
+          <h2>Round {tracker.round}</h2>
+        </div>
+        <span className="status-pill">{activeLabel}</span>
+      </div>
+      <div className="combat-turn-toggle">
+        <button type="button" className={tracker.activeSide === "party" ? "active" : ""} onClick={() => onUpdate((current) => ({ ...current, activeSide: "party" }))}>Party</button>
+        <button type="button" className={tracker.activeSide === "monsters" ? "active" : ""} onClick={() => onUpdate((current) => ({ ...current, activeSide: "monsters" }))}>Monsters</button>
+      </div>
+      <div className="tracker-button-group">
+        <button type="button" className="table-button" onClick={() => onUpdate((current) => ({ ...current, round: current.round + 1, activeSide: "party" }))}>Advance Round</button>
+        <button type="button" className="table-button" onClick={onEndCombat}>End Combat</button>
+      </div>
+    </section>
   );
 }
 
@@ -1462,7 +1582,6 @@ function TrackerPanel({ mode, tracker, onModeChange, onUpdate }) {
 }
 
 const DRAGO_MARCHING_GRID = { columns: 2, rows: 6 };
-const DRAGO_COMBAT_GRID = { columns: 8, rows: 8 };
 const DRAGO_OUTDOORS_GRID = { columns: 12, rows: 8 };
 
 const DRAGO_SAMPLE_PLAYERS = [

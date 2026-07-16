@@ -40,7 +40,8 @@ test("Monsters opens the OSRIC monster glossary inside the DM app", () => {
   const item = DM_NAV_ITEMS.find((navItem) => navItem.label === "Monsters");
   const appSource = readFileSync(new URL("./App.jsx", import.meta.url), "utf8");
 
-  assert.equal(item?.to, "/monsters");
+  assert.equal(item?.href, "/monsters");
+  assert.equal(item?.target, "_blank");
   assert.equal(appSource.includes('<Route path="/monsters" element={<MonstersPage />} />'), true);
 });
 

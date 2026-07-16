@@ -1924,14 +1924,44 @@ tbody tr:hover {
 .drago-map-panel,
 .drago-monster-panel,
 .drago-roster-panel,
-.drago-reward-panel {
+.drago-reward-panel,
+.monster-type-panel {
   padding: 16px;
 }
 
 .tracker-console {
   display: grid;
   gap: 6px;
+  margin-bottom: 10px;
+}
+
+.combat-tracker {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 6px;
   margin-bottom: 8px;
+  padding-top: 9px;
+}
+
+.combat-turn-toggle {
+  display: grid;
+  gap: 5px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.combat-turn-toggle button {
+  background: rgba(8, 7, 5, 0.72);
+  border-color: var(--line);
+  color: var(--text);
+  font-size: 0.72rem;
+  min-height: 26px;
+  padding: 4px 5px;
+}
+
+.combat-turn-toggle button.active {
+  background: rgba(201, 154, 63, 0.18);
+  border-color: var(--gold);
+  color: var(--gold-2);
 }
 
 .tracker-console select {
@@ -2010,22 +2040,6 @@ tbody tr:hover {
   font-style: normal;
   font-weight: 800;
   margin-top: 8px;
-}
-
-.drago-command-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.compact-command-list {
-  gap: 6px;
-  margin-top: 4px;
-}
-
-.compact-command-list .table-button {
-  font-size: 0.74rem;
-  min-height: 28px;
-  padding: 5px 6px;
 }
 
 .monster-library {
@@ -2134,8 +2148,26 @@ tbody tr:hover {
   margin: 0;
 }
 
-.drago-map-toolbar select {
-  max-width: 190px;
+.grid-size-controls {
+  align-items: end;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, 74px);
+}
+
+.grid-size-controls label {
+  color: var(--muted);
+  display: grid;
+  font-size: 0.68rem;
+  font-weight: 900;
+  gap: 3px;
+  text-transform: uppercase;
+}
+
+.grid-size-controls input {
+  font-size: 0.78rem;
+  min-height: 30px;
+  padding: 5px 7px;
 }
 
 .drago-grid {
@@ -2175,7 +2207,6 @@ tbody tr:hover {
 }
 
 .marching-grid {
-  aspect-ratio: 2 / 6;
   max-height: 620px;
   max-width: 300px;
 }
@@ -2280,6 +2311,7 @@ tbody tr:hover {
   display: grid;
   gap: 7px;
   padding: 9px;
+  position: relative;
 }
 
 .encounter-mini-card.is-dead {
@@ -2306,8 +2338,51 @@ tbody tr:hover {
 
 .compact-actions .table-button,
 .add-grid-button {
-  min-height: 32px;
-  padding: 6px 7px;
+  font-size: 0.72rem;
+  min-height: 28px;
+  padding: 5px 6px;
+}
+
+.hp-popover {
+  background: #14100b;
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.44);
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  position: absolute;
+  right: 8px;
+  top: 48px;
+  width: 132px;
+  z-index: 8;
+}
+
+.hp-popover label {
+  color: var(--muted);
+  display: grid;
+  font-size: 0.66rem;
+  font-weight: 900;
+  gap: 3px;
+  text-transform: uppercase;
+}
+
+.hp-popover input {
+  font-size: 0.78rem;
+  min-height: 28px;
+  padding: 4px 6px;
+}
+
+.hp-popover div {
+  display: grid;
+  gap: 5px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.hp-popover .table-button {
+  font-size: 0.66rem;
+  min-height: 24px;
+  padding: 3px 4px;
 }
 
 .add-grid-button.active {
@@ -2316,13 +2391,14 @@ tbody tr:hover {
 }
 
 .monster-type-panel {
-  width: min(100%, 860px);
+  grid-column: 1 / -1;
 }
 
 .monster-type-grid {
+  align-items: start;
   display: grid;
   gap: 10px;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   width: 100%;
 }
 
@@ -2331,8 +2407,8 @@ tbody tr:hover {
   border: 1px solid rgba(201, 154, 63, 0.38);
   border-radius: 8px;
   display: grid;
-  gap: 9px;
-  padding: 12px;
+  gap: 7px;
+  padding: 10px;
 }
 
 .monster-browser {
@@ -2353,24 +2429,24 @@ tbody tr:hover {
 
 .monster-type-facts {
   display: grid;
-  gap: 8px;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   margin: 0;
 }
 
 .expand-button {
   border-radius: 50%;
-  font-size: 1rem;
-  min-height: 34px;
+  font-size: 0.9rem;
+  min-height: 30px;
   padding: 0;
-  width: 34px;
+  width: 30px;
 }
 
 .monster-text-section {
   border-top: 1px solid var(--line);
   display: grid;
   gap: 6px;
-  padding-top: 10px;
+  padding-top: 8px;
 }
 
 .monster-text-section h3 {
@@ -2381,8 +2457,8 @@ tbody tr:hover {
 
 .monster-text-section p {
   color: #ddcfbd;
-  font-size: 0.84rem;
-  line-height: 1.48;
+  font-size: 0.78rem;
+  line-height: 1.38;
   margin: 0;
 }
 
