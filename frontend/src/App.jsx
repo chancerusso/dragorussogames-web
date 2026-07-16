@@ -1,4 +1,4 @@
-import { Component, createContext, useContext, useEffect, useMemo, useState } from "react";
+import { Component, createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Link, Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import dragonlanceRaceManifest from "../../content/settings/dragonlance/races/index.json";
 import gullyDwarfRace from "../../content/settings/dragonlance/races/gully-dwarf.json";
@@ -53,6 +53,7 @@ const BUNDLED_DRAGONLANCE_RACE_FILES = {
 const BUNDLED_DRAGONLANCE_RACES = dragonlanceRaceManifest.map((file) => BUNDLED_DRAGONLANCE_RACE_FILES[file]).filter(Boolean);
 const PLAYER_TABS = [
   ["overview", "Overview"],
+  ["table", "Table"],
   ["character", "My Character"],
   ["players", "Party"],
   ["journal", "Journal"],
@@ -846,8 +847,10 @@ function DragoTablePage() {
   const [rewardBusy, setRewardBusy] = useState(false);
   const [rewardMessage, setRewardMessage] = useState("");
   const [tokenPositions, setTokenPositions] = useState(savedTable.tokenPositions);
+  const [playerColors, setPlayerColors] = useState(savedTable.playerColors);
   const [draggedToken, setDraggedToken] = useState(null);
-  const basePlayerTokens = useMemo(() => buildPlayerTokens(campaign?.characters || []), [campaign]);
+  const tableHydrated = useRef(false);
+  const basePlayerTokens = useMemo(() => buildPlayerTokens(campaign?.characters || [], playerColors), [campaign, playerColors]);
   const monsters = monsterCatalog || [];
   const filteredMonsters = useMemo(() => filterMonsterCatalog(monsters, monsterQuery).slice(0, 12), [monsters, monsterQuery]);
   const selectedMonster = useMemo(
@@ -874,7 +877,27 @@ function DragoTablePage() {
   }, [campaign?.id]);
 
   useEffect(() => {
-    saveDragoTableState(id, {
+    if (!campaign || tableHydrated.current) return;
+    const shared = normalizeDragoTableState(campaign.table_state);
+    if (shared) {
+      setMode(shared.mode);
+      setEncounterMonsters(shared.encounterMonsters);
+      setExpandedMonsterTypes(shared.expandedMonsterTypes);
+      setPendingGridMonsterId(shared.pendingGridMonsterId);
+      setCombatGrid(shared.combatGrid);
+      setCombatTracker(shared.combatTracker);
+      setTrackerMode(shared.trackerMode);
+      setTracker(shared.tracker);
+      setTreasureXp(shared.treasureXp);
+      setBonusXp(shared.bonusXp);
+      setTokenPositions(shared.tokenPositions);
+      setPlayerColors(shared.playerColors);
+    }
+    tableHydrated.current = true;
+  }, [campaign]);
+
+  useEffect(() => {
+    const nextState = {
       combatGrid,
       combatTracker,
       encounterMonsters,
@@ -882,10 +905,19 @@ function DragoTablePage() {
       mode,
       pendingGridMonsterId,
       bonusXp,
+      playerColors,
+      tracker,
+      trackerMode,
       treasureXp,
       tokenPositions,
-    });
-  }, [bonusXp, combatGrid, combatTracker, encounterMonsters, expandedMonsterTypes, id, mode, pendingGridMonsterId, tokenPositions, treasureXp]);
+    };
+    saveDragoTableState(id, nextState);
+    if (!tableHydrated.current) return;
+    const timer = window.setTimeout(() => {
+      api(`/1e/campaigns/${id}/table-state`, { method: "PUT", body: JSON.stringify(nextState) }).catch(() => {});
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [bonusXp, combatGrid, combatTracker, encounterMonsters, expandedMonsterTypes, id, mode, pendingGridMonsterId, playerColors, tokenPositions, tracker, trackerMode, treasureXp]);
 
   function moveToken(token, event) {
     const grid = event.currentTarget;
@@ -1199,6 +1231,9 @@ function defaultDragoTableState() {
     expandedMonsterTypes: {},
     mode: "marching",
     pendingGridMonsterId: null,
+    playerColors: {},
+    tracker: createTrackerState("greyhawk"),
+    trackerMode: "greyhawk",
     treasureXp: 0,
     tokenPositions: {},
   };
@@ -1220,6 +1255,23 @@ function loadDragoTableState(campaignId) {
   } catch {
     return defaults;
   }
+}
+
+function normalizeDragoTableState(state) {
+  if (!state || typeof state !== "object" || !Object.keys(state).length) return null;
+  const defaults = defaultDragoTableState();
+  return {
+    ...defaults,
+    ...state,
+    combatGrid: { ...defaults.combatGrid, ...(state.combatGrid || {}) },
+    combatTracker: { ...defaults.combatTracker, ...(state.combatTracker || {}) },
+    tracker: { ...defaults.tracker, ...(state.tracker || {}) },
+    trackerMode: state.trackerMode || defaults.trackerMode,
+    encounterMonsters: Array.isArray(state.encounterMonsters) ? state.encounterMonsters : [],
+    expandedMonsterTypes: state.expandedMonsterTypes || {},
+    playerColors: state.playerColors || {},
+    tokenPositions: state.tokenPositions || {},
+  };
 }
 
 function saveDragoTableState(campaignId, state) {
@@ -1729,20 +1781,19 @@ const DRAGO_MARCHING_GRID = { columns: 2, rows: 6 };
 const DRAGO_OUTDOORS_GRID = { columns: 12, rows: 8 };
 
 const DRAGO_SAMPLE_PLAYERS = [
-  { id: "pc-1", name: "Aldren", label: "AL", color: "#9fb36a", hp: "18 / 24", ac: "5", move: "9", status: "Ready", x: 1, y: 1, slotX: 0, slotY: 0 },
-  { id: "pc-2", name: "Brinna", label: "BR", color: "#b56d5d", hp: "12 / 16", ac: "7", move: "12", status: "Ready", x: 1, y: 1, slotX: 1, slotY: 0 },
-  { id: "pc-3", name: "Cairn", label: "CA", color: "#5d8fb5", hp: "9 / 11", ac: "8", move: "12", status: "Hidden", x: 1, y: 1, slotX: 0, slotY: 1 },
-  { id: "pc-4", name: "Damaia", label: "DA", color: "#b59b5d", hp: "6 / 9", ac: "10", move: "12", status: "Light", x: 1, y: 1, slotX: 1, slotY: 1 },
+  { id: "pc-1", name: "Aldren", label: "AL", color: "#f8f4e8", hp: "18 / 24", ac: "5", move: "9", status: "Ready", x: 1, y: 1, slotX: 0, slotY: 0 },
+  { id: "pc-2", name: "Brinna", label: "BR", color: "#d6a94d", hp: "12 / 16", ac: "7", move: "12", status: "Ready", x: 1, y: 1, slotX: 1, slotY: 0 },
+  { id: "pc-3", name: "Cairn", label: "CA", color: "#5aa7e8", hp: "9 / 11", ac: "8", move: "12", status: "Hidden", x: 1, y: 1, slotX: 0, slotY: 1 },
+  { id: "pc-4", name: "Damaia", label: "DA", color: "#9b78e6", hp: "6 / 9", ac: "10", move: "12", status: "Light", x: 1, y: 1, slotX: 1, slotY: 1 },
 ];
 
-function buildPlayerTokens(characters) {
+function buildPlayerTokens(characters, playerColors = {}) {
   if (!characters.length) return DRAGO_SAMPLE_PLAYERS;
-  const colors = ["#9fb36a", "#b56d5d", "#5d8fb5", "#b59b5d", "#8f75b5", "#6ab0a1"];
   return characters.slice(0, 6).map((character, index) => ({
     id: `pc-${character.id}`,
     name: character.name || `Character ${index + 1}`,
     label: String(character.name || "PC").slice(0, 2).toUpperCase(),
-    color: colors[index % colors.length],
+    color: playerColors[`pc-${character.id}`] || PLAYER_TOKEN_COLORS[index % PLAYER_TOKEN_COLORS.length].value,
     hp: `${character.current_hp ?? character.hit_points ?? "-"} / ${character.max_hp ?? character.hit_points ?? "-"}`,
     ac: character.armor_class ?? character.ac ?? "-",
     move: character.movement_rate ?? character.move ?? "12",
@@ -1767,7 +1818,7 @@ function buildMonsterTokens(encounterMonsters) {
         id: `monster-token-${monster.id}`,
         name: `${monster.label} (${footprint.label})`,
         label: monster.token_label,
-        color: footprint.color || "#b76b5b",
+        color: monsterHealthColor(monster),
         footprint,
         monster: true,
         x: 5 + (index % 4),
@@ -1776,6 +1827,25 @@ function buildMonsterTokens(encounterMonsters) {
         slotY: 0,
       };
     });
+}
+
+const PLAYER_TOKEN_COLORS = [
+  { key: "white", label: "White", value: "#f8f4e8" },
+  { key: "gold", label: "Gold", value: "#d6a94d" },
+  { key: "pink", label: "Pink", value: "#f08fbc" },
+  { key: "blue", label: "Blue", value: "#5aa7e8" },
+  { key: "silver", label: "Silver", value: "#c8ccd2" },
+  { key: "purple", label: "Purple", value: "#9b78e6" },
+  { key: "gray", label: "Gray", value: "#5b6068" },
+  { key: "turquoise", label: "Turquoise", value: "#31c6c0" },
+];
+
+function monsterHealthColor(monster) {
+  const maxHp = Math.max(1, Number(monster.max_hp) || 1);
+  const ratio = Math.max(0, Number(monster.current_hp) || 0) / maxHp;
+  if (ratio < 0.25) return "#b93a31";
+  if (ratio <= 0.5) return "#d87b24";
+  return "#4f9d55";
 }
 
 function groupEncounterMonsters(encounterMonsters) {
@@ -1860,8 +1930,33 @@ function monsterXp(monster, hp) {
   const perHpMatch = text.match(/\+\s*([0-9,]+)\s*\/?\s*hp/i);
   const base = baseMatch ? Number(baseMatch[1].replace(/,/g, "")) : 0;
   const perHp = perHpMatch ? Number(perHpMatch[1].replace(/,/g, "")) : 0;
-  if (!base && !perHp) return 0;
-  return base + perHp * Math.max(1, Number(hp) || 1);
+  if (base || perHp) return base + perHp * Math.max(1, Number(hp) || 1);
+  return fallbackMonsterXp(monster, hp);
+}
+
+function fallbackMonsterXp(monster, hp) {
+  const hdText = String(monster?.hit_dice || "");
+  const matches = [...hdText.matchAll(/\d+/g)].map((match) => Number(match[0])).filter(Number.isFinite);
+  const hd = Math.max(1, Math.max(...matches, 1));
+  const row = [
+    [1, 10, 1],
+    [2, 20, 2],
+    [3, 35, 3],
+    [4, 75, 4],
+    [5, 175, 5],
+    [6, 275, 6],
+    [7, 450, 8],
+    [8, 650, 10],
+    [9, 900, 12],
+    [10, 1100, 14],
+    [11, 1300, 16],
+    [12, 1550, 18],
+    [13, 1800, 20],
+    [14, 2100, 22],
+    [15, 2400, 24],
+    [16, 2800, 26],
+  ].find(([level]) => hd <= level) || [hd, 3000 + (hd - 16) * 400, 28 + (hd - 16) * 2];
+  return row[1] + row[2] * Math.max(1, Number(hp) || 1);
 }
 
 function createTrackerState(mode) {
@@ -1906,7 +2001,7 @@ function openTrackerStatusWindow(mode, tracker) {
   popup.document.close();
 }
 
-function TableToken({ grid, token, monster = false, onDragStart }) {
+function TableToken({ grid, token, monster = false, disabled = false, onDragStart }) {
   const slotX = token.slotX || 0;
   const slotY = token.slotY || 0;
   const footprint = monster ? (token.footprint || footprintByKey("1x1")) : { columns: 0.38, rows: 0.38 };
@@ -1920,9 +2015,11 @@ function TableToken({ grid, token, monster = false, onDragStart }) {
     <button
       type="button"
       className={`table-token ${monster ? "monster-token" : ""}`}
+      disabled={disabled}
       title={token.name}
       style={{ "--token-color": token.color, height: `${height}%`, left: `${left}%`, top: `${top}%`, width: `${width}%` }}
       onPointerDown={(event) => {
+        if (!onDragStart || disabled) return;
         event.currentTarget.setPointerCapture(event.pointerId);
         onDragStart(event);
       }}
@@ -2423,6 +2520,7 @@ function PlayerCampaignHome() {
       <CampaignHeader campaign={campaign} eyebrow="Campaign Home" />
       <PlayerTabs activeTab={activeTab} onChange={setActiveTab} />
       {activeTab === "overview" ? <PlayerOverviewTab campaign={campaign} character={character} /> : null}
+      {activeTab === "table" ? <PlayerTableTab campaign={campaign} character={character} /> : null}
       {activeTab === "character" ? <PlayerCharacterTab character={character} /> : null}
       {activeTab === "players" ? <PlayerRosterTab campaign={campaign} /> : null}
       {activeTab === "journal" ? <ReadOnlyPlaceholder title="Journal" copy="Read-only session summaries will appear here once the journal backend exists." /> : null}
@@ -2559,6 +2657,161 @@ function PlayerOverviewTab({ campaign, character }) {
         <p className="portal-copy">{(campaign.players || []).map((entry) => entry.player?.display_name || entry.player?.player_name || `Player ${entry.user_id}`).join(", ") || "No party members listed yet."}</p>
       </section>
     </div>
+  );
+}
+
+function PlayerTableTab({ campaign, character }) {
+  const initialState = normalizeDragoTableState(campaign.table_state) || defaultDragoTableState();
+  const [tableState, setTableState] = useState(initialState);
+  const [draggedToken, setDraggedToken] = useState(null);
+  const tokenId = character ? `pc-${character.id}` : null;
+  const activeGrid = tableState.mode === "combat" ? tableState.combatGrid : tableState.mode === "outdoors" ? DRAGO_OUTDOORS_GRID : DRAGO_MARCHING_GRID;
+  const playerTokens = applyTokenPositions(buildPlayerTokens(campaign.characters || [], tableState.playerColors), tableState.tokenPositions);
+  const monsterTokens = applyTokenPositions(buildMonsterTokens(tableState.encounterMonsters || []), tableState.tokenPositions);
+  const visibleTokens = tableState.mode === "combat" ? [...playerTokens, ...monsterTokens] : playerTokens;
+  const myToken = playerTokens.find((token) => token.id === tokenId);
+
+  function publish(nextState) {
+    setTableState(nextState);
+    api(`/player/campaigns/${campaign.id}/table-state`, { auth: "player", method: "PUT", body: JSON.stringify(nextState) }).catch(() => {});
+  }
+
+  function moveOwnToken(token, event) {
+    if (!tokenId || token.id !== tokenId) return;
+    const grid = event.currentTarget;
+    const rect = grid.getBoundingClientRect();
+    const cellWidth = rect.width / activeGrid.columns;
+    const cellHeight = rect.height / activeGrid.rows;
+    const relativeX = Math.max(0, Math.min(rect.width - 1, event.clientX - rect.left));
+    const relativeY = Math.max(0, Math.min(rect.height - 1, event.clientY - rect.top));
+    const x = Math.max(1, Math.min(activeGrid.columns, Math.floor(relativeX / cellWidth) + 1));
+    const y = Math.max(1, Math.min(activeGrid.rows, Math.floor(relativeY / cellHeight) + 1));
+    const slotX = (relativeX % cellWidth) >= cellWidth / 2 ? 1 : 0;
+    const slotY = (relativeY % cellHeight) >= cellHeight / 2 ? 1 : 0;
+    publish({ ...tableState, tokenPositions: { ...tableState.tokenPositions, [tokenId]: { x, y, slotX, slotY } } });
+  }
+
+  function setOwnColor(color) {
+    if (!tokenId) return;
+    publish({ ...tableState, playerColors: { ...tableState.playerColors, [tokenId]: color } });
+  }
+
+  function addOwnToken() {
+    if (!tokenId) return;
+    publish({ ...tableState, tokenPositions: { ...tableState.tokenPositions, [tokenId]: { x: 1, y: 1, slotX: 0, slotY: 0 } } });
+  }
+
+  return (
+    <div className="player-table-layout">
+      <aside className="panel player-table-status">
+        <ReadOnlyTrackerStatus tracker={tableState.tracker} mode={tableState.trackerMode || (isDragonlanceCampaign(campaign) ? "dragonlance" : "greyhawk")} />
+        <ReadOnlyCombatStatus tracker={tableState.combatTracker} />
+      </aside>
+      <main className="panel drago-map-panel player-map-panel">
+        <div className="drago-map-toolbar">
+          <div>
+            <p className="eyebrow">Player View</p>
+            <h2>{tableState.mode === "combat" ? `${activeGrid.columns} x ${activeGrid.rows} Combat Grid` : tableState.mode === "outdoors" ? "Outdoor View" : "Marching Order"}</h2>
+          </div>
+        </div>
+        <div
+          className={`drago-grid ${tableState.mode === "combat" ? "combat-grid" : tableState.mode === "outdoors" ? "outdoors-grid" : "marching-grid"}`}
+          style={{ "--grid-columns": activeGrid.columns, "--grid-rows": activeGrid.rows, aspectRatio: `${activeGrid.columns} / ${activeGrid.rows}` }}
+          onPointerMove={(event) => { if (draggedToken) moveOwnToken(draggedToken, event); }}
+          onPointerUp={() => setDraggedToken(null)}
+          onPointerLeave={() => setDraggedToken(null)}
+        >
+          {visibleTokens.map((token) => (
+            <TableToken
+              key={token.id}
+              grid={activeGrid}
+              token={token}
+              monster={token.monster}
+              disabled={token.id !== tokenId}
+              onDragStart={token.id === tokenId ? (event) => { setDraggedToken(token); moveOwnToken(token, event); } : undefined}
+            />
+          ))}
+        </div>
+      </main>
+      <aside className="panel player-table-rules">
+        <PlayerCombatRules mode={tableState.mode} />
+      </aside>
+      <section className="panel player-character-combat">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">My Token</p>
+            <h2>{character?.name || "No Character"}</h2>
+          </div>
+          <button className="table-button" type="button" disabled={!character} onClick={addOwnToken}>Add To Grid</button>
+        </div>
+        {myToken ? (
+          <>
+            <div className="player-color-grid">
+              {PLAYER_TOKEN_COLORS.map((color) => (
+                <button key={color.key} type="button" className={myToken.color === color.value ? "active" : ""} style={{ "--swatch": color.value }} onClick={() => setOwnColor(color.value)}>{color.label}</button>
+              ))}
+            </div>
+            <dl className="detail-list">
+              <div><dt>HP</dt><dd>{myToken.hp}</dd></div>
+              <div><dt>AC</dt><dd>{myToken.ac}</dd></div>
+              <div><dt>Move</dt><dd>{myToken.move}</dd></div>
+              <div><dt>Status</dt><dd>{myToken.status}</dd></div>
+            </dl>
+          </>
+        ) : <p className="muted">Create or assign a character to use the table.</p>}
+      </section>
+    </div>
+  );
+}
+
+function ReadOnlyTrackerStatus({ tracker, mode }) {
+  return (
+    <section className="tracker-console readonly-tracker">
+      <div className="section-heading compact-heading"><div><p className="eyebrow">Tracker</p><h2>{mode === "dragonlance" ? "Dragonlance 1985" : "Classic Tracker"}</h2></div></div>
+      <div className="tracker-status-box">
+        <strong>{tracker.weekday}, {tracker.day} {tracker.month}, {tracker.year}</strong>
+        <span>Time: {tracker.time}</span>
+        <span>Turn: {tracker.turn}</span>
+        <span>Rest: {tracker.turnsSinceRest} / 5</span>
+        <span>Torch: {tracker.torchLit ? "Lit" : "Unlit"} · {tracker.torchTurns} turn(s)</span>
+        <span>Lantern: {tracker.lanternLit ? "Lit" : "Unlit"} · Oil {tracker.oil}</span>
+        {mode === "dragonlance" ? <span>Moons: Sol {tracker.solinari} / Lun {tracker.lunitari} / Nui {tracker.nuitari}</span> : null}
+      </div>
+    </section>
+  );
+}
+
+function ReadOnlyCombatStatus({ tracker }) {
+  return (
+    <section className="combat-tracker readonly-tracker">
+      <div className="section-heading compact-heading">
+        <div><p className="eyebrow">Combat</p><h2>Round {tracker?.round || 1}</h2></div>
+        <span className="status-pill">{tracker?.activeSide === "monsters" ? "Monster Turn" : "Party Turn"}</span>
+      </div>
+    </section>
+  );
+}
+
+function PlayerCombatRules({ mode }) {
+  if (mode !== "combat") {
+    return (
+      <section>
+        <p className="eyebrow">Exploration</p>
+        <h2>Exploration Flow</h2>
+        {["Marching order", "Light and time", "Listen, search, and doors", "Wandering checks"].map((title) => (
+          <details className="player-rule-step" key={title}><summary>{title}</summary><p>Follow the DM prompt. The tracker shows current light, time, and rest pressure.</p></details>
+        ))}
+      </section>
+    );
+  }
+  return (
+    <section>
+      <p className="eyebrow">Combat Rules</p>
+      <h2>Combat Flow</h2>
+      {["Declare actions", "Initiative", "Movement", "Missiles and spells", "Melee", "Morale and results"].map((title) => (
+        <details className="player-rule-step" key={title}><summary>{title}</summary><p>Resolve the step when the DM calls it. Keep your token position current and watch the turn indicator.</p></details>
+      ))}
+    </section>
   );
 }
 

@@ -748,6 +748,7 @@ def campaign_counts(db: Session, campaign_id: int) -> dict[str, int]:
 def campaign_detail_payload(db: Session, campaign: Campaign) -> dict:
     payload = campaign_payload(campaign)
     payload.update(campaign_counts(db, campaign.id))
+    payload["table_state"] = campaign.table_state or {}
     memberships = db.scalars(select(CampaignPlayer).where(CampaignPlayer.campaign_id == campaign.id)).all()
     players = {player.id: player for player in db.scalars(select(Player).where(Player.id.in_([m.user_id for m in memberships]))).all()} if memberships else {}
     characters = [character_payload(character) for character in db.scalars(select(VaultCharacter).where(VaultCharacter.campaign_id == campaign.id)).all()]
@@ -1209,6 +1210,17 @@ def get_player_campaign(campaign_id: int, claims: dict = Depends(require_player)
     return payload
 
 
+@router.put("/player/campaigns/{campaign_id}/table-state")
+def update_player_campaign_table_state(campaign_id: int, data: dict, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
+    player = player_from_claims(db, claims)
+    ensure_player_campaign_member(db, campaign_id, player.id)
+    campaign = get_campaign_or_404(db, campaign_id)
+    campaign.table_state = data
+    db.commit()
+    db.refresh(campaign)
+    return {"ok": True, "table_state": campaign.table_state or {}}
+
+
 @router.get("/1e/rules-data")
 def vault_rules_data(_: dict = Depends(require_player_or_admin)) -> dict:
     return {"races": RACES, "classes": CLASSES, "alignments": ALIGNMENTS}
@@ -1663,6 +1675,15 @@ def create_vault_campaign(data: dict, _: dict = Depends(require_jwt_admin), db: 
 def get_vault_campaign(campaign_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     campaign = get_campaign_or_404(db, campaign_id)
     return campaign_detail_payload(db, campaign)
+
+
+@router.put("/1e/campaigns/{campaign_id}/table-state")
+def update_vault_campaign_table_state(campaign_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    campaign = get_campaign_or_404(db, campaign_id)
+    campaign.table_state = data
+    db.commit()
+    db.refresh(campaign)
+    return {"ok": True, "table_state": campaign.table_state or {}}
 
 
 @router.put("/1e/campaigns/{campaign_id}")

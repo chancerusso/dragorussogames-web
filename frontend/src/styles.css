@@ -2324,6 +2324,10 @@ tbody tr:hover {
   transform: scale(1.05);
 }
 
+.table-token:disabled {
+  cursor: default;
+}
+
 .monster-token {
   background: var(--token-color);
   border-radius: 28px;
@@ -2712,6 +2716,78 @@ tbody tr:hover {
   padding: 5px 9px;
 }
 
+.player-table-layout {
+  align-items: start;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 280px minmax(420px, 1fr) 300px;
+}
+
+.player-map-panel {
+  min-height: 360px;
+}
+
+.player-table-status,
+.player-table-rules,
+.player-character-combat {
+  display: grid;
+  gap: 12px;
+}
+
+.player-character-combat {
+  grid-column: 1 / -1;
+}
+
+.player-color-grid {
+  display: grid;
+  gap: 7px;
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+}
+
+.player-color-grid button {
+  align-items: center;
+  background: rgba(8, 7, 5, 0.72);
+  border-color: var(--line);
+  color: var(--text);
+  display: flex;
+  font-size: 0.76rem;
+  gap: 7px;
+  justify-content: flex-start;
+  min-height: 32px;
+  padding: 5px 8px;
+}
+
+.player-color-grid button::before {
+  background: var(--swatch);
+  border: 1px solid rgba(255, 247, 229, 0.72);
+  border-radius: 50%;
+  content: "";
+  height: 16px;
+  width: 16px;
+}
+
+.player-color-grid button.active {
+  border-color: var(--gold);
+}
+
+.player-rule-step {
+  border-top: 1px solid var(--line);
+  padding: 9px 0;
+}
+
+.player-rule-step summary {
+  color: var(--gold-2);
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.player-rule-step p {
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  margin: 8px 0 0;
+}
+
 .table-campaign-card .action-button {
   margin-top: auto;
 }
@@ -2730,6 +2806,7 @@ tbody tr:hover {
   .home-grid,
   .drago-table-layout,
   .drago-bottom-grid,
+  .player-table-layout,
   .builder-campaign-strip,
   .dragonlance-reader {
     grid-template-columns: 1fr;

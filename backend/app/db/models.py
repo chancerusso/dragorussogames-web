@@ -36,6 +36,7 @@ class Campaign(TimestampMixin, Base):
     current_campaign_day: Mapped[int] = mapped_column(Integer, default=1, server_default="1", nullable=False)
     default_location: Mapped[str] = mapped_column(String(160), default="Town", server_default="Town", nullable=False)
     status: Mapped[str] = mapped_column(String(40), default="active", server_default="active", nullable=False)
+    table_state: Mapped[dict[str, Any]] = mapped_column(JSONType, default=dict, server_default="{}", nullable=False)
 
     parties: Mapped[list["Party"]] = relationship(back_populates="campaign")
     characters: Mapped[list["Character"]] = relationship(back_populates="campaign")
