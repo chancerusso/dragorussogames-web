@@ -31,6 +31,7 @@ from app.db.models import (
     CharacterSpell,
     CampaignPlayer,
     EquipmentCatalog,
+    MonsterCatalog,
     Player,
     SafeStorageLocation,
     SpellsCatalog,
@@ -349,6 +350,39 @@ def spell_payload(spell: SpellsCatalog) -> dict:
         "description": spell.description,
         "rules_reference": spell.rules_reference,
     }
+
+
+def monster_payload(monster: MonsterCatalog, include_source_text: bool = False) -> dict:
+    payload = {
+        "id": monster.id,
+        "name": monster.name,
+        "slug": monster.slug,
+        "source": monster.source,
+        "source_pdf_page": monster.source_pdf_page,
+        "rules_reference": monster.rules_reference,
+        "frequency": monster.frequency,
+        "number_encountered": monster.number_encountered,
+        "size": monster.size,
+        "movement": monster.movement,
+        "armor_class": monster.armor_class,
+        "hit_dice": monster.hit_dice,
+        "attacks": monster.attacks,
+        "damage": monster.damage,
+        "special_attacks": monster.special_attacks,
+        "special_defences": monster.special_defences,
+        "magic_resistance": monster.magic_resistance,
+        "lair_probability": monster.lair_probability,
+        "intelligence": monster.intelligence,
+        "alignment": monster.alignment,
+        "level_xp": monster.level_xp,
+        "treasure": monster.treasure,
+        "description": monster.description,
+        "is_core_osric": monster.is_core_osric,
+        "archived": monster.archived,
+    }
+    if include_source_text:
+        payload["source_text"] = monster.source_text
+    return payload
 
 
 def campaign_payload(campaign: Campaign) -> dict:
@@ -1555,6 +1589,37 @@ def list_vault_spells(
         if spell_level is not None and spell.spell_level != spell_level:
             continue
         filtered.append(spell_payload(spell))
+    return filtered
+
+
+@router.get("/1e/monsters")
+def list_vault_monsters(
+    q: Optional[str] = None,
+    alignment: Optional[str] = None,
+    hit_dice: Optional[str] = None,
+    include_source_text: bool = False,
+    include_archived: bool = False,
+    actor: dict = Depends(require_player_or_admin),
+    db: Session = Depends(get_db),
+) -> list[dict]:
+    ensure_vault_seeded(db)
+    if actor.get("role") != "admin":
+        include_archived = False
+        include_source_text = False
+    monsters = db.scalars(select(MonsterCatalog).order_by(MonsterCatalog.name)).all()
+    filtered = []
+    for monster in monsters:
+        if monster.archived and not include_archived:
+            continue
+        if q:
+            needle = q.lower().strip()
+            if needle and needle not in (monster.search_text or "").lower():
+                continue
+        if alignment and alignment.lower() not in (monster.alignment or "").lower():
+            continue
+        if hit_dice and hit_dice.lower() not in (monster.hit_dice or "").lower():
+            continue
+        filtered.append(monster_payload(monster, include_source_text=include_source_text))
     return filtered
 
 

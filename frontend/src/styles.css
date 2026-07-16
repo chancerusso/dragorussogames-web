@@ -1979,6 +1979,58 @@ tbody tr:hover {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.monster-library {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 14px;
+}
+
+.compact-heading h2,
+.monster-reference-card h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.08rem;
+  margin: 0;
+}
+
+.monster-library input {
+  min-width: 0;
+  width: 100%;
+}
+
+.monster-library-list {
+  display: grid;
+  gap: 7px;
+  max-height: 44vh;
+  overflow: auto;
+  padding-right: 3px;
+}
+
+.monster-library-list button {
+  align-items: start;
+  background: rgba(8, 7, 5, 0.72);
+  border-color: var(--line);
+  color: var(--text);
+  display: grid;
+  gap: 5px;
+  justify-items: start;
+  min-height: 0;
+  padding: 10px;
+  text-align: left;
+}
+
+.monster-library-list button.active,
+.monster-library-list button:hover {
+  border-color: var(--gold);
+}
+
+.monster-library-list span {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
 .drago-map-toolbar {
   align-items: center;
   display: flex;
@@ -2087,6 +2139,18 @@ tbody tr:hover {
   gap: 10px;
 }
 
+.monster-reference-card {
+  background: rgba(8, 7, 5, 0.82);
+  border: 1px solid rgba(201, 154, 63, 0.44);
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+  max-height: 66vh;
+  overflow: auto;
+  padding: 12px;
+}
+
 .monster-card {
   background: rgba(8, 7, 5, 0.74);
   border: 1px solid var(--line);
@@ -2120,11 +2184,67 @@ tbody tr:hover {
 }
 
 .monster-card dl,
+.monster-reference-card dl,
 .character-snippet dl {
   display: grid;
   gap: 8px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   margin: 0;
+}
+
+.monster-reference-card dt {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.monster-reference-card dd {
+  overflow-wrap: anywhere;
+}
+
+.monster-text-section {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 6px;
+  padding-top: 10px;
+}
+
+.monster-text-section h3 {
+  font-size: 0.82rem;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.monster-text-section p {
+  color: #ddcfbd;
+  font-size: 0.84rem;
+  line-height: 1.48;
+  margin: 0;
+}
+
+.monster-source-block {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+.monster-source-block summary {
+  color: var(--gold-2);
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.monster-source-block pre {
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: #ddcfbd;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  max-height: 280px;
+  overflow: auto;
+  padding: 10px;
+  white-space: pre-wrap;
 }
 
 .monster-actions .table-button {

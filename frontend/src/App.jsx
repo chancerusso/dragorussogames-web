@@ -820,11 +820,20 @@ function DragoTableIndexPage() {
 function DragoTablePage() {
   const { id } = useParams();
   const { data: campaign, error, loading } = useLoad(() => api(`/1e/campaigns/${id}`), [id]);
+  const { data: monsterCatalog, error: monsterError, loading: monsterLoading } = useLoad(() => api("/1e/monsters?include_source_text=true"), []);
   const [mode, setMode] = useState("marching");
+  const [monsterQuery, setMonsterQuery] = useState("");
+  const [selectedMonsterId, setSelectedMonsterId] = useState(null);
   const [tokenPositions, setTokenPositions] = useState({});
   const [draggedToken, setDraggedToken] = useState(null);
   const basePlayerTokens = useMemo(() => buildPlayerTokens(campaign?.characters || []), [campaign]);
   const monsterCards = DRAGO_SAMPLE_MONSTERS;
+  const monsters = monsterCatalog || [];
+  const filteredMonsters = useMemo(() => filterMonsterCatalog(monsters, monsterQuery).slice(0, 80), [monsters, monsterQuery]);
+  const selectedMonster = useMemo(
+    () => monsters.find((monster) => monster.id === selectedMonsterId) || filteredMonsters[0] || null,
+    [filteredMonsters, monsters, selectedMonsterId],
+  );
   const activeGrid = mode === "combat" ? DRAGO_COMBAT_GRID : mode === "outdoors" ? DRAGO_OUTDOORS_GRID : DRAGO_MARCHING_GRID;
   const playerTokens = useMemo(() => applyTokenPositions(basePlayerTokens, tokenPositions), [basePlayerTokens, tokenPositions]);
   const monsterTokens = useMemo(() => applyTokenPositions(DRAGO_MONSTER_TOKENS, tokenPositions), [tokenPositions]);
@@ -893,6 +902,15 @@ function DragoTablePage() {
             <button type="button" className="table-button">Open Rules</button>
             <button type="button" className="table-button">Add Treasure</button>
           </div>
+          <MonsterLibrarySidebar
+            error={monsterError}
+            loading={monsterLoading}
+            monsters={filteredMonsters}
+            query={monsterQuery}
+            selectedMonster={selectedMonster}
+            onQueryChange={setMonsterQuery}
+            onSelect={setSelectedMonsterId}
+          />
         </aside>
 
         <main className="panel drago-map-panel">
@@ -928,6 +946,7 @@ function DragoTablePage() {
 
         <aside className="panel drago-monster-panel">
           <p className="eyebrow">Encounter</p>
+          <MonsterReferenceCard monster={selectedMonster} />
           <div className="monster-card-stack">
             {monsterCards.map((monster) => <MonsterCard key={monster.id} monster={monster} />)}
           </div>
@@ -982,6 +1001,117 @@ const DRAGO_TABLE_MODES = [
   ["combat", "Combat"],
   ["outdoors", "Outdoors"],
 ];
+
+function filterMonsterCatalog(monsters, query) {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return monsters;
+  return monsters.filter((monster) => {
+    const text = [
+      monster.name,
+      monster.hit_dice,
+      monster.armor_class,
+      monster.alignment,
+      monster.special_attacks,
+      monster.special_defences,
+      monster.description,
+    ].filter(Boolean).join(" ").toLowerCase();
+    return text.includes(needle);
+  });
+}
+
+function MonsterLibrarySidebar({ error, loading, monsters, query, selectedMonster, onQueryChange, onSelect }) {
+  return (
+    <section className="monster-library">
+      <div className="section-heading compact-heading">
+        <div>
+          <p className="eyebrow">OSRIC Monsters</p>
+          <h2>Monster Library</h2>
+        </div>
+        <span className="status-pill">{loading ? "Loading" : `${monsters.length} shown`}</span>
+      </div>
+      <input
+        aria-label="Search OSRIC monsters"
+        placeholder="Search name, HD, ability..."
+        value={query}
+        onChange={(event) => onQueryChange(event.target.value)}
+      />
+      <PageState loading={loading} error={error} />
+      <div className="monster-library-list">
+        {monsters.map((monster) => (
+          <button
+            className={selectedMonster?.id === monster.id ? "active" : ""}
+            key={monster.id}
+            type="button"
+            onClick={() => onSelect(monster.id)}
+          >
+            <strong>{monster.name}</strong>
+            <span>AC {monster.armor_class || "-"} · HD {monster.hit_dice || "-"} · XP {monster.level_xp || "-"}</span>
+          </button>
+        ))}
+      </div>
+      {!loading && !error && monsters.length === 0 ? <p className="muted">No monsters match that search.</p> : null}
+    </section>
+  );
+}
+
+function MonsterReferenceCard({ monster }) {
+  if (!monster) {
+    return (
+      <article className="monster-reference-card">
+        <h2>Monster Detail</h2>
+        <p className="muted">Choose an OSRIC monster from the library.</p>
+      </article>
+    );
+  }
+  const facts = [
+    ["AC", monster.armor_class],
+    ["HD", monster.hit_dice],
+    ["Move", monster.movement],
+    ["Attacks", monster.attacks],
+    ["Damage", monster.damage],
+    ["Morale", monster.morale || "Manual"],
+    ["Size", monster.size],
+    ["Align", monster.alignment],
+    ["XP", monster.level_xp],
+    ["Lair", monster.lair_probability],
+  ];
+  return (
+    <article className="monster-reference-card">
+      <div className="monster-card-header">
+        <div>
+          <h2>{monster.name}</h2>
+          <span>OSRIC p. {monster.source_pdf_page || "-"}</span>
+        </div>
+        <span className="status-pill">{monster.frequency || "Frequency -"}</span>
+      </div>
+      <dl>
+        {facts.map(([label, value]) => (
+          <div key={label}><dt>{label}</dt><dd>{value || "-"}</dd></div>
+        ))}
+      </dl>
+      <MonsterTextSection title="Special Attacks" value={monster.special_attacks} />
+      <MonsterTextSection title="Special Defences" value={monster.special_defences} />
+      <MonsterTextSection title="Description" value={monster.description} />
+      <MonsterTextSection title="Treasure" value={monster.treasure} />
+      {monster.source_text ? (
+        <details className="monster-source-block">
+          <summary>Full Source Block</summary>
+          <pre>{monster.source_text}</pre>
+        </details>
+      ) : null}
+    </article>
+  );
+}
+
+function MonsterTextSection({ title, value }) {
+  if (!value || value === "None" || value === "Nil") return null;
+  return (
+    <section className="monster-text-section">
+      <h3>{title}</h3>
+      <p>{value}</p>
+    </section>
+  );
+}
 
 const DRAGO_MARCHING_GRID = { columns: 2, rows: 6 };
 const DRAGO_COMBAT_GRID = { columns: 8, rows: 8 };

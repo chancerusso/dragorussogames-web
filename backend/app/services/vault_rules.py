@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 import re
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.db.models import EquipmentCatalog, SpellsCatalog
+from app.db.models import EquipmentCatalog, MonsterCatalog, SpellsCatalog
 
 
 ABILITIES = ("strength", "intelligence", "wisdom", "dexterity", "constitution", "charisma")
@@ -1000,6 +1001,11 @@ def spell_seed() -> list[dict]:
     return list(seeds.values())
 
 
+def monster_seed() -> list[dict]:
+    monster_path = content_root().parent / "osric" / "core" / "monsters" / "osric_monsters.json"
+    return json.loads(monster_path.read_text())
+
+
 def seed_vault_catalogs(db: Session) -> None:
     if db.scalar(select(EquipmentCatalog.id).limit(1)) is None:
         for seed in equipment_seed():
@@ -1007,4 +1013,7 @@ def seed_vault_catalogs(db: Session) -> None:
     if db.scalar(select(SpellsCatalog.id).limit(1)) is None:
         for seed in spell_seed():
             db.add(SpellsCatalog(**seed))
+    if db.scalar(select(MonsterCatalog.id).limit(1)) is None:
+        for seed in monster_seed():
+            db.add(MonsterCatalog(**seed))
     db.commit()

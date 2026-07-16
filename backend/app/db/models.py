@@ -330,6 +330,38 @@ class SpellsCatalog(TimestampMixin, Base):
     rules_reference: Mapped[Optional[str]] = mapped_column(String(240), nullable=True)
 
 
+class MonsterCatalog(TimestampMixin, Base):
+    __tablename__ = "monster_catalog"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(160), nullable=False)
+    slug: Mapped[str] = mapped_column(String(180), unique=True, nullable=False)
+    source: Mapped[str] = mapped_column(String(120), default="OSRIC Core Rules", server_default="OSRIC Core Rules", nullable=False)
+    source_pdf_page: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    rules_reference: Mapped[Optional[str]] = mapped_column(String(240), nullable=True)
+    frequency: Mapped[Optional[str]] = mapped_column(String(160), nullable=True)
+    number_encountered: Mapped[Optional[str]] = mapped_column(String(160), nullable=True)
+    size: Mapped[Optional[str]] = mapped_column(String(160), nullable=True)
+    movement: Mapped[Optional[str]] = mapped_column(String(240), nullable=True)
+    armor_class: Mapped[Optional[str]] = mapped_column(String(160), nullable=True)
+    hit_dice: Mapped[Optional[str]] = mapped_column(String(160), nullable=True)
+    attacks: Mapped[Optional[str]] = mapped_column(String(240), nullable=True)
+    damage: Mapped[Optional[str]] = mapped_column(String(240), nullable=True)
+    special_attacks: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    special_defences: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    magic_resistance: Mapped[Optional[str]] = mapped_column(String(160), nullable=True)
+    lair_probability: Mapped[Optional[str]] = mapped_column(String(160), nullable=True)
+    intelligence: Mapped[Optional[str]] = mapped_column(String(160), nullable=True)
+    alignment: Mapped[Optional[str]] = mapped_column(String(160), nullable=True)
+    level_xp: Mapped[Optional[str]] = mapped_column(String(240), nullable=True)
+    treasure: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+    source_text: Mapped[str] = mapped_column(Text, nullable=False)
+    search_text: Mapped[str] = mapped_column(Text, nullable=False)
+    is_core_osric: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true", nullable=False)
+    archived: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
+
+
 class CharacterSpell(TimestampMixin, Base):
     __tablename__ = "character_spells"
     __table_args__ = (UniqueConstraint("character_id", "spell_id", name="uq_character_spell"),)
