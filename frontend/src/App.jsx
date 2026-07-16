@@ -1491,9 +1491,9 @@ function MonsterTypeCard({ group, expanded, onToggle }) {
           <div key={label}><dt>{label}</dt><dd>{value || "-"}</dd></div>
         ))}
       </dl>
-      <MonsterTextSection title="Special Attacks" value={monster.special_attacks} compact />
       {expanded ? (
         <div className="monster-expanded-block">
+          <MonsterTextSection title="Special Attacks" value={monster.special_attacks} />
           <MonsterTextSection title="Special Defences" value={monster.special_defences} />
           <MonsterTextSection title="Description" value={monster.description} />
           <MonsterTextSection title="Treasure" value={monster.treasure} />
