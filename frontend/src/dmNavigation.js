@@ -1,6 +1,6 @@
 export const DM_NAV_ITEMS = [
   { label: "Command Center", to: "/campaigns" },
-  { label: "Drago Table", to: "/table" },
+  { label: "Drago Table", to: "/table", match: (path) => path === "/table" || path.endsWith("/table") },
   { label: "Campaigns", href: "/campaigns#active-campaigns" },
   { label: "Rules & Settings", to: "/rules" },
   { label: "Players", to: "/players" },

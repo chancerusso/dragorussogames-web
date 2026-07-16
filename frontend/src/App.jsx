@@ -173,6 +173,7 @@ function ClassicRoot() {
 }
 
 function AppSidebar({ mode, title, subtitle, brandTo, navItems, account, onSignOut }) {
+  const location = useLocation();
   return (
     <aside className={`sidebar ${mode === "player" ? "player-sidebar" : ""}`}>
       <Link className="brand" to={brandTo}>
@@ -193,7 +194,14 @@ function AppSidebar({ mode, title, subtitle, brandTo, navItems, account, onSignO
           item.href ? (
             <a key={item.label} href={item.href}>{item.label}</a>
           ) : (
-            <NavLink key={item.label} end={item.end} to={item.to}>{item.label}</NavLink>
+            <NavLink
+              key={item.label}
+              end={item.end}
+              to={item.to}
+              className={({ isActive }) => (isActive || (item.match && item.match(location.pathname)) ? "active" : "")}
+            >
+              {item.label}
+            </NavLink>
           )
         ))}
       </nav>
@@ -824,19 +832,38 @@ function DragoTablePage() {
   const [mode, setMode] = useState("marching");
   const [monsterQuery, setMonsterQuery] = useState("");
   const [selectedMonsterId, setSelectedMonsterId] = useState(null);
+  const [encounterMonsters, setEncounterMonsters] = useState([]);
+  const [expandedMonsterTypes, setExpandedMonsterTypes] = useState({});
+  const [pendingGridMonsterId, setPendingGridMonsterId] = useState(null);
+  const [trackerMode, setTrackerMode] = useState(isDragonlanceCampaign(campaign) ? "dragonlance" : "greyhawk");
+  const [tracker, setTracker] = useState(() => createTrackerState(isDragonlanceCampaign(campaign) ? "dragonlance" : "greyhawk"));
   const [tokenPositions, setTokenPositions] = useState({});
   const [draggedToken, setDraggedToken] = useState(null);
   const basePlayerTokens = useMemo(() => buildPlayerTokens(campaign?.characters || []), [campaign]);
-  const monsterCards = DRAGO_SAMPLE_MONSTERS;
   const monsters = monsterCatalog || [];
-  const filteredMonsters = useMemo(() => filterMonsterCatalog(monsters, monsterQuery).slice(0, 80), [monsters, monsterQuery]);
+  const filteredMonsters = useMemo(() => filterMonsterCatalog(monsters, monsterQuery).slice(0, 12), [monsters, monsterQuery]);
   const selectedMonster = useMemo(
-    () => monsters.find((monster) => monster.id === selectedMonsterId) || filteredMonsters[0] || null,
+    () => monsters.find((monster) => monster.id === selectedMonsterId) || null,
     [filteredMonsters, monsters, selectedMonsterId],
+  );
+  const encounterGroups = useMemo(() => groupEncounterMonsters(encounterMonsters), [encounterMonsters]);
+  const pendingMonster = useMemo(
+    () => encounterMonsters.find((monster) => monster.id === pendingGridMonsterId) || null,
+    [encounterMonsters, pendingGridMonsterId],
   );
   const activeGrid = mode === "combat" ? DRAGO_COMBAT_GRID : mode === "outdoors" ? DRAGO_OUTDOORS_GRID : DRAGO_MARCHING_GRID;
   const playerTokens = useMemo(() => applyTokenPositions(basePlayerTokens, tokenPositions), [basePlayerTokens, tokenPositions]);
-  const monsterTokens = useMemo(() => applyTokenPositions(DRAGO_MONSTER_TOKENS, tokenPositions), [tokenPositions]);
+  const monsterTokens = useMemo(
+    () => applyTokenPositions(buildMonsterTokens(encounterMonsters), tokenPositions),
+    [encounterMonsters, tokenPositions],
+  );
+
+  useEffect(() => {
+    if (!campaign) return;
+    const nextMode = isDragonlanceCampaign(campaign) ? "dragonlance" : "greyhawk";
+    setTrackerMode(nextMode);
+    setTracker(createTrackerState(nextMode));
+  }, [campaign?.id]);
 
   function moveToken(token, event) {
     const grid = event.currentTarget;
@@ -850,6 +877,73 @@ function DragoTablePage() {
     const slotX = (relativeX % cellWidth) >= cellWidth / 2 ? 1 : 0;
     const slotY = (relativeY % cellHeight) >= cellHeight / 2 ? 1 : 0;
     setTokenPositions((positions) => ({ ...positions, [token.id]: { x, y, slotX, slotY } }));
+  }
+
+  function addMonsterToEncounter(monster = selectedMonster) {
+    if (!monster) return;
+    setEncounterMonsters((current) => {
+      const sameTypeCount = current.filter((entry) => entry.monster_id === monster.id).length;
+      const maxHp = rollHitPoints(monster.hit_dice);
+      const next = {
+        id: `enc-${monster.id}-${Date.now()}-${sameTypeCount + 1}`,
+        monster_id: monster.id,
+        number: sameTypeCount + 1,
+        label: sameTypeCount === 0 ? monster.name : `${monster.name} ${sameTypeCount + 1}`,
+        name: monster.name,
+        current_hp: maxHp,
+        max_hp: maxHp,
+        dead: false,
+        on_grid: false,
+        token_label: monsterTokenLabel(monster.name, sameTypeCount + 1),
+        monster,
+      };
+      return [...current, next];
+    });
+  }
+
+  function updateEncounterMonster(instanceId, updater) {
+    setEncounterMonsters((current) => current.map((monster) => monster.id === instanceId ? updater(monster) : monster));
+  }
+
+  function promptDamage(instanceId, direction) {
+    const amount = Number(window.prompt(direction === "damage" ? "Damage amount" : "Heal amount", "1"));
+    if (!Number.isFinite(amount) || amount <= 0) return;
+    updateEncounterMonster(instanceId, (monster) => {
+      const currentHp = direction === "damage"
+        ? Math.max(0, monster.current_hp - amount)
+        : Math.min(monster.max_hp, monster.current_hp + amount);
+      return { ...monster, current_hp: currentHp, dead: currentHp <= 0 };
+    });
+  }
+
+  function markMonsterDead(instanceId) {
+    updateEncounterMonster(instanceId, (monster) => ({ ...monster, current_hp: 0, dead: true }));
+  }
+
+  function setTrackerModeAndState(nextMode) {
+    setTrackerMode(nextMode);
+    setTracker(createTrackerState(nextMode));
+  }
+
+  function updateTracker(update) {
+    setTracker((current) => ({ ...current, ...update }));
+  }
+
+  function openExternalWindow(url, name) {
+    window.open(url, name, "noopener,noreferrer,width=1200,height=820");
+  }
+
+  function openMonsterGlossary() {
+    openMonsterGlossaryWindow(monsters, addMonsterToEncounter);
+  }
+
+  function addPendingMonsterToGrid(event) {
+    if (!pendingMonster || mode !== "combat") return;
+    moveToken({ id: `monster-token-${pendingMonster.id}` }, event);
+    setEncounterMonsters((current) => current.map((monster) => (
+      monster.id === pendingMonster.id ? { ...monster, on_grid: true } : monster
+    )));
+    setPendingGridMonsterId(null);
   }
 
   if (loading || error || !campaign) return <PageState loading={loading} error={error} />;
@@ -877,29 +971,21 @@ function DragoTablePage() {
       <div className="drago-modebar">
         <Tabs tabs={DRAGO_TABLE_MODES} activeTab={mode} onChange={setMode} className="drago-mode-tabs" />
         <div className="drago-live-actions">
-          <button type="button" className="ghost-button">Player View</button>
-          <button type="button" className="ghost-button">Rules</button>
+          <button type="button" className="ghost-button" onClick={() => openExternalWindow(CLASSIC_PORTAL_URL, "drago-player-view")}>Player View</button>
+          <button type="button" className="ghost-button" onClick={() => openExternalWindow("/1e/", "drago-rules")}>Rules</button>
           <button type="button">Start Session</button>
         </div>
       </div>
 
       <div className="drago-table-layout">
         <aside className="panel drago-side-panel">
-          <p className="eyebrow">Trackers</p>
-          <div className="tracker-stack">
-            <TrackerCard label="Round" value="3" note="Combat clock" meta="Side initiative" />
-            <TrackerCard label="Turn" value="7" note="Exploration turn" meta="10 minutes" />
-            <TrackerCard label="Torch" value="34 min" note="2 torches lit" meta="Public timer" />
-            <TrackerCard label="Location" value="Lower Halls" note="Visible to players" meta="Dungeon level 1" />
-            <TrackerCard label="Morale" value="Check" note="When first death lands" meta="DM reminder" />
-            <TrackerCard label="Noise" value="Low" note="No wandering check yet" meta="Hidden" />
-          </div>
+          <TrackerPanel mode={trackerMode} tracker={tracker} onModeChange={setTrackerModeAndState} onUpdate={updateTracker} />
           <div className="drago-command-list">
             <button type="button" className="table-button">Advance Round</button>
             <button type="button" className="table-button">Advance Turn</button>
-            <button type="button" className="table-button">Add Monster</button>
-            <button type="button" className="table-button">Monsters</button>
-            <button type="button" className="table-button">Open Rules</button>
+            <button type="button" className="table-button" disabled={!selectedMonster} onClick={() => addMonsterToEncounter()}>Add Monster</button>
+            <button type="button" className="table-button" onClick={openMonsterGlossary}>Monsters</button>
+            <button type="button" className="table-button" onClick={() => openExternalWindow("/1e/", "drago-rules")}>Open Rules</button>
             <button type="button" className="table-button">Add Treasure</button>
           </div>
           <MonsterLibrarySidebar
@@ -908,6 +994,8 @@ function DragoTablePage() {
             monsters={filteredMonsters}
             query={monsterQuery}
             selectedMonster={selectedMonster}
+            onAdd={addMonsterToEncounter}
+            onGlossary={openMonsterGlossary}
             onQueryChange={setMonsterQuery}
             onSelect={setSelectedMonsterId}
           />
@@ -932,6 +1020,7 @@ function DragoTablePage() {
             onPointerMove={(event) => {
               if (draggedToken) moveToken(draggedToken, event);
             }}
+            onClick={addPendingMonsterToGrid}
             onPointerUp={() => setDraggedToken(null)}
             onPointerLeave={() => setDraggedToken(null)}
           >
@@ -946,14 +1035,33 @@ function DragoTablePage() {
 
         <aside className="panel drago-monster-panel">
           <p className="eyebrow">Encounter</p>
-          <MonsterReferenceCard monster={selectedMonster} />
-          <div className="monster-card-stack">
-            {monsterCards.map((monster) => <MonsterCard key={monster.id} monster={monster} />)}
-          </div>
+          <EncounterList
+            monsters={encounterMonsters}
+            mode={mode}
+            pendingGridMonsterId={pendingGridMonsterId}
+            onDamage={(id) => promptDamage(id, "damage")}
+            onHeal={(id) => promptDamage(id, "heal")}
+            onDead={markMonsterDead}
+            onPrepareGrid={setPendingGridMonsterId}
+          />
         </aside>
       </div>
 
       <div className="drago-bottom-grid">
+        <section className="panel monster-type-panel">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Monster Cards</p>
+              <h2>Initiative Groups</h2>
+            </div>
+            {pendingMonster ? <span className="status-pill">Click combat grid to place {pendingMonster.label}</span> : null}
+          </div>
+          <MonsterTypeCards
+            groups={encounterGroups}
+            expanded={expandedMonsterTypes}
+            onToggle={(key) => setExpandedMonsterTypes((current) => ({ ...current, [key]: !current[key] }))}
+          />
+        </section>
         <section className="panel drago-roster-panel">
           <div className="section-heading">
             <div>
@@ -981,14 +1089,14 @@ function DragoTablePage() {
         <section className="panel drago-reward-panel">
           <p className="eyebrow">Rewards</p>
           <div className="reward-ledger">
-            <div><span>Monster XP</span><strong>65</strong></div>
+            <div><span>Monster XP</span><strong>{encounterMonsters.filter((monster) => monster.dead).reduce((sum, monster) => sum + monsterXp(monster.monster, monster.max_hp), 0)}</strong></div>
             <div><span>Treasure XP</span><strong>0</strong></div>
             <div><span>Bonus XP</span><strong>0</strong></div>
-            <div><span>Pending Total</span><strong>65</strong></div>
+            <div><span>Pending Total</span><strong>{encounterMonsters.filter((monster) => monster.dead).reduce((sum, monster) => sum + monsterXp(monster.monster, monster.max_hp), 0)}</strong></div>
           </div>
           <div className="notes-box">
-            <strong>First Build Boundary</strong>
-            <p>This screen is the design scaffold. Next pass can add the Drago Table data model, shared player view, and saved session state.</p>
+            <strong>Encounter XP</strong>
+            <p>Monster XP is added when a monster is marked dead. Treasure and award flow still stay separate.</p>
           </div>
         </section>
       </div>
@@ -1004,7 +1112,7 @@ const DRAGO_TABLE_MODES = [
 
 function filterMonsterCatalog(monsters, query) {
   const needle = query.trim().toLowerCase();
-  if (!needle) return monsters;
+  if (!needle) return [];
   return monsters.filter((monster) => {
     const text = [
       monster.name,
@@ -1019,96 +1127,215 @@ function filterMonsterCatalog(monsters, query) {
   });
 }
 
-function MonsterLibrarySidebar({ error, loading, monsters, query, selectedMonster, onQueryChange, onSelect }) {
+function MonsterLibrarySidebar({ error, loading, monsters, query, selectedMonster, onAdd, onGlossary, onQueryChange, onSelect }) {
+  const showResults = query.trim().length > 0;
   return (
     <section className="monster-library">
       <div className="section-heading compact-heading">
         <div>
           <p className="eyebrow">OSRIC Monsters</p>
-          <h2>Monster Library</h2>
+          <h2>Search</h2>
         </div>
-        <span className="status-pill">{loading ? "Loading" : `${monsters.length} shown`}</span>
+        <button type="button" className="icon-text-button" onClick={onGlossary}>Glossary</button>
       </div>
       <input
         aria-label="Search OSRIC monsters"
-        placeholder="Search name, HD, ability..."
+        placeholder="Type monster name..."
         value={query}
         onChange={(event) => onQueryChange(event.target.value)}
       />
       <PageState loading={loading} error={error} />
-      <div className="monster-library-list">
-        {monsters.map((monster) => (
-          <button
-            className={selectedMonster?.id === monster.id ? "active" : ""}
-            key={monster.id}
-            type="button"
-            onClick={() => onSelect(monster.id)}
-          >
-            <strong>{monster.name}</strong>
-            <span>AC {monster.armor_class || "-"} · HD {monster.hit_dice || "-"} · XP {monster.level_xp || "-"}</span>
-          </button>
-        ))}
-      </div>
-      {!loading && !error && monsters.length === 0 ? <p className="muted">No monsters match that search.</p> : null}
+      {selectedMonster ? (
+        <div className="monster-search-selection">
+          <strong>{selectedMonster.name}</strong>
+          <span>AC {selectedMonster.armor_class || "-"} · HD {selectedMonster.hit_dice || "-"} · THAC0 {monsterThac0(selectedMonster.hit_dice)}</span>
+          <button type="button" className="table-button" onClick={() => onAdd(selectedMonster)}>Add Encounter</button>
+        </div>
+      ) : <p className="muted compact-help">Search, choose, then add to the encounter.</p>}
+      {showResults ? (
+        <div className="monster-library-list">
+          {monsters.map((monster) => (
+            <button
+              className={selectedMonster?.id === monster.id ? "active" : ""}
+              key={monster.id}
+              type="button"
+              onClick={() => onSelect(monster.id)}
+            >
+              <strong>{monster.name}</strong>
+              <span>AC {monster.armor_class || "-"} · HD {monster.hit_dice || "-"} · XP {monster.level_xp || "-"}</span>
+            </button>
+          ))}
+        </div>
+      ) : null}
+      {showResults && !loading && !error && monsters.length === 0 ? <p className="muted">No monsters match that search.</p> : null}
     </section>
   );
 }
 
-function MonsterReferenceCard({ monster }) {
-  if (!monster) {
-    return (
-      <article className="monster-reference-card">
-        <h2>Monster Detail</h2>
-        <p className="muted">Choose an OSRIC monster from the library.</p>
-      </article>
-    );
+function EncounterList({ monsters, mode, pendingGridMonsterId, onDamage, onHeal, onDead, onPrepareGrid }) {
+  if (!monsters.length) {
+    return <p className="muted">No monsters added yet.</p>;
   }
+  return (
+    <div className="encounter-mini-list">
+      {monsters.map((monster) => (
+        <article className={`encounter-mini-card ${monster.dead ? "is-dead" : ""}`} key={monster.id}>
+          <div className="encounter-mini-top">
+            <strong>{monster.label}</strong>
+            <span>{monster.current_hp}/{monster.max_hp} HP</span>
+          </div>
+          <div className="monster-actions compact-actions">
+            <button type="button" className="table-button" onClick={() => onDamage(monster.id)}>Damage</button>
+            <button type="button" className="table-button" onClick={() => onHeal(monster.id)}>Heal</button>
+            <button type="button" className="table-button" onClick={() => onDead(monster.id)}>Dead</button>
+          </div>
+          <button
+            type="button"
+            className={`table-button add-grid-button ${pendingGridMonsterId === monster.id ? "active" : ""}`}
+            disabled={mode !== "combat" || monster.dead}
+            onClick={() => onPrepareGrid(monster.id)}
+          >
+            {monster.on_grid ? "Move On Grid" : mode === "combat" ? "Add To Grid" : "Combat Grid Only"}
+          </button>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function MonsterTypeCards({ groups, expanded, onToggle }) {
+  if (!groups.length) {
+    return <p className="muted">Added monster types will appear here in compact initiative cards.</p>;
+  }
+  return (
+    <div className="monster-type-grid">
+      {groups.map((group) => (
+        <MonsterTypeCard
+          expanded={Boolean(expanded[group.key])}
+          group={group}
+          key={group.key}
+          onToggle={() => onToggle(group.key)}
+        />
+      ))}
+    </div>
+  );
+}
+
+function MonsterTypeCard({ group, expanded, onToggle }) {
+  const monster = group.monster;
   const facts = [
     ["AC", monster.armor_class],
     ["HD", monster.hit_dice],
     ["Move", monster.movement],
     ["Attacks", monster.attacks],
     ["Damage", monster.damage],
-    ["Morale", monster.morale || "Manual"],
+    ["THAC0", monsterThac0(monster.hit_dice)],
+    ["Hit +", monsterAttackBonus(monster)],
     ["Size", monster.size],
-    ["Align", monster.alignment],
-    ["XP", monster.level_xp],
-    ["Lair", monster.lair_probability],
+    ["XP", `${monsterXp(monster, group.averageHp)} avg`],
   ];
   return (
-    <article className="monster-reference-card">
+    <article className="monster-type-card">
       <div className="monster-card-header">
         <div>
           <h2>{monster.name}</h2>
-          <span>OSRIC p. {monster.source_pdf_page || "-"}</span>
+          <span>{group.instances.length} in encounter · OSRIC p. {monster.source_pdf_page || "-"}</span>
         </div>
-        <span className="status-pill">{monster.frequency || "Frequency -"}</span>
+        <button type="button" className="expand-button" onClick={onToggle} aria-label={expanded ? "Collapse monster stat block" : "Expand monster stat block"}>
+          {expanded ? "-" : "+"}
+        </button>
       </div>
-      <dl>
+      <dl className="monster-type-facts">
         {facts.map(([label, value]) => (
           <div key={label}><dt>{label}</dt><dd>{value || "-"}</dd></div>
         ))}
       </dl>
-      <MonsterTextSection title="Special Attacks" value={monster.special_attacks} />
-      <MonsterTextSection title="Special Defences" value={monster.special_defences} />
-      <MonsterTextSection title="Description" value={monster.description} />
-      <MonsterTextSection title="Treasure" value={monster.treasure} />
-      {monster.source_text ? (
-        <details className="monster-source-block">
-          <summary>Full Source Block</summary>
-          <pre>{monster.source_text}</pre>
-        </details>
+      <MonsterTextSection title="Special Attacks" value={monster.special_attacks} compact />
+      {expanded ? (
+        <div className="monster-expanded-block">
+          <MonsterTextSection title="Special Defences" value={monster.special_defences} />
+          <MonsterTextSection title="Description" value={monster.description} />
+          <MonsterTextSection title="Treasure" value={monster.treasure} />
+          {monster.source_text ? (
+            <details className="monster-source-block">
+              <summary>Full Source Block</summary>
+              <pre>{monster.source_text}</pre>
+            </details>
+          ) : null}
+        </div>
       ) : null}
     </article>
   );
 }
 
-function MonsterTextSection({ title, value }) {
+function MonsterTextSection({ title, value, compact = false }) {
   if (!value || value === "None" || value === "Nil") return null;
   return (
-    <section className="monster-text-section">
+    <section className={`monster-text-section ${compact ? "compact" : ""}`}>
       <h3>{title}</h3>
       <p>{value}</p>
+    </section>
+  );
+}
+
+function TrackerPanel({ mode, tracker, onModeChange, onUpdate }) {
+  const dragonlance = mode === "dragonlance";
+  return (
+    <section className="tracker-console">
+      <div className="section-heading compact-heading">
+        <div>
+          <p className="eyebrow">Trackers</p>
+          <h2>{dragonlance ? "Dragonlance 1985" : "Classic Tracker"}</h2>
+        </div>
+        <select aria-label="Tracker preset" value={mode} onChange={(event) => onModeChange(event.target.value)}>
+          <option value="dragonlance">Dragonlance</option>
+          <option value="greyhawk">Greyhawk</option>
+        </select>
+      </div>
+      <div className="tracker-status-box">
+        <strong>{tracker.weekday}, {tracker.day} {tracker.month}, {tracker.year}</strong>
+        <span>Time: {tracker.time}</span>
+        <span>Turn: {tracker.turn}</span>
+        <span>Rest: {tracker.turnsSinceRest} / 5</span>
+        <span>Torch: {tracker.torchLit ? "Lit" : "Unlit"} · {tracker.torchTurns} turn(s) · Carried {tracker.torches}</span>
+        <span>Lantern: {tracker.lanternLit ? "Lit" : "Unlit"} · Oil {tracker.oil}</span>
+        {dragonlance ? <span>Moons: Sol {tracker.solinari} / Lun {tracker.lunitari} / Nui {tracker.nuitari}</span> : null}
+      </div>
+      <div className="tracker-button-group">
+        <button type="button" className="table-button" onClick={() => openTrackerStatusWindow(mode, tracker)}>Status</button>
+        <button type="button" className="table-button">Calendar</button>
+        {dragonlance ? <button type="button" className="table-button">Moons</button> : null}
+        <button type="button" className="table-button">Help</button>
+      </div>
+      <div className="tracker-button-group">
+        <button type="button" className="table-button" onClick={() => onUpdate({ turn: tracker.turn + 1, turnsSinceRest: tracker.turnsSinceRest + 1 })}>Turn</button>
+        <button type="button" className="table-button" onClick={() => onUpdate({ turnsSinceRest: 0 })}>Rest</button>
+        <button type="button" className="table-button">+10m</button>
+        <button type="button" className="table-button">+30m</button>
+        <button type="button" className="table-button">+1h</button>
+        <button type="button" className="table-button">+1d</button>
+      </div>
+      <div className="tracker-button-group">
+        <button type="button" className="table-button" onClick={() => onUpdate({ torches: tracker.torches + 1 })}>+1 Torch</button>
+        <button type="button" className="table-button" onClick={() => onUpdate({ torches: tracker.torches + 5 })}>+5 Torches</button>
+        <button type="button" className="table-button" onClick={() => onUpdate({ torches: Math.max(0, tracker.torches - 1) })}>-1 Torch</button>
+        <button type="button" className="table-button" onClick={() => onUpdate({ torchLit: true, torchTurns: 6 })}>Light Torch</button>
+        <button type="button" className="table-button" onClick={() => onUpdate({ torchLit: false, torchTurns: 0 })}>Snuff Torch</button>
+      </div>
+      <div className="tracker-button-group">
+        <button type="button" className="table-button" onClick={() => onUpdate({ oil: tracker.oil + 1 })}>+1 Oil</button>
+        <button type="button" className="table-button" onClick={() => onUpdate({ oil: tracker.oil + 5 })}>+5 Oil</button>
+        <button type="button" className="table-button" onClick={() => onUpdate({ oil: Math.max(0, tracker.oil - 1) })}>-1 Oil</button>
+        <button type="button" className="table-button" onClick={() => onUpdate({ lanternLit: true })}>Light Lantern</button>
+        <button type="button" className="table-button" onClick={() => onUpdate({ lanternLit: false })}>Snuff Lantern</button>
+      </div>
+      {dragonlance ? (
+        <div className="tracker-button-group">
+          <button type="button" className="table-button">Set Solinari</button>
+          <button type="button" className="table-button">Set Lunitari</button>
+          <button type="button" className="table-button">Set Nuitari</button>
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -1122,18 +1349,6 @@ const DRAGO_SAMPLE_PLAYERS = [
   { id: "pc-2", name: "Brinna", label: "BR", color: "#b56d5d", hp: "12 / 16", ac: "7", move: "12", status: "Ready", x: 1, y: 1, slotX: 1, slotY: 0 },
   { id: "pc-3", name: "Cairn", label: "CA", color: "#5d8fb5", hp: "9 / 11", ac: "8", move: "12", status: "Hidden", x: 1, y: 1, slotX: 0, slotY: 1 },
   { id: "pc-4", name: "Damaia", label: "DA", color: "#b59b5d", hp: "6 / 9", ac: "10", move: "12", status: "Light", x: 1, y: 1, slotX: 1, slotY: 1 },
-];
-
-const DRAGO_MONSTER_TOKENS = [
-  { id: "goblin-1-token", name: "Goblin 1", label: "G1", color: "#7f8f45", x: 5, y: 4, slotX: 0, slotY: 0 },
-  { id: "goblin-2-token", name: "Goblin 2", label: "G2", color: "#7f8f45", x: 5, y: 4, slotX: 1, slotY: 0 },
-  { id: "goblin-3-token", name: "Goblin 3", label: "G3", color: "#7f8f45", x: 5, y: 4, slotX: 0, slotY: 1 },
-];
-
-const DRAGO_SAMPLE_MONSTERS = [
-  { id: "goblin-1", name: "Goblin 1", ac: 6, hp: "2 / 5", attacks: "Short sword +1", damage: "1d6", morale: "7", xp: 15, status: "Bloodied" },
-  { id: "goblin-2", name: "Goblin 2", ac: 6, hp: "5 / 5", attacks: "Spear +1", damage: "1d6", morale: "7", xp: 15, status: "Ready" },
-  { id: "goblin-3", name: "Goblin 3", ac: 6, hp: "0 / 4", attacks: "Short bow +1", damage: "1d6", morale: "7", xp: 35, status: "Dead" },
 ];
 
 function buildPlayerTokens(characters) {
@@ -1157,6 +1372,157 @@ function buildPlayerTokens(characters) {
 
 function applyTokenPositions(tokens, positions) {
   return tokens.map((token) => ({ ...token, ...(positions[token.id] || {}) }));
+}
+
+function buildMonsterTokens(encounterMonsters) {
+  return encounterMonsters
+    .filter((monster) => monster.on_grid && !monster.dead)
+    .map((monster, index) => ({
+      id: `monster-token-${monster.id}`,
+      name: monster.label,
+      label: monster.token_label,
+      color: "#b76b5b",
+      x: 5 + (index % 4),
+      y: 4 + Math.floor(index / 4),
+      slotX: index % 2,
+      slotY: Math.floor((index % 4) / 2),
+    }));
+}
+
+function groupEncounterMonsters(encounterMonsters) {
+  const groups = new Map();
+  for (const instance of encounterMonsters) {
+    const key = String(instance.monster_id);
+    if (!groups.has(key)) {
+      groups.set(key, { key, monster: instance.monster, instances: [], averageHp: instance.max_hp });
+    }
+    groups.get(key).instances.push(instance);
+  }
+  return Array.from(groups.values()).map((group) => ({
+    ...group,
+    averageHp: Math.max(1, Math.round(group.instances.reduce((sum, monster) => sum + monster.max_hp, 0) / group.instances.length)),
+  }));
+}
+
+function monsterTokenLabel(name, number) {
+  const words = String(name || "M").replace(/[^A-Za-z0-9 ]/g, " ").split(/\s+/).filter(Boolean);
+  const initials = words.slice(0, 2).map((word) => word[0]).join("").toUpperCase() || "M";
+  return `${initials}${number > 1 ? number : ""}`.slice(0, 3);
+}
+
+function parseHitDice(hitDice) {
+  const text = String(hitDice || "1").replace(/\s+/g, "");
+  const match = text.match(/(\d+)(?:d(\d+))?/i);
+  const dice = match ? Number(match[1]) : 1;
+  const sides = match?.[2] ? Number(match[2]) : 8;
+  const flatMatches = [...text.matchAll(/([+-])(\d+)(?!d)/g)];
+  const flat = flatMatches.reduce((sum, matchItem) => sum + (matchItem[1] === "-" ? -1 : 1) * Number(matchItem[2]), 0);
+  return { dice: Math.max(1, dice), sides: Math.max(1, sides), flat };
+}
+
+function rollHitPoints(hitDice) {
+  const { dice, sides, flat } = parseHitDice(hitDice);
+  let total = flat;
+  for (let index = 0; index < dice; index += 1) {
+    total += Math.floor(Math.random() * sides) + 1;
+  }
+  return Math.max(1, total);
+}
+
+function monsterThac0(hitDice) {
+  const { dice } = parseHitDice(hitDice);
+  return Math.max(8, 20 - Math.max(0, dice - 1));
+}
+
+function monsterAttackBonus(monster) {
+  const text = [monster?.attacks, monster?.damage, monster?.special_attacks, monster?.description].filter(Boolean).join(" ");
+  const match = text.match(/([+-]\d+)\s*(?:to hit|to-hit|attack|hit)/i);
+  return match ? match[1] : "+0";
+}
+
+function monsterXp(monster, hp) {
+  const text = String(monster?.level_xp || "");
+  const baseMatch = text.match(/\/\s*([0-9,]+)/);
+  const perHpMatch = text.match(/\+\s*([0-9,]+)\s*\/?\s*hp/i);
+  const base = baseMatch ? Number(baseMatch[1].replace(/,/g, "")) : 0;
+  const perHp = perHpMatch ? Number(perHpMatch[1].replace(/,/g, "")) : 0;
+  if (!base && !perHp) return 0;
+  return base + perHp * Math.max(1, Number(hp) || 1);
+}
+
+function createTrackerState(mode) {
+  return {
+    weekday: mode === "dragonlance" ? "Seventhday" : "Godsday",
+    day: 21,
+    month: mode === "dragonlance" ? "Rannmont" : "Harvester",
+    year: mode === "dragonlance" ? "346 AC" : "576 CY",
+    time: "10:00",
+    turn: 21,
+    turnsSinceRest: 3,
+    torchLit: true,
+    torchTurns: 3,
+    torches: 2,
+    lanternLit: false,
+    oil: 0,
+    solinari: "Low",
+    lunitari: "Waxing",
+    nuitari: "Low",
+  };
+}
+
+function openTrackerStatusWindow(mode, tracker) {
+  const moons = mode === "dragonlance"
+    ? `<section><strong>Moons</strong><br>Sol: ${tracker.solinari}<br>Lun: ${tracker.lunitari}<br>Nui: ${tracker.nuitari}</section>`
+    : "";
+  const popup = window.open("", "drago-tracker-status", "width=360,height=620");
+  if (!popup) return;
+  popup.document.write(`
+    <html><head><title>Drago Table Status</title><style>
+      body{background:#121212;color:#eee;font-family:Arial,sans-serif;margin:0;padding:22px}
+      article{border:1px solid #555;padding:16px} h1{font-size:18px;letter-spacing:2px;text-transform:uppercase}
+      section{border-top:1px solid #aaa;margin-top:18px;padding-top:18px;line-height:1.45}
+    </style></head><body><article>
+      <h1>${mode === "dragonlance" ? "Dragolance 1985" : "Classic"} - Dungeon Status</h1>
+      <section><strong>Dungeon Turn:</strong> ${tracker.turn}<br><strong>${tracker.weekday}, ${tracker.day} ${tracker.month}, ${tracker.year}</strong><br>Time: ${tracker.time}</section>
+      <section><strong>Light</strong><br>Torch: ${tracker.torchLit ? "Lit" : "Unlit"} - ${tracker.torchTurns} turn(s)<br>Torches carried: ${tracker.torches}<br>Lantern: ${tracker.lanternLit ? "Lit" : "Unlit"}<br>Oil carried: ${tracker.oil}</section>
+      <section><strong>Exploration</strong><br>Turns since rest: ${tracker.turnsSinceRest} / 5<br>Rest due in ${Math.max(0, 5 - tracker.turnsSinceRest)} turn(s)</section>
+      ${moons}
+    </article></body></html>
+  `);
+  popup.document.close();
+}
+
+function openMonsterGlossaryWindow(monsters) {
+  const popup = window.open("", "osric-monster-glossary", "width=980,height=820");
+  if (!popup) return;
+  const rows = monsters.map((monster) => `
+    <details>
+      <summary><strong>${escapeHtml(monster.name)}</strong> <span>AC ${escapeHtml(monster.armor_class || "-")} · HD ${escapeHtml(monster.hit_dice || "-")} · XP ${escapeHtml(monster.level_xp || "-")}</span></summary>
+      <dl>
+        <div><dt>Move</dt><dd>${escapeHtml(monster.movement || "-")}</dd></div>
+        <div><dt>Attacks</dt><dd>${escapeHtml(monster.attacks || "-")}</dd></div>
+        <div><dt>Damage</dt><dd>${escapeHtml(monster.damage || "-")}</dd></div>
+        <div><dt>Size</dt><dd>${escapeHtml(monster.size || "-")}</dd></div>
+      </dl>
+      <p><strong>Special Attacks:</strong> ${escapeHtml(monster.special_attacks || "-")}</p>
+      <p><strong>Special Defences:</strong> ${escapeHtml(monster.special_defences || "-")}</p>
+      <p>${escapeHtml(monster.description || "")}</p>
+    </details>
+  `).join("");
+  popup.document.write(`
+    <html><head><title>OSRIC Monster Glossary</title><style>
+      body{background:#100e0b;color:#f1e6d3;font-family:Arial,sans-serif;margin:0;padding:20px}
+      h1{font-family:Georgia,serif;margin-top:0} details{border:1px solid #5d4520;border-radius:6px;margin:8px 0;padding:10px;background:#17130e}
+      summary{cursor:pointer} summary span{color:#bda66d;font-size:12px;margin-left:8px}
+      dl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px} dt{color:#bda66d;font-size:11px;text-transform:uppercase;font-weight:bold} dd{margin:0}
+      p{line-height:1.45}
+    </style></head><body><h1>OSRIC Monster Glossary</h1>${rows}</body></html>
+  `);
+  popup.document.close();
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]));
 }
 
 function TableToken({ grid, token, monster = false, onDragStart }) {
