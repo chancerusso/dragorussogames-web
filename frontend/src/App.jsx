@@ -1794,15 +1794,68 @@ function buildPlayerTokens(characters, playerColors = {}) {
     name: character.name || `Character ${index + 1}`,
     label: String(character.name || "PC").slice(0, 2).toUpperCase(),
     color: playerColors[`pc-${character.id}`] || PLAYER_TOKEN_COLORS[index % PLAYER_TOKEN_COLORS.length].value,
-    hp: `${character.current_hp ?? character.hit_points ?? "-"} / ${character.max_hp ?? character.hit_points ?? "-"}`,
-    ac: character.armor_class ?? character.ac ?? "-",
-    move: character.movement_rate ?? character.move ?? "12",
+    hp: characterHpText(character),
+    ac: characterAcText(character),
+    move: characterMoveText(character),
     status: character.life_status || character.status || "Ready",
     x: 1,
     y: Math.floor(index / 4) + 1,
     slotX: index % 2,
     slotY: Math.floor((index % 4) / 2),
   }));
+}
+
+function characterHpValues(character) {
+  const combat = character?.combat || {};
+  const maxHp = Number(combat.max_hp ?? character?.max_hp ?? character?.hit_points ?? 0);
+  const currentHp = Number(combat.current_hp ?? character?.current_hp ?? maxHp);
+  return {
+    current: Number.isFinite(currentHp) ? currentHp : 0,
+    max: Number.isFinite(maxHp) ? maxHp : 0,
+    temporary: Number(combat.temporary_hp ?? 0) || 0,
+  };
+}
+
+function characterHpText(character) {
+  const hp = characterHpValues(character);
+  return `${Number.isFinite(hp.current) ? hp.current : "-"} / ${hp.max || "-"}`;
+}
+
+function characterAcText(character) {
+  return character?.combat?.armor_class ?? character?.armor_class ?? character?.ac ?? "-";
+}
+
+function characterMoveText(character) {
+  return character?.combat?.movement_rate ?? character?.movement_rate ?? character?.move ?? "12";
+}
+
+function characterThac0Text(character) {
+  const thac0 = character?.combat?.runtime?.thac0;
+  return thac0?.final_thac0 ?? thac0?.base_thac0 ?? thac0?.value ?? "-";
+}
+
+function characterAttackRateText(character) {
+  const rate = character?.combat?.runtime?.attacks_per_round;
+  return rate?.attacks_per_round ?? rate?.value ?? rate ?? "1";
+}
+
+function characterWeaponRows(character) {
+  const weapons = character?.combat?.runtime?.weapons || [];
+  return weapons.slice(0, 4).map((weapon) => ({
+    name: weapon.weapon || "Weapon",
+    attack: weapon.final_attack_value ?? weapon.total_attack_bonus ?? "-",
+    damage: weapon.damage?.final_small_medium || weapon.damage?.base_small_medium || "-",
+    mode: weapon.mode || "melee",
+  }));
+}
+
+function availablePlayerTokenColors(tableState, tokenId) {
+  const used = new Set(
+    Object.entries(tableState.playerColors || {})
+      .filter(([id]) => id !== tokenId)
+      .map(([, color]) => color),
+  );
+  return PLAYER_TOKEN_COLORS.filter((color) => !used.has(color.value));
 }
 
 function applyTokenPositions(tokens, positions) {
@@ -1870,7 +1923,7 @@ function monsterTokenLabel(name, number) {
 }
 
 const MONSTER_FOOTPRINTS = [
-  { key: "slot", label: "Slot", columns: 0.45, rows: 0.45, color: "#b76b5b" },
+  { key: "slot", label: "Standard", columns: 0.45, rows: 0.45, color: "#b76b5b" },
   { key: "1x1", label: "1 x 1", columns: 1, rows: 1, color: "#b76b5b" },
   { key: "2x1", label: "2 x 1", columns: 2, rows: 1, color: "#b76b5b" },
   { key: "1x2", label: "1 x 2", columns: 1, rows: 2, color: "#b76b5b" },
@@ -2663,13 +2716,38 @@ function PlayerOverviewTab({ campaign, character }) {
 function PlayerTableTab({ campaign, character }) {
   const initialState = normalizeDragoTableState(campaign.table_state) || defaultDragoTableState();
   const [tableState, setTableState] = useState(initialState);
+  const [currentCharacter, setCurrentCharacter] = useState(character);
   const [draggedToken, setDraggedToken] = useState(null);
-  const tokenId = character ? `pc-${character.id}` : null;
+  const [colorRequestOpen, setColorRequestOpen] = useState(false);
+  const [hpEditor, setHpEditor] = useState(null);
+  const tokenId = currentCharacter ? `pc-${currentCharacter.id}` : null;
   const activeGrid = tableState.mode === "combat" ? tableState.combatGrid : tableState.mode === "outdoors" ? DRAGO_OUTDOORS_GRID : DRAGO_MARCHING_GRID;
-  const playerTokens = applyTokenPositions(buildPlayerTokens(campaign.characters || [], tableState.playerColors), tableState.tokenPositions);
+  const tableCharacters = currentCharacter && !(campaign.characters || []).some((entry) => entry.id === currentCharacter.id)
+    ? [...(campaign.characters || []), currentCharacter]
+    : (campaign.characters || []).map((entry) => entry.id === currentCharacter?.id ? currentCharacter : entry);
+  const playerTokens = applyTokenPositions(buildPlayerTokens(tableCharacters, tableState.playerColors), tableState.tokenPositions);
   const monsterTokens = applyTokenPositions(buildMonsterTokens(tableState.encounterMonsters || []), tableState.tokenPositions);
-  const visibleTokens = tableState.mode === "combat" ? [...playerTokens, ...monsterTokens] : playerTokens;
-  const myToken = playerTokens.find((token) => token.id === tokenId);
+  const placedPlayerTokens = playerTokens.filter((token) => tableState.tokenPositions?.[token.id]);
+  const visibleTokens = tableState.mode === "combat" ? [...placedPlayerTokens, ...monsterTokens] : placedPlayerTokens;
+  const myToken = placedPlayerTokens.find((token) => token.id === tokenId);
+  const colorChoices = tokenId ? availablePlayerTokenColors(tableState, tokenId) : [];
+  const selectedColor = tokenId ? tableState.playerColors?.[tokenId] : null;
+
+  useEffect(() => {
+    setCurrentCharacter(character);
+  }, [character]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      api(`/player/campaigns/${campaign.id}`, { auth: "player" }).then((nextCampaign) => {
+        const shared = normalizeDragoTableState(nextCampaign.table_state);
+        if (shared) setTableState(shared);
+        const refreshedCharacter = (nextCampaign.characters || []).find((entry) => entry.id === currentCharacter?.id);
+        if (refreshedCharacter) setCurrentCharacter(refreshedCharacter);
+      }).catch(() => {});
+    }, 2500);
+    return () => window.clearInterval(timer);
+  }, [campaign.id, currentCharacter?.id]);
 
   function publish(nextState) {
     setTableState(nextState);
@@ -2691,14 +2769,57 @@ function PlayerTableTab({ campaign, character }) {
     publish({ ...tableState, tokenPositions: { ...tableState.tokenPositions, [tokenId]: { x, y, slotX, slotY } } });
   }
 
-  function setOwnColor(color) {
+  function setOwnColor(color, nextPosition = null) {
     if (!tokenId) return;
-    publish({ ...tableState, playerColors: { ...tableState.playerColors, [tokenId]: color } });
+    publish({
+      ...tableState,
+      playerColors: { ...tableState.playerColors, [tokenId]: color },
+      tokenPositions: nextPosition ? { ...tableState.tokenPositions, [tokenId]: nextPosition } : tableState.tokenPositions,
+    });
+    setColorRequestOpen(false);
   }
 
   function addOwnToken() {
     if (!tokenId) return;
-    publish({ ...tableState, tokenPositions: { ...tableState.tokenPositions, [tokenId]: { x: 1, y: 1, slotX: 0, slotY: 0 } } });
+    const position = { x: 1, y: 1, slotX: 0, slotY: 0 };
+    if (!selectedColor) {
+      setColorRequestOpen(true);
+      return;
+    }
+    publish({ ...tableState, tokenPositions: { ...tableState.tokenPositions, [tokenId]: position } });
+  }
+
+  function chooseColorAndAdd(color) {
+    setOwnColor(color.value, { x: 1, y: 1, slotX: 0, slotY: 0 });
+  }
+
+  function openHpEditor(direction) {
+    setHpEditor({ direction, amount: "1" });
+  }
+
+  function updateCharacterHp(direction, amountValue) {
+    if (!currentCharacter) return;
+    const amount = Math.max(0, Number(amountValue) || 0);
+    const hp = characterHpValues(currentCharacter);
+    const nextCurrent = direction === "damage"
+      ? Math.max(0, hp.current - amount)
+      : hp.max ? Math.min(hp.max, hp.current + amount) : hp.current + amount;
+    const nextLifeStatus = nextCurrent <= 0 ? "dead" : currentCharacter.life_status === "dead" ? "alive" : currentCharacter.life_status;
+    const nextCharacter = {
+      ...currentCharacter,
+      combat: { ...(currentCharacter.combat || {}), current_hp: nextCurrent },
+      life_status: nextLifeStatus,
+    };
+    setCurrentCharacter(nextCharacter);
+    api(`/player/characters/${currentCharacter.id}`, {
+      auth: "player",
+      method: "PATCH",
+      body: JSON.stringify({
+        combat: { current_hp: nextCurrent },
+        life_status: nextCharacter.life_status,
+      }),
+    }).then(setCurrentCharacter).catch(() => setCurrentCharacter(currentCharacter));
+    setHpEditor(null);
   }
 
   return (
@@ -2706,6 +2827,20 @@ function PlayerTableTab({ campaign, character }) {
       <aside className="panel player-table-status">
         <ReadOnlyTrackerStatus tracker={tableState.tracker} mode={tableState.trackerMode || (isDragonlanceCampaign(campaign) ? "dragonlance" : "greyhawk")} />
         <ReadOnlyCombatStatus tracker={tableState.combatTracker} />
+        <PlayerCharacterCombatPanel
+          character={currentCharacter}
+          colorChoices={colorChoices}
+          colorRequestOpen={colorRequestOpen}
+          hpEditor={hpEditor}
+          myToken={myToken}
+          selectedColor={selectedColor}
+          onAddToken={addOwnToken}
+          onChooseColor={chooseColorAndAdd}
+          onCloseColorRequest={() => setColorRequestOpen(false)}
+          onOpenHpEditor={openHpEditor}
+          onSetHpEditor={setHpEditor}
+          onUpdateHp={updateCharacterHp}
+        />
       </aside>
       <main className="panel drago-map-panel player-map-panel">
         <div className="drago-map-toolbar">
@@ -2736,31 +2871,110 @@ function PlayerTableTab({ campaign, character }) {
       <aside className="panel player-table-rules">
         <PlayerCombatRules mode={tableState.mode} />
       </aside>
-      <section className="panel player-character-combat">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">My Token</p>
-            <h2>{character?.name || "No Character"}</h2>
-          </div>
-          <button className="table-button" type="button" disabled={!character} onClick={addOwnToken}>Add To Grid</button>
+    </div>
+  );
+}
+
+function PlayerCharacterCombatPanel({
+  character,
+  colorChoices,
+  colorRequestOpen,
+  hpEditor,
+  myToken,
+  selectedColor,
+  onAddToken,
+  onChooseColor,
+  onCloseColorRequest,
+  onOpenHpEditor,
+  onSetHpEditor,
+  onUpdateHp,
+}) {
+  if (!character) {
+    return (
+      <section className="player-character-panel">
+        <p className="eyebrow">My Character</p>
+        <h2>No Character</h2>
+        <p className="muted">Create or assign a character to use the player table.</p>
+      </section>
+    );
+  }
+  const hp = characterHpValues(character);
+  const weapons = characterWeaponRows(character);
+  return (
+    <section className="player-character-panel">
+      <div className="section-heading compact-heading">
+        <div>
+          <p className="eyebrow">My Character</p>
+          <h2>{character.name}</h2>
         </div>
-        {myToken ? (
-          <>
-            <div className="player-color-grid">
-              {PLAYER_TOKEN_COLORS.map((color) => (
-                <button key={color.key} type="button" className={myToken.color === color.value ? "active" : ""} style={{ "--swatch": color.value }} onClick={() => setOwnColor(color.value)}>{color.label}</button>
+        <span className="status-pill">{myToken ? "On Grid" : selectedColor ? "Ready" : "Choose Color"}</span>
+      </div>
+      <dl className="player-combat-facts">
+        <div><dt>HP</dt><dd>{hp.current} / {hp.max || "-"}</dd></div>
+        <div><dt>AC</dt><dd>{characterAcText(character)}</dd></div>
+        <div><dt>THAC0</dt><dd>{characterThac0Text(character)}</dd></div>
+        <div><dt>Move</dt><dd>{characterMoveText(character)}</dd></div>
+        <div><dt>Attacks</dt><dd>{characterAttackRateText(character)}</dd></div>
+        <div><dt>Status</dt><dd>{character.life_status || character.status || "Ready"}</dd></div>
+      </dl>
+      <div className="player-hp-actions">
+        <button type="button" className="table-button" onClick={() => onOpenHpEditor("damage")}>Damage</button>
+        <button type="button" className="table-button" onClick={() => onOpenHpEditor("heal")}>Heal</button>
+      </div>
+      {hpEditor ? (
+        <form
+          className="inline-hp-editor player-inline-hp"
+          onSubmit={(event) => {
+            event.preventDefault();
+            onUpdateHp(hpEditor.direction, hpEditor.amount);
+          }}
+        >
+          <label>{hpEditor.direction === "damage" ? "Damage" : "Heal"}
+            <input
+              autoFocus
+              min="0"
+              type="number"
+              value={hpEditor.amount}
+              onChange={(event) => onSetHpEditor({ ...hpEditor, amount: event.target.value })}
+            />
+          </label>
+          <button type="submit" className="table-button">Apply</button>
+          <button type="button" className="table-button ghost-button" onClick={() => onSetHpEditor(null)}>Cancel</button>
+        </form>
+      ) : null}
+      <div>
+        <p className="eyebrow">Weapons</p>
+        {weapons.length ? (
+          <div className="player-weapon-list">
+            {weapons.map((weapon) => (
+              <div key={`${weapon.name}-${weapon.mode}`}>
+                <strong>{weapon.name}</strong>
+                <span>Hit {weapon.attack} · Dmg {weapon.damage}</span>
+              </div>
+            ))}
+          </div>
+        ) : <p className="muted compact-note">No equipped weapons listed.</p>}
+      </div>
+      <div className="player-character-actions">
+        <button className="table-button" type="button" onClick={onAddToken}>Add To Grid</button>
+        <a className="table-button" href={`/1e/characters/${character.id}/`} target="_blank" rel="noreferrer">Open Sheet</a>
+      </div>
+      {colorRequestOpen ? (
+        <div className="player-token-color-request">
+          <div className="section-heading compact-heading">
+            <div><p className="eyebrow">Token Color</p><strong>Choose an open color</strong></div>
+            <button type="button" className="table-button" onClick={onCloseColorRequest}>x</button>
+          </div>
+          {colorChoices.length ? (
+            <div className="player-color-grid compact-color-grid">
+              {colorChoices.map((color) => (
+                <button key={color.key} type="button" style={{ "--swatch": color.value }} onClick={() => onChooseColor(color)}>{color.label}</button>
               ))}
             </div>
-            <dl className="detail-list">
-              <div><dt>HP</dt><dd>{myToken.hp}</dd></div>
-              <div><dt>AC</dt><dd>{myToken.ac}</dd></div>
-              <div><dt>Move</dt><dd>{myToken.move}</dd></div>
-              <div><dt>Status</dt><dd>{myToken.status}</dd></div>
-            </dl>
-          </>
-        ) : <p className="muted">Create or assign a character to use the table.</p>}
-      </section>
-    </div>
+          ) : <p className="muted compact-note">All player colors are already claimed.</p>}
+        </div>
+      ) : null}
+    </section>
   );
 }
 
@@ -2794,22 +3008,38 @@ function ReadOnlyCombatStatus({ tracker }) {
 
 function PlayerCombatRules({ mode }) {
   if (mode !== "combat") {
+    const explorationSteps = [
+      ["Marching order", "Your token shows the party’s current order. Keep the front, middle, and rear clear so the DM can quickly tell who sees danger first and who is exposed from behind."],
+      ["Time and light", "The tracker shows dungeon turns, torches, lantern oil, and rest pressure. Most careful exploration actions cost time, so watch the light before splitting up or lingering."],
+      ["Searching and listening", "Tell the DM exactly what your character is checking: doors, floors, walls, containers, sounds, tracks, or unusual air. The DM will call for rolls when the rules or situation require them."],
+      ["Doors and movement", "Opening stuck doors, forcing locks, moving quietly, and scouting ahead can change who is surprised. Keep your token where your character actually is before the DM advances the scene."],
+      ["Wandering danger", "Noise, delay, and light can attract trouble. If the status panel changes, treat it as shared table information and adjust your plan before the next turn passes."],
+    ];
     return (
       <section>
         <p className="eyebrow">Exploration</p>
         <h2>Exploration Flow</h2>
-        {["Marching order", "Light and time", "Listen, search, and doors", "Wandering checks"].map((title) => (
-          <details className="player-rule-step" key={title}><summary>{title}</summary><p>Follow the DM prompt. The tracker shows current light, time, and rest pressure.</p></details>
+        {explorationSteps.map(([title, text]) => (
+          <details className="player-rule-step" key={title}><summary>{title}</summary><p>{text}</p></details>
         ))}
       </section>
     );
   }
+  const combatSteps = [
+    ["1. Confirm position", "Put your token where your character is standing. Distance, blocked paths, marching order, cover, and who can reach whom all depend on the grid being honest."],
+    ["2. Declare intent", "When the DM asks for actions, say what you are trying to do: charge, hold, cast, fire, retreat, change weapons, protect someone, or interact with the room."],
+    ["3. Initiative and turn", "The combat tracker shows the active side. When it is Party Turn, resolve party actions in the order the DM calls. When it is Monster Turn, watch for movement, attacks, morale, or special abilities."],
+    ["4. Movement", "Move your own token when the DM allows movement. If you leave melee, cross danger, or pass through crowded squares, pause so the DM can apply the right ruling."],
+    ["5. Attacks and spells", "Use your snippet for THAC0, AC, HP, and weapon damage. For spells, announce the target, range, casting concerns, and whether damage, saving throws, or ongoing effects are involved."],
+    ["6. Damage and status", "Use Damage or Heal on your snippet as soon as HP changes. If you hit 0 HP or a condition changes, call it out so the DM can update the shared table state."],
+    ["7. End of round", "After both sides act, the DM advances the round. Check HP, spell effects, morale, light, and whether your next position or action has changed."],
+  ];
   return (
     <section>
       <p className="eyebrow">Combat Rules</p>
       <h2>Combat Flow</h2>
-      {["Declare actions", "Initiative", "Movement", "Missiles and spells", "Melee", "Morale and results"].map((title) => (
-        <details className="player-rule-step" key={title}><summary>{title}</summary><p>Resolve the step when the DM calls it. Keep your token position current and watch the turn indicator.</p></details>
+      {combatSteps.map(([title, text]) => (
+        <details className="player-rule-step" key={title}><summary>{title}</summary><p>{text}</p></details>
       ))}
     </section>
   );
