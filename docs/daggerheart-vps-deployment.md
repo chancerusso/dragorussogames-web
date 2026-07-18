@@ -6,38 +6,41 @@ This is the canonical deployment reference for:
 https://daggerheart.dragorussogames.com/
 ```
 
-## Confirmed Paths
+## Confirmed VPS Configuration
 
-- Local source: `daggerheart/`
-- Temporary VPS upload: `/tmp/daggerheart-site/`
-- Live Nginx root: `/var/www/daggerheart.dragorussogames.com/`
-- SSH host: `dm.dragorussogames.com`
+- VPS repository: `/opt/russo-bot/source`
+- Git branch: `codex/daggerheart-player-portal`
+- Nginx document root: `/opt/russo-bot/source/daggerheart`
+- Nginx site: `/etc/nginx/sites-available/daggerheart.dragorussogames.com`
 
-The subdomain serves the contents of `daggerheart/` as its document root. Do not upload the parent repository or create an additional `daggerheart/` directory beneath the live root.
+Nginx serves the `daggerheart/` directory directly from the checked-out repository. Do not copy Daggerheart into `/var/www` and do not use an `rsync` staging directory.
 
-## Deploy
+## Normal Deployment
 
-Run these two commands from the root of the local `dragorussogames-web` repository:
+After the local branch has been committed and pushed, run this on the VPS:
 
 ```bash
-rsync -av --delete daggerheart/ dm.dragorussogames.com:/tmp/daggerheart-site/
+cd /opt/russo-bot/source
+sudo git pull --ff-only origin codex/daggerheart-player-portal
 ```
 
+Static file changes take effect immediately. Nginx does not need to be reloaded unless its configuration changed.
+
+## First-Time Branch Setup Only
+
+These commands were used on July 18, 2026 to establish the VPS checkout. They are not part of a normal update:
+
 ```bash
-ssh dm.dragorussogames.com 'sudo rsync -av --delete /tmp/daggerheart-site/ /var/www/daggerheart.dragorussogames.com/ && sudo nginx -t && sudo systemctl reload nginx'
+cd /opt/russo-bot/source
+sudo git fetch origin codex/daggerheart-player-portal
+sudo git switch codex/daggerheart-player-portal
 ```
 
 ## Verify
 
 ```bash
-curl -I https://daggerheart.dragorussogames.com/ https://daggerheart.dragorussogames.com/daggerheart.css https://daggerheart.dragorussogames.com/assets/drago-russo-logo.png
+curl -I https://daggerheart.dragorussogames.com/daggerheart.css
 ```
 
-All three requests should return `HTTP/1.1 200 OK`.
-
-## Normal Release Sequence
-
-1. Commit and push the intended Daggerheart branch.
-2. Run the two deployment commands above from the repository root.
-3. Run the verification command.
+Expected result: `HTTP/1.1 200 OK`.
 
