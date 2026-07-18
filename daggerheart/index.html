@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Daggerheart Player Portal | Drago Russo Games</title>
+  <meta name="description" content="A compact Daggerheart-compatible player portal for characters, rules reference, and table seats." />
+  <meta name="author" content="Drago Russo Games" />
+
+  <link rel="icon" type="image/png" href="../assets/LogoDrago_Mesa_de_trabajo_1.png" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+
+<body class="dh-page">
+<main class="dh-app" data-dh-app>
+  <header class="dh-topbar">
+    <a class="dh-brand" href="../" aria-label="Drago Russo Games home">
+      <img src="../assets/LogoDrago_Mesa_de_trabajo_1.png" alt="" />
+      <span>
+        <strong>Player Portal</strong>
+        <small>Drago Russo Games</small>
+      </span>
+    </a>
+    <img class="dh-compatible-mark" src="../content/daggerheart/community-logos/PNGs/DH_CGL_logos_final_full_color.png" alt="Darrington Press Community Gaming License mark" />
+  </header>
+
+  <nav class="dh-tabs" aria-label="Player portal sections" data-dh-tabs hidden>
+    <button type="button" data-dh-tab="characters">Characters</button>
+    <button type="button" data-dh-tab="builder">Build</button>
+    <button type="button" data-dh-tab="rules">Rules</button>
+    <button type="button" data-dh-tab="table">Table</button>
+  </nav>
+
+  <section class="dh-login" data-dh-view="login">
+    <div class="dh-panel dh-login-card">
+      <p class="dh-kicker">Daggerheart Compatible Player Portal</p>
+      <h1>Pull up your chair.</h1>
+      <p>
+        Sign in to create characters, review the player-facing SRD, and grab a seat when a campaign invite arrives.
+      </p>
+      <div class="dh-login-row">
+        <input type="text" value="Chance" aria-label="Player name" data-dh-player-input />
+        <button type="button" data-dh-login>Sign In</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="dh-shell" data-dh-view="portal" hidden>
+    <div class="dh-portal-head">
+      <div>
+        <p class="dh-kicker">Signed in as <strong data-dh-player-name>Player</strong></p>
+        <h1>Player Portal</h1>
+      </div>
+      <button class="dh-link-button" type="button" data-dh-logout>Log Out</button>
+    </div>
+
+    <section class="dh-tab-panel" data-dh-panel="characters">
+      <div class="dh-section-head">
+        <div>
+          <p class="dh-kicker">Characters</p>
+          <h2>Ready at the table.</h2>
+        </div>
+        <button type="button" data-dh-start-builder>Create Character</button>
+      </div>
+      <div class="dh-character-list" data-dh-character-list></div>
+    </section>
+
+    <section class="dh-tab-panel" data-dh-panel="builder" hidden>
+      <div class="dh-section-head">
+        <div>
+          <p class="dh-kicker" data-dh-builder-kicker>Guided Builder</p>
+          <h2 data-dh-builder-title>Build a compact character.</h2>
+        </div>
+        <button type="button" data-dh-save-character>Save Character</button>
+      </div>
+
+      <form class="dh-builder" data-dh-builder></form>
+      <article class="dh-sheet" data-dh-sheet hidden></article>
+    </section>
+
+    <section class="dh-tab-panel" data-dh-panel="rules" hidden>
+      <div class="dh-section-head">
+        <div>
+          <p class="dh-kicker">Player SRD Reference</p>
+        </div>
+      </div>
+      <div class="dh-rule-layout">
+        <div class="dh-rule-buttons" data-dh-rule-buttons></div>
+        <article class="dh-panel dh-rule-reader" data-dh-rule-reader></article>
+      </div>
+    </section>
+
+    <section class="dh-tab-panel" data-dh-panel="table" hidden>
+      <div class="dh-section-head">
+        <div>
+          <p class="dh-kicker">Table</p>
+          <h2>Waiting for the GM.</h2>
+        </div>
+      </div>
+      <article class="dh-seat-card">
+        <div>
+          <p class="dh-kicker">Session Seat</p>
+          <h3>Friday Night Daggerheart</h3>
+          <p>The table becomes ready when the GM starts the session. Choose a character, then grab your seat.</p>
+        </div>
+        <button type="button" data-dh-grab-seat>Grab A Seat</button>
+      </article>
+    </section>
+  </section>
+
+  <aside class="dh-toast" data-dh-toast hidden></aside>
+  <div class="dh-tooltip" data-dh-tooltip hidden></div>
+</main>
+
+<footer class="dh-footer">
+  This product includes materials from the Daggerheart System Reference Document 1.0, © Critical Role, LLC. under the terms of the Darrington Press Community Gaming (DPCGL) License. More information can be found at https://www.daggerheart.com. There are no previous modifications by others.
+</footer>
+
+<script src="./daggerheart-data.js"></script>
+<script src="./daggerheart.js"></script>
+</body>
+</html>
