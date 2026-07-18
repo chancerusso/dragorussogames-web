@@ -6,6 +6,8 @@ discord-bot/node_modules/
 discord-bot/dist/
 frontend/node_modules/
 frontend/dist/
+daggerheart-backend/.env
+daggerheart-backend/.venv/
 reports/
 __pycache__/
 *.pyc
