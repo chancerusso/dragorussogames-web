@@ -207,11 +207,15 @@
   const newDraft = () => ({
     id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
     name: "Maris",
-    pronouns: "they/them",
+    pronouns: "",
     className: "Bard",
+    displayClassName: "",
     subclass: "Troubadour",
+    displaySubclass: "",
     ancestry: "Clank",
+    displayAncestry: "",
     community: "Highborne",
+    displayCommunity: "",
     traits: Object.fromEntries(traits.map((trait, index) => [trait, traitValues[index]])),
     experiences: ["Silver-Tongued Performer", "Read the Room"],
     level: 1,
@@ -231,7 +235,7 @@
     const equipment = character.equipment || {};
     const catalogWeapon = (item, fallback) => weapons.find((weapon) => weapon.name === item?.name) || fallback;
     const catalogArmor = (item, fallback) => armors.find((armor) => armor.name === item?.name) || fallback;
-    const legalCards = info.domains.flatMap((domain) => domainCards[domain]).filter((name) => (cardLevels[name] || 1) <= (character.level || base.level));
+    const legalCards = Object.values(domainCards).flat().filter((name) => (cardLevels[name] || 1) <= (character.level || base.level));
     const selectedCards = (character.selectedCards || []).filter((name) => legalCards.includes(name));
     return {
       ...base,
@@ -291,7 +295,7 @@
 
   const wizardFrame = (body) => `
     <div class="dh-stepper" aria-label="Character creation steps">
-      ${steps.map((step, index) => `<span data-current="${index === builderStep}" data-done="${index < builderStep}">${index + 1}. ${step}</span>`).join("")}
+      ${steps.map((step, index) => `<button type="button" data-builder-step="${index}" data-current="${index === builderStep}" data-done="${index < builderStep}" ${index === builderStep ? 'aria-current="step"' : ""}>${index + 1}. ${step}</button>`).join("")}
     </div>
     <section class="dh-wizard-card">
       <p class="dh-kicker">Step ${builderStep + 1} Of ${steps.length}</p>
@@ -316,7 +320,7 @@
       return;
     }
     els.builderKicker.textContent = "Guided Builder";
-    els.builderTitle.textContent = "Build a compact character.";
+    els.builderTitle.textContent = "Build a Character";
     els.builder.hidden = false;
     els.saveCharacter.hidden = builderStep !== steps.length - 1;
     els.sheet.hidden = builderStep !== steps.length - 1;
@@ -343,6 +347,11 @@
       <label class="dh-wide-label">Subclass
         <select data-draft="subclass">${optionList(info.subclasses, builderDraft.subclass)}</select>
       </label>
+      <div class="dh-builder-fields dh-alias-fields">
+        <label>Displayed Class Name <input data-draft="displayClassName" value="${escapeHtml(builderDraft.displayClassName || "")}" placeholder="Optional, e.g. Knight of Solamnia" /></label>
+        <label>Displayed Subclass Name <input data-draft="displaySubclass" value="${escapeHtml(builderDraft.displaySubclass || "")}" placeholder="Optional setting name" /></label>
+      </div>
+      <p class="dh-helper">Display names change what appears on the sheet. ${builderDraft.className} and ${builderDraft.subclass} remain the underlying SRD mechanics.</p>
     `;
   };
 
@@ -351,7 +360,10 @@
     <div class="dh-builder-fields">
       <label>Ancestry <select data-draft="ancestry">${optionList(ancestries, builderDraft.ancestry)}</select></label>
       <label>Community <select data-draft="community">${optionList(communities, builderDraft.community)}</select></label>
+      <label>Displayed Ancestry Name <input data-draft="displayAncestry" value="${escapeHtml(builderDraft.displayAncestry || "")}" placeholder="Optional, e.g. Kender" /></label>
+      <label>Displayed Community Name <input data-draft="displayCommunity" value="${escapeHtml(builderDraft.displayCommunity || "")}" placeholder="Optional setting name" /></label>
     </div>
+    <p class="dh-helper">The displayed names can match the campaign setting while the selected ancestry and community retain their SRD features.</p>
   `;
 
   const traitsStep = () => {
@@ -384,8 +396,7 @@
   `;
 
   const cardsStep = () => {
-    const domains = classes[builderDraft.className].domains;
-    const options = domains.flatMap((domain) => domainCards[domain].map((name) => ({
+    const options = Object.entries(domainCards).flatMap(([domain, cards]) => cards.map((name) => ({
       domain,
       name,
       level: cardLevels[name] || 1,
@@ -394,6 +405,7 @@
     }))).filter((card) => card.level <= builderDraft.level);
     return `
       <h3>Set cards on the table.</h3>
+      <p class="dh-helper">Open domain selection is enabled. Choose any two level-eligible cards that fit the character and confirm off-domain choices with the GM.</p>
       <div class="dh-card-slots">
         ${[0, 1].map((index) => {
           const card = builderDraft.selectedCards[index];
@@ -435,8 +447,8 @@
     </button>
   `;
 
-  const allAvailableCards = (character) => character.domains
-    .flatMap((domain) => domainCards[domain].map((name) => ({
+  const allAvailableCards = (character) => Object.entries(domainCards)
+    .flatMap(([domain, cards]) => cards.map((name) => ({
       domain,
       name,
       level: cardLevels[name] || 1,
@@ -552,7 +564,7 @@
     sheetMarks = { hp: 0, stress: 0, hope: 2, armor: 0, ...(character.marks || sheetMarks) };
     const selected = character.selectedCards?.length ? character.selectedCards : character.domains.flatMap((domain) => domainCards[domain]).slice(0, 2);
     const cards = selected.map((card) => {
-      const domain = character.domains.find((entry) => domainCards[entry].includes(card)) || "Domain";
+      const domain = Object.keys(domainCards).find((entry) => domainCards[entry].includes(card)) || "Domain";
       const meta = cardMeta[card];
       return compactCard(card, `${domain} · Level ${cardLevels[card] || 1}${meta ? ` · ${meta.type} · Recall ${meta.recall}` : ""}`, cardNotes[card] || "SRD card entry loaded. Full rules text will be expanded in the next data pass.");
     });
@@ -562,10 +574,10 @@
       </button>
     `).join("");
     const features = [
-      featureSnippet(character.feature, character.className, "Class feature snippet. This stays compact until the player needs the full reminder."),
-      featureSnippet(character.subclass, "Subclass", "Foundation feature snippet for this subclass."),
-      featureSnippet(character.ancestry, "Ancestry", "Heritage ancestry snippet."),
-      featureSnippet(character.community, "Community", "Heritage community snippet."),
+      featureSnippet(character.feature, character.displayClassName || character.className, "Class feature snippet. This stays compact until the player needs the full reminder."),
+      featureSnippet(character.displaySubclass || character.subclass, "Subclass", "Foundation feature snippet for this subclass."),
+      featureSnippet(character.displayAncestry || character.ancestry, "Ancestry", "Heritage ancestry snippet."),
+      featureSnippet(character.displayCommunity || character.community, "Community", "Heritage community snippet."),
     ];
     const hpClass = `dh-hp-${hpState(character)}`;
     const equipment = character.equipment || defaultEquipment;
@@ -578,10 +590,10 @@
         </div>
         <div class="dh-sheet-meta">
           ${metaButton("Level", character.level, "level")}
-          ${metaButton("Ancestry", character.ancestry, "jump", "features")}
-          ${metaButton("Community", character.community, "jump", "features")}
-          ${metaButton("Class", character.className, "jump", "features")}
-          ${metaButton("Subclass", character.subclass, "jump", "features")}
+          ${metaButton("Ancestry", character.displayAncestry || character.ancestry, "jump", "features")}
+          ${metaButton("Community", character.displayCommunity || character.community, "jump", "features")}
+          ${metaButton("Class", character.displayClassName || character.className, "jump", "features")}
+          ${metaButton("Subclass", character.displaySubclass || character.subclass, "jump", "features")}
         </div>
         ${sidecar("identity")}
       </div>
@@ -875,7 +887,7 @@
       <article class="dh-character-card">
         <div>
           <h3>${character.name}</h3>
-          <p>Level ${character.level} ${character.ancestry} ${character.className} · ${character.subclass}</p>
+          <p>Level ${character.level} ${character.displayAncestry || character.ancestry} ${character.displayClassName || character.className} · ${character.displaySubclass || character.subclass}</p>
           <p>${character.domains.join(" & ")} · ${character.experiences.join(", ")}</p>
         </div>
         <div class="dh-card-actions">
@@ -1421,11 +1433,14 @@
     const classButton = event.target.closest("[data-class-choice]");
     const cardButton = event.target.closest("[data-card-choice]");
     const removeCard = event.target.closest("[data-remove-card]");
+    const stepButton = event.target.closest("[data-builder-step]");
     const back = event.target.closest("[data-builder-back]");
     const next = event.target.closest("[data-builder-next]");
     if (classButton) {
       builderDraft.className = classButton.dataset.classChoice;
       builderDraft.subclass = classes[builderDraft.className].subclasses[0];
+      builderDraft.displayClassName = "";
+      builderDraft.displaySubclass = "";
       builderDraft.selectedCards = [];
       renderBuilder();
     }
@@ -1437,6 +1452,10 @@
     }
     if (removeCard) {
       builderDraft.selectedCards.splice(Number(removeCard.dataset.removeCard), 1);
+      renderBuilder();
+    }
+    if (stepButton) {
+      builderStep = Number(stepButton.dataset.builderStep);
       renderBuilder();
     }
     if (back) {
