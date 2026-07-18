@@ -1196,6 +1196,7 @@ function DragoTablePage() {
             <Link className="table-link" to={`/campaigns/${campaign.id}/characters`}>Manage</Link>
           </div>
           <div className="snippet-grid">
+            {!playerTokens.length ? <p className="empty-state">No characters have been added to this campaign.</p> : null}
             {playerTokens.map((token) => (
               <div className="character-snippet" key={token.id}>
                 <span className="snippet-token" style={{ background: token.color }}>{token.label}</span>
@@ -1835,15 +1836,7 @@ function TrackerPanel({ mode, tracker, onModeChange, onUpdate }) {
 const DRAGO_MARCHING_GRID = { columns: 2, rows: 6 };
 const DRAGO_OUTDOORS_GRID = { columns: 12, rows: 8 };
 
-const DRAGO_SAMPLE_PLAYERS = [
-  { id: "pc-1", name: "Aldren", label: "AL", color: "#f8f4e8", hp: "18 / 24", ac: "5", move: "9", status: "Ready", x: 1, y: 1, slotX: 0, slotY: 0 },
-  { id: "pc-2", name: "Brinna", label: "BR", color: "#d6a94d", hp: "12 / 16", ac: "7", move: "12", status: "Ready", x: 1, y: 1, slotX: 1, slotY: 0 },
-  { id: "pc-3", name: "Cairn", label: "CA", color: "#5aa7e8", hp: "9 / 11", ac: "8", move: "12", status: "Hidden", x: 1, y: 1, slotX: 0, slotY: 1 },
-  { id: "pc-4", name: "Damaia", label: "DA", color: "#9b78e6", hp: "6 / 9", ac: "10", move: "12", status: "Light", x: 1, y: 1, slotX: 1, slotY: 1 },
-];
-
 function buildPlayerTokens(characters, playerColors = {}) {
-  if (!characters.length) return DRAGO_SAMPLE_PLAYERS;
   return characters.slice(0, 6).map((character, index) => ({
     id: `pc-${character.id}`,
     name: character.name || `Character ${index + 1}`,
