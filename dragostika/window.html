@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dragostika Window</title>
+  <link rel="icon" type="image/png" href="../assets/LogoDrago_Mesa_de_trabajo_1.png" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body class="dragostika-page dragostika-window-page">
+  <main class="dragostika-window-shell">
+    <section class="dragostika-window-card">
+      <p class="eyebrow">Dragostika</p>
+      <h1 data-window-title>Menu</h1>
+      <p data-window-copy>
+        This window is reserved for the player tool.
+      </p>
+      <div class="dragostika-window-actions">
+        <button type="button" data-window-save>Save</button>
+        <button type="button" data-window-exit>Exit</button>
+      </div>
+    </section>
+  </main>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const panel = params.get("panel") || "menu";
+    const title = panel.replace(/-/g, " ");
+    const copy = {
+      menu: "Game options, account controls, and title-screen actions will live here.",
+      character: "Your active hero record, equipment, hit points, and advancement will live here.",
+      journal: "Your discoveries, choices, NPC relationships, and adventure log will live here.",
+      map: "Your known dungeon rooms, wilderness routes, and discovered exits will live here.",
+      load: "Saved expeditions and available adventure modules will live here."
+    };
+    document.querySelector("[data-window-title]").textContent = title;
+    document.querySelector("[data-window-copy]").textContent = copy[panel] || copy.menu;
+    document.querySelector("[data-window-save]").addEventListener("click", () => {
+      localStorage.setItem("dragostika.savedAt", String(Date.now()));
+      window.close();
+    });
+    document.querySelector("[data-window-exit]").addEventListener("click", () => window.close());
+  </script>
+</body>
+</html>

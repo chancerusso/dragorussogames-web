@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Dragostika | Drago Russo Games</title>
+  <meta name="description" content="Dragostika is an original OSRIC-compatible solo campaign engine from Drago Russo Games." />
+  <meta name="author" content="Drago Russo Games" />
+
+  <meta property="og:title" content="Dragostika | Drago Russo Games" />
+  <meta property="og:description" content="An original OSRIC-compatible solo campaign engine with persistent characters, dangerous choices, and campaign memory." />
+  <meta property="og:image" content="https://dragorussogames.com/assets/preview.jpg" />
+  <meta property="og:url" content="https://dragorussogames.com/dragostika/" />
+  <meta property="og:type" content="website" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Dragostika" />
+  <meta name="twitter:description" content="Original OSRIC-compatible solo adventures by Drago Russo Games." />
+  <meta name="twitter:image" content="https://dragorussogames.com/assets/preview.jpg" />
+
+  <link rel="icon" type="image/png" href="../assets/LogoDrago_Mesa_de_trabajo_1.png" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+
+<body class="dragostika-page">
+<main>
+  <section class="hero dragostika-hero">
+    <div class="hero-bg"></div>
+
+    <div class="hero-inner">
+      <div class="dragostika-frame">
+        <div class="dragostika-screen">
+          <div class="dragostika-title-plate">
+            <p class="eyebrow">Original Solo OSRIC-Compatible Fantasy</p>
+            <h1>Dragostika</h1>
+          </div>
+          <img
+            src="../assets/dragostika-dungeon.jpg"
+            alt="Black and white old-school dungeon corridor with adventurers facing danger"
+            data-dragostika-main-art
+            data-default-src="../assets/dragostika-dungeon.jpg"
+            data-default-alt="Black and white old-school dungeon corridor with adventurers facing danger"
+            data-intro-src="../assets/dragostika-intro-heavens.png"
+            data-intro-alt="Black and white ink illustration of the gods pulling the threads of fate from the heavens"
+          />
+        </div>
+
+        <div class="dragostika-command">
+          <div class="dragostika-interaction" data-dragostika-view="login" data-dragostika-guest>
+            <p class="lead">
+              Enter the solo dungeon campaign.
+            </p>
+            <div class="dragostika-menu dragostika-landing-menu" aria-label="Dragostika login menu">
+              <button type="button" data-dragostika-login>Log In</button>
+              <a href="#learn-more">Learn More</a>
+            </div>
+          </div>
+
+          <div class="dragostika-interaction dragostika-player-panel" data-dragostika-view="player" data-dragostika-player>
+            <p class="dragostika-session-line">Logged in as <strong data-dragostika-player-name>Adventurer</strong></p>
+            <p class="lead">
+              Choose an existing expedition or build a new solo adventurer for Dragostika.
+            </p>
+            <div class="dragostika-menu" aria-label="Dragostika player menu">
+              <button type="button" data-dragostika-new-game>New Game</button>
+              <button type="button" data-dragostika-load-game>Load Game</button>
+            </div>
+          </div>
+
+          <form class="dragostika-interaction dragostika-builder" data-dragostika-view="builder" data-dragostika-builder hidden>
+            <p class="dragostika-session-line">Logged in as <strong data-dragostika-player-name>Adventurer</strong></p>
+            <h2>Build A New Character</h2>
+            <div class="dragostika-builder-grid">
+              <label>
+                <span>Name</span>
+                <input type="text" name="character_name" value="Valen" />
+              </label>
+              <label>
+                <span>Race</span>
+                <select name="race">
+                  <option>Half-Elf</option>
+                  <option>Elf</option>
+                  <option>Half-Orc</option>
+                  <option>Human</option>
+                  <option>Halfling</option>
+                  <option>Dwarf</option>
+                  <option>Gnome</option>
+                </select>
+              </label>
+              <label>
+                <span>Class</span>
+                <input type="text" value="Fighter/Thief" readonly />
+              </label>
+              <label>
+                <span>Alignment</span>
+                <select name="alignment">
+                  <option>Lawful Good</option>
+                  <option>Neutral Good</option>
+                  <option>Chaotic Good</option>
+                  <option>Lawful Neutral</option>
+                  <option selected>True Neutral</option>
+                  <option>Chaotic Neutral</option>
+                  <option>Lawful Evil</option>
+                  <option>Neutral Evil</option>
+                </select>
+              </label>
+            </div>
+            <div class="dragostika-roll-panel">
+              <div>
+                <h3>Roll Stats</h3>
+                <p>Roll 4d6, drop the lowest, six times. You may roll once.</p>
+              </div>
+              <button type="button" data-dragostika-roll>Roll Once</button>
+            </div>
+            <div class="dragostika-rolls" data-dragostika-rolls></div>
+            <div class="dragostika-ability-assignment" data-dragostika-assignment></div>
+            <p class="dragostika-session-line">Starting HP 12 plus CON adjustment. Starting gold 15 gp. Starter equipment is equipped automatically.</p>
+            <div class="dragostika-menu">
+              <button type="submit" data-dragostika-build>Done</button>
+              <button type="button" data-dragostika-view-character disabled>View Character</button>
+            </div>
+          </form>
+
+          <div class="dragostika-interaction dragostika-load-panel" data-dragostika-view="load" hidden>
+            <p class="dragostika-session-line">Logged in as <strong data-dragostika-player-name>Adventurer</strong></p>
+            <h2>Load Game</h2>
+            <div class="dragostika-list" data-dragostika-load-list></div>
+          </div>
+
+          <div class="dragostika-interaction dragostika-adventure-panel" data-dragostika-view="adventures" hidden>
+            <p class="dragostika-session-line">Choose an adventure for <strong data-dragostika-active-character>your character</strong>.</p>
+            <h2>Adventures</h2>
+            <div class="dragostika-list" data-dragostika-adventures></div>
+          </div>
+
+          <div class="dragostika-interaction dragostika-intro-panel" data-dragostika-view="intro" hidden>
+            <div class="dragostika-scene-meta">
+              <div>
+                <p class="dragostika-session-line">Playing as <strong data-dragostika-active-character>your character</strong></p>
+                <p class="dragostika-session-line">Adventure: <strong data-dragostika-active-adventure>Unassigned</strong></p>
+              </div>
+              <p class="dragostika-session-line">Screen: <strong>Intro</strong></p>
+            </div>
+            <div class="dragostika-intro-copy">
+              <p>Your life was your own, or so you thought. You have always known that you were different from others.</p>
+              <p>In your heart and down into your soul, you knew that you could leave your mark on this world. You felt a calling. A need. An itch...for adventure....</p>
+              <p>When you heard that a caravan was heading to Rio Frio, something told you that this was what you have been waiting for. Call it a hunch, or intuition. A thought and a notion that this is the path and now is the time.</p>
+              <p>Something stirred inside of you and put you on the road. The call to adventure or is it part of some divine plan....</p>
+              <p>The Gods reign supreme and grow ever so bored.<br />They pull the strings and toss us to our fates<br />To be rich or poor, live long or die by the sword<br />In the land of Dragostika our destiny awaits.</p>
+            </div>
+            <div class="dragostika-decision-row">
+              <button type="button" data-dragostika-begin-adventure>Begin Your Adventure</button>
+            </div>
+          </div>
+
+          <div class="dragostika-interaction dragostika-game-panel" data-dragostika-view="game" hidden>
+            <div class="dragostika-scene-meta">
+              <div>
+                <p class="dragostika-session-line">Playing as <strong data-dragostika-active-character>your character</strong></p>
+                <p class="dragostika-session-line">Adventure: <strong data-dragostika-active-adventure>Unassigned</strong></p>
+              </div>
+              <p class="dragostika-session-line">Screen: <strong>The Road</strong></p>
+            </div>
+            <p class="lead">
+              The caravan road bends toward cold water, black stone, and the first true choice of your life.
+            </p>
+            <div class="dragostika-decision-row">
+              <button type="button">Continue Along The Road</button>
+            </div>
+          </div>
+
+          <div class="dragostika-bottom-bar">
+            <div class="dragostika-game-nav" aria-label="Game menu" data-dragostika-session-actions hidden>
+              <button type="button" data-dragostika-save>Save</button>
+              <button type="button" data-dragostika-exit>Exit</button>
+            </div>
+
+            <div class="dragostika-audio" data-dragostika-audio>
+              <audio src="../assets/audio/dragostika-title.mp3" data-title-src="../assets/audio/dragostika-title.mp3" data-intro-src="../assets/audio/dragostika-intro.mp3" loop preload="auto" data-dragostika-track></audio>
+              <audio src="../assets/audio/dragostika-intro-voice.mp3" preload="auto" data-dragostika-narration></audio>
+              <button type="button" data-dragostika-toggle aria-label="Toggle Dragostika music">Music</button>
+              <label>
+                <span>Vol</span>
+                <input type="range" min="0" max="100" value="34" data-dragostika-volume aria-label="Music volume" />
+              </label>
+              <span data-dragostika-status>Ready</span>
+            </div>
+
+            <button class="dragostika-text-button" type="button" data-dragostika-logout hidden>Log Out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Drago Russo Games • Dragostika
+</footer>
+<script src="./dragostika.js"></script>
+</body>
+</html>
