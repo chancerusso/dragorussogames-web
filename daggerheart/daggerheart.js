@@ -172,6 +172,7 @@
   let builderMode = "build";
   let activeCampaign = null;
   let availableCharacters = [];
+  let availablePlayers = [];
   let tableRecord = null;
   let libraryKind = "";
   let libraryRecords = [];
@@ -222,7 +223,16 @@
     campaignPlanner: document.querySelector("[data-dh-campaign-planner]"),
     memberList: document.querySelector("[data-dh-member-list]"),
     assignedList: document.querySelector("[data-dh-assigned-list]"),
-    invitePlayer: document.querySelector("[data-dh-invite-player]"),
+    addExistingPlayer: document.querySelector("[data-dh-add-existing-player]"),
+    openInvitePlayer: document.querySelector("[data-dh-open-invite-player]"),
+    playerDialog: document.querySelector("[data-dh-player-dialog]"),
+    createPlayer: document.querySelector("[data-dh-create-player]"),
+    playerDialogClose: document.querySelector("[data-dh-player-dialog-close]"),
+    campaignNotesForm: document.querySelector("[data-dh-campaign-notes-form]"),
+    sessionNoteList: document.querySelector("[data-dh-session-note-list]"),
+    characterPopout: document.querySelector("[data-dh-character-popout]"),
+    characterPopoutBody: document.querySelector("[data-dh-character-popout-body]"),
+    characterPopoutClose: document.querySelector("[data-dh-character-popout-close]"),
     addCharacter: document.querySelector("[data-dh-add-character]"),
     backCampaigns: document.querySelector("[data-dh-back-campaigns]"),
     launchGame: document.querySelector("[data-dh-launch-game]"),
@@ -480,23 +490,27 @@
 
   const toLocalDateTime = (value) => value ? new Date(value).toISOString().slice(0, 16) : "";
   const renderCampaignRoster = () => {
-    els.memberList.innerHTML = activeCampaign.members?.length ? activeCampaign.members.map((member) => `<div class="dh-roster-row"><span><strong>${escapeHtml(member.user.display_name)}</strong><small>@${escapeHtml(member.user.username)} · ${escapeHtml(member.status)}</small></span><button type="button" data-remove-member="${member.user.id}">Remove</button></div>`).join("") : `<p class="dh-helper">No players invited yet.</p>`;
-    els.assignedList.innerHTML = activeCampaign.characters?.length ? activeCampaign.characters.map((character) => `<div class="dh-roster-row"><span><strong>${escapeHtml(character.name)}</strong><small>Level ${character.level} · ${escapeHtml(character.display_names?.class || character.mechanics?.class || "Character")}</small></span><button type="button" data-remove-character="${character.id}">Remove</button></div>`).join("") : `<p class="dh-helper">No characters assigned yet.</p>`;
+    els.memberList.innerHTML = activeCampaign.members?.length ? activeCampaign.members.map((member) => { const playerCharacters = (activeCampaign.characters || []).filter((character) => character.owner_id === member.user.id); return `<article class="dh-player-roster-card"><header><div><strong>${escapeHtml(member.user.display_name)}</strong><small>@${escapeHtml(member.user.username)} · ${escapeHtml(member.status)}</small></div><button type="button" data-remove-member="${member.user.id}">Remove</button></header><div>${playerCharacters.length ? playerCharacters.map((character) => `<span class="dh-roster-character"><button type="button" data-view-campaign-character="${character.id}"><strong>${escapeHtml(character.name)}</strong><small>Level ${character.level} · ${escapeHtml(character.display_names?.class || character.mechanics?.class || "Character")}</small></button><button type="button" data-remove-character="${character.id}" aria-label="Remove ${escapeHtml(character.name)} from campaign">×</button></span>`).join("") : `<span class="dh-helper">No character assigned.</span>`}</div></article>`; }).join("") : `<p class="dh-helper">No players added yet.</p>`;
+    els.assignedList.innerHTML = "";
     const assigned = new Set((activeCampaign.characters || []).map((character) => character.id));
     const choices = availableCharacters.filter((character) => !assigned.has(character.id));
     els.addCharacter.elements.character_id.innerHTML = choices.length ? choices.map((character) => `<option value="${character.id}">${escapeHtml(character.name)}</option>`).join("") : `<option value="">No available characters</option>`;
     els.addCharacter.querySelector("button").disabled = !choices.length;
+    const memberIds = new Set((activeCampaign.members || []).map((member) => member.user.id)); const playerChoices = availablePlayers.filter((player) => !memberIds.has(player.id));
+    els.addExistingPlayer.elements.username.innerHTML = playerChoices.length ? playerChoices.map((player) => `<option value="${escapeHtml(player.username)}">${escapeHtml(player.display_name)} (@${escapeHtml(player.username)})</option>`).join("") : `<option value="">No available player accounts</option>`;
+    els.addExistingPlayer.querySelector("button").disabled = !playerChoices.length;
+    els.campaignNotesForm.elements.notes.value = activeCampaign.notes || "";
+    els.sessionNoteList.innerHTML = activeCampaign.session_notes?.length ? [...activeCampaign.session_notes].reverse().map((note) => `<details><summary>Session ${note.session_number} · ${escapeHtml(note.played_on || "Date not recorded")}</summary><p>${escapeHtml(note.notes || "No notes recorded.").replace(/\n/g, "<br>")}</p></details>`).join("") : `<p class="dh-helper">No completed session notes yet.</p>`;
   };
 
   const openCampaign = async (campaignId) => {
     try {
-      [activeCampaign, availableCharacters] = await Promise.all([api(`/campaigns/${campaignId}`), api("/characters")]);
+      [activeCampaign, availableCharacters, availablePlayers] = await Promise.all([api(`/campaigns/${campaignId}`), api("/characters"), api("/players")]);
       els.gmHome.hidden = true; els.vtt.hidden = true; els.campaignWorkspace.hidden = false;
       els.campaignTitle.textContent = activeCampaign.name;
       els.campaignPlanner.elements.name.value = activeCampaign.name;
       els.campaignPlanner.elements.session_number.value = activeCampaign.session_number || 1;
       els.campaignPlanner.elements.next_session_at.value = toLocalDateTime(activeCampaign.next_session_at);
-      els.campaignPlanner.elements.notes.value = activeCampaign.notes || "";
       renderCampaignRoster();
     } catch (error) { showToast(error.message); }
   };
@@ -1820,22 +1834,28 @@
     event.preventDefault();
     const form = new FormData(els.campaignPlanner);
     try {
-      activeCampaign = await api(`/campaigns/${activeCampaign.id}`, { method: "PUT", body: JSON.stringify({ name: form.get("name"), notes: form.get("notes"), session_number: Number(form.get("session_number")), next_session_at: form.get("next_session_at") ? new Date(form.get("next_session_at")).toISOString() : null }) });
+      activeCampaign = await api(`/campaigns/${activeCampaign.id}`, { method: "PUT", body: JSON.stringify({ name: form.get("name"), notes: activeCampaign.notes || "", session_notes: activeCampaign.session_notes || [], session_number: Number(form.get("session_number")), next_session_at: form.get("next_session_at") ? new Date(form.get("next_session_at")).toISOString() : null }) });
       els.campaignTitle.textContent = activeCampaign.name; showToast("Campaign saved."); renderCampaignRoster();
     } catch (error) { showToast(error.message); }
   });
-  els.invitePlayer.addEventListener("submit", async (event) => {
+  els.addExistingPlayer.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const username = new FormData(els.invitePlayer).get("username");
-    try { await api(`/campaigns/${activeCampaign.id}/members`, { method: "POST", body: JSON.stringify({ username, status: "invited" }) }); els.invitePlayer.reset(); await openCampaign(activeCampaign.id); showToast("Player invited."); } catch (error) { showToast(error.message); }
+    const username = new FormData(els.addExistingPlayer).get("username");
+    if (!username) return;
+    try { await api(`/campaigns/${activeCampaign.id}/members`, { method: "POST", body: JSON.stringify({ username, status: "active" }) }); await openCampaign(activeCampaign.id); showToast("Player added."); } catch (error) { showToast(error.message); }
   });
+  els.openInvitePlayer.addEventListener("click", () => { els.createPlayer.reset(); els.playerDialog.showModal(); });
+  els.playerDialogClose.addEventListener("click", () => els.playerDialog.close());
+  els.createPlayer.addEventListener("submit", async (event) => { event.preventDefault(); const form = new FormData(els.createPlayer); try { const player = await api("/players", { method: "POST", body: JSON.stringify({ username: form.get("username"), password: form.get("password"), display_name: form.get("display_name") || "" }) }); await api(`/campaigns/${activeCampaign.id}/members`, { method: "POST", body: JSON.stringify({ username: player.username, status: "active" }) }); els.playerDialog.close(); await openCampaign(activeCampaign.id); showToast("Player account created and added."); } catch (error) { showToast(error.message); } });
+  els.campaignNotesForm.addEventListener("submit", async (event) => { event.preventDefault(); const notes = new FormData(els.campaignNotesForm).get("notes"); try { activeCampaign = await api(`/campaigns/${activeCampaign.id}`, { method: "PUT", body: JSON.stringify({ name: activeCampaign.name, notes, session_notes: activeCampaign.session_notes || [], session_number: activeCampaign.session_number || 1, next_session_at: activeCampaign.next_session_at }) }); renderCampaignRoster(); showToast("Campaign notes saved."); } catch (error) { showToast(error.message); } });
   els.addCharacter.addEventListener("submit", async (event) => {
     event.preventDefault();
     const characterId = Number(new FormData(els.addCharacter).get("character_id"));
     if (!characterId) return;
     try { await api(`/campaigns/${activeCampaign.id}/characters`, { method: "POST", body: JSON.stringify({ character_id: characterId }) }); await openCampaign(activeCampaign.id); showToast("Character added."); } catch (error) { showToast(error.message); }
   });
-  els.memberList.addEventListener("click", async (event) => { const button = event.target.closest("[data-remove-member]"); if (!button) return; try { await api(`/campaigns/${activeCampaign.id}/members/${button.dataset.removeMember}`, { method: "DELETE" }); await openCampaign(activeCampaign.id); } catch (error) { showToast(error.message); } });
+  els.memberList.addEventListener("click", async (event) => { const view = event.target.closest("[data-view-campaign-character]"); const removeCharacter = event.target.closest("[data-remove-character]"); const remove = event.target.closest("[data-remove-member]"); if (view) { const character = activeCampaign.characters.find((item) => item.id === Number(view.dataset.viewCampaignCharacter)); if (!character) return; const sheet = character.sheet || {}; els.characterPopoutBody.innerHTML = `<div class="dh-section-head"><div><p class="dh-kicker">Player Character</p><h2>${escapeHtml(character.name)}</h2></div></div><div class="dh-character-popout-grid"><p><strong>Player:</strong> ${escapeHtml(activeCampaign.members.find((member) => member.user.id === character.owner_id)?.user.display_name || "—")}</p><p><strong>Level:</strong> ${character.level}</p><p><strong>Class:</strong> ${escapeHtml(character.display_names?.class || character.mechanics?.class || sheet.displayClassName || sheet.className || "—")}</p><p><strong>Heritage:</strong> ${escapeHtml(character.display_names?.ancestry || sheet.displayAncestry || sheet.ancestry || "—")}</p><p><strong>HP:</strong> ${sheet.marks?.hp || 0}/${sheet.hp || character.mechanics?.hp || "—"}</p><p><strong>Stress:</strong> ${sheet.marks?.stress || 0}/${sheet.stress || character.mechanics?.stress || "—"}</p><p><strong>Armor:</strong> ${sheet.marks?.armor || 0}/${sheet.armorScore || character.mechanics?.armorScore || "—"}</p><p><strong>Domains:</strong> ${escapeHtml((sheet.domains || character.mechanics?.domains || []).join(" & ") || "—")}</p></div>`; els.characterPopout.showModal(); return; } if (removeCharacter) { try { await api(`/campaigns/${activeCampaign.id}/characters/${removeCharacter.dataset.removeCharacter}`, { method: "DELETE" }); await openCampaign(activeCampaign.id); } catch (error) { showToast(error.message); } return; } if (!remove) return; try { await api(`/campaigns/${activeCampaign.id}/members/${remove.dataset.removeMember}`, { method: "DELETE" }); await openCampaign(activeCampaign.id); } catch (error) { showToast(error.message); } });
+  els.characterPopoutClose.addEventListener("click", () => els.characterPopout.close());
   els.assignedList.addEventListener("click", async (event) => { const button = event.target.closest("[data-remove-character]"); if (!button) return; try { await api(`/campaigns/${activeCampaign.id}/characters/${button.dataset.removeCharacter}`, { method: "DELETE" }); await openCampaign(activeCampaign.id); } catch (error) { showToast(error.message); } });
   els.launchGame.addEventListener("click", launchVtt);
   els.backCampaign.addEventListener("click", () => { els.vtt.hidden = true; els.campaignWorkspace.hidden = false; els.brandTitle.textContent = "GM Toolbox"; els.portalTitle.textContent = "GM Toolbox"; });
@@ -1848,11 +1868,11 @@
     const sessionNumber = activeCampaign.session_number || 1;
     if (!window.confirm(`End Session ${sessionNumber} and archive its notes?`)) return;
     const notes = els.sessionNotes.value.trim();
-    const archive = notes ? `${activeCampaign.notes?.trim() ? `${activeCampaign.notes.trim()}\n\n` : ""}SESSION ${sessionNumber} · ${new Date().toLocaleDateString()}\n${notes}` : activeCampaign.notes || "";
+    const sessionNotes = [...(activeCampaign.session_notes || []), { session_number: sessionNumber, played_on: new Date().toISOString().slice(0, 10), notes }];
     try {
       tableRecord.gm_state.notes = "";
       await saveTable();
-      activeCampaign = await api(`/campaigns/${activeCampaign.id}`, { method: "PUT", body: JSON.stringify({ name: activeCampaign.name, notes: archive, session_number: sessionNumber + 1, next_session_at: activeCampaign.next_session_at }) });
+      activeCampaign = await api(`/campaigns/${activeCampaign.id}`, { method: "PUT", body: JSON.stringify({ name: activeCampaign.name, notes: activeCampaign.notes || "", session_notes: sessionNotes, session_number: sessionNumber + 1, next_session_at: activeCampaign.next_session_at }) });
       showToast(`Session ${sessionNumber} saved.`);
       await openCampaign(activeCampaign.id);
     } catch (error) { showToast(error.message); }

@@ -11,7 +11,7 @@ from app.auth import create_token, hash_password, require_gm, require_user, veri
 from app.config import settings
 from app.db import get_db
 from app.models import Campaign, CampaignCharacter, CampaignMember, Character, ContentRecord, TableSnapshot, TableState, User
-from app.schemas import BootstrapGMRequest, CampaignWrite, CharacterAssignment, CharacterWrite, ContentWrite, LoginRequest, MemberWrite, PlayerTokenWrite, RegisterRequest, TableStateWrite
+from app.schemas import BootstrapGMRequest, CampaignWrite, CharacterAssignment, CharacterWrite, ContentWrite, GMPlayerCreate, LoginRequest, MemberWrite, PlayerTokenWrite, RegisterRequest, TableStateWrite
 
 router = APIRouter(prefix="/api")
 
@@ -62,7 +62,7 @@ def can_view_campaign(db: Session, campaign_id: int, claims: dict) -> Campaign:
 
 
 def campaign_payload(db: Session, campaign: Campaign, detail: bool = False) -> dict:
-    payload = {"id": campaign.id, "gm_id": campaign.gm_id, "name": campaign.name, "notes": campaign.notes, "session_number": campaign.session_number, "next_session_at": campaign.next_session_at, "status": campaign.status, "updated_at": campaign.updated_at}
+    payload = {"id": campaign.id, "gm_id": campaign.gm_id, "name": campaign.name, "notes": campaign.notes, "session_notes": campaign.session_notes or [], "session_number": campaign.session_number, "next_session_at": campaign.next_session_at, "status": campaign.status, "updated_at": campaign.updated_at}
     if detail:
         members = db.scalars(select(CampaignMember).where(CampaignMember.campaign_id == campaign.id)).all()
         assignments = db.scalars(select(CampaignCharacter).where(CampaignCharacter.campaign_id == campaign.id, CampaignCharacter.active.is_(True))).all()
@@ -117,6 +117,22 @@ def list_characters(include_archived: bool = False, claims: dict = Depends(requi
     if claims.get("role") != "gm": query = query.where(Character.owner_id == int(claims["sub"]))
     if not include_archived: query = query.where(Character.archived.is_(False))
     return [character_payload(item) for item in db.scalars(query.order_by(Character.name)).all()]
+
+
+@router.get("/players")
+def list_players(claims: dict = Depends(require_gm), db: Session = Depends(get_db)) -> list[dict]:
+    players = db.scalars(select(User).where(User.role == "player", User.active.is_(True)).order_by(User.display_name, User.username)).all()
+    return [user_payload(item) for item in players]
+
+
+@router.post("/players", status_code=201)
+def create_player(data: GMPlayerCreate, claims: dict = Depends(require_gm), db: Session = Depends(get_db)) -> dict:
+    username = data.username.strip().lower()
+    if db.scalar(select(User).where(User.username == username)):
+        raise HTTPException(status_code=409, detail="Username already exists.")
+    player = User(username=username, display_name=data.display_name.strip() or username, password_hash=hash_password(data.password), role="player")
+    db.add(player); db.commit(); db.refresh(player)
+    return user_payload(player)
 
 
 @router.get("/content")

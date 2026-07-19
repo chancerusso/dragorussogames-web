@@ -48,6 +48,7 @@ class Campaign(TimestampMixin, Base):
     gm_id: Mapped[int] = mapped_column(ForeignKey("dh_users.id", ondelete="RESTRICT"), index=True, nullable=False)
     name: Mapped[str] = mapped_column(String(180), nullable=False)
     notes: Mapped[str] = mapped_column(Text, default="", server_default="", nullable=False)
+    session_notes: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list, nullable=False)
     session_number: Mapped[int] = mapped_column(Integer, default=1, server_default="1", nullable=False)
     next_session_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="active", server_default="active", nullable=False)

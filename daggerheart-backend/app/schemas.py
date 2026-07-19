@@ -35,6 +35,13 @@ class CampaignWrite(BaseModel):
     notes: str = ""
     session_number: int = Field(default=1, ge=1)
     next_session_at: Optional[datetime] = None
+    session_notes: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class GMPlayerCreate(BaseModel):
+    username: str = Field(min_length=3, max_length=80)
+    password: str = Field(min_length=4, max_length=200)
+    display_name: str = Field(default="", max_length=120)
 
 
 class MemberWrite(BaseModel):

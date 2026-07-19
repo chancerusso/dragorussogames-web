@@ -27,6 +27,28 @@ git pull --ff-only origin codex/daggerheart-player-portal
 
 Static file changes take effect immediately. Nginx does not need to be reloaded unless its configuration changed.
 
+## Backend or Database Changes
+
+When a release changes `daggerheart-backend/` or adds an Alembic migration, use this complete deployment instead of the static-only command:
+
+```bash
+cd /opt/russo-bot/daggerheart-source
+git pull --ff-only origin codex/daggerheart-player-portal
+
+cd /opt/russo-bot/daggerheart-source/daggerheart-backend
+.venv/bin/pip install -r requirements.txt
+.venv/bin/python -m alembic upgrade head
+systemctl restart daggerheart-backend
+systemctl status daggerheart-backend --no-pager
+curl https://daggerheart.dragorussogames.com/api/health
+```
+
+The expected health response is:
+
+```json
+{"ok":true,"service":"daggerheart"}
+```
+
 ## First-Time Branch Setup Only
 
 Run these commands once to separate Daggerheart from the OSRIC checkout:

@@ -88,6 +88,17 @@ class DaggerheartApiTests(unittest.TestCase):
         self.assertEqual(1, len(self.client.get("/api/characters", headers=self.player_headers).json()))
         self.assertEqual(1, len(self.client.get("/api/characters", headers=self.gm_headers).json()))
 
+    def test_gm_can_create_player_accounts_and_archive_session_notes(self) -> None:
+        created = self.client.post("/api/players", headers=self.gm_headers, json={"username": "newhero", "password": "temp-pass", "display_name": "New Hero"})
+        self.assertEqual(201, created.status_code)
+        self.assertIn("newhero", [item["username"] for item in self.client.get("/api/players", headers=self.gm_headers).json()])
+        login = self.client.post("/api/auth/login", json={"username": "newhero", "password": "temp-pass"})
+        self.assertEqual(200, login.status_code)
+        campaign = self.client.post("/api/campaigns", headers=self.gm_headers, json={"name": "Notes Test"}).json()
+        updated = self.client.put(f"/api/campaigns/{campaign['id']}", headers=self.gm_headers, json={"name": "Notes Test", "notes": "Campaign secret", "session_number": 2, "session_notes": [{"session_number": 1, "played_on": "2026-07-18", "notes": "Found the ruins."}]})
+        self.assertEqual(200, updated.status_code)
+        self.assertEqual("Found the ruins.", updated.json()["session_notes"][0]["notes"])
+
     def test_gm_content_library_is_private_and_editable(self) -> None:
         created = self.client.post("/api/content", headers=self.gm_headers, json={
             "kind": "adversary", "name": "Clockwork Guard", "source": "Custom",

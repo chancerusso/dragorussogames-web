@@ -3117,6 +3117,32 @@ iframe{
 .dh-player-sheet-summary p{margin:0}
 @media(max-width:700px){.dh-player-token-tools,.dh-player-sheet-head{align-items:stretch;flex-direction:column}.dh-player-tracks,.dh-player-sheet-summary{grid-template-columns:1fr 1fr}}
 
+.dh-command-roster{margin-top:16px;padding:18px}
+.dh-add-existing-player{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:8px;margin:12px 0 16px}
+.dh-add-existing-player label{display:grid;gap:5px}
+.dh-player-roster-card{display:grid;grid-template-columns:minmax(190px,.8fr) minmax(0,2fr);gap:12px;padding:12px 0;border-top:1px solid rgba(54,38,48,.14)}
+.dh-player-roster-card header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.dh-player-roster-card header>div{display:grid}
+.dh-player-roster-card header small{color:#8d4f3b}
+.dh-player-roster-card>div{display:flex;flex-wrap:wrap;gap:7px}
+.dh-roster-character{display:flex;align-items:stretch}.dh-roster-character>[data-view-campaign-character]{display:grid;justify-items:start;min-width:190px;padding:8px 10px;text-align:left;background:#fffdf8!important;color:#2c2630!important;border:1px solid rgba(54,38,48,.18)!important}.dh-roster-character>[data-view-campaign-character] small{font-size:.7rem;color:#8d4f3b}.dh-roster-character>[data-remove-character]{padding:4px 8px}
+.dh-character-assignment{margin-top:14px;padding-top:14px;border-top:1px solid rgba(54,38,48,.14)}
+.dh-character-assignment form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.dh-campaign-notes{margin-top:16px;padding:18px}
+.dh-campaign-notes>summary{cursor:pointer;font-family:Georgia,serif;font-size:1.35rem;font-weight:900;text-transform:uppercase}
+.dh-campaign-notes form{display:grid;gap:8px;margin-top:14px}
+.dh-campaign-notes textarea{width:100%;resize:vertical;padding:12px;border:1px solid rgba(54,38,48,.25);border-radius:6px;background:#fffdf8;font:inherit}
+.dh-campaign-notes form button{justify-self:start}
+.dh-session-note-archive{margin-top:20px;padding-top:16px;border-top:1px solid rgba(54,38,48,.14)}
+.dh-session-note-archive details{padding:9px 0;border-top:1px solid rgba(54,38,48,.1)}
+.dh-session-note-archive summary{cursor:pointer;font-weight:800;color:#8d4f3b}
+.dh-player-dialog form{grid-template-columns:1fr}
+.dh-player-dialog .dh-section-head,.dh-player-dialog form>button{grid-column:auto}
+.dh-character-popout{width:min(720px,calc(100% - 30px));padding:22px}
+.dh-character-popout-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 0}
+.dh-character-popout-grid p{margin:0;padding:8px;border-radius:6px;background:rgba(54,38,48,.06)}
+@media(max-width:700px){.dh-add-existing-player,.dh-character-assignment form,.dh-player-roster-card,.dh-character-popout-grid{grid-template-columns:1fr}}
+
 .dh-vtt-map{min-height:970px}
 .dh-vtt-map .dh-map-token{
   inset:5%;

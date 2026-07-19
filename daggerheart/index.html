@@ -90,13 +90,12 @@
           <label>Campaign Name <input name="name" required /></label>
           <label>Session Number <input name="session_number" type="number" min="1" required /></label>
           <label>Next Session <input name="next_session_at" type="datetime-local" /></label>
-          <label class="dh-notes-field">Campaign Notes <textarea name="notes" rows="12" placeholder="Session notes, plans, NPCs, discoveries, and reminders..."></textarea></label>
           <button type="submit">Save Campaign</button>
         </form>
-        <div class="dh-campaign-roster">
-          <section class="dh-panel"><p class="dh-kicker">Players</p><h3>Campaign Roster</h3><form data-dh-invite-player><input name="username" required placeholder="Player username" /><button type="submit">Invite Player</button></form><div data-dh-member-list></div></section>
-          <section class="dh-panel"><p class="dh-kicker">Characters</p><h3>Characters at the Table</h3><form data-dh-add-character><select name="character_id" required></select><button type="submit">Add Character</button></form><div data-dh-assigned-list></div></section>
-        </div>
+        <section class="dh-panel dh-command-roster"><div class="dh-section-head"><div><p class="dh-kicker">Players</p><h3>Campaign Roster</h3></div><button type="button" data-dh-open-invite-player>Invite New Player</button></div><form class="dh-add-existing-player" data-dh-add-existing-player><label>Add Existing Player <select name="username" required></select></label><button type="submit">Add Player</button></form><div data-dh-member-list></div><div class="dh-character-assignment"><p class="dh-kicker">Unassigned Characters</p><form data-dh-add-character><select name="character_id" required></select><button type="submit">Add Character</button></form><div data-dh-assigned-list hidden></div></div></section>
+        <details class="dh-panel dh-campaign-notes" data-dh-campaign-notes-section><summary>Campaign Notes</summary><form data-dh-campaign-notes-form><textarea name="notes" rows="10" placeholder="Campaign plans, NPCs, secrets, discoveries, and reminders..."></textarea><button type="submit">Save Campaign Notes</button></form><div class="dh-session-note-archive"><h3>Session Notes</h3><div data-dh-session-note-list></div></div></details>
+        <dialog class="dh-library-dialog dh-player-dialog" data-dh-player-dialog><form data-dh-create-player><div class="dh-section-head"><div><p class="dh-kicker">Campaign Access</p><h2>Create Player Account</h2></div><button type="button" data-dh-player-dialog-close>Close</button></div><label>Username <input name="username" required minlength="3" autocomplete="off" /></label><label>Temporary Password <input name="password" required minlength="4" autocomplete="new-password" /></label><label>Display Name <input name="display_name" placeholder="Optional" /></label><button type="submit">Create and Add Player</button></form></dialog>
+        <dialog class="dh-library-dialog dh-character-popout" data-dh-character-popout><div data-dh-character-popout-body></div><button type="button" data-dh-character-popout-close>Close</button></dialog>
       </section>
 
       <section class="dh-vtt" data-dh-vtt hidden>
