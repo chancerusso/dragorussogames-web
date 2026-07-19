@@ -49,6 +49,12 @@ class DaggerheartApiTests(unittest.TestCase):
         campaign = self.client.post("/api/campaigns", headers=self.gm_headers, json={"name": "Dragon Queen", "notes": ""})
         self.assertEqual(201, campaign.status_code)
         campaign_id = campaign.json()["id"]
+        planned = self.client.put(f"/api/campaigns/{campaign_id}", headers=self.gm_headers, json={
+            "name": "Dragon Queen", "notes": "Prepare the ruined keep.", "session_number": 3,
+            "next_session_at": "2026-08-01T19:00:00Z",
+        })
+        self.assertEqual(3, planned.json()["session_number"])
+        self.assertEqual("Prepare the ruined keep.", planned.json()["notes"])
 
         invitation = self.client.post(f"/api/campaigns/{campaign_id}/members", headers=self.gm_headers, json={"username": "player", "status": "invited"})
         self.assertEqual("invited", invitation.json()["status"])

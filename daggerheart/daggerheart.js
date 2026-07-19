@@ -166,6 +166,9 @@
   let builderStep = 0;
   let builderDraft = null;
   let builderMode = "build";
+  let activeCampaign = null;
+  let availableCharacters = [];
+  let tableRecord = null;
 
   const els = {
     tabs: document.querySelector("[data-dh-tabs]"),
@@ -181,6 +184,31 @@
     gmDashboard: document.querySelector("[data-dh-gm-dashboard]"),
     campaignCreate: document.querySelector("[data-dh-campaign-create]"),
     campaignList: document.querySelector("[data-dh-campaign-list]"),
+    gmHome: document.querySelector("[data-dh-gm-home]"),
+    campaignWorkspace: document.querySelector("[data-dh-campaign-workspace]"),
+    campaignTitle: document.querySelector("[data-dh-campaign-title]"),
+    campaignPlanner: document.querySelector("[data-dh-campaign-planner]"),
+    memberList: document.querySelector("[data-dh-member-list]"),
+    assignedList: document.querySelector("[data-dh-assigned-list]"),
+    invitePlayer: document.querySelector("[data-dh-invite-player]"),
+    addCharacter: document.querySelector("[data-dh-add-character]"),
+    backCampaigns: document.querySelector("[data-dh-back-campaigns]"),
+    launchGame: document.querySelector("[data-dh-launch-game]"),
+    vtt: document.querySelector("[data-dh-vtt]"),
+    vttTitle: document.querySelector("[data-dh-vtt-title]"),
+    vttSave: document.querySelector("[data-dh-vtt-save]"),
+    backCampaign: document.querySelector("[data-dh-back-campaign]"),
+    fearBeads: document.querySelector("[data-dh-fear-beads]"),
+    fearMinus: document.querySelector("[data-dh-fear-minus]"),
+    fearPlus: document.querySelector("[data-dh-fear-plus]"),
+    countdownList: document.querySelector("[data-dh-countdown-list]"),
+    addCountdown: document.querySelector("[data-dh-add-countdown]"),
+    gridSize: document.querySelector("[data-dh-grid-size]"),
+    battleGrid: document.querySelector("[data-dh-battle-grid]"),
+    vttAdversaries: document.querySelector("[data-dh-vtt-adversaries]"),
+    addAdversary: document.querySelector("[data-dh-add-adversary]"),
+    environmentList: document.querySelector("[data-dh-vtt-environment-list]"),
+    addEnvironment: document.querySelector("[data-dh-add-environment]"),
     panels: Array.from(document.querySelectorAll("[data-dh-panel]")),
     tabButtons: Array.from(document.querySelectorAll("[data-dh-tab]")),
     characterList: document.querySelector("[data-dh-character-list]"),
@@ -303,10 +331,63 @@
           <div class="dh-card-actions"><button type="button" data-dh-open-campaign="${campaign.id}">Open Campaign</button></div>
         </article>
       `).join("") : `<article class="dh-empty"><h3>No campaigns yet.</h3><p>Create the first campaign to prepare a persistent table.</p></article>`;
-      els.campaignList.querySelectorAll("[data-dh-open-campaign]").forEach((button) => button.addEventListener("click", () => showToast("Campaign table interface comes next.")));
+      els.campaignList.querySelectorAll("[data-dh-open-campaign]").forEach((button) => button.addEventListener("click", () => openCampaign(Number(button.dataset.dhOpenCampaign))));
     } catch (error) {
       els.campaignList.innerHTML = `<article class="dh-empty"><h3>Campaigns unavailable.</h3><p>${escapeHtml(error.message)}</p></article>`;
     }
+  };
+
+  const toLocalDateTime = (value) => value ? new Date(value).toISOString().slice(0, 16) : "";
+  const renderCampaignRoster = () => {
+    els.memberList.innerHTML = activeCampaign.members?.length ? activeCampaign.members.map((member) => `<div class="dh-roster-row"><span><strong>${escapeHtml(member.user.display_name)}</strong><small>@${escapeHtml(member.user.username)} · ${escapeHtml(member.status)}</small></span><button type="button" data-remove-member="${member.user.id}">Remove</button></div>`).join("") : `<p class="dh-helper">No players invited yet.</p>`;
+    els.assignedList.innerHTML = activeCampaign.characters?.length ? activeCampaign.characters.map((character) => `<div class="dh-roster-row"><span><strong>${escapeHtml(character.name)}</strong><small>Level ${character.level} · ${escapeHtml(character.display_names?.class || character.mechanics?.class || "Character")}</small></span><button type="button" data-remove-character="${character.id}">Remove</button></div>`).join("") : `<p class="dh-helper">No characters assigned yet.</p>`;
+    const assigned = new Set((activeCampaign.characters || []).map((character) => character.id));
+    const choices = availableCharacters.filter((character) => !assigned.has(character.id));
+    els.addCharacter.elements.character_id.innerHTML = choices.length ? choices.map((character) => `<option value="${character.id}">${escapeHtml(character.name)}</option>`).join("") : `<option value="">No available characters</option>`;
+    els.addCharacter.querySelector("button").disabled = !choices.length;
+  };
+
+  const openCampaign = async (campaignId) => {
+    try {
+      [activeCampaign, availableCharacters] = await Promise.all([api(`/campaigns/${campaignId}`), api("/characters")]);
+      els.gmHome.hidden = true; els.vtt.hidden = true; els.campaignWorkspace.hidden = false;
+      els.campaignTitle.textContent = activeCampaign.name;
+      els.campaignPlanner.elements.name.value = activeCampaign.name;
+      els.campaignPlanner.elements.session_number.value = activeCampaign.session_number || 1;
+      els.campaignPlanner.elements.next_session_at.value = toLocalDateTime(activeCampaign.next_session_at);
+      els.campaignPlanner.elements.notes.value = activeCampaign.notes || "";
+      renderCampaignRoster();
+    } catch (error) { showToast(error.message); }
+  };
+
+  const renderVtt = () => {
+    const publicState = tableRecord.public_state;
+    const gmState = tableRecord.gm_state;
+    els.vttTitle.textContent = activeCampaign.name;
+    els.fearBeads.innerHTML = Array.from({ length: publicState.fear || 0 }, (_, index) => `<button type="button" data-spend-fear="${index}" aria-label="Spend one Fear"><img src="./assets/drago-russo-logo.png" alt="" /></button>`).join("") || `<span class="dh-helper">No Fear</span>`;
+    els.countdownList.innerHTML = (publicState.countdowns || []).map((item, index) => `<button type="button" data-countdown="${index}"><strong>${escapeHtml(item.name)}</strong> ${item.current}/${item.maximum}</button>`).join("") || `<span class="dh-helper">No active countdowns</span>`;
+    const grid = publicState.grid || { columns: 16, rows: 12, cell_feet: 5 };
+    els.gridSize.value = `${grid.columns}x${grid.rows}`;
+    els.battleGrid.style.setProperty("--grid-columns", grid.columns);
+    els.battleGrid.innerHTML = Array.from({ length: grid.columns * grid.rows }, () => "<span></span>").join("");
+    els.vttAdversaries.innerHTML = (gmState.adversaries || []).map((item, index) => `<article class="dh-vtt-card"><strong>${escapeHtml(item.name)}</strong><span>HP ${item.hp || 0} · Stress ${item.stress || 0}</span><button type="button" data-remove-adversary="${index}">Remove</button></article>`).join("") || `<p class="dh-helper">No adversaries in this encounter.</p>`;
+    els.environmentList.innerHTML = (publicState.environments || []).map((item, index) => `<article class="dh-vtt-card"><strong>${escapeHtml(item.name)}</strong><button type="button" data-remove-environment="${index}">Remove</button></article>`).join("") || `<p class="dh-helper">No environment loaded.</p>`;
+  };
+
+  const saveTable = async () => {
+    els.vttSave.textContent = "Saving…";
+    try {
+      tableRecord = await api(`/campaigns/${activeCampaign.id}/table-state`, { method: "PUT", body: JSON.stringify({ expected_revision: tableRecord.revision, public_state: tableRecord.public_state, gm_state: tableRecord.gm_state }) });
+      els.vttSave.textContent = "Saved";
+    } catch (error) { els.vttSave.textContent = "Save failed"; showToast(error.message); }
+  };
+
+  const launchVtt = async () => {
+    try {
+      tableRecord = await api(`/campaigns/${activeCampaign.id}/table-state`);
+      els.campaignWorkspace.hidden = true; els.vtt.hidden = false;
+      renderVtt();
+    } catch (error) { showToast(error.message); }
   };
 
   const showPortal = () => {
@@ -1470,6 +1551,40 @@
       showToast(error.message);
     }
   });
+  els.backCampaigns.addEventListener("click", () => { els.campaignWorkspace.hidden = true; els.vtt.hidden = true; els.gmHome.hidden = false; activeCampaign = null; renderCampaigns(); });
+  els.campaignPlanner.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = new FormData(els.campaignPlanner);
+    try {
+      activeCampaign = await api(`/campaigns/${activeCampaign.id}`, { method: "PUT", body: JSON.stringify({ name: form.get("name"), notes: form.get("notes"), session_number: Number(form.get("session_number")), next_session_at: form.get("next_session_at") ? new Date(form.get("next_session_at")).toISOString() : null }) });
+      els.campaignTitle.textContent = activeCampaign.name; showToast("Campaign saved."); renderCampaignRoster();
+    } catch (error) { showToast(error.message); }
+  });
+  els.invitePlayer.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const username = new FormData(els.invitePlayer).get("username");
+    try { await api(`/campaigns/${activeCampaign.id}/members`, { method: "POST", body: JSON.stringify({ username, status: "invited" }) }); els.invitePlayer.reset(); await openCampaign(activeCampaign.id); showToast("Player invited."); } catch (error) { showToast(error.message); }
+  });
+  els.addCharacter.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const characterId = Number(new FormData(els.addCharacter).get("character_id"));
+    if (!characterId) return;
+    try { await api(`/campaigns/${activeCampaign.id}/characters`, { method: "POST", body: JSON.stringify({ character_id: characterId }) }); await openCampaign(activeCampaign.id); showToast("Character added."); } catch (error) { showToast(error.message); }
+  });
+  els.memberList.addEventListener("click", async (event) => { const button = event.target.closest("[data-remove-member]"); if (!button) return; try { await api(`/campaigns/${activeCampaign.id}/members/${button.dataset.removeMember}`, { method: "DELETE" }); await openCampaign(activeCampaign.id); } catch (error) { showToast(error.message); } });
+  els.assignedList.addEventListener("click", async (event) => { const button = event.target.closest("[data-remove-character]"); if (!button) return; try { await api(`/campaigns/${activeCampaign.id}/characters/${button.dataset.removeCharacter}`, { method: "DELETE" }); await openCampaign(activeCampaign.id); } catch (error) { showToast(error.message); } });
+  els.launchGame.addEventListener("click", launchVtt);
+  els.backCampaign.addEventListener("click", () => { els.vtt.hidden = true; els.campaignWorkspace.hidden = false; });
+  els.fearPlus.addEventListener("click", () => { tableRecord.public_state.fear = Math.min(12, (tableRecord.public_state.fear || 0) + 1); renderVtt(); saveTable(); });
+  els.fearMinus.addEventListener("click", () => { tableRecord.public_state.fear = Math.max(0, (tableRecord.public_state.fear || 0) - 1); renderVtt(); saveTable(); });
+  els.fearBeads.addEventListener("click", (event) => { if (!event.target.closest("[data-spend-fear]")) return; tableRecord.public_state.fear = Math.max(0, (tableRecord.public_state.fear || 0) - 1); renderVtt(); saveTable(); });
+  els.addCountdown.addEventListener("click", () => { const name = window.prompt("Countdown name?"); if (!name) return; const maximum = Math.max(2, Number(window.prompt("How many steps?", "4")) || 4); tableRecord.public_state.countdowns = [...(tableRecord.public_state.countdowns || []), { name, current: 0, maximum }]; renderVtt(); saveTable(); });
+  els.countdownList.addEventListener("click", (event) => { const button = event.target.closest("[data-countdown]"); if (!button) return; const item = tableRecord.public_state.countdowns[Number(button.dataset.countdown)]; item.current = item.current >= item.maximum ? 0 : item.current + 1; renderVtt(); saveTable(); });
+  els.gridSize.addEventListener("change", () => { const [columns, rows] = els.gridSize.value.split("x").map(Number); tableRecord.public_state.grid = { columns, rows, cell_feet: 5 }; renderVtt(); saveTable(); });
+  els.addAdversary.addEventListener("click", () => { const name = window.prompt("Adversary name?"); if (!name) return; tableRecord.gm_state.adversaries = [...(tableRecord.gm_state.adversaries || []), { name, hp: 1, stress: 0 }]; renderVtt(); saveTable(); });
+  els.vttAdversaries.addEventListener("click", (event) => { const button = event.target.closest("[data-remove-adversary]"); if (!button) return; tableRecord.gm_state.adversaries.splice(Number(button.dataset.removeAdversary), 1); renderVtt(); saveTable(); });
+  els.addEnvironment.addEventListener("click", () => { const name = window.prompt("Environment name?"); if (!name) return; tableRecord.public_state.environments = [...(tableRecord.public_state.environments || []), { name }]; renderVtt(); saveTable(); });
+  els.environmentList.addEventListener("click", (event) => { const button = event.target.closest("[data-remove-environment]"); if (!button) return; tableRecord.public_state.environments.splice(Number(button.dataset.removeEnvironment), 1); renderVtt(); saveTable(); });
   els.tabButtons.forEach((button) => button.addEventListener("click", () => {
     if (button.dataset.dhTab === "builder") {
       builderMode = "build";

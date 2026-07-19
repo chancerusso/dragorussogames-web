@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Literal
+from datetime import datetime
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -32,6 +33,8 @@ class CharacterWrite(BaseModel):
 class CampaignWrite(BaseModel):
     name: str = Field(min_length=1, max_length=180)
     notes: str = ""
+    session_number: int = Field(default=1, ge=1)
+    next_session_at: Optional[datetime] = None
 
 
 class MemberWrite(BaseModel):

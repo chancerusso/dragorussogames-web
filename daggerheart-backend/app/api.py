@@ -62,7 +62,7 @@ def can_view_campaign(db: Session, campaign_id: int, claims: dict) -> Campaign:
 
 
 def campaign_payload(db: Session, campaign: Campaign, detail: bool = False) -> dict:
-    payload = {"id": campaign.id, "gm_id": campaign.gm_id, "name": campaign.name, "notes": campaign.notes, "status": campaign.status, "updated_at": campaign.updated_at}
+    payload = {"id": campaign.id, "gm_id": campaign.gm_id, "name": campaign.name, "notes": campaign.notes, "session_number": campaign.session_number, "next_session_at": campaign.next_session_at, "status": campaign.status, "updated_at": campaign.updated_at}
     if detail:
         members = db.scalars(select(CampaignMember).where(CampaignMember.campaign_id == campaign.id)).all()
         assignments = db.scalars(select(CampaignCharacter).where(CampaignCharacter.campaign_id == campaign.id, CampaignCharacter.active.is_(True))).all()
@@ -200,6 +200,14 @@ def get_campaign(campaign_id: int, claims: dict = Depends(require_user), db: Ses
     if campaign.gm_id != int(claims["sub"]):
         payload["characters"] = [item for item in payload["characters"] if item["owner_id"] == int(claims["sub"])]
     return payload
+
+
+@router.put("/campaigns/{campaign_id}")
+def update_campaign(campaign_id: int, data: CampaignWrite, claims: dict = Depends(require_gm), db: Session = Depends(get_db)) -> dict:
+    campaign = gm_campaign(db, campaign_id, claims)
+    for key, value in data.model_dump().items(): setattr(campaign, key, value)
+    db.commit(); db.refresh(campaign)
+    return campaign_payload(db, campaign, detail=True)
 
 
 @router.post("/campaigns/{campaign_id}/members")

@@ -16,6 +16,20 @@
 
 .dh-button-link{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border:1px solid #7d483f;border-radius:6px;background:#b86e3e;color:#fff;text-decoration:none;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
 .dh-button-link:hover{background:#238f8d}
+.dh-campaign-workspace,.dh-vtt{display:grid;gap:18px}
+.dh-campaign-planner{display:grid;grid-template-columns:2fr .7fr 1.2fr;gap:14px;padding:20px}
+.dh-campaign-planner label,.dh-campaign-roster form{display:grid;gap:6px}
+.dh-campaign-planner input,.dh-campaign-planner textarea,.dh-campaign-roster input,.dh-campaign-roster select{width:100%;padding:10px;border:1px solid rgba(54,38,48,.22);border-radius:6px;background:#fffdf8;font:inherit}
+.dh-notes-field{grid-column:1/-1}.dh-campaign-planner>button{justify-self:start}
+.dh-campaign-roster{display:grid;grid-template-columns:1fr 1fr;gap:18px}.dh-campaign-roster>.dh-panel{padding:20px}.dh-campaign-roster form{grid-template-columns:1fr auto;margin:12px 0}
+.dh-roster-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid rgba(54,38,48,.12)}.dh-roster-row span{display:grid}.dh-roster-row small{opacity:.7}
+.dh-vtt-toolbar,.dh-vtt-trackers,.dh-vtt-main,.dh-vtt-grid-head{display:flex;align-items:center;gap:18px}.dh-vtt-toolbar{justify-content:space-between}.dh-vtt-toolbar h2,.dh-vtt-toolbar p{margin:0}.dh-vtt-save{margin-left:auto;color:#238f8d;font-weight:700}
+.dh-vtt-trackers{justify-content:space-between;padding:14px;border:1px solid rgba(125,72,63,.25);border-radius:10px;background:rgba(245,240,232,.94)}
+.dh-fear,.dh-countdowns{display:flex;align-items:center;gap:12px}.dh-fear>div,.dh-countdowns>div{display:grid;gap:5px}.dh-fear-beads,.dh-countdowns [data-dh-countdown-list]{display:flex;flex-wrap:wrap;gap:5px}.dh-fear-beads button{padding:2px;border-radius:50%;background:#17121b}.dh-fear-beads img{display:block;width:30px;height:30px;object-fit:contain}.dh-countdowns [data-countdown]{padding:6px 9px}
+.dh-vtt-main{align-items:stretch;display:grid;grid-template-columns:minmax(0,3fr) minmax(260px,1fr)}.dh-vtt-main>.dh-panel{padding:16px}.dh-vtt-grid-head{justify-content:space-between}
+.dh-battle-grid{--grid-columns:16;display:grid;grid-template-columns:repeat(var(--grid-columns),minmax(18px,1fr));aspect-ratio:4/3;border:2px solid #9e7732;background:#15131a}.dh-battle-grid span{border-right:1px solid rgba(214,167,86,.38);border-bottom:1px solid rgba(214,167,86,.38)}
+.dh-vtt-card{display:grid;gap:4px;padding:10px 0;border-top:1px solid rgba(54,38,48,.12)}.dh-vtt-card button{justify-self:start}.dh-vtt-environments{padding:18px}
+@media(max-width:850px){.dh-campaign-planner{grid-template-columns:1fr}.dh-notes-field{grid-column:auto}.dh-campaign-roster,.dh-vtt-main{grid-template-columns:1fr}.dh-vtt-trackers{align-items:flex-start;flex-direction:column}}
 
 *{
   box-sizing:border-box;

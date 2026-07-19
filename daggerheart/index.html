@@ -61,6 +61,7 @@
     </div>
 
     <section class="dh-tab-panel dh-gm-dashboard" data-dh-gm-dashboard hidden>
+      <div data-dh-gm-home>
       <div class="dh-section-head">
         <div>
           <p class="dh-kicker">GM Portal</p>
@@ -73,6 +74,32 @@
         <button type="submit">Create Campaign</button>
       </form>
       <div class="dh-character-list" data-dh-campaign-list></div>
+      </div>
+
+      <section class="dh-campaign-workspace" data-dh-campaign-workspace hidden>
+        <div class="dh-section-head">
+          <div><button class="dh-link-button" type="button" data-dh-back-campaigns>← Campaigns</button><p class="dh-kicker">Campaign Command</p><h2 data-dh-campaign-title>Campaign</h2></div>
+          <button type="button" data-dh-launch-game>Launch Game</button>
+        </div>
+        <form class="dh-campaign-planner dh-panel" data-dh-campaign-planner>
+          <label>Campaign Name <input name="name" required /></label>
+          <label>Session Number <input name="session_number" type="number" min="1" required /></label>
+          <label>Next Session <input name="next_session_at" type="datetime-local" /></label>
+          <label class="dh-notes-field">Campaign Notes <textarea name="notes" rows="12" placeholder="Session notes, plans, NPCs, discoveries, and reminders..."></textarea></label>
+          <button type="submit">Save Campaign</button>
+        </form>
+        <div class="dh-campaign-roster">
+          <section class="dh-panel"><p class="dh-kicker">Players</p><h3>Campaign Roster</h3><form data-dh-invite-player><input name="username" required placeholder="Player username" /><button type="submit">Invite Player</button></form><div data-dh-member-list></div></section>
+          <section class="dh-panel"><p class="dh-kicker">Characters</p><h3>Characters at the Table</h3><form data-dh-add-character><select name="character_id" required></select><button type="submit">Add Character</button></form><div data-dh-assigned-list></div></section>
+        </div>
+      </section>
+
+      <section class="dh-vtt" data-dh-vtt hidden>
+        <div class="dh-vtt-toolbar"><button type="button" data-dh-back-campaign>← Campaign</button><div><p class="dh-kicker">Live Table</p><h2 data-dh-vtt-title>Campaign</h2></div><span data-dh-vtt-save>Saved</span></div>
+        <div class="dh-vtt-trackers"><div class="dh-fear"><button type="button" data-dh-fear-minus>−</button><div><small>Fear</small><div class="dh-fear-beads" data-dh-fear-beads></div></div><button type="button" data-dh-fear-plus>+</button></div><div class="dh-countdowns"><div><small>Countdowns</small><div data-dh-countdown-list></div></div><button type="button" data-dh-add-countdown>+ Countdown</button></div></div>
+        <div class="dh-vtt-main"><section class="dh-panel"><div class="dh-vtt-grid-head"><h3>Battle Map</h3><label>Grid <select data-dh-grid-size><option value="12x8">12 × 8</option><option value="16x12" selected>16 × 12</option><option value="20x14">20 × 14</option><option value="24x18">24 × 18</option></select></label></div><div class="dh-battle-grid" data-dh-battle-grid></div></section><aside class="dh-panel"><p class="dh-kicker">Encounter</p><h3>Adversaries</h3><button type="button" data-dh-add-adversary>+ Add Adversary</button><div data-dh-vtt-adversaries></div></aside></div>
+        <section class="dh-panel dh-vtt-environments"><p class="dh-kicker">Scene</p><h3>Environments</h3><button type="button" data-dh-add-environment>+ Load Environment</button><div data-dh-vtt-environment-list></div></section>
+      </section>
     </section>
 
     <section class="dh-tab-panel" data-dh-panel="characters">
