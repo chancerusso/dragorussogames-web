@@ -226,6 +226,8 @@
     vttTitle: document.querySelector("[data-dh-vtt-title]"),
     vttSave: document.querySelector("[data-dh-vtt-save]"),
     backCampaign: document.querySelector("[data-dh-back-campaign]"),
+    endSession: document.querySelector("[data-dh-end-session]"),
+    sessionNotes: document.querySelector("[data-dh-session-notes]"),
     fearBeads: document.querySelector("[data-dh-fear-beads]"),
     fearMinus: document.querySelector("[data-dh-fear-minus]"),
     fearPlus: document.querySelector("[data-dh-fear-plus]"),
@@ -307,8 +309,10 @@
     if (dualityButton) {
       const hope = rollDie(12); const fear = rollDie(12); const extra = mode === "normal" ? 0 : rollDie(6); const adjustedExtra = mode === "disadvantage" ? -extra : extra; const total = hope + fear + modifier + adjustedExtra;
       const outcome = hope === fear ? "Critical Success" : hope > fear ? "with Hope" : "with Fear";
-      const extraText = extra ? `${mode === "advantage" ? "+" : "−"}${extra} ${mode}` : "";
-      recordRoll(roller, `<div class="dh-duality-result"><span class="dh-hope-die">Hope <strong>${hope}</strong></span><span class="dh-fear-die">Fear <strong>${fear}</strong></span>${extra ? `<i>${escapeHtml(extraText)}</i>` : ""}<b>${total} ${outcome}</b></div>`, `Duality: ${hope} Hope + ${fear} Fear ${extraText} ${modifier ? `${modifier > 0 ? "+" : ""}${modifier}` : ""} = ${total} ${outcome}`);
+      const extraText = extra ? `${mode === "advantage" ? "+" : "−"}${extra} ${mode} d6` : "";
+      const extraBreakdown = extra ? `${mode === "advantage" ? "+" : "−"} ${extra} ${mode} d6` : "";
+      const modifierBreakdown = modifier ? `${modifier > 0 ? "+" : "−"} ${Math.abs(modifier)} mod` : "";
+      recordRoll(roller, `<div class="dh-duality-result"><span class="dh-hope-die">Hope <strong>${hope}</strong></span><span class="dh-fear-die">Fear <strong>${fear}</strong></span>${extra ? `<i>${escapeHtml(extraText)}</i>` : ""}<b>${total} ${outcome}</b></div>`, `Duality: ${hope} Hope + ${fear} Fear ${extraBreakdown} ${modifierBreakdown} = ${total} ${outcome}`);
       return;
     }
     if (gmRollButton) {
@@ -488,6 +492,7 @@
     const publicState = tableRecord.public_state;
     const gmState = tableRecord.gm_state;
     els.vttTitle.textContent = activeCampaign.name;
+    els.sessionNotes.value = gmState.notes || "";
     els.fearBeads.innerHTML = Array.from({ length: publicState.fear || 0 }, (_, index) => `<button type="button" data-spend-fear="${index}" aria-label="Spend one Fear"><img src="./assets/drago-russo-logo.png" alt="" /></button>`).join("") || `<span class="dh-helper">No Fear</span>`;
     els.countdownList.innerHTML = (publicState.countdowns || []).map((item, index) => `<div class="dh-countdown-item"><strong>${escapeHtml(item.name)}</strong><button class="dh-countdown-die" type="button" data-countdown="${index}" aria-label="Lower ${escapeHtml(item.name)} d${item.maximum} countdown"><span>${item.current ?? item.maximum}</span></button></div>`).join("") || `<span class="dh-helper">No active countdown dice</span>`;
     const grid = publicState.grid || { columns: 16, rows: 12, cell_feet: 5 };
@@ -496,7 +501,8 @@
     els.gridBuilder.elements.rows.value = grid.rows;
     els.battleGrid.style.setProperty("--grid-columns", grid.columns);
     els.battleGrid.style.aspectRatio = `${grid.columns} / ${grid.rows}`;
-    els.battleGrid.innerHTML = Array.from({ length: grid.columns * grid.rows }, (_, index) => { const x = index % grid.columns + 1; const y = Math.floor(index / grid.columns) + 1; const cellTokens = tokens.filter((token) => token.x === x && token.y === y); return `<span class="dh-grid-cell" data-grid-x="${x}" data-grid-y="${y}">${cellTokens.map((token) => `<button class="dh-map-token" type="button" draggable="true" data-map-token="${escapeHtml(token.id)}" data-selected="${token.id === selectedMapTokenId}" title="${escapeHtml(token.name)}">${escapeHtml(token.name.split(/\s+/).map((word) => word[0]).slice(0, 2).join(""))}</button>`).join("")}</span>`; }).join("");
+    const tokenHealth = (token) => { if (token.kind !== "adversary") return "dh-token-character"; const adversary = (gmState.adversaries || []).find((item) => item.instanceId === token.adversaryId); if (!adversary?.hp) return "dh-token-healthy"; const remaining = Math.max(0, adversary.hp - (adversary.hpMarked || 0)); const ratio = remaining / adversary.hp; return ratio > .5 ? "dh-token-healthy" : ratio > .25 ? "dh-token-hurt" : "dh-token-critical"; };
+    els.battleGrid.innerHTML = Array.from({ length: grid.columns * grid.rows }, (_, index) => { const x = index % grid.columns + 1; const y = Math.floor(index / grid.columns) + 1; const cellTokens = tokens.filter((token) => token.x === x && token.y === y); return `<span class="dh-grid-cell" data-grid-x="${x}" data-grid-y="${y}">${cellTokens.map((token) => `<button class="dh-map-token ${tokenHealth(token)}" type="button" draggable="true" data-map-token="${escapeHtml(token.id)}" data-selected="${token.id === selectedMapTokenId}" title="${escapeHtml(token.name)}">${escapeHtml(token.name.split(/\s+/).map((word) => word[0]).slice(0, 2).join(""))}</button>`).join("")}</span>`; }).join("");
     els.vttAdversaries.innerHTML = (gmState.adversaries || []).map((item, index) => { if (!item.instanceId) item.instanceId = crypto.randomUUID ? crypto.randomUUID() : `adv-${Date.now()}-${index}`; const onMap = tokens.some((token) => token.adversaryId === item.instanceId); return `<article class="dh-vtt-card"><div class="dh-vtt-card-head"><div><strong>${escapeHtml(item.name)}</strong><small>Tier ${item.tier || 1} ${escapeHtml(item.type || "Adversary")}</small></div><div class="dh-vtt-card-actions"><button type="button" data-toggle-adversary-map="${index}">${onMap ? "Off Map" : "Add"}</button><button type="button" data-remove-adversary="${index}">×</button></div></div><p>Difficulty ${item.difficulty || "—"} · Thresholds ${escapeHtml(item.thresholds || "—")}</p><div class="dh-vtt-marks"><span>HP <button data-adversary-mark="hp:-1" data-index="${index}">−</button> <strong>${item.hpMarked || 0}/${item.hp || 0}</strong> <button data-adversary-mark="hp:1" data-index="${index}">+</button></span><span>Stress <button data-adversary-mark="stress:-1" data-index="${index}">−</button> <strong>${item.stressMarked || 0}/${item.stress || 0}</strong> <button data-adversary-mark="stress:1" data-index="${index}">+</button></span></div><details><summary>Stat Block</summary><p><strong>Attack:</strong> ${escapeHtml([item.attackModifier, item.attackName, item.range, item.damage].filter(Boolean).join(" · "))}</p><p>${escapeHtml(item.motives || "")}</p>${(item.features || []).map((feature) => `<p><strong>${escapeHtml(feature.name)}:</strong> ${escapeHtml(feature.text)}</p>`).join("")}</details></article>`; }).join("") || `<p class="dh-helper">No adversaries in this encounter.</p>`;
     els.environmentList.innerHTML = (publicState.environments || []).map((item, index) => `<article class="dh-vtt-card dh-environment-card"><div class="dh-vtt-card-head"><div><strong>${escapeHtml(item.name)}</strong><small>Tier ${item.tier || 1} ${escapeHtml(item.type || "Environment")}</small></div><button type="button" data-remove-environment="${index}">×</button></div><p>${escapeHtml(item.description || "")}</p><details><summary>Environment Features</summary><p><strong>Difficulty:</strong> ${item.difficulty || "—"}</p><p><strong>Impulses:</strong> ${escapeHtml(item.impulses || "")}</p>${(item.features || []).map((feature) => `<p><strong>${escapeHtml(feature.name)}:</strong> ${escapeHtml(feature.text)}</p>`).join("")}</details></article>`).join("") || `<p class="dh-helper">No environment loaded.</p>`;
   };
@@ -1747,6 +1753,24 @@
   els.assignedList.addEventListener("click", async (event) => { const button = event.target.closest("[data-remove-character]"); if (!button) return; try { await api(`/campaigns/${activeCampaign.id}/characters/${button.dataset.removeCharacter}`, { method: "DELETE" }); await openCampaign(activeCampaign.id); } catch (error) { showToast(error.message); } });
   els.launchGame.addEventListener("click", launchVtt);
   els.backCampaign.addEventListener("click", () => { els.vtt.hidden = true; els.campaignWorkspace.hidden = false; els.brandTitle.textContent = "GM Toolbox"; els.portalTitle.textContent = "GM Toolbox"; });
+  els.sessionNotes.addEventListener("input", () => {
+    tableRecord.gm_state.notes = els.sessionNotes.value;
+    window.clearTimeout(els.sessionNotes.saveTimer);
+    els.sessionNotes.saveTimer = window.setTimeout(saveTable, 500);
+  });
+  els.endSession.addEventListener("click", async () => {
+    const sessionNumber = activeCampaign.session_number || 1;
+    if (!window.confirm(`End Session ${sessionNumber} and archive its notes?`)) return;
+    const notes = els.sessionNotes.value.trim();
+    const archive = notes ? `${activeCampaign.notes?.trim() ? `${activeCampaign.notes.trim()}\n\n` : ""}SESSION ${sessionNumber} · ${new Date().toLocaleDateString()}\n${notes}` : activeCampaign.notes || "";
+    try {
+      tableRecord.gm_state.notes = "";
+      await saveTable();
+      activeCampaign = await api(`/campaigns/${activeCampaign.id}`, { method: "PUT", body: JSON.stringify({ name: activeCampaign.name, notes: archive, session_number: sessionNumber + 1, next_session_at: activeCampaign.next_session_at }) });
+      showToast(`Session ${sessionNumber} saved.`);
+      await openCampaign(activeCampaign.id);
+    } catch (error) { showToast(error.message); }
+  });
   els.fearPlus.addEventListener("click", () => { tableRecord.public_state.fear = Math.min(12, (tableRecord.public_state.fear || 0) + 1); renderVtt(); saveTable(); });
   els.fearMinus.addEventListener("click", () => { tableRecord.public_state.fear = Math.max(0, (tableRecord.public_state.fear || 0) - 1); renderVtt(); saveTable(); });
   els.fearBeads.addEventListener("click", (event) => { if (!event.target.closest("[data-spend-fear]")) return; tableRecord.public_state.fear = Math.max(0, (tableRecord.public_state.fear || 0) - 1); renderVtt(); saveTable(); });

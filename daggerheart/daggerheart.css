@@ -3000,3 +3000,22 @@ iframe{
   border-color:#8d641e!important;
   font-weight:800;
 }
+
+.dh-vtt-map{padding:16px}
+.dh-vtt-encounter{padding:18px}
+.dh-vtt-encounter>[data-dh-vtt-adversaries]{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.dh-vtt-encounter .dh-vtt-card{padding:14px;border:1px solid rgba(54,38,48,.14);border-radius:8px}
+.dh-vtt-toolbar-actions{display:flex;gap:8px}
+.dh-end-session{background:#8b2530!important;color:#fff!important}
+.dh-session-notes{padding:18px}
+.dh-session-notes summary{cursor:pointer;font-family:Georgia,serif;font-size:1.35rem;font-weight:800;text-transform:uppercase}
+.dh-session-notes label{display:grid;gap:6px;margin-top:14px}
+.dh-session-notes textarea{width:100%;resize:vertical;padding:12px;border:1px solid rgba(54,38,48,.25);border-radius:6px;background:#fffdf8;font:inherit}
+.dh-fear{padding:10px 14px;border:1px solid rgba(141,79,59,.28);border-radius:12px;background:linear-gradient(135deg,#211523,#0c1119);color:#fff;box-shadow:0 8px 24px rgba(25,13,23,.25)}
+.dh-fear small{font-family:Georgia,serif;font-size:1rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#e1b55e}
+.dh-fear-beads img{width:40px;height:40px}
+.dh-map-token.dh-token-healthy{background:#23733f!important;border-color:#9ee3ad!important}
+.dh-map-token.dh-token-hurt{background:#c26a16!important;border-color:#ffd095!important}
+.dh-map-token.dh-token-critical{background:#a51f2d!important;border-color:#ffabb3!important}
+.dh-map-token.dh-token-character{background:#315c99!important;border-color:#acd3ff!important}
+@media(max-width:850px){.dh-vtt-encounter>[data-dh-vtt-adversaries]{grid-template-columns:1fr}.dh-vtt-toolbar{align-items:flex-start;flex-wrap:wrap}}
