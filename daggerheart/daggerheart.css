@@ -3088,6 +3088,10 @@ iframe{
 .dh-vtt-map .dh-map-token>small{font-size:clamp(.4rem,.65vw,.62rem);font-weight:900}
 @media(max-width:650px){.dh-vtt-map{min-height:500px}}
 
+.dh-vtt-map{min-height:0!important}
+.dh-vtt-map .dh-map-token{row-gap:4px;line-height:1}
+.dh-vtt-map .dh-map-token>small{display:block;transform:translateY(2px)}
+
 .dh-vtt-map{min-height:970px}
 .dh-vtt-map .dh-map-token{
   inset:5%;
