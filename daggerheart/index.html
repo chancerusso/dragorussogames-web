@@ -18,7 +18,7 @@
     <a class="dh-brand" href="../" aria-label="Drago Russo Games home">
       <img src="./assets/drago-russo-logo.png" alt="" />
       <span>
-        <strong>Player Portal</strong>
+        <strong data-dh-brand-title>Player Portal</strong>
         <small>Drago Russo Games</small>
       </span>
     </a>
@@ -72,7 +72,6 @@
           <a class="dh-button-link" href="./?library=adversary" target="_blank" rel="noopener">Adversaries</a>
           <a class="dh-button-link" href="./?library=environment" target="_blank" rel="noopener">Environments</a>
           <a class="dh-button-link" href="./?library=equipment" target="_blank" rel="noopener">Equipment</a>
-          <a class="dh-button-link" href="./?library=consumable" target="_blank" rel="noopener">Consumables</a>
         </div>
       </div>
       <form class="dh-panel dh-campaign-create" data-dh-campaign-create>
@@ -110,6 +109,7 @@
 
     <section class="dh-tab-panel dh-library" data-dh-library hidden>
       <div class="dh-section-head"><div><p class="dh-kicker">GM Library</p><h2 data-dh-library-title>Adversaries</h2></div><button type="button" data-dh-create-library>Create New</button></div>
+      <nav class="dh-equipment-tabs" data-dh-equipment-tabs hidden><button type="button" data-equipment-type="Weapon">Weapons</button><button type="button" data-equipment-type="Armor">Armor</button><button type="button" data-equipment-type="Loot">Loot</button><button type="button" data-equipment-type="Consumable">Consumables</button></nav>
       <div class="dh-library-filters dh-panel"><label>Search <input type="search" data-dh-library-search placeholder="Search by name..." /></label><label>Type <select data-dh-library-type><option value="">All Types</option></select></label><label>Tier <select data-dh-library-tier><option value="">All Tiers</option><option value="1">Tier 1</option><option value="2">Tier 2</option><option value="3">Tier 3</option><option value="4">Tier 4</option></select></label><span data-dh-library-count></span></div>
       <div class="dh-library-grid" data-dh-library-grid></div>
       <dialog class="dh-library-dialog" data-dh-library-dialog>

@@ -177,6 +177,7 @@
   let libraryRecords = [];
   let customLibraryRecords = [];
   let currentLibraryView = [];
+  let editorKind = "";
 
   const els = {
     tabs: document.querySelector("[data-dh-tabs]"),
@@ -189,6 +190,7 @@
     logout: document.querySelector("[data-dh-logout]"),
     playerName: document.querySelector("[data-dh-player-name]"),
     portalTitle: document.querySelector("[data-dh-portal-title]"),
+    brandTitle: document.querySelector("[data-dh-brand-title]"),
     gmDashboard: document.querySelector("[data-dh-gm-dashboard]"),
     campaignCreate: document.querySelector("[data-dh-campaign-create]"),
     campaignList: document.querySelector("[data-dh-campaign-list]"),
@@ -199,6 +201,8 @@
     libraryTier: document.querySelector("[data-dh-library-tier]"),
     libraryCount: document.querySelector("[data-dh-library-count]"),
     libraryGrid: document.querySelector("[data-dh-library-grid]"),
+    equipmentTabs: document.querySelector("[data-dh-equipment-tabs]"),
+    equipmentTabButtons: Array.from(document.querySelectorAll("[data-equipment-type]")),
     createLibrary: document.querySelector("[data-dh-create-library]"),
     libraryDialog: document.querySelector("[data-dh-library-dialog]"),
     libraryForm: document.querySelector("[data-dh-library-form]"),
@@ -369,15 +373,16 @@
     if (kind === "adversary") return adversaries;
     if (kind === "environment") return environments;
     if (kind === "consumable") return consumables.map((item) => ({ ...item, type: item.rarity || "Consumable" }));
-    return [...weapons.map((item) => ({ ...item, type: "Weapon", category: item.category || "Weapon" })), ...armors.map((item) => ({ ...item, type: "Armor", category: "Armor", damage: item.thresholds, burden: `Armor Score ${item.score}` })), ...lootItems.map((item) => ({ ...item, type: "Loot", category: "Loot" }))];
+    return [...weapons.map((item) => ({ ...item, type: "Weapon", category: item.category || "Weapon" })), ...armors.map((item) => ({ ...item, type: "Armor", category: "Armor", damage: item.thresholds, burden: `Armor Score ${item.score}` })), ...lootItems.map((item) => ({ ...item, type: "Loot", category: "Loot" })), ...consumables.map((item) => ({ ...item, type: "Consumable", category: "Consumable" }))];
   };
-  const libraryData = (record) => record.custom ? { ...record.data, name: record.name, source: record.source, id: record.id, custom: true } : record;
+  const libraryData = (record) => record.custom ? { ...record.data, name: record.name, source: record.source, id: record.id, kind: record.kind, custom: true } : record;
   const libraryCard = (raw, index) => {
     const item = libraryData(raw);
     const features = item.features || [];
     const description = item.description || item.feature || item.featuresText || "";
-    const stats = libraryKind === "adversary" ? [["Difficulty", item.difficulty], ["Thresholds", item.thresholds], ["HP", item.hp], ["Stress", item.stress], ["Attack", [item.attackModifier, item.attackName, item.range, item.damage].filter(Boolean).join(" · ")]] : libraryKind === "environment" ? [["Difficulty", item.difficulty], ["Impulses", item.impulses], ["Potential Adversaries", item.potentialAdversaries]] : libraryKind === "equipment" ? [["Category", item.category || item.type], ["Tier", item.tier], ["Trait", item.trait], ["Range", item.range], ["Damage", item.damage], ["Burden", item.burden]] : [["Rarity", item.rarity], ["Roll", item.roll]];
-    return `<article class="dh-library-card"><header><div><p class="dh-kicker">${item.custom ? "My Library" : escapeHtml(item.source || "Daggerheart SRD")}</p><h3>${escapeHtml(item.name)}</h3></div>${item.tier ? `<span class="dh-tier-badge">Tier ${item.tier}</span>` : ""}</header><p class="dh-library-type">${escapeHtml(item.type || item.category || "")}</p>${description ? `<p>${escapeHtml(description)}</p>` : ""}<dl>${stats.filter(([, value]) => value !== undefined && value !== null && value !== "").map(([label, value]) => `<div><dt>${label}</dt><dd>${escapeHtml(value)}</dd></div>`).join("")}</dl>${features.length ? `<details><summary>${features.length} Features</summary>${features.map((feature) => `<section><strong>${escapeHtml(feature.name)} · ${escapeHtml(feature.type)}</strong><p>${escapeHtml(feature.text)}</p></section>`).join("")}</details>` : ""}<footer><button type="button" data-library-template="${index}">${item.custom ? "Edit" : "Use as Template"}</button>${item.custom ? `<button type="button" data-library-archive="${item.id}">Archive</button>` : ""}</footer></article>`;
+    const attack = [item.attackModifier, item.attackName, item.range, item.damage].filter(Boolean).join(" · ");
+    const stats = libraryKind === "adversary" ? [["Difficulty", item.difficulty], ["Thresholds", item.thresholds], ["HP", item.hp], ["Stress", item.stress]] : libraryKind === "environment" ? [["Difficulty", item.difficulty], ["Impulses", item.impulses]] : libraryKind === "equipment" ? [["Category", item.category || item.type], ["Tier", item.tier], ["Trait", item.trait], ["Range", item.range], ["Damage", item.damage], ["Burden", item.burden]] : [["Rarity", item.rarity], ["Roll", item.roll]];
+    return `<article class="dh-library-card"><header><div><p class="dh-kicker">${item.custom ? "My Library" : escapeHtml(item.source || "Daggerheart SRD")}</p><h3>${escapeHtml(item.name)}</h3></div>${item.tier ? `<span class="dh-tier-badge">Tier ${item.tier}</span>` : ""}</header><p class="dh-library-type">${escapeHtml(item.type || item.category || "")}</p>${description ? `<p>${escapeHtml(description)}</p>` : ""}<dl>${stats.filter(([, value]) => value !== undefined && value !== null && value !== "").map(([label, value]) => `<div><dt>${label}</dt><dd>${escapeHtml(value)}</dd></div>`).join("")}</dl>${attack ? `<div class="dh-attack-line"><strong>Attack</strong><span>${escapeHtml(attack)}</span></div>` : ""}${item.potentialAdversaries ? `<div class="dh-potential-adversaries"><strong>Potential Adversaries</strong><span>${escapeHtml(item.potentialAdversaries)}</span></div>` : ""}${features.length ? `<details><summary>${features.length} Features</summary>${features.map((feature) => `<section><strong>${escapeHtml(feature.name)} · ${escapeHtml(feature.type)}</strong><p>${escapeHtml(feature.text)}</p></section>`).join("")}</details>` : ""}<footer><button type="button" data-library-template="${index}">${item.custom ? "Edit" : "Use as Template"}</button>${item.custom ? `<button type="button" data-library-archive="${item.id}">Archive</button>` : ""}</footer></article>`;
   };
   const renderLibrary = () => {
     const search = els.librarySearch.value.trim().toLowerCase();
@@ -393,18 +398,20 @@
     libraryKind = kind; libraryRecords = bundledLibrary(kind);
     els.libraryTitle.textContent = libraryLabels[kind]; els.portalTitle.textContent = libraryLabels[kind];
     els.librarySearch.value = ""; els.libraryTier.value = ""; els.libraryTier.closest("label").hidden = kind === "consumable";
-    try { customLibraryRecords = await api(`/content?kind=${kind}`); } catch { customLibraryRecords = []; }
+    els.equipmentTabs.hidden = kind !== "equipment";
+    try { customLibraryRecords = kind === "equipment" ? [...await api("/content?kind=equipment"), ...await api("/content?kind=consumable")] : await api(`/content?kind=${kind}`); } catch { customLibraryRecords = []; }
     const types = [...new Set([...libraryRecords.map((item) => item.type || item.category || item.rarity), ...customLibraryRecords.map((item) => item.data?.type || item.data?.category || item.data?.rarity)].filter(Boolean))].sort();
     els.libraryType.innerHTML = `<option value="">All Types</option>${types.map((item) => `<option>${escapeHtml(item)}</option>`).join("")}`;
     renderLibrary();
   };
   const openLibraryEditor = (record = {}) => {
     const item = libraryData(record); const isEdit = !!item.custom;
-    els.libraryForm.reset(); els.libraryForm.elements.id.value = isEdit ? item.id : ""; els.libraryForm.elements.kind.value = libraryKind;
+    editorKind = isEdit ? item.kind : (libraryKind === "equipment" && els.libraryType.value === "Consumable" ? "consumable" : libraryKind);
+    els.libraryForm.reset(); els.libraryForm.elements.id.value = isEdit ? item.id : ""; els.libraryForm.elements.kind.value = editorKind;
     els.libraryForm.elements.name.value = item.name || ""; els.libraryForm.elements.source.value = isEdit ? item.source : item.name ? `Custom based on ${item.name}` : "Custom";
     els.libraryForm.elements.description.value = item.featuresText || item.description || item.feature || "";
     els.editorTitle.textContent = isEdit ? `Edit ${item.name}` : item.name ? `Create from ${item.name}` : `Create ${libraryLabels[libraryKind].replace(/s$/, "")}`;
-    els.editorFields.innerHTML = editorFieldMap[libraryKind].map(([name, label, type]) => `<label>${label}<input name="${name}" type="${type}" ${type === "number" ? 'min="0"' : ""} value="${escapeHtml(item[name] ?? "")}" /></label>`).join("");
+    els.editorFields.innerHTML = editorFieldMap[editorKind].map(([name, label, type]) => `<label>${label}<input name="${name}" type="${type}" ${type === "number" ? 'min="0"' : ""} value="${escapeHtml(item[name] ?? "")}" /></label>`).join("");
     els.libraryDialog.showModal();
   };
 
@@ -470,7 +477,8 @@
     const requestedLibrary = params.get("library");
     const libraryMode = isGm && Object.keys(libraryLabels).includes(requestedLibrary);
     els.playerName.textContent = user?.display_name || user?.username || "Player";
-    els.portalTitle.textContent = referenceMode ? "Daggerheart Reference" : libraryMode ? libraryLabels[requestedLibrary] : isGm ? "GM Portal" : "Player Portal";
+    els.brandTitle.textContent = isGm ? "GM Toolbox" : "Player Portal";
+    els.portalTitle.textContent = referenceMode ? "Daggerheart Reference" : libraryMode ? libraryLabels[requestedLibrary] : isGm ? "GM Toolbox" : "Player Portal";
     els.loginView.hidden = signedIn;
     els.portalView.hidden = !signedIn;
     els.tabs.hidden = !signedIn || isGm || referenceMode || libraryMode;
@@ -1617,6 +1625,12 @@
     showPortal();
   });
   [els.librarySearch, els.libraryType, els.libraryTier].forEach((control) => control.addEventListener(control === els.librarySearch ? "input" : "change", renderLibrary));
+  els.equipmentTabButtons.forEach((button) => button.addEventListener("click", () => {
+    els.libraryType.value = button.dataset.equipmentType;
+    els.equipmentTabButtons.forEach((entry) => { entry.dataset.active = String(entry === button); });
+    renderLibrary();
+  }));
+  els.libraryType.addEventListener("change", () => els.equipmentTabButtons.forEach((button) => { button.dataset.active = String(button.dataset.equipmentType === els.libraryType.value); }));
   els.createLibrary.addEventListener("click", () => openLibraryEditor());
   els.editorClose.addEventListener("click", () => els.libraryDialog.close());
   els.libraryGrid.addEventListener("click", async (event) => {
@@ -1629,9 +1643,9 @@
   });
   els.libraryForm.addEventListener("submit", async (event) => {
     event.preventDefault(); const form = new FormData(els.libraryForm); const data = { description: form.get("description") };
-    editorFieldMap[libraryKind].forEach(([name, , type]) => { const value = form.get(name); if (value !== "") data[name] = type === "number" ? Number(value) : value; });
+    editorFieldMap[editorKind].forEach(([name, , type]) => { const value = form.get(name); if (value !== "") data[name] = type === "number" ? Number(value) : value; });
     const id = form.get("id");
-    try { await api(id ? `/content/${id}` : "/content", { method: id ? "PUT" : "POST", body: JSON.stringify({ kind: libraryKind, name: form.get("name"), source: form.get("source") || "Custom", data }) }); els.libraryDialog.close(); await openLibrary(libraryKind); showToast("Saved to My Library."); } catch (error) { showToast(error.message); }
+    try { await api(id ? `/content/${id}` : "/content", { method: id ? "PUT" : "POST", body: JSON.stringify({ kind: editorKind, name: form.get("name"), source: form.get("source") || "Custom", data }) }); els.libraryDialog.close(); await openLibrary(libraryKind); showToast("Saved to My Library."); } catch (error) { showToast(error.message); }
   });
   els.campaignCreate.addEventListener("submit", async (event) => {
     event.preventDefault();
