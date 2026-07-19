@@ -2993,3 +2993,10 @@ iframe{
     padding:26px 20px;
   }
 }
+
+.dh-duality-button{
+  background:#d49d35!important;
+  color:#17131b!important;
+  border-color:#8d641e!important;
+  font-weight:800;
+}
