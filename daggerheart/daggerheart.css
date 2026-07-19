@@ -3062,3 +3062,16 @@ iframe{
   .dh-vtt-map .dh-battle-grid{height:340px}
   .dh-vtt-encounter>[data-dh-vtt-adversaries]{grid-template-columns:1fr}
 }
+
+.dh-vtt-map{min-height:570px}
+.dh-vtt-map .dh-battle-grid{
+  margin:18px auto 0;
+  max-width:100%;
+  aspect-ratio:auto!important;
+}
+.dh-vtt-map .dh-grid-cell{
+  width:auto;
+  height:auto;
+  aspect-ratio:1/1;
+}
+@media(max-width:650px){.dh-vtt-map{min-height:430px}}
