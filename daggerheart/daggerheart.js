@@ -178,6 +178,8 @@
   let customLibraryRecords = [];
   let currentLibraryView = [];
   let editorKind = "";
+  let pickerKind = "adversary";
+  let pickerRecords = [];
 
   const els = {
     tabs: document.querySelector("[data-dh-tabs]"),
@@ -228,12 +230,22 @@
     fearPlus: document.querySelector("[data-dh-fear-plus]"),
     countdownList: document.querySelector("[data-dh-countdown-list]"),
     addCountdown: document.querySelector("[data-dh-add-countdown]"),
-    gridSize: document.querySelector("[data-dh-grid-size]"),
+    gridBuilder: document.querySelector("[data-dh-grid-builder]"),
     battleGrid: document.querySelector("[data-dh-battle-grid]"),
     vttAdversaries: document.querySelector("[data-dh-vtt-adversaries]"),
     addAdversary: document.querySelector("[data-dh-add-adversary]"),
     environmentList: document.querySelector("[data-dh-vtt-environment-list]"),
     addEnvironment: document.querySelector("[data-dh-add-environment]"),
+    countdownDialog: document.querySelector("[data-dh-countdown-dialog]"),
+    countdownForm: document.querySelector("[data-dh-countdown-form]"),
+    countdownClose: document.querySelector("[data-dh-countdown-close]"),
+    pickerDialog: document.querySelector("[data-dh-picker-dialog]"),
+    pickerTitle: document.querySelector("[data-dh-picker-title]"),
+    pickerClose: document.querySelector("[data-dh-picker-close]"),
+    pickerSearch: document.querySelector("[data-dh-picker-search]"),
+    pickerType: document.querySelector("[data-dh-picker-type]"),
+    pickerTier: document.querySelector("[data-dh-picker-tier]"),
+    pickerResults: document.querySelector("[data-dh-picker-results]"),
     panels: Array.from(document.querySelectorAll("[data-dh-panel]")),
     tabButtons: Array.from(document.querySelectorAll("[data-dh-tab]")),
     characterList: document.querySelector("[data-dh-character-list]"),
@@ -443,13 +455,29 @@
     const gmState = tableRecord.gm_state;
     els.vttTitle.textContent = activeCampaign.name;
     els.fearBeads.innerHTML = Array.from({ length: publicState.fear || 0 }, (_, index) => `<button type="button" data-spend-fear="${index}" aria-label="Spend one Fear"><img src="./assets/drago-russo-logo.png" alt="" /></button>`).join("") || `<span class="dh-helper">No Fear</span>`;
-    els.countdownList.innerHTML = (publicState.countdowns || []).map((item, index) => `<button type="button" data-countdown="${index}"><strong>${escapeHtml(item.name)}</strong> ${item.current}/${item.maximum}</button>`).join("") || `<span class="dh-helper">No active countdowns</span>`;
+    els.countdownList.innerHTML = (publicState.countdowns || []).map((item, index) => `<button class="dh-countdown-die" type="button" data-countdown="${index}" aria-label="Lower ${escapeHtml(item.name)} countdown"><small>${escapeHtml(item.name)}</small><span>${item.current ?? item.maximum}</span><em>d${item.maximum}</em></button>`).join("") || `<span class="dh-helper">No active countdown dice</span>`;
     const grid = publicState.grid || { columns: 16, rows: 12, cell_feet: 5 };
-    els.gridSize.value = `${grid.columns}x${grid.rows}`;
+    els.gridBuilder.elements.columns.value = grid.columns;
+    els.gridBuilder.elements.rows.value = grid.rows;
     els.battleGrid.style.setProperty("--grid-columns", grid.columns);
+    els.battleGrid.style.aspectRatio = `${grid.columns} / ${grid.rows}`;
     els.battleGrid.innerHTML = Array.from({ length: grid.columns * grid.rows }, () => "<span></span>").join("");
-    els.vttAdversaries.innerHTML = (gmState.adversaries || []).map((item, index) => `<article class="dh-vtt-card"><strong>${escapeHtml(item.name)}</strong><span>HP ${item.hp || 0} · Stress ${item.stress || 0}</span><button type="button" data-remove-adversary="${index}">Remove</button></article>`).join("") || `<p class="dh-helper">No adversaries in this encounter.</p>`;
-    els.environmentList.innerHTML = (publicState.environments || []).map((item, index) => `<article class="dh-vtt-card"><strong>${escapeHtml(item.name)}</strong><button type="button" data-remove-environment="${index}">Remove</button></article>`).join("") || `<p class="dh-helper">No environment loaded.</p>`;
+    els.vttAdversaries.innerHTML = (gmState.adversaries || []).map((item, index) => `<article class="dh-vtt-card"><div class="dh-vtt-card-head"><div><strong>${escapeHtml(item.name)}</strong><small>Tier ${item.tier || 1} ${escapeHtml(item.type || "Adversary")}</small></div><button type="button" data-remove-adversary="${index}">×</button></div><p>Difficulty ${item.difficulty || "—"} · Thresholds ${escapeHtml(item.thresholds || "—")}</p><div class="dh-vtt-marks"><span>HP <button data-adversary-mark="hp:-1" data-index="${index}">−</button> <strong>${item.hpMarked || 0}/${item.hp || 0}</strong> <button data-adversary-mark="hp:1" data-index="${index}">+</button></span><span>Stress <button data-adversary-mark="stress:-1" data-index="${index}">−</button> <strong>${item.stressMarked || 0}/${item.stress || 0}</strong> <button data-adversary-mark="stress:1" data-index="${index}">+</button></span></div><details><summary>Stat Block</summary><p><strong>Attack:</strong> ${escapeHtml([item.attackModifier, item.attackName, item.range, item.damage].filter(Boolean).join(" · "))}</p><p>${escapeHtml(item.motives || "")}</p>${(item.features || []).map((feature) => `<p><strong>${escapeHtml(feature.name)}:</strong> ${escapeHtml(feature.text)}</p>`).join("")}</details></article>`).join("") || `<p class="dh-helper">No adversaries in this encounter.</p>`;
+    els.environmentList.innerHTML = (publicState.environments || []).map((item, index) => `<article class="dh-vtt-card dh-environment-card"><div class="dh-vtt-card-head"><div><strong>${escapeHtml(item.name)}</strong><small>Tier ${item.tier || 1} ${escapeHtml(item.type || "Environment")}</small></div><button type="button" data-remove-environment="${index}">×</button></div><p>${escapeHtml(item.description || "")}</p><details><summary>Environment Features</summary><p><strong>Difficulty:</strong> ${item.difficulty || "—"}</p><p><strong>Impulses:</strong> ${escapeHtml(item.impulses || "")}</p>${(item.features || []).map((feature) => `<p><strong>${escapeHtml(feature.name)}:</strong> ${escapeHtml(feature.text)}</p>`).join("")}</details></article>`).join("") || `<p class="dh-helper">No environment loaded.</p>`;
+  };
+
+  const renderPicker = () => {
+    const search = els.pickerSearch.value.trim().toLowerCase(); const type = els.pickerType.value; const tier = els.pickerTier.value;
+    const filtered = pickerRecords.filter((item) => (!search || item.name.toLowerCase().includes(search)) && (!type || item.type === type) && (!tier || String(item.tier) === tier));
+    els.pickerResults.innerHTML = filtered.map((item) => `<button type="button" data-picker-id="${escapeHtml(item._pickerId)}"><span><strong>${escapeHtml(item.name)}</strong><small>Tier ${item.tier || 1} · ${escapeHtml(item.type || pickerKind)}</small></span><em>Add</em></button>`).join("") || `<p class="dh-helper">No matches.</p>`;
+  };
+  const openPicker = async (kind) => {
+    pickerKind = kind; const bundled = kind === "adversary" ? adversaries : environments;
+    let custom = []; try { custom = await api(`/content?kind=${kind}`); } catch { custom = []; }
+    pickerRecords = [...bundled.map((item, index) => ({ ...item, _pickerId: `srd-${index}` })), ...custom.map((item) => ({ ...item.data, name: item.name, source: item.source, _pickerId: `custom-${item.id}` }))];
+    els.pickerTitle.textContent = kind === "adversary" ? "Add Adversary" : "Load Environment"; els.pickerSearch.value = ""; els.pickerTier.value = "";
+    const types = [...new Set(pickerRecords.map((item) => item.type).filter(Boolean))].sort(); els.pickerType.innerHTML = `<option value="">All Types</option>${types.map((type) => `<option>${escapeHtml(type)}</option>`).join("")}`;
+    renderPicker(); els.pickerDialog.showModal();
   };
 
   const saveTable = async () => {
@@ -464,6 +492,7 @@
     try {
       tableRecord = await api(`/campaigns/${activeCampaign.id}/table-state`);
       els.campaignWorkspace.hidden = true; els.vtt.hidden = false;
+      els.brandTitle.textContent = "GM Table"; els.portalTitle.textContent = "GM Table";
       renderVtt();
     } catch (error) { showToast(error.message); }
   };
@@ -1682,17 +1711,22 @@
   els.memberList.addEventListener("click", async (event) => { const button = event.target.closest("[data-remove-member]"); if (!button) return; try { await api(`/campaigns/${activeCampaign.id}/members/${button.dataset.removeMember}`, { method: "DELETE" }); await openCampaign(activeCampaign.id); } catch (error) { showToast(error.message); } });
   els.assignedList.addEventListener("click", async (event) => { const button = event.target.closest("[data-remove-character]"); if (!button) return; try { await api(`/campaigns/${activeCampaign.id}/characters/${button.dataset.removeCharacter}`, { method: "DELETE" }); await openCampaign(activeCampaign.id); } catch (error) { showToast(error.message); } });
   els.launchGame.addEventListener("click", launchVtt);
-  els.backCampaign.addEventListener("click", () => { els.vtt.hidden = true; els.campaignWorkspace.hidden = false; });
+  els.backCampaign.addEventListener("click", () => { els.vtt.hidden = true; els.campaignWorkspace.hidden = false; els.brandTitle.textContent = "GM Toolbox"; els.portalTitle.textContent = "GM Toolbox"; });
   els.fearPlus.addEventListener("click", () => { tableRecord.public_state.fear = Math.min(12, (tableRecord.public_state.fear || 0) + 1); renderVtt(); saveTable(); });
   els.fearMinus.addEventListener("click", () => { tableRecord.public_state.fear = Math.max(0, (tableRecord.public_state.fear || 0) - 1); renderVtt(); saveTable(); });
   els.fearBeads.addEventListener("click", (event) => { if (!event.target.closest("[data-spend-fear]")) return; tableRecord.public_state.fear = Math.max(0, (tableRecord.public_state.fear || 0) - 1); renderVtt(); saveTable(); });
-  els.addCountdown.addEventListener("click", () => { const name = window.prompt("Countdown name?"); if (!name) return; const maximum = Math.max(2, Number(window.prompt("How many steps?", "4")) || 4); tableRecord.public_state.countdowns = [...(tableRecord.public_state.countdowns || []), { name, current: 0, maximum }]; renderVtt(); saveTable(); });
-  els.countdownList.addEventListener("click", (event) => { const button = event.target.closest("[data-countdown]"); if (!button) return; const item = tableRecord.public_state.countdowns[Number(button.dataset.countdown)]; item.current = item.current >= item.maximum ? 0 : item.current + 1; renderVtt(); saveTable(); });
-  els.gridSize.addEventListener("change", () => { const [columns, rows] = els.gridSize.value.split("x").map(Number); tableRecord.public_state.grid = { columns, rows, cell_feet: 5 }; renderVtt(); saveTable(); });
-  els.addAdversary.addEventListener("click", () => { const name = window.prompt("Adversary name?"); if (!name) return; tableRecord.gm_state.adversaries = [...(tableRecord.gm_state.adversaries || []), { name, hp: 1, stress: 0 }]; renderVtt(); saveTable(); });
-  els.vttAdversaries.addEventListener("click", (event) => { const button = event.target.closest("[data-remove-adversary]"); if (!button) return; tableRecord.gm_state.adversaries.splice(Number(button.dataset.removeAdversary), 1); renderVtt(); saveTable(); });
-  els.addEnvironment.addEventListener("click", () => { const name = window.prompt("Environment name?"); if (!name) return; tableRecord.public_state.environments = [...(tableRecord.public_state.environments || []), { name }]; renderVtt(); saveTable(); });
+  els.addCountdown.addEventListener("click", () => { els.countdownForm.reset(); els.countdownDialog.showModal(); });
+  els.countdownClose.addEventListener("click", () => els.countdownDialog.close());
+  els.countdownForm.addEventListener("submit", (event) => { event.preventDefault(); const form = new FormData(els.countdownForm); const maximum = Number(form.get("die")); tableRecord.public_state.countdowns = [...(tableRecord.public_state.countdowns || []), { name: form.get("name"), current: maximum, maximum }]; els.countdownDialog.close(); renderVtt(); saveTable(); });
+  els.countdownList.addEventListener("click", (event) => { const button = event.target.closest("[data-countdown]"); if (!button) return; const index = Number(button.dataset.countdown); const item = tableRecord.public_state.countdowns[index]; if ((item.current ?? item.maximum) <= 1) tableRecord.public_state.countdowns.splice(index, 1); else item.current = (item.current ?? item.maximum) - 1; renderVtt(); saveTable(); });
+  els.gridBuilder.addEventListener("submit", (event) => { event.preventDefault(); const form = new FormData(els.gridBuilder); tableRecord.public_state.grid = { columns: Number(form.get("columns")), rows: Number(form.get("rows")), cell_feet: 5 }; renderVtt(); saveTable(); });
+  els.addAdversary.addEventListener("click", () => openPicker("adversary"));
+  els.vttAdversaries.addEventListener("click", (event) => { const remove = event.target.closest("[data-remove-adversary]"); const mark = event.target.closest("[data-adversary-mark]"); if (remove) tableRecord.gm_state.adversaries.splice(Number(remove.dataset.removeAdversary), 1); else if (mark) { const item = tableRecord.gm_state.adversaries[Number(mark.dataset.index)]; const [track, amount] = mark.dataset.adversaryMark.split(":"); const key = `${track}Marked`; item[key] = Math.max(0, Math.min(item[track] || 0, (item[key] || 0) + Number(amount))); } else return; renderVtt(); saveTable(); });
+  els.addEnvironment.addEventListener("click", () => openPicker("environment"));
   els.environmentList.addEventListener("click", (event) => { const button = event.target.closest("[data-remove-environment]"); if (!button) return; tableRecord.public_state.environments.splice(Number(button.dataset.removeEnvironment), 1); renderVtt(); saveTable(); });
+  els.pickerClose.addEventListener("click", () => els.pickerDialog.close());
+  [els.pickerSearch, els.pickerType, els.pickerTier].forEach((control) => control.addEventListener(control === els.pickerSearch ? "input" : "change", renderPicker));
+  els.pickerResults.addEventListener("click", (event) => { const button = event.target.closest("[data-picker-id]"); if (!button) return; const item = pickerRecords.find((record) => record._pickerId === button.dataset.pickerId); if (!item) return; const copy = JSON.parse(JSON.stringify(item)); delete copy._pickerId; if (pickerKind === "adversary") { copy.hpMarked = 0; copy.stressMarked = 0; tableRecord.gm_state.adversaries = [...(tableRecord.gm_state.adversaries || []), copy]; } else tableRecord.public_state.environments = [...(tableRecord.public_state.environments || []), copy]; els.pickerDialog.close(); renderVtt(); saveTable(); });
   els.tabButtons.forEach((button) => button.addEventListener("click", () => {
     if (button.dataset.dhTab === "builder") {
       builderMode = "build";
