@@ -67,7 +67,13 @@
           <p class="dh-kicker">GM Portal</p>
           <h2>Your Campaigns</h2>
         </div>
-        <a class="dh-button-link" href="./?reference=rules" target="_blank" rel="noopener">Open Daggerheart Reference</a>
+        <div class="dh-gm-library-links">
+          <a class="dh-button-link" href="./?reference=rules" target="_blank" rel="noopener">Open SRD</a>
+          <a class="dh-button-link" href="./?library=adversary" target="_blank" rel="noopener">Adversaries</a>
+          <a class="dh-button-link" href="./?library=environment" target="_blank" rel="noopener">Environments</a>
+          <a class="dh-button-link" href="./?library=equipment" target="_blank" rel="noopener">Equipment</a>
+          <a class="dh-button-link" href="./?library=consumable" target="_blank" rel="noopener">Consumables</a>
+        </div>
       </div>
       <form class="dh-panel dh-campaign-create" data-dh-campaign-create>
         <label>Campaign Name <input name="name" required placeholder="New Daggerheart campaign" /></label>
@@ -100,6 +106,22 @@
         <div class="dh-vtt-main"><section class="dh-panel"><div class="dh-vtt-grid-head"><h3>Battle Map</h3><label>Grid <select data-dh-grid-size><option value="12x8">12 × 8</option><option value="16x12" selected>16 × 12</option><option value="20x14">20 × 14</option><option value="24x18">24 × 18</option></select></label></div><div class="dh-battle-grid" data-dh-battle-grid></div></section><aside class="dh-panel"><p class="dh-kicker">Encounter</p><h3>Adversaries</h3><button type="button" data-dh-add-adversary>+ Add Adversary</button><div data-dh-vtt-adversaries></div></aside></div>
         <section class="dh-panel dh-vtt-environments"><p class="dh-kicker">Scene</p><h3>Environments</h3><button type="button" data-dh-add-environment>+ Load Environment</button><div data-dh-vtt-environment-list></div></section>
       </section>
+    </section>
+
+    <section class="dh-tab-panel dh-library" data-dh-library hidden>
+      <div class="dh-section-head"><div><p class="dh-kicker">GM Library</p><h2 data-dh-library-title>Adversaries</h2></div><button type="button" data-dh-create-library>Create New</button></div>
+      <div class="dh-library-filters dh-panel"><label>Search <input type="search" data-dh-library-search placeholder="Search by name..." /></label><label>Type <select data-dh-library-type><option value="">All Types</option></select></label><label>Tier <select data-dh-library-tier><option value="">All Tiers</option><option value="1">Tier 1</option><option value="2">Tier 2</option><option value="3">Tier 3</option><option value="4">Tier 4</option></select></label><span data-dh-library-count></span></div>
+      <div class="dh-library-grid" data-dh-library-grid></div>
+      <dialog class="dh-library-dialog" data-dh-library-dialog>
+        <form data-dh-library-form>
+          <div class="dh-section-head"><div><p class="dh-kicker">GM Library</p><h2 data-dh-editor-title>Create</h2></div><button type="button" data-dh-editor-close>Close</button></div>
+          <input type="hidden" name="id" /><input type="hidden" name="kind" />
+          <label>Name <input name="name" required maxlength="180" /></label><label>Source <input name="source" value="Custom" maxlength="180" /></label>
+          <div class="dh-library-editor-fields" data-dh-editor-fields></div>
+          <label>Features / Description <textarea name="description" rows="10"></textarea></label>
+          <button type="submit">Save to My Library</button>
+        </form>
+      </dialog>
     </section>
 
     <section class="dh-tab-panel" data-dh-panel="characters">
