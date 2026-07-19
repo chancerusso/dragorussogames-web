@@ -716,7 +716,7 @@ footer{
 
 .dh-tabs button,
 .dh-section-head button,
-.dh-login-row button,
+.dh-login-actions button,
 .dh-card-actions button,
 .dh-seat-card button,
 .dh-rule-buttons button{
@@ -736,7 +736,7 @@ footer{
 .dh-tabs button[data-active="true"],
 .dh-tabs button:hover,
 .dh-section-head button:hover,
-.dh-login-row button:hover,
+.dh-login-actions button:hover,
 .dh-card-actions button:hover,
 .dh-seat-card button:hover,
 .dh-rule-buttons button[data-active="true"],
@@ -809,14 +809,23 @@ footer{
   text-transform:uppercase;
 }
 
-.dh-login-row{
+.dh-login-fields{
   display:grid;
   gap:8px;
-  grid-template-columns:1fr auto;
+  grid-template-columns:repeat(2,1fr);
   margin-top:18px;
 }
 
-.dh-login-row input,
+.dh-login-fields label,
+.dh-campaign-create label{
+  color:var(--dh-ink-soft);
+  display:grid;
+  font-size:.78rem;
+  gap:4px;
+}
+
+.dh-login-fields input,
+.dh-campaign-create input,
 .dh-builder input,
 .dh-builder select{
   background:#fffdf7;
@@ -826,6 +835,32 @@ footer{
   font:inherit;
   min-width:0;
   padding:10px;
+}
+
+.dh-login-actions{
+  display:flex;
+  gap:8px;
+  justify-content:flex-end;
+  margin-top:12px;
+}
+
+.dh-login-actions .dh-gm-entry{
+  background:var(--dh-plum-2);
+}
+
+.dh-login-error{
+  color:#9c302b !important;
+  font-weight:700;
+  margin:10px 0 0;
+}
+
+.dh-campaign-create{
+  align-items:end;
+  display:grid;
+  gap:10px;
+  grid-template-columns:1fr auto;
+  margin-bottom:12px;
+  padding:14px;
 }
 
 .dh-portal-head,
@@ -2463,7 +2498,9 @@ footer{
     grid-template-columns:1fr;
   }
 
-  .dh-login-row,
+  .dh-login-fields,
+  .dh-login-actions,
+  .dh-campaign-create,
   .dh-section-head,
   .dh-portal-head{
     align-items:stretch;

@@ -1,6 +1,7 @@
 (() => {
   const keys = {
-    player: "dh.player",
+    token: "dh.authToken",
+    user: "dh.authUser",
     characters: "dh.characters",
     activeId: "dh.activeId",
   };
@@ -170,10 +171,16 @@
     tabs: document.querySelector("[data-dh-tabs]"),
     loginView: document.querySelector('[data-dh-view="login"]'),
     portalView: document.querySelector('[data-dh-view="portal"]'),
-    playerInput: document.querySelector("[data-dh-player-input]"),
-    login: document.querySelector("[data-dh-login]"),
+    username: document.querySelector("[data-dh-username]"),
+    password: document.querySelector("[data-dh-password]"),
+    loginButtons: Array.from(document.querySelectorAll("[data-dh-login]")),
+    loginError: document.querySelector("[data-dh-login-error]"),
     logout: document.querySelector("[data-dh-logout]"),
     playerName: document.querySelector("[data-dh-player-name]"),
+    portalTitle: document.querySelector("[data-dh-portal-title]"),
+    gmDashboard: document.querySelector("[data-dh-gm-dashboard]"),
+    campaignCreate: document.querySelector("[data-dh-campaign-create]"),
+    campaignList: document.querySelector("[data-dh-campaign-list]"),
     panels: Array.from(document.querySelectorAll("[data-dh-panel]")),
     tabButtons: Array.from(document.querySelectorAll("[data-dh-tab]")),
     characterList: document.querySelector("[data-dh-character-list]"),
@@ -193,6 +200,17 @@
     try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
   };
   const writeJson = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+  const authUser = () => readJson(keys.user, null);
+  const api = async (path, options = {}) => {
+    const token = localStorage.getItem(keys.token);
+    const response = await fetch(`/api${path}`, {
+      ...options,
+      headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(options.headers || {}) },
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(typeof payload.detail === "string" ? payload.detail : "Request failed.");
+    return payload;
+  };
   const characters = () => readJson(keys.characters, []);
   const saveCharacters = (records) => writeJson(keys.characters, records);
   const optionList = (items, selected) => items.map((item) => `<option ${item === selected ? "selected" : ""}>${item}</option>`).join("");
@@ -276,13 +294,34 @@
     };
   };
 
+  const renderCampaigns = async () => {
+    try {
+      const campaigns = await api("/campaigns");
+      els.campaignList.innerHTML = campaigns.length ? campaigns.map((campaign) => `
+        <article class="dh-character-card">
+          <div><h3>${escapeHtml(campaign.name)}</h3><p>${campaign.status} · Table state saves automatically.</p></div>
+          <div class="dh-card-actions"><button type="button" data-dh-open-campaign="${campaign.id}">Open Campaign</button></div>
+        </article>
+      `).join("") : `<article class="dh-empty"><h3>No campaigns yet.</h3><p>Create the first campaign to prepare a persistent table.</p></article>`;
+      els.campaignList.querySelectorAll("[data-dh-open-campaign]").forEach((button) => button.addEventListener("click", () => showToast("Campaign table interface comes next.")));
+    } catch (error) {
+      els.campaignList.innerHTML = `<article class="dh-empty"><h3>Campaigns unavailable.</h3><p>${escapeHtml(error.message)}</p></article>`;
+    }
+  };
+
   const showPortal = () => {
-    const player = localStorage.getItem(keys.player);
-    els.playerName.textContent = player || "Player";
-    els.loginView.hidden = !!player;
-    els.portalView.hidden = !player;
-    els.tabs.hidden = !player;
-    if (player) showPanel("characters");
+    const user = authUser();
+    const signedIn = !!user && !!localStorage.getItem(keys.token);
+    const isGm = user?.role === "gm";
+    els.playerName.textContent = user?.display_name || user?.username || "Player";
+    els.portalTitle.textContent = isGm ? "GM Portal" : "Player Portal";
+    els.loginView.hidden = signedIn;
+    els.portalView.hidden = !signedIn;
+    els.tabs.hidden = !signedIn || isGm;
+    els.gmDashboard.hidden = !signedIn || !isGm;
+    els.panels.forEach((panel) => { panel.hidden = !signedIn || isGm || panel.dataset.dhPanel !== "characters"; });
+    if (signedIn && isGm) renderCampaigns();
+    else if (signedIn) showPanel("characters");
   };
 
   const showPanel = (name) => {
@@ -1390,13 +1429,39 @@
     });
   };
 
-  els.login.addEventListener("click", () => {
-    localStorage.setItem(keys.player, els.playerInput.value.trim() || "Player");
+  els.loginButtons.forEach((button) => button.addEventListener("click", async () => {
+    els.loginError.hidden = true;
+    els.loginButtons.forEach((entry) => { entry.disabled = true; });
+    try {
+      const payload = await api("/auth/login", { method: "POST", body: JSON.stringify({ username: els.username.value.trim(), password: els.password.value }) });
+      if (button.dataset.dhLogin === "gm" && payload.user.role !== "gm") throw new Error("This account does not have GM access.");
+      localStorage.setItem(keys.token, payload.token);
+      writeJson(keys.user, payload.user);
+      els.password.value = "";
+      showPortal();
+    } catch (error) {
+      els.loginError.textContent = error.message;
+      els.loginError.hidden = false;
+    } finally {
+      els.loginButtons.forEach((entry) => { entry.disabled = false; });
+    }
+  }));
+  els.logout.addEventListener("click", () => {
+    localStorage.removeItem(keys.token);
+    localStorage.removeItem(keys.user);
     showPortal();
   });
-  els.logout.addEventListener("click", () => {
-    localStorage.removeItem(keys.player);
-    showPortal();
+  els.campaignCreate.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = new FormData(els.campaignCreate);
+    try {
+      await api("/campaigns", { method: "POST", body: JSON.stringify({ name: form.get("name"), notes: "" }) });
+      els.campaignCreate.reset();
+      await renderCampaigns();
+      showToast("Campaign created.");
+    } catch (error) {
+      showToast(error.message);
+    }
   });
   els.tabButtons.forEach((button) => button.addEventListener("click", () => {
     if (button.dataset.dhTab === "builder") {

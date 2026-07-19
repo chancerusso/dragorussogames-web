@@ -39,9 +39,14 @@
       <p>
         Sign in to create characters, review the player-facing SRD, and grab a seat when a campaign invite arrives.
       </p>
-      <div class="dh-login-row">
-        <input type="text" value="Chance" aria-label="Player name" data-dh-player-input />
-        <button type="button" data-dh-login>Sign In</button>
+      <div class="dh-login-fields">
+        <label>Username <input type="text" autocomplete="username" aria-label="Username" data-dh-username /></label>
+        <label>Password <input type="password" autocomplete="current-password" aria-label="Password" data-dh-password /></label>
+      </div>
+      <p class="dh-login-error" data-dh-login-error hidden></p>
+      <div class="dh-login-actions">
+        <button type="button" data-dh-login="player">Player Sign In</button>
+        <button class="dh-gm-entry" type="button" data-dh-login="gm">GM Portal</button>
       </div>
     </div>
   </section>
@@ -50,10 +55,24 @@
     <div class="dh-portal-head">
       <div>
         <p class="dh-kicker">Signed in as <strong data-dh-player-name>Player</strong></p>
-        <h1>Player Portal</h1>
+        <h1 data-dh-portal-title>Player Portal</h1>
       </div>
       <button class="dh-link-button" type="button" data-dh-logout>Log Out</button>
     </div>
+
+    <section class="dh-tab-panel dh-gm-dashboard" data-dh-gm-dashboard hidden>
+      <div class="dh-section-head">
+        <div>
+          <p class="dh-kicker">GM Portal</p>
+          <h2>Your Campaigns</h2>
+        </div>
+      </div>
+      <form class="dh-panel dh-campaign-create" data-dh-campaign-create>
+        <label>Campaign Name <input name="name" required placeholder="New Daggerheart campaign" /></label>
+        <button type="submit">Create Campaign</button>
+      </form>
+      <div class="dh-character-list" data-dh-campaign-list></div>
+    </section>
 
     <section class="dh-tab-panel" data-dh-panel="characters">
       <div class="dh-section-head">
