@@ -287,6 +287,29 @@
     showToast.timer = window.setTimeout(() => { els.toast.hidden = true; }, 2400);
   };
 
+  const rollDie = (sides) => Math.floor(Math.random() * sides) + 1;
+  const recordRoll = (roller, html, historyText) => {
+    roller.querySelector("[data-dh-roll-result]").innerHTML = html;
+    const history = roller.querySelector("[data-dh-roll-history]");
+    const entries = [historyText, ...Array.from(history.querySelectorAll("span")).map((entry) => entry.textContent)].slice(0, 5);
+    history.innerHTML = entries.map((entry) => `<span>${escapeHtml(entry)}</span>`).join("");
+  };
+  const bindDiceRollers = () => document.querySelectorAll("[data-dh-dice-roller]").forEach((roller) => roller.addEventListener("click", (event) => {
+    const dieButton = event.target.closest("[data-dh-die]");
+    const dualityButton = event.target.closest("[data-dh-duality]");
+    if (!dieButton && !dualityButton) return;
+    const modifier = Math.max(-99, Math.min(99, Number(roller.querySelector("[data-dh-dice-mod]").value) || 0));
+    if (dualityButton) {
+      const hope = rollDie(12); const fear = rollDie(12); const total = hope + fear + modifier;
+      const outcome = hope === fear ? "Critical Success" : hope > fear ? "with Hope" : "with Fear";
+      recordRoll(roller, `<div class="dh-duality-result"><span class="dh-hope-die">Hope <strong>${hope}</strong></span><span class="dh-fear-die">Fear <strong>${fear}</strong></span><b>${total} ${outcome}</b></div>`, `Duality: ${hope} Hope + ${fear} Fear ${modifier ? `${modifier > 0 ? "+" : ""}${modifier}` : ""} = ${total} ${outcome}`);
+      return;
+    }
+    const sides = Number(dieButton.dataset.dhDie); const count = Math.max(1, Math.min(20, Number(roller.querySelector("[data-dh-dice-count]").value) || 1));
+    const rolls = Array.from({ length: count }, () => rollDie(sides)); const total = rolls.reduce((sum, value) => sum + value, 0) + modifier;
+    recordRoll(roller, `<div><strong>${total}</strong><span>${count}d${sides}${modifier ? ` ${modifier > 0 ? "+" : ""}${modifier}` : ""}</span><small>[${rolls.join(", ")}]</small></div>`, `${count}d${sides}${modifier ? `${modifier > 0 ? "+" : ""}${modifier}` : ""}: [${rolls.join(", ")}] = ${total}`);
+  }));
+
   const newDraft = () => ({
     id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
     name: "Maris",
@@ -1810,5 +1833,6 @@
   document.querySelector("[data-dh-grab-seat]").addEventListener("click", () => showToast("Seat held. Campaign connection comes next."));
 
   bindTooltip();
+  bindDiceRollers();
   showPortal();
 })();
