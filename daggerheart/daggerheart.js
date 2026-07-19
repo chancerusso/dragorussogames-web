@@ -498,7 +498,7 @@
 
   const sizeBattleGrid = (grid) => {
     const availableWidth = Math.max(240, (els.battleGrid.parentElement?.clientWidth || 900) - 32);
-    const cellSize = Math.max(10, Math.min(46, availableWidth / grid.columns, 600 / grid.rows));
+    const cellSize = Math.max(12, Math.min(52, availableWidth / grid.columns, 900 / grid.rows));
     els.battleGrid.style.width = `${Math.floor(cellSize * grid.columns)}px`;
     els.battleGrid.style.height = `${Math.floor(cellSize * grid.rows)}px`;
   };
@@ -1795,7 +1795,7 @@
   els.countdownClose.addEventListener("click", () => els.countdownDialog.close());
   els.countdownForm.addEventListener("submit", (event) => { event.preventDefault(); const form = new FormData(els.countdownForm); const maximum = Number(form.get("die")); tableRecord.public_state.countdowns = [...(tableRecord.public_state.countdowns || []), { name: form.get("name"), current: maximum, maximum }]; els.countdownDialog.close(); renderVtt(); saveTable(); });
   els.countdownList.addEventListener("click", (event) => { const button = event.target.closest("[data-countdown]"); if (!button) return; const index = Number(button.dataset.countdown); const item = tableRecord.public_state.countdowns[index]; if ((item.current ?? item.maximum) <= 1) tableRecord.public_state.countdowns.splice(index, 1); else item.current = (item.current ?? item.maximum) - 1; renderVtt(); saveTable(); });
-  els.gridBuilder.addEventListener("submit", (event) => { event.preventDefault(); const form = new FormData(els.gridBuilder); tableRecord.public_state.grid = { columns: Number(form.get("columns")), rows: Number(form.get("rows")), cell_feet: 5 }; renderVtt(); saveTable(); });
+  els.gridBuilder.addEventListener("submit", (event) => { event.preventDefault(); const form = new FormData(els.gridBuilder); tableRecord.public_state.grid = { columns: Math.max(4, Math.min(20, Number(form.get("columns")))), rows: Math.max(4, Math.min(20, Number(form.get("rows")))), cell_feet: 5 }; renderVtt(); saveTable(); });
   els.addAdversary.addEventListener("click", () => openPicker("adversary"));
   els.vttAdversaries.addEventListener("click", (event) => { const remove = event.target.closest("[data-remove-adversary]"); const toggle = event.target.closest("[data-toggle-adversary-map]"); const mark = event.target.closest("[data-adversary-mark]"); if (remove) { const item = tableRecord.gm_state.adversaries[Number(remove.dataset.removeAdversary)]; tableRecord.public_state.tokens = (tableRecord.public_state.tokens || []).filter((token) => token.adversaryId !== item.instanceId); tableRecord.gm_state.adversaries.splice(Number(remove.dataset.removeAdversary), 1); renumberAdversaries(); } else if (toggle) { const item = tableRecord.gm_state.adversaries[Number(toggle.dataset.toggleAdversaryMap)]; const tokens = tableRecord.public_state.tokens || []; const existing = tokens.find((token) => token.adversaryId === item.instanceId); tableRecord.public_state.tokens = existing ? tokens.filter((token) => token !== existing) : [...tokens, { id: `token-${item.instanceId}`, adversaryId: item.instanceId, name: item.name, kind: "adversary", x: 1, y: 1 }]; } else if (mark) { const item = tableRecord.gm_state.adversaries[Number(mark.dataset.index)]; const [track, amount] = mark.dataset.adversaryMark.split(":"); const key = `${track}Marked`; item[key] = Math.max(0, Math.min(item[track] || 0, (item[key] || 0) + Number(amount))); } else return; renderVtt(); saveTable(); });
   els.addEnvironment.addEventListener("click", () => openPicker("environment"));

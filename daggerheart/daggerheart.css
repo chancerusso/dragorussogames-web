@@ -3087,3 +3087,13 @@ iframe{
 .dh-vtt-map .dh-map-token>span{font-size:clamp(.48rem,.8vw,.76rem)}
 .dh-vtt-map .dh-map-token>small{font-size:clamp(.4rem,.65vw,.62rem);font-weight:900}
 @media(max-width:650px){.dh-vtt-map{min-height:500px}}
+
+.dh-vtt-map{min-height:970px}
+.dh-vtt-map .dh-map-token{
+  inset:5%;
+  width:90%;
+  height:90%;
+  max-width:46px;
+  max-height:46px;
+}
+@media(max-width:650px){.dh-vtt-map{min-height:500px}}
