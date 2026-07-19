@@ -3019,3 +3019,46 @@ iframe{
 .dh-map-token.dh-token-critical{background:#a51f2d!important;border-color:#ffabb3!important}
 .dh-map-token.dh-token-character{background:#315c99!important;border-color:#acd3ff!important}
 @media(max-width:850px){.dh-vtt-encounter>[data-dh-vtt-adversaries]{grid-template-columns:1fr}.dh-vtt-toolbar{align-items:flex-start;flex-wrap:wrap}}
+
+/* Keep the battle map a stable tabletop viewport regardless of grid dimensions. */
+.dh-vtt-map .dh-battle-grid{
+  width:100%;
+  height:clamp(320px,44vw,500px);
+  aspect-ratio:auto!important;
+  grid-template-columns:repeat(var(--grid-columns),minmax(0,1fr));
+  overflow:hidden;
+}
+.dh-vtt-map .dh-grid-cell{min-width:0;min-height:0}
+.dh-vtt-map .dh-map-token{
+  inset:12%;
+  width:76%;
+  height:76%;
+  max-width:30px;
+  max-height:30px;
+  margin:auto;
+  font-size:clamp(.38rem,.7vw,.68rem);
+  border-width:1px!important;
+}
+
+/* Encounter cards are control snippets; the full stat block stays collapsed. */
+.dh-vtt-encounter>[data-dh-vtt-adversaries]{
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:8px;
+}
+.dh-vtt-encounter .dh-vtt-card{
+  gap:4px;
+  padding:9px 10px;
+}
+.dh-vtt-encounter .dh-vtt-card-head strong{font-size:.95rem}
+.dh-vtt-encounter .dh-vtt-card-head small,
+.dh-vtt-encounter .dh-vtt-card>p{font-size:.72rem}
+.dh-vtt-encounter .dh-vtt-card-actions{gap:3px}
+.dh-vtt-encounter .dh-vtt-card-actions button{padding:3px 6px!important;font-size:.62rem!important}
+.dh-vtt-encounter .dh-vtt-marks{grid-template-columns:1fr 1fr;gap:5px}
+.dh-vtt-encounter .dh-vtt-marks span{padding:3px 5px;font-size:.72rem}
+.dh-vtt-encounter .dh-vtt-marks button{padding:1px 6px}
+.dh-vtt-encounter .dh-vtt-card details summary{font-size:.75rem}
+@media(max-width:650px){
+  .dh-vtt-map .dh-battle-grid{height:340px}
+  .dh-vtt-encounter>[data-dh-vtt-adversaries]{grid-template-columns:1fr}
+}
