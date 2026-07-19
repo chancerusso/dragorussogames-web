@@ -61,46 +61,18 @@
     </div>
 
     <section class="dh-tab-panel dh-gm-dashboard" data-dh-gm-dashboard hidden>
-      <nav class="dh-gm-tabs" aria-label="GM portal sections">
-        <button type="button" data-dh-gm-tab="campaigns" data-active="true">Campaigns</button>
-        <button type="button" data-dh-gm-tab="rules">Rules</button>
-        <button type="button" data-dh-gm-tab="adversary">Adversaries</button>
-        <button type="button" data-dh-gm-tab="equipment">Equipment</button>
-        <button type="button" data-dh-gm-tab="consumable">Consumables</button>
-        <button type="button" data-dh-gm-tab="environment">Environments</button>
-        <button type="button" data-dh-gm-tab="cards">Domain Cards</button>
-      </nav>
-      <div data-dh-gm-section="campaigns">
       <div class="dh-section-head">
         <div>
           <p class="dh-kicker">GM Portal</p>
           <h2>Your Campaigns</h2>
         </div>
+        <a class="dh-button-link" href="./?reference=rules" target="_blank" rel="noopener">Open Daggerheart Reference</a>
       </div>
       <form class="dh-panel dh-campaign-create" data-dh-campaign-create>
         <label>Campaign Name <input name="name" required placeholder="New Daggerheart campaign" /></label>
         <button type="submit">Create Campaign</button>
       </form>
       <div class="dh-character-list" data-dh-campaign-list></div>
-      </div>
-      <div data-dh-gm-section="reference" hidden>
-        <div class="dh-section-head">
-          <div><p class="dh-kicker" data-dh-gm-kicker>GM Reference</p><h2 data-dh-gm-title>Rules</h2></div>
-          <button type="button" data-dh-new-content hidden>Create</button>
-        </div>
-        <div class="dh-gm-reference" data-dh-gm-reference></div>
-      </div>
-      <dialog class="dh-content-dialog" data-dh-content-dialog>
-        <form method="dialog" data-dh-content-form>
-          <div class="dh-section-head"><div><p class="dh-kicker">GM Library</p><h2 data-dh-content-title>Create Content</h2></div><button type="button" data-dh-content-close>Close</button></div>
-          <input type="hidden" name="kind" />
-          <label>Name <input name="name" required maxlength="180" /></label>
-          <label>Source <input name="source" value="Custom" maxlength="180" /></label>
-          <label>Description <textarea name="description" rows="4" placeholder="Rules text, features, or notes"></textarea></label>
-          <div class="dh-content-fields" data-dh-content-fields></div>
-          <button type="submit">Save to GM Library</button>
-        </form>
-      </dialog>
     </section>
 
     <section class="dh-tab-panel" data-dh-panel="characters">
