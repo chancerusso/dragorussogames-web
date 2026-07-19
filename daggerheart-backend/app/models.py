@@ -98,3 +98,15 @@ class TableSnapshot(Base):
     public_state: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
     gm_state: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+
+class ContentRecord(TimestampMixin, Base):
+    __tablename__ = "dh_content_records"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    created_by_id: Mapped[int] = mapped_column(ForeignKey("dh_users.id", ondelete="RESTRICT"), index=True, nullable=False)
+    kind: Mapped[str] = mapped_column(String(30), index=True, nullable=False)
+    name: Mapped[str] = mapped_column(String(180), index=True, nullable=False)
+    source: Mapped[str] = mapped_column(String(180), default="Custom", server_default="Custom", nullable=False)
+    data: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    archived: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)

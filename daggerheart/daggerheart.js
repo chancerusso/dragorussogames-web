@@ -181,6 +181,17 @@
     gmDashboard: document.querySelector("[data-dh-gm-dashboard]"),
     campaignCreate: document.querySelector("[data-dh-campaign-create]"),
     campaignList: document.querySelector("[data-dh-campaign-list]"),
+    gmTabs: Array.from(document.querySelectorAll("[data-dh-gm-tab]")),
+    gmSections: Array.from(document.querySelectorAll("[data-dh-gm-section]")),
+    gmReference: document.querySelector("[data-dh-gm-reference]"),
+    gmKicker: document.querySelector("[data-dh-gm-kicker]"),
+    gmTitle: document.querySelector("[data-dh-gm-title]"),
+    newContent: document.querySelector("[data-dh-new-content]"),
+    contentDialog: document.querySelector("[data-dh-content-dialog]"),
+    contentForm: document.querySelector("[data-dh-content-form]"),
+    contentTitle: document.querySelector("[data-dh-content-title]"),
+    contentFields: document.querySelector("[data-dh-content-fields]"),
+    contentClose: document.querySelector("[data-dh-content-close]"),
     panels: Array.from(document.querySelectorAll("[data-dh-panel]")),
     tabButtons: Array.from(document.querySelectorAll("[data-dh-tab]")),
     characterList: document.querySelector("[data-dh-character-list]"),
@@ -307,6 +318,53 @@
     } catch (error) {
       els.campaignList.innerHTML = `<article class="dh-empty"><h3>Campaigns unavailable.</h3><p>${escapeHtml(error.message)}</p></article>`;
     }
+  };
+
+  const gmLabels = { adversary: "Adversaries", equipment: "Equipment", consumable: "Consumables", environment: "Environments" };
+  const contentFields = {
+    equipment: [["category", "Category"], ["tier", "Tier"], ["trait", "Trait"], ["range", "Range"], ["damage", "Damage / Thresholds"]],
+    consumable: [["rarity", "Rarity"], ["uses", "Uses"]],
+    adversary: [["tier", "Tier"], ["role", "Role / Type"], ["difficulty", "Difficulty"], ["evasion", "Evasion"], ["thresholds", "Thresholds"], ["hp", "Hit Points"], ["stress", "Stress"], ["attack", "Attack"]],
+    environment: [["tier", "Tier"], ["type", "Type"], ["difficulty", "Difficulty"], ["impulses", "Impulses"]],
+  };
+  const displayValue = (value) => Array.isArray(value) ? value.join(", ") : (typeof value === "object" && value ? JSON.stringify(value) : value);
+  const referenceCards = (records, emptyText) => records.length ? `<div class="dh-reference-grid">${records.map((record) => {
+    const details = Object.entries(record.data || record).filter(([key, value]) => !["id", "name", "source", "kind", "archived", "updated_at", "text", "description"].includes(key) && value !== "" && value != null);
+    const description = record.data?.description || record.description || record.text || record.feature || "";
+    return `<article class="dh-panel dh-reference-card"><p class="dh-kicker">${escapeHtml(record.source || "SRD")}</p><h3>${escapeHtml(record.name || record.title)}</h3>${description ? `<p>${escapeHtml(description)}</p>` : ""}${details.length ? `<dl>${details.slice(0, 8).map(([key, value]) => `<div><dt>${escapeHtml(key.replaceAll("_", " "))}</dt><dd>${escapeHtml(displayValue(value))}</dd></div>`).join("")}</dl>` : ""}${record.id ? `<button class="dh-danger-link" type="button" data-dh-delete-content="${record.id}">Archive</button>` : ""}</article>`;
+  }).join("")}</div>` : `<article class="dh-empty"><h3>Nothing here yet.</h3><p>${escapeHtml(emptyText)}</p></article>`;
+
+  const renderGmReference = async (section) => {
+    els.gmSections.forEach((node) => { node.hidden = node.dataset.dhGmSection !== "reference"; });
+    els.gmTitle.textContent = section === "cards" ? "Domain Cards" : (gmLabels[section] || "Rules");
+    els.gmKicker.textContent = section === "rules" || section === "cards" ? "Daggerheart SRD Reference" : "SRD & GM Library";
+    els.newContent.hidden = !contentFields[section];
+    els.newContent.dataset.kind = section;
+    if (section === "rules") {
+      els.gmReference.innerHTML = referenceCards(rules.map(([title, source, text]) => ({ title, source, text })), "No rules are loaded.");
+      return;
+    }
+    if (section === "cards") {
+      const cards = Object.entries(domainCards).flatMap(([domain, names]) => names.map((name) => ({ name, source: `${domain} · Level ${cardLevels[name] || 1}`, text: cardNotes[name] || "Domain card reference." })));
+      els.gmReference.innerHTML = referenceCards(cards, "No domain cards are loaded.");
+      return;
+    }
+    let bundled = [];
+    if (section === "equipment") bundled = [...weapons, ...armors, ...lootItems].map((item) => ({ ...item, source: item.source || "Daggerheart SRD" }));
+    if (section === "consumable") bundled = consumables.map((item) => ({ ...item, source: item.source || "Daggerheart SRD" }));
+    try {
+      const custom = await api(`/content?kind=${section}`);
+      const empty = section === "adversary" ? "No adversary records are bundled yet. Create one now; imported SRD adversaries will appear here when added." : section === "environment" ? "No environment records are bundled yet. Create one now; imported SRD environments will appear here when added." : `No ${gmLabels[section].toLowerCase()} are loaded.`;
+      els.gmReference.innerHTML = referenceCards([...bundled, ...custom], empty);
+    } catch (error) { els.gmReference.innerHTML = `<article class="dh-empty"><h3>Library unavailable.</h3><p>${escapeHtml(error.message)}</p></article>`; }
+  };
+
+  const showGmSection = (section) => {
+    els.gmTabs.forEach((button) => { button.dataset.active = String(button.dataset.dhGmTab === section); });
+    if (section === "campaigns") {
+      els.gmSections.forEach((node) => { node.hidden = node.dataset.dhGmSection !== "campaigns"; });
+      renderCampaigns();
+    } else renderGmReference(section);
   };
 
   const showPortal = () => {
@@ -1462,6 +1520,39 @@
     } catch (error) {
       showToast(error.message);
     }
+  });
+  els.gmTabs.forEach((button) => button.addEventListener("click", () => showGmSection(button.dataset.dhGmTab)));
+  els.newContent.addEventListener("click", () => {
+    const kind = els.newContent.dataset.kind;
+    els.contentForm.reset();
+    els.contentForm.elements.kind.value = kind;
+    els.contentForm.elements.source.value = "Custom";
+    els.contentTitle.textContent = `Create ${gmLabels[kind]?.replace(/s$/, "") || "Content"}`;
+    els.contentFields.innerHTML = (contentFields[kind] || []).map(([name, label]) => `<label>${label}<input name="${name}" /></label>`).join("");
+    els.contentDialog.showModal();
+  });
+  els.contentClose.addEventListener("click", () => els.contentDialog.close());
+  els.contentForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = new FormData(els.contentForm);
+    const kind = form.get("kind");
+    const data = { description: form.get("description") };
+    (contentFields[kind] || []).forEach(([name]) => { if (form.get(name)) data[name] = form.get(name); });
+    try {
+      await api("/content", { method: "POST", body: JSON.stringify({ kind, name: form.get("name"), source: form.get("source") || "Custom", data }) });
+      els.contentDialog.close();
+      await renderGmReference(kind);
+      showToast("Saved to the GM library.");
+    } catch (error) { showToast(error.message); }
+  });
+  els.gmReference.addEventListener("click", async (event) => {
+    const button = event.target.closest("[data-dh-delete-content]");
+    if (!button) return;
+    try {
+      await api(`/content/${button.dataset.dhDeleteContent}`, { method: "DELETE" });
+      await renderGmReference(els.newContent.dataset.kind);
+      showToast("Custom record archived.");
+    } catch (error) { showToast(error.message); }
   });
   els.tabButtons.forEach((button) => button.addEventListener("click", () => {
     if (button.dataset.dhTab === "builder") {

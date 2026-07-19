@@ -82,6 +82,22 @@ class DaggerheartApiTests(unittest.TestCase):
         self.assertEqual(1, len(self.client.get("/api/characters", headers=self.player_headers).json()))
         self.assertEqual(1, len(self.client.get("/api/characters", headers=self.gm_headers).json()))
 
+    def test_gm_content_library_is_private_and_editable(self) -> None:
+        created = self.client.post("/api/content", headers=self.gm_headers, json={
+            "kind": "adversary", "name": "Clockwork Guard", "source": "Custom",
+            "data": {"tier": 1, "evasion": 10, "description": "A tireless sentinel."},
+        })
+        self.assertEqual(201, created.status_code)
+        self.assertEqual(403, self.client.get("/api/content", headers=self.player_headers).status_code)
+        records = self.client.get("/api/content?kind=adversary", headers=self.gm_headers).json()
+        self.assertEqual("Clockwork Guard", records[0]["name"])
+        updated = self.client.put(f"/api/content/{created.json()['id']}", headers=self.gm_headers, json={
+            "kind": "adversary", "name": "Clockwork Captain", "source": "Custom", "data": {"tier": 2},
+        })
+        self.assertEqual("Clockwork Captain", updated.json()["name"])
+        self.assertEqual(200, self.client.delete(f"/api/content/{created.json()['id']}", headers=self.gm_headers).status_code)
+        self.assertEqual([], self.client.get("/api/content", headers=self.gm_headers).json())
+
 
 if __name__ == "__main__":
     unittest.main()

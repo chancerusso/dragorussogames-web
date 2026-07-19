@@ -54,3 +54,10 @@ class PlayerTokenWrite(BaseModel):
     character_id: int
     x: int = Field(ge=1)
     y: int = Field(ge=1)
+
+
+class ContentWrite(BaseModel):
+    kind: Literal["equipment", "consumable", "adversary", "environment"]
+    name: str = Field(min_length=1, max_length=180)
+    source: str = Field(default="Custom", max_length=180)
+    data: dict[str, Any] = Field(default_factory=dict)

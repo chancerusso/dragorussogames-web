@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hmac
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import delete, select
@@ -9,8 +10,8 @@ from sqlalchemy.orm import Session
 from app.auth import create_token, hash_password, require_gm, require_user, verify_password
 from app.config import settings
 from app.db import get_db
-from app.models import Campaign, CampaignCharacter, CampaignMember, Character, TableSnapshot, TableState, User
-from app.schemas import BootstrapGMRequest, CampaignWrite, CharacterAssignment, CharacterWrite, LoginRequest, MemberWrite, PlayerTokenWrite, RegisterRequest, TableStateWrite
+from app.models import Campaign, CampaignCharacter, CampaignMember, Character, ContentRecord, TableSnapshot, TableState, User
+from app.schemas import BootstrapGMRequest, CampaignWrite, CharacterAssignment, CharacterWrite, ContentWrite, LoginRequest, MemberWrite, PlayerTokenWrite, RegisterRequest, TableStateWrite
 
 router = APIRouter(prefix="/api")
 
@@ -25,6 +26,10 @@ def character_payload(character: Character) -> dict:
         "level": character.level, "mechanics": character.mechanics, "display_names": character.display_names,
         "sheet": character.sheet, "archived": character.archived, "updated_at": character.updated_at,
     }
+
+
+def content_payload(record: ContentRecord) -> dict:
+    return {"id": record.id, "kind": record.kind, "name": record.name, "source": record.source, "data": record.data, "archived": record.archived, "updated_at": record.updated_at}
 
 
 def current_user(db: Session, claims: dict) -> User:
@@ -112,6 +117,37 @@ def list_characters(include_archived: bool = False, claims: dict = Depends(requi
     if claims.get("role") != "gm": query = query.where(Character.owner_id == int(claims["sub"]))
     if not include_archived: query = query.where(Character.archived.is_(False))
     return [character_payload(item) for item in db.scalars(query.order_by(Character.name)).all()]
+
+
+@router.get("/content")
+def list_content(kind: Optional[str] = None, claims: dict = Depends(require_gm), db: Session = Depends(get_db)) -> list[dict]:
+    query = select(ContentRecord).where(ContentRecord.archived.is_(False))
+    if kind: query = query.where(ContentRecord.kind == kind)
+    return [content_payload(item) for item in db.scalars(query.order_by(ContentRecord.kind, ContentRecord.name)).all()]
+
+
+@router.post("/content", status_code=201)
+def create_content(data: ContentWrite, claims: dict = Depends(require_gm), db: Session = Depends(get_db)) -> dict:
+    record = ContentRecord(created_by_id=int(claims["sub"]), **data.model_dump())
+    db.add(record); db.commit(); db.refresh(record)
+    return content_payload(record)
+
+
+@router.put("/content/{record_id}")
+def update_content(record_id: int, data: ContentWrite, claims: dict = Depends(require_gm), db: Session = Depends(get_db)) -> dict:
+    record = db.get(ContentRecord, record_id)
+    if record is None or record.archived: raise HTTPException(status_code=404, detail="Content record not found.")
+    for key, value in data.model_dump().items(): setattr(record, key, value)
+    db.commit(); db.refresh(record)
+    return content_payload(record)
+
+
+@router.delete("/content/{record_id}")
+def archive_content(record_id: int, claims: dict = Depends(require_gm), db: Session = Depends(get_db)) -> dict:
+    record = db.get(ContentRecord, record_id)
+    if record is None: raise HTTPException(status_code=404, detail="Content record not found.")
+    record.archived = True; db.commit()
+    return {"ok": True}
 
 
 @router.post("/characters", status_code=201)
