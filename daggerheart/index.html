@@ -170,21 +170,17 @@
     <section class="dh-tab-panel" data-dh-panel="table" hidden>
       <div class="dh-section-head">
         <div>
-          <p class="dh-kicker">Table</p>
-          <h2>Waiting for the GM.</h2>
+          <p class="dh-kicker">Player Table</p>
+          <h2 data-dh-player-table-title>Your Campaign</h2>
         </div>
+        <label>Campaign <select data-dh-player-campaign></select></label>
       </div>
-      <article class="dh-seat-card">
-        <div>
-          <p class="dh-kicker">Session Seat</p>
-          <h3>Friday Night Daggerheart</h3>
-          <p>The table becomes ready when the GM starts the session. Choose a character, then grab your seat.</p>
-        </div>
-        <button type="button" data-dh-grab-seat>Grab A Seat</button>
-      </article>
+      <div class="dh-vtt-trackers dh-player-trackers"><div class="dh-fear"><div><small>Fear</small><div class="dh-fear-beads" data-dh-player-fear></div></div></div><div class="dh-countdowns"><div><div data-dh-player-countdowns></div></div></div></div>
       <section class="dh-dice-roller dh-panel" data-dh-dice-roller="player">
         <div class="dh-dice-controls"><div><p class="dh-kicker">Player Dice Roller</p><h3>Make a Roll</h3></div><label>Roll <select data-dh-roll-mode><option value="normal">Normal</option><option value="advantage">Advantage +d6</option><option value="disadvantage">Disadvantage −d6</option></select></label><label>Dice <input data-dh-dice-count type="number" min="1" max="20" value="1" /></label><label>Modifier <span class="dh-mod-stepper"><button type="button" data-dh-mod-step="-1">−</button><input data-dh-dice-mod type="number" min="-99" max="99" value="0" /><button type="button" data-dh-mod-step="1">+</button></span></label><div class="dh-dice-buttons"><button type="button" data-dh-die="4">d4</button><button type="button" data-dh-die="6">d6</button><button type="button" data-dh-die="8">d8</button><button type="button" data-dh-die="10">d10</button><button type="button" data-dh-die="12">d12</button><button type="button" data-dh-die="20">d20</button><button class="dh-duality-button" type="button" data-dh-duality>Duality Dice</button></div></div><div class="dh-roll-result" data-dh-roll-result><span>Ready</span></div><div class="dh-roll-history" data-dh-roll-history></div>
       </section>
+      <section class="dh-panel dh-player-map"><div class="dh-vtt-grid-head"><div><p class="dh-kicker">Live Table</p><h3>Battle Map</h3></div><div class="dh-player-token-tools"><label>Character <select data-dh-player-token-character></select></label><button type="button" data-dh-place-player-token>Place / Move Token</button></div></div><p class="dh-helper" data-dh-player-map-help>Select your character, click Place / Move Token, then choose a square.</p><div class="dh-battle-grid" data-dh-player-grid></div></section>
+      <section class="dh-panel dh-player-sheet" data-dh-player-sheet><p class="dh-helper">Choose an active campaign to load your character sheet.</p></section>
     </section>
   </section>
 

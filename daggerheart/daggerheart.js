@@ -181,6 +181,10 @@
   let pickerKind = "adversary";
   let pickerRecords = [];
   let selectedMapTokenId = "";
+  let playerCampaign = null;
+  let playerTableRecord = null;
+  let playerPlacementMode = false;
+  let playerTableTimer = null;
 
   const els = {
     tabs: document.querySelector("[data-dh-tabs]"),
@@ -249,6 +253,15 @@
     pickerType: document.querySelector("[data-dh-picker-type]"),
     pickerTier: document.querySelector("[data-dh-picker-tier]"),
     pickerResults: document.querySelector("[data-dh-picker-results]"),
+    playerTableTitle: document.querySelector("[data-dh-player-table-title]"),
+    playerCampaign: document.querySelector("[data-dh-player-campaign]"),
+    playerFear: document.querySelector("[data-dh-player-fear]"),
+    playerCountdowns: document.querySelector("[data-dh-player-countdowns]"),
+    playerGrid: document.querySelector("[data-dh-player-grid]"),
+    playerTokenCharacter: document.querySelector("[data-dh-player-token-character]"),
+    placePlayerToken: document.querySelector("[data-dh-place-player-token]"),
+    playerMapHelp: document.querySelector("[data-dh-player-map-help]"),
+    playerSheet: document.querySelector("[data-dh-player-sheet]"),
     panels: Array.from(document.querySelectorAll("[data-dh-panel]")),
     tabButtons: Array.from(document.querySelectorAll("[data-dh-tab]")),
     characterList: document.querySelector("[data-dh-character-list]"),
@@ -503,6 +516,55 @@
     els.battleGrid.style.height = `${Math.floor(cellSize * grid.rows)}px`;
   };
 
+  const mapTokenLabel = (name) => { const match = name.match(/^(.*?)(?: (\d+))?$/); const words = (match?.[1] || name).split(/\s+/).filter(Boolean); const initials = words.map((word) => word[0]).slice(0, 2).join(""); return `<span>${escapeHtml(initials)}</span>${match?.[2] ? `<small>${escapeHtml(match[2])}</small>` : ""}`; };
+
+  const playerCharacterPayload = (record, sheet = record.sheet || {}) => ({
+    name: record.name,
+    pronouns: record.pronouns || sheet.pronouns || "",
+    level: record.level || sheet.level || 1,
+    mechanics: record.mechanics || {},
+    display_names: record.display_names || {},
+    sheet,
+  });
+
+  const renderPlayerSheet = () => {
+    const characterId = Number(els.playerTokenCharacter.value);
+    const record = playerCampaign?.characters?.find((item) => item.id === characterId) || playerCampaign?.characters?.[0];
+    if (!record) { els.playerSheet.innerHTML = `<p class="dh-helper">The GM has not assigned one of your characters to this campaign.</p>`; return; }
+    const sheet = record.sheet || {}; const marks = { hp: 0, stress: 0, armor: 0, hope: 2, ...(sheet.marks || {}) };
+    const totals = { hp: Number(sheet.hp || record.mechanics?.hp || 6), stress: Number(sheet.stress || record.mechanics?.stress || 6), armor: Number(sheet.armorScore || record.mechanics?.armorScore || 0), hope: Number(sheet.hope || 6) };
+    const tracker = (key, label) => `<div class="dh-player-track"><span>${label}</span><button type="button" data-player-mark="${key}:-1">−</button><strong>${marks[key]}/${totals[key]}</strong><button type="button" data-player-mark="${key}:1">+</button></div>`;
+    els.playerSheet.innerHTML = `<details open><summary>${escapeHtml(record.name)} · Character Sheet</summary><div class="dh-player-sheet-head"><div><h3>${escapeHtml(record.name)}</h3><p>Level ${record.level || 1} · ${escapeHtml(record.display_names?.class || record.mechanics?.class || sheet.displayClassName || sheet.className || "Character")}</p></div><strong>Evasion ${sheet.evasion || record.mechanics?.evasion || "—"}</strong></div><div class="dh-player-tracks">${tracker("hp", "HP")}${tracker("stress", "Stress")}${tracker("armor", "Armor")}${tracker("hope", "Hope")}</div><div class="dh-player-sheet-summary"><p><strong>Heritage:</strong> ${escapeHtml(record.display_names?.ancestry || sheet.displayAncestry || sheet.ancestry || "—")} · ${escapeHtml(record.display_names?.community || sheet.displayCommunity || sheet.community || "—")}</p><p><strong>Domains:</strong> ${escapeHtml((sheet.domains || record.mechanics?.domains || []).join(" & ") || "—")}</p><p><strong>Experiences:</strong> ${escapeHtml((sheet.experiences || []).join(", ") || "—")}</p><p><strong>Thresholds:</strong> ${escapeHtml(sheet.thresholds || record.mechanics?.thresholds || "—")}</p></div></details>`;
+  };
+
+  const renderPlayerTable = () => {
+    if (!playerCampaign || !playerTableRecord) return;
+    const state = playerTableRecord.public_state || {}; const grid = state.grid || { columns: 16, rows: 12 }; const tokens = state.tokens || [];
+    els.playerTableTitle.textContent = playerCampaign.name;
+    els.playerFear.innerHTML = Array.from({ length: state.fear || 0 }, () => `<span><img src="./assets/drago-russo-logo.png" alt="Fear" /></span>`).join("") || `<span class="dh-helper">No Fear</span>`;
+    els.playerCountdowns.innerHTML = (state.countdowns || []).map((item) => `<div class="dh-countdown-item"><strong>${escapeHtml(item.name)}</strong><span class="dh-countdown-die"><span>${item.current ?? item.maximum}</span></span></div>`).join("") || `<span class="dh-helper">No active countdowns</span>`;
+    const selectedCharacterId = Number(els.playerTokenCharacter.value || playerCampaign.characters?.[0]?.id);
+    els.playerTokenCharacter.innerHTML = (playerCampaign.characters || []).map((character) => `<option value="${character.id}" ${character.id === selectedCharacterId ? "selected" : ""}>${escapeHtml(character.name)}</option>`).join("") || `<option value="">No assigned character</option>`;
+    els.placePlayerToken.disabled = !(playerCampaign.characters || []).length;
+    els.playerGrid.style.setProperty("--grid-columns", grid.columns);
+    const availableWidth = Math.max(240, (els.playerGrid.parentElement?.clientWidth || 900) - 32); const cellSize = Math.max(12, Math.min(52, availableWidth / grid.columns, 900 / grid.rows));
+    els.playerGrid.style.width = `${Math.floor(cellSize * grid.columns)}px`; els.playerGrid.style.height = `${Math.floor(cellSize * grid.rows)}px`;
+    els.playerGrid.innerHTML = Array.from({ length: grid.columns * grid.rows }, (_, index) => { const x = index % grid.columns + 1; const y = Math.floor(index / grid.columns) + 1; const cellTokens = tokens.filter((token) => token.x === x && token.y === y); return `<span class="dh-grid-cell" data-player-grid-x="${x}" data-player-grid-y="${y}">${cellTokens.map((token) => `<span class="dh-map-token ${token.kind === "character" ? "dh-token-character" : `dh-token-${token.health || "healthy"}`}" title="${escapeHtml(token.name)}">${mapTokenLabel(token.name)}</span>`).join("")}</span>`; }).join("");
+    renderPlayerSheet();
+  };
+
+  const loadPlayerTable = async (campaignId = null) => {
+    try {
+      const campaigns = await api("/campaigns");
+      if (!campaigns.length) { els.playerCampaign.innerHTML = `<option>No active campaigns</option>`; els.playerTableTitle.textContent = "Waiting for a Campaign"; els.playerGrid.innerHTML = ""; return; }
+      const selectedId = Number(campaignId || els.playerCampaign.value || campaigns[0].id);
+      els.playerCampaign.innerHTML = campaigns.map((campaign) => `<option value="${campaign.id}" ${campaign.id === selectedId ? "selected" : ""}>${escapeHtml(campaign.name)}</option>`).join("");
+      [playerCampaign, playerTableRecord] = await Promise.all([api(`/campaigns/${selectedId}`), api(`/campaigns/${selectedId}/table-state`)]);
+      renderPlayerTable();
+      window.clearTimeout(playerTableTimer); playerTableTimer = window.setTimeout(() => loadPlayerTable(selectedId), 3000);
+    } catch (error) { els.playerTableTitle.textContent = "Table unavailable"; showToast(error.message); }
+  };
+
   const renderVtt = () => {
     const publicState = tableRecord.public_state;
     const gmState = tableRecord.gm_state;
@@ -517,9 +579,8 @@
     els.battleGrid.style.setProperty("--grid-columns", grid.columns);
     els.battleGrid.style.aspectRatio = `${grid.columns} / ${grid.rows}`;
     sizeBattleGrid(grid);
-    const tokenHealth = (token) => { if (token.kind !== "adversary") return "dh-token-character"; const adversary = (gmState.adversaries || []).find((item) => item.instanceId === token.adversaryId); if (!adversary?.hp) return "dh-token-healthy"; const remaining = Math.max(0, adversary.hp - (adversary.hpMarked || 0)); const ratio = remaining / adversary.hp; return ratio > .5 ? "dh-token-healthy" : ratio > .25 ? "dh-token-hurt" : "dh-token-critical"; };
-    const tokenLabel = (token) => { const match = token.name.match(/^(.*?)(?: (\d+))?$/); const words = (match?.[1] || token.name).split(/\s+/).filter(Boolean); const initials = words.map((word) => word[0]).slice(0, 2).join(""); return `<span>${escapeHtml(initials)}</span>${match?.[2] ? `<small>${escapeHtml(match[2])}</small>` : ""}`; };
-    els.battleGrid.innerHTML = Array.from({ length: grid.columns * grid.rows }, (_, index) => { const x = index % grid.columns + 1; const y = Math.floor(index / grid.columns) + 1; const cellTokens = tokens.filter((token) => token.x === x && token.y === y); return `<span class="dh-grid-cell" data-grid-x="${x}" data-grid-y="${y}">${cellTokens.map((token) => `<button class="dh-map-token ${tokenHealth(token)}" type="button" draggable="true" data-map-token="${escapeHtml(token.id)}" data-selected="${token.id === selectedMapTokenId}" title="${escapeHtml(token.name)}">${tokenLabel(token)}</button>`).join("")}</span>`; }).join("");
+    const tokenHealth = (token) => { if (token.kind !== "adversary") return "dh-token-character"; const adversary = (gmState.adversaries || []).find((item) => item.instanceId === token.adversaryId); if (!adversary?.hp) { token.health = "healthy"; return "dh-token-healthy"; } const remaining = Math.max(0, adversary.hp - (adversary.hpMarked || 0)); const ratio = remaining / adversary.hp; token.health = ratio > .5 ? "healthy" : ratio > .25 ? "hurt" : "critical"; return `dh-token-${token.health}`; };
+    els.battleGrid.innerHTML = Array.from({ length: grid.columns * grid.rows }, (_, index) => { const x = index % grid.columns + 1; const y = Math.floor(index / grid.columns) + 1; const cellTokens = tokens.filter((token) => token.x === x && token.y === y); return `<span class="dh-grid-cell" data-grid-x="${x}" data-grid-y="${y}">${cellTokens.map((token) => `<button class="dh-map-token ${tokenHealth(token)}" type="button" draggable="true" data-map-token="${escapeHtml(token.id)}" data-selected="${token.id === selectedMapTokenId}" title="${escapeHtml(token.name)}">${mapTokenLabel(token.name)}</button>`).join("")}</span>`; }).join("");
     els.vttAdversaries.innerHTML = (gmState.adversaries || []).map((item, index) => { if (!item.instanceId) item.instanceId = crypto.randomUUID ? crypto.randomUUID() : `adv-${Date.now()}-${index}`; const onMap = tokens.some((token) => token.adversaryId === item.instanceId); return `<article class="dh-vtt-card"><div class="dh-vtt-card-head"><div><strong>${escapeHtml(item.name)}</strong><small>Tier ${item.tier || 1} ${escapeHtml(item.type || "Adversary")}</small></div><div class="dh-vtt-card-actions"><button type="button" data-toggle-adversary-map="${index}">${onMap ? "Off Map" : "Add"}</button><button type="button" data-remove-adversary="${index}">×</button></div></div><p>Difficulty ${item.difficulty || "—"} · Thresholds ${escapeHtml(item.thresholds || "—")}</p><div class="dh-vtt-marks"><span>HP <button data-adversary-mark="hp:-1" data-index="${index}">−</button> <strong>${item.hpMarked || 0}/${item.hp || 0}</strong> <button data-adversary-mark="hp:1" data-index="${index}">+</button></span><span>Stress <button data-adversary-mark="stress:-1" data-index="${index}">−</button> <strong>${item.stressMarked || 0}/${item.stress || 0}</strong> <button data-adversary-mark="stress:1" data-index="${index}">+</button></span></div><details><summary>Stat Block</summary><p><strong>Attack:</strong> ${escapeHtml([item.attackModifier, item.attackName, item.range, item.damage].filter(Boolean).join(" · "))}</p><p>${escapeHtml(item.motives || "")}</p>${(item.features || []).map((feature) => `<p><strong>${escapeHtml(feature.name)}:</strong> ${escapeHtml(feature.text)}</p>`).join("")}</details></article>`; }).join("") || `<p class="dh-helper">No adversaries in this encounter.</p>`;
     els.environmentList.innerHTML = (publicState.environments || []).map((item, index) => `<article class="dh-vtt-card dh-environment-card"><div class="dh-vtt-card-head"><div><strong>${escapeHtml(item.name)}</strong><small>Tier ${item.tier || 1} ${escapeHtml(item.type || "Environment")}</small></div><button type="button" data-remove-environment="${index}">×</button></div><p>${escapeHtml(item.description || "")}</p><details><summary>Environment Features</summary><p><strong>Difficulty:</strong> ${item.difficulty || "—"}</p><p><strong>Impulses:</strong> ${escapeHtml(item.impulses || "")}</p>${(item.features || []).map((feature) => `<p><strong>${escapeHtml(feature.name)}:</strong> ${escapeHtml(feature.text)}</p>`).join("")}</details></article>`).join("") || `<p class="dh-helper">No environment loaded.</p>`;
   };
@@ -580,11 +641,13 @@
   };
 
   const showPanel = (name) => {
+    if (name !== "table") { window.clearTimeout(playerTableTimer); playerTableTimer = null; }
     els.panels.forEach((panel) => { panel.hidden = panel.dataset.dhPanel !== name; });
     els.tabButtons.forEach((button) => { button.dataset.active = String(button.dataset.dhTab === name); });
     if (name === "characters") renderCharacters();
     if (name === "builder") renderBuilder();
     if (name === "rules") renderRules();
+    if (name === "table") loadPlayerTable();
   };
 
   const wizardFrame = (body) => `
@@ -1161,7 +1224,7 @@
     });
   };
 
-  const saveCurrentCharacter = () => {
+  const saveCurrentCharacter = async () => {
     const character = normalizeCharacter(builderDraft || newDraft());
     const records = characters();
     const index = records.findIndex((entry) => entry.id === character.id);
@@ -1172,7 +1235,13 @@
     builderDraft = character;
     builderMode = "sheet";
     showPanel("builder");
-    showToast("Character saved.");
+    try {
+      const payload = { name: character.name, pronouns: character.pronouns || "", level: character.level, mechanics: { class: character.className, subclass: character.subclass, ancestry: character.ancestry, community: character.community, domains: character.domains, hp: character.hp, stress: character.stress, evasion: character.evasion, armorScore: character.armorScore }, display_names: { class: character.displayClassName || character.className, subclass: character.displaySubclass || character.subclass, ancestry: character.displayAncestry || character.ancestry, community: character.displayCommunity || character.community }, sheet: character };
+      const saved = await api(character.backendId ? `/characters/${character.backendId}` : "/characters", { method: character.backendId ? "PUT" : "POST", body: JSON.stringify(payload) });
+      character.backendId = saved.id; builderDraft.backendId = saved.id;
+      const syncedRecords = characters(); const syncedIndex = syncedRecords.findIndex((entry) => entry.id === character.id); if (syncedIndex >= 0) { syncedRecords[syncedIndex].backendId = saved.id; saveCharacters(syncedRecords); }
+      showToast("Character saved to the player portal.");
+    } catch (error) { showToast(`Saved on this device. Portal sync failed: ${error.message}`); }
   };
 
   const renderCharacters = () => {
@@ -1808,6 +1877,26 @@
   els.battleGrid.addEventListener("dragover", (event) => { if (event.target.closest("[data-grid-x]")) event.preventDefault(); });
   els.battleGrid.addEventListener("drop", (event) => { const cell = event.target.closest("[data-grid-x]"); if (!cell) return; event.preventDefault(); const token = (tableRecord.public_state.tokens || []).find((item) => item.id === event.dataTransfer.getData("text/plain")); if (!token) return; token.x = Number(cell.dataset.gridX); token.y = Number(cell.dataset.gridY); renderVtt(); saveTable(); });
   window.addEventListener("resize", () => { if (tableRecord && !els.vtt.hidden) sizeBattleGrid(tableRecord.public_state.grid || { columns: 16, rows: 12 }); });
+  els.playerCampaign.addEventListener("change", () => loadPlayerTable(Number(els.playerCampaign.value)));
+  els.playerTokenCharacter.addEventListener("change", renderPlayerSheet);
+  els.placePlayerToken.addEventListener("click", () => { playerPlacementMode = true; els.playerMapHelp.textContent = "Choose a square for your character token."; });
+  els.playerGrid.addEventListener("click", async (event) => {
+    const cell = event.target.closest("[data-player-grid-x]"); const characterId = Number(els.playerTokenCharacter.value);
+    if (!cell || !characterId || !playerPlacementMode) return;
+    try {
+      playerTableRecord = await api(`/campaigns/${playerCampaign.id}/player-token`, { method: "PUT", body: JSON.stringify({ expected_revision: playerTableRecord.revision, character_id: characterId, x: Number(cell.dataset.playerGridX), y: Number(cell.dataset.playerGridY) }) });
+      playerPlacementMode = false; els.playerMapHelp.textContent = "Select your character, click Place / Move Token, then choose a square."; renderPlayerTable();
+    } catch (error) { showToast(error.message); await loadPlayerTable(playerCampaign.id); }
+  });
+  els.playerSheet.addEventListener("click", async (event) => {
+    const button = event.target.closest("[data-player-mark]"); if (!button) return;
+    const characterId = Number(els.playerTokenCharacter.value); const record = playerCampaign?.characters?.find((item) => item.id === characterId); if (!record) return;
+    const [track, amount] = button.dataset.playerMark.split(":"); const sheet = { ...(record.sheet || {}), marks: { hp: 0, stress: 0, armor: 0, hope: 2, ...(record.sheet?.marks || {}) } };
+    const maximum = Number(track === "armor" ? sheet.armorScore || record.mechanics?.armorScore || 0 : sheet[track] || record.mechanics?.[track] || (track === "hope" ? 6 : 6));
+    sheet.marks[track] = Math.max(0, Math.min(maximum, sheet.marks[track] + Number(amount)));
+    record.sheet = sheet; renderPlayerSheet();
+    try { const saved = await api(`/characters/${record.id}`, { method: "PUT", body: JSON.stringify(playerCharacterPayload(record, sheet)) }); Object.assign(record, saved); } catch (error) { showToast(error.message); }
+  });
   els.tabButtons.forEach((button) => button.addEventListener("click", () => {
     if (button.dataset.dhTab === "builder") {
       builderMode = "build";
