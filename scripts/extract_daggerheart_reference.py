@@ -29,10 +29,6 @@ def clean_text(value):
         .replace("oﬀer", "offer")
         .replace("aﬀect", "affect")
         .replace("eﬀect", "effect")
-        .replace("Diffi culty", "Difficulty")
-        .replace("profi t", "profit")
-        .replace("fi ght", "fight")
-        .replace("off er", "offer")
         .strip()
     )
 
@@ -156,59 +152,6 @@ def parse_consumables(pdf):
     return [item for item in parse_numbered_items(lines, "Consumable") if item["roll"].isdigit()]
 
 
-def tier_number(symbol):
-    if symbol and 0xE541 <= ord(symbol[0]) <= 0xE544:
-        return ord(symbol[0]) - 0xE540
-    match = re.search(r"[1-4]", symbol)
-    return int(match.group()) if match else 1
-
-
-def parse_features(lines):
-    starts = [(index, re.match(r"^(.+?) - (Passive|Action|Reaction):\s*(.*)$", line)) for index, line in enumerate(lines)]
-    starts = [(index, match) for index, match in starts if match]
-    features = []
-    for position, (index, match) in enumerate(starts):
-        end = starts[position + 1][0] if position + 1 < len(starts) else len(lines)
-        body = clean_text(" ".join([match.group(3), *lines[index + 1:end]]))
-        features.append({"name": clean_text(match.group(1)), "type": match.group(2), "text": body})
-    return features
-
-
-def parse_stat_blocks(pdf, start_page, end_page, kind):
-    records = []
-    for page_no in range(start_page, end_page + 1):
-        for column in page_column_lines(pdf.pages[page_no - 1]):
-            lines = [clean_text(text) for _, text in column if text and "Daggerheart SRD" not in text]
-            starts = [index for index in range(len(lines) - 1) if re.fullmatch(r"[A-Z0-9][A-Z0-9’'&:, -]+", lines[index]) and lines[index + 1].startswith("Tier ")]
-            for position, start in enumerate(starts):
-                end = starts[position + 1] if position + 1 < len(starts) else len(lines)
-                block = lines[start:end]
-                tier_match = re.match(r"Tier (\S+) (.+)", block[1])
-                if not tier_match:
-                    continue
-                joined = clean_text(" ".join(block[2:]))
-                feature_index = block.index("FEATURES") if "FEATURES" in block else len(block)
-                feature_lines = block[feature_index + 1:]
-                features_text = joined.split("FEATURES", 1)[1].strip() if "FEATURES" in joined else ""
-                intro = joined.split("FEATURES", 1)[0].strip()
-                marker = "Motives & Tactics:" if kind == "adversary" else "Impulses:"
-                description = intro.split(marker, 1)[0].strip()
-                impulses = first_match(r"Impulses: (.+?)(?: Difficulty:| Potential Adversaries:|$)", intro)
-                record = {
-                    "name": smart_name(block[0]), "tier": tier_number(tier_match.group(1)), "type": clean_text(tier_match.group(2)),
-                    "description": description, "features": parse_features(feature_lines), "featuresText": features_text,
-                    "source": f"Daggerheart SRD 1.0 page {page_no}",
-                }
-                if kind == "adversary":
-                    stat = re.search(r"Difficulty: (\d+) \| Thresholds: ([^|]+) \| HP: (\d+) \| Stress: (\d+)", intro)
-                    attack = re.search(r"ATK: ([^|]+) \| ([^:]+): ([^|]+) \| ([^ ]+) (\w+)", intro)
-                    record.update({"motives": first_match(r"Motives & Tactics: (.+?)(?: Difficulty:|$)", intro), "difficulty": int(stat.group(1)) if stat else None, "thresholds": clean_text(stat.group(2)) if stat else "", "hp": int(stat.group(3)) if stat else None, "stress": int(stat.group(4)) if stat else None, "attackModifier": clean_text(attack.group(1)) if attack else "", "attackName": clean_text(attack.group(2)) if attack else "", "range": clean_text(attack.group(3)) if attack else "", "damage": clean_text(f"{attack.group(4)} {attack.group(5)}") if attack else "", "experience": first_match(r"Experience: (.+?)(?: FEATURES|$)", intro)})
-                else:
-                    record.update({"impulses": impulses, "difficulty": int(first_match(r"Difficulty: (\d+)", intro) or 0), "potentialAdversaries": first_match(r"Potential Adversaries: (.+)$", intro)})
-                records.append(record)
-    return records
-
-
 def existing_data():
     text = OUT.read_text()
     payload = text.split("=", 1)[1].strip()
@@ -307,8 +250,6 @@ def write_data(data):
     data["communitiesFull"] = parse_communities_cache
     data["lootItems"] = parse_loot_cache
     data["consumables"] = parse_consumables_cache
-    data["adversaries"] = parse_adversaries_cache
-    data["environments"] = parse_environments_cache
     OUT.write_text("// Generated from local Daggerheart SRD reference PDF for the Drago Russo Games player portal.\nwindow.DAGGERHEART_DATA = " + json.dumps(data, indent=2, ensure_ascii=False) + ";\n")
 
 
@@ -324,7 +265,5 @@ if __name__ == "__main__":
         parse_communities_cache = extract_named_sections(community_lines, COMMUNITIES)
         parse_loot_cache = parse_loot(pdf)
         parse_consumables_cache = parse_consumables(pdf)
-        parse_adversaries_cache = parse_stat_blocks(pdf, 38, 51, "adversary")
-        parse_environments_cache = parse_stat_blocks(pdf, 53, 56, "environment")
     write_data(data)
-    print(f"cards={len(parse_cards_cache)} classes={len(parse_classes_cache)} ancestries={len(parse_ancestries_cache)} communities={len(parse_communities_cache)} loot={len(parse_loot_cache)} consumables={len(parse_consumables_cache)} adversaries={len(parse_adversaries_cache)} environments={len(parse_environments_cache)}")
+    print(f"cards={len(parse_cards_cache)} classes={len(parse_classes_cache)} ancestries={len(parse_ancestries_cache)} communities={len(parse_communities_cache)} loot={len(parse_loot_cache)} consumables={len(parse_consumables_cache)}")

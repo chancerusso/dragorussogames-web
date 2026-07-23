@@ -55,6 +55,7 @@ const BUNDLED_DRAGONLANCE_RACE_FILES = {
 const BUNDLED_DRAGONLANCE_RACES = dragonlanceRaceManifest.map((file) => BUNDLED_DRAGONLANCE_RACE_FILES[file]).filter(Boolean);
 const PLAYER_TABS = [
   ["overview", "Overview"],
+  ["table", "Table"],
   ["maps", "Maps"],
   ["character", "My Character"],
   ["players", "Party"],
@@ -176,6 +177,7 @@ function ClassicRoot() {
 }
 
 function AppSidebar({ mode, title, subtitle, brandTo, navItems, account, onSignOut }) {
+  const location = useLocation();
   return (
     <aside className={`sidebar ${mode === "player" ? "player-sidebar" : ""}`}>
       <Link className="brand" to={brandTo}>
@@ -194,9 +196,16 @@ function AppSidebar({ mode, title, subtitle, brandTo, navItems, account, onSignO
       <nav>
         {navItems.map((item) => (
           item.href ? (
-            <a key={item.label} href={item.href}>{item.label}</a>
+            <a key={item.label} href={item.href} target={item.target} rel={item.target ? "noreferrer" : undefined}>{item.label}</a>
           ) : (
-            <NavLink key={item.label} end={item.end} to={item.to}>{item.label}</NavLink>
+            <NavLink
+              key={item.label}
+              end={item.end}
+              to={item.to}
+              className={({ isActive }) => (isActive || (item.match && item.match(location.pathname)) ? "active" : "")}
+            >
+              {item.label}
+            </NavLink>
           )
         ))}
       </nav>
@@ -822,16 +831,111 @@ function DragoTableIndexPage() {
 
 function DragoTablePage() {
   const { id } = useParams();
-  const { data: campaign, error, loading } = useLoad(() => api(`/1e/campaigns/${id}`), [id]);
-  const [mode, setMode] = useState("mapping");
-  const [tokenPositions, setTokenPositions] = useState({});
+  const { data: campaign, error, loading, reload: reloadCampaign } = useLoad(() => api(`/1e/campaigns/${id}`), [id]);
+  const { data: monsterCatalog, error: monsterError, loading: monsterLoading } = useLoad(() => api("/1e/monsters?include_source_text=true"), []);
+  const savedTable = useMemo(() => loadDragoTableState(id), [id]);
+  const [mode, setMode] = useState(savedTable.mode);
+  const [monsterSource, setMonsterSource] = useState("OSRIC Core Rules");
+  const [monsterQuery, setMonsterQuery] = useState("");
+  const [selectedMonsterId, setSelectedMonsterId] = useState(null);
+  const [encounterMonsters, setEncounterMonsters] = useState(savedTable.encounterMonsters);
+  const [expandedMonsterTypes, setExpandedMonsterTypes] = useState(savedTable.expandedMonsterTypes);
+  const [pendingGridMonsterId, setPendingGridMonsterId] = useState(savedTable.pendingGridMonsterId);
+  const [trackerMode, setTrackerMode] = useState(isDragonlanceCampaign(campaign) ? "dragonlance" : "greyhawk");
+  const [tracker, setTracker] = useState(() => createTrackerState(isDragonlanceCampaign(campaign) ? "dragonlance" : "greyhawk"));
+  const [combatGrid, setCombatGrid] = useState(savedTable.combatGrid);
+  const [combatTracker, setCombatTracker] = useState(savedTable.combatTracker);
+  const [hpEditor, setHpEditor] = useState(null);
+  const [treasureXp, setTreasureXp] = useState(savedTable.treasureXp);
+  const [bonusXp, setBonusXp] = useState(savedTable.bonusXp);
+  const [rewardBusy, setRewardBusy] = useState(false);
+  const [rewardMessage, setRewardMessage] = useState("");
+  const [tokenPositions, setTokenPositions] = useState(savedTable.tokenPositions);
+  const [playerColors, setPlayerColors] = useState(savedTable.playerColors);
+  const [isSessionLive, setIsSessionLive] = useState(savedTable.isSessionLive);
   const [draggedToken, setDraggedToken] = useState(null);
-  const basePlayerTokens = useMemo(() => buildPlayerTokens(campaign?.characters || []), [campaign]);
-  const monsterCards = DRAGO_SAMPLE_MONSTERS;
+  const tableHydrated = useRef(false);
+  const basePlayerTokens = useMemo(() => buildPlayerTokens(campaign?.characters || [], playerColors), [campaign, playerColors]);
+  const monsters = monsterCatalog || [];
+  const monsterSources = useMemo(() => uniqueMonsterSources(monsters), [monsters]);
+  const sourceMonsters = useMemo(
+    () => monsters.filter((monster) => (monster.source || "Unknown") === monsterSource),
+    [monsters, monsterSource],
+  );
+  const filteredMonsters = useMemo(() => filterMonsterCatalog(sourceMonsters, monsterQuery).slice(0, 12), [sourceMonsters, monsterQuery]);
+  const selectedMonster = useMemo(
+    () => monsters.find((monster) => monster.id === selectedMonsterId) || null,
+    [filteredMonsters, monsters, selectedMonsterId],
+  );
+  const encounterGroups = useMemo(() => groupEncounterMonsters(encounterMonsters), [encounterMonsters]);
+  const pendingMonster = useMemo(
+    () => encounterMonsters.find((monster) => monster.id === pendingGridMonsterId) || null,
+    [encounterMonsters, pendingGridMonsterId],
+  );
   const { data: campaignMaps, reload: reloadMaps } = useLoad(() => api(`/1e/campaigns/${id}/maps`), [id]);
-  const activeGrid = mode === "combat" ? DRAGO_COMBAT_GRID : DRAGO_HEX_GRID;
+  const activeGrid = mode === "combat" ? combatGrid : DRAGO_OUTDOORS_GRID;
   const playerTokens = useMemo(() => applyTokenPositions(basePlayerTokens, tokenPositions), [basePlayerTokens, tokenPositions]);
-  const monsterTokens = useMemo(() => applyTokenPositions(DRAGO_MONSTER_TOKENS, tokenPositions), [tokenPositions]);
+  const monsterTokens = useMemo(
+    () => applyTokenPositions(buildMonsterTokens(encounterMonsters), tokenPositions),
+    [encounterMonsters, tokenPositions],
+  );
+
+  useEffect(() => {
+    if (!campaign) return;
+    const nextMode = isDragonlanceCampaign(campaign) ? "dragonlance" : "greyhawk";
+    setTrackerMode(nextMode);
+    setTracker(createTrackerState(nextMode));
+  }, [campaign?.id]);
+
+  useEffect(() => {
+    if (!campaign || tableHydrated.current) return;
+    const shared = normalizeDragoTableState(campaign.table_state);
+    if (shared) {
+      setMode(shared.mode);
+      setEncounterMonsters(shared.encounterMonsters);
+      setExpandedMonsterTypes(shared.expandedMonsterTypes);
+      setPendingGridMonsterId(shared.pendingGridMonsterId);
+      setCombatGrid(shared.combatGrid);
+      setCombatTracker(shared.combatTracker);
+      setTrackerMode(shared.trackerMode);
+      setTracker(shared.tracker);
+      setTreasureXp(shared.treasureXp);
+      setBonusXp(shared.bonusXp);
+      setTokenPositions(shared.tokenPositions);
+      setPlayerColors(shared.playerColors);
+      setIsSessionLive(shared.isSessionLive);
+    }
+    tableHydrated.current = true;
+  }, [campaign]);
+
+  useEffect(() => {
+    if (!monsterSources.length || monsterSources.includes(monsterSource)) return;
+    setMonsterSource(monsterSources[0]);
+  }, [monsterSource, monsterSources]);
+
+  useEffect(() => {
+    const nextState = {
+      combatGrid,
+      combatTracker,
+      encounterMonsters,
+      expandedMonsterTypes,
+      mode,
+      pendingGridMonsterId,
+      bonusXp,
+      playerColors,
+      isSessionLive,
+      tracker,
+      trackerMode,
+      treasureXp,
+      tokenPositions,
+    };
+    saveDragoTableState(id, nextState);
+    if (!tableHydrated.current) return;
+    const timer = window.setTimeout(() => {
+      api(`/1e/campaigns/${id}/table-state`, { method: "PUT", body: JSON.stringify(nextState) }).catch(() => {});
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [bonusXp, combatGrid, combatTracker, encounterMonsters, expandedMonsterTypes, id, isSessionLive, mode, pendingGridMonsterId, playerColors, tokenPositions, tracker, trackerMode, treasureXp]);
 
   useEffect(() => {
     if (campaign?.table_mode) setMode(campaign.table_mode);
@@ -847,20 +951,142 @@ function DragoTablePage() {
     const rect = grid.getBoundingClientRect();
     const cellWidth = rect.width / activeGrid.columns;
     const cellHeight = rect.height / activeGrid.rows;
+    const footprint = token.footprint || { columns: 1, rows: 1 };
     const relativeX = Math.max(0, Math.min(rect.width - 1, event.clientX - rect.left));
     const relativeY = Math.max(0, Math.min(rect.height - 1, event.clientY - rect.top));
-    const x = Math.max(1, Math.min(activeGrid.columns, Math.floor(relativeX / cellWidth) + 1));
-    const y = Math.max(1, Math.min(activeGrid.rows, Math.floor(relativeY / cellHeight) + 1));
-    const slotX = (relativeX % cellWidth) >= cellWidth / 2 ? 1 : 0;
-    const slotY = (relativeY % cellHeight) >= cellHeight / 2 ? 1 : 0;
+    const x = Math.max(1, Math.min(activeGrid.columns - footprint.columns + 1, Math.floor(relativeX / cellWidth) + 1));
+    const y = Math.max(1, Math.min(activeGrid.rows - footprint.rows + 1, Math.floor(relativeY / cellHeight) + 1));
+    const slotX = token.monster ? 0 : (relativeX % cellWidth) >= cellWidth / 2 ? 1 : 0;
+    const slotY = token.monster ? 0 : (relativeY % cellHeight) >= cellHeight / 2 ? 1 : 0;
     setTokenPositions((positions) => ({ ...positions, [token.id]: { x, y, slotX, slotY } }));
+  }
+
+  function addMonsterToEncounter(monster = selectedMonster) {
+    if (!monster) return;
+    setEncounterMonsters((current) => {
+      const sameTypeCount = current.filter((entry) => entry.monster_id === monster.id).length;
+      const maxHp = rollHitPoints(monster.hit_dice);
+      const footprint = monsterFootprint(monster);
+      const next = {
+        id: `enc-${monster.id}-${Date.now()}-${sameTypeCount + 1}`,
+        monster_id: monster.id,
+        number: sameTypeCount + 1,
+        label: sameTypeCount === 0 ? monster.name : `${monster.name} ${sameTypeCount + 1}`,
+        name: monster.name,
+        current_hp: maxHp,
+        max_hp: maxHp,
+        dead: false,
+        on_grid: false,
+        footprint_key: footprint.key,
+        token_label: monsterTokenLabel(monster.name, sameTypeCount + 1),
+        monster,
+      };
+      return [...current, next];
+    });
+  }
+
+  function updateEncounterMonster(instanceId, updater) {
+    setEncounterMonsters((current) => current.map((monster) => monster.id === instanceId ? updater(monster) : monster));
+  }
+
+  function applyHpAdjustment(instanceId, direction, amountValue) {
+    const amount = Number(amountValue);
+    if (!Number.isFinite(amount) || amount <= 0) return;
+    updateEncounterMonster(instanceId, (monster) => {
+      const currentHp = direction === "damage"
+        ? Math.max(0, monster.current_hp - amount)
+        : Math.min(monster.max_hp, monster.current_hp + amount);
+      return { ...monster, current_hp: currentHp, dead: currentHp <= 0 };
+    });
+    setHpEditor(null);
+  }
+
+  function markMonsterDead(instanceId) {
+    updateEncounterMonster(instanceId, (monster) => ({ ...monster, current_hp: 0, dead: true }));
+  }
+
+  function updateMonsterFootprint(instanceId, footprintKey) {
+    updateEncounterMonster(instanceId, (monster) => ({ ...monster, footprint_key: footprintKey }));
+  }
+
+  function setTrackerModeAndState(nextMode) {
+    setTrackerMode(nextMode);
+    setTracker(createTrackerState(nextMode));
+  }
+
+  function updateTracker(update) {
+    setTracker((current) => ({ ...current, ...update }));
+  }
+
+  function updateCombatGrid(key, value) {
+    const nextValue = Math.max(1, Math.min(30, Number(value) || 1));
+    setCombatGrid((current) => ({ ...current, [key]: nextValue }));
+  }
+
+  function endCombat() {
+    setEncounterMonsters([]);
+    setExpandedMonsterTypes({});
+    setPendingGridMonsterId(null);
+    setHpEditor(null);
+    setCombatTracker(createCombatTrackerState());
+    setTokenPositions((positions) => Object.fromEntries(Object.entries(positions).filter(([key]) => !key.startsWith("monster-token-"))));
+  }
+
+  function toggleSessionLive() {
+    setIsSessionLive((current) => !current);
+  }
+
+  async function distributeXpAwards() {
+    const recipients = (campaign.characters || []).filter((character) => character.status !== "archived");
+    const monsterAward = encounterMonsters.filter((monster) => monster.dead).reduce((sum, monster) => sum + monsterXp(monster.monster, monster.max_hp), 0);
+    const totalAward = monsterAward + numericReward(treasureXp) + numericReward(bonusXp);
+    if (!recipients.length || totalAward <= 0) return;
+    const share = Math.floor(totalAward / recipients.length);
+    const remainder = totalAward % recipients.length;
+    setRewardBusy(true);
+    setRewardMessage("");
+    try {
+      await Promise.all(recipients.map((character, index) => api(`/1e/characters/${character.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ xp: numericReward(character.xp) + share + (index < remainder ? 1 : 0) }),
+      })));
+      setTreasureXp(0);
+      setBonusXp(0);
+      setEncounterMonsters((current) => current.filter((monster) => !monster.dead));
+      setExpandedMonsterTypes({});
+      setRewardMessage(`Distributed ${totalAward} XP to ${recipients.length} character${recipients.length === 1 ? "" : "s"}.`);
+      await reloadCampaign();
+    } catch (err) {
+      setRewardMessage(err.message || "Could not distribute XP.");
+    } finally {
+      setRewardBusy(false);
+    }
+  }
+
+  function openExternalWindow(url, name) {
+    window.open(url, name, "noopener,noreferrer,width=1200,height=820");
+  }
+
+  function addPendingMonsterToGrid(event) {
+    if (!pendingMonster || mode !== "combat") return;
+    moveToken({
+      id: `monster-token-${pendingMonster.id}`,
+      footprint: footprintByKey(pendingMonster.footprint_key || monsterFootprint(pendingMonster.monster).key),
+      monster: true,
+    }, event);
+    setEncounterMonsters((current) => current.map((monster) => (
+      monster.id === pendingMonster.id ? { ...monster, on_grid: true } : monster
+    )));
+    setPendingGridMonsterId(null);
   }
 
   if (loading || error || !campaign) return <PageState loading={loading} error={error} />;
 
   const modeLabel = mode === "combat" ? "Combat Mode" : mode === "hex_crawl" ? "Hex Crawl Mode" : "Mapping Mode";
-  const gridTitle = mode === "combat" ? "8 x 8 Ten-Foot Area" : "Hex Crawl Coming Next";
+  const gridTitle = mode === "combat" ? `${combatGrid.columns} x ${combatGrid.rows} Ten-Foot Area` : "Hex Crawl Coming Next";
   const gridEyebrow = mode === "combat" ? "10-Foot Tactical Grid" : "Campaign Travel";
+  const monsterAward = encounterMonsters.filter((monster) => monster.dead).reduce((sum, monster) => sum + monsterXp(monster.monster, monster.max_hp), 0);
+  const pendingAward = monsterAward + numericReward(treasureXp) + numericReward(bonusXp);
 
   return (
     <section className="drago-table-page">
@@ -881,31 +1107,32 @@ function DragoTablePage() {
       <div className="drago-modebar">
         <Tabs tabs={DRAGO_TABLE_MODES} activeTab={mode} onChange={changeTableMode} className="drago-mode-tabs" />
         <div className="drago-live-actions">
-          <button type="button" className="ghost-button">Player View</button>
-          <button type="button" className="ghost-button">Rules</button>
-          <button type="button">Start Session</button>
+          <button type="button" className="ghost-button" onClick={() => openExternalWindow(CLASSIC_PORTAL_URL, "drago-player-view")}>Player View</button>
+          <button type="button" className="ghost-button" onClick={() => openExternalWindow("/1e/", "drago-rules")}>Rules</button>
+          <button type="button" className={isSessionLive ? "danger-button" : ""} onClick={toggleSessionLive}>
+            {isSessionLive ? "Stop Session" : "Start Session"}
+          </button>
         </div>
       </div>
 
       <div className="drago-table-layout">
         <aside className="panel drago-side-panel">
-          <p className="eyebrow">Trackers</p>
-          <div className="tracker-stack">
-            <TrackerCard label="Round" value="3" note="Combat clock" meta="Side initiative" />
-            <TrackerCard label="Turn" value="7" note="Exploration turn" meta="10 minutes" />
-            <TrackerCard label="Torch" value="34 min" note="2 torches lit" meta="Public timer" />
-            <TrackerCard label="Location" value="Lower Halls" note="Visible to players" meta="Dungeon level 1" />
-            <TrackerCard label="Morale" value="Check" note="When first death lands" meta="DM reminder" />
-            <TrackerCard label="Noise" value="Low" note="No wandering check yet" meta="Hidden" />
-          </div>
-          <div className="drago-command-list">
-            <button type="button" className="table-button">Advance Round</button>
-            <button type="button" className="table-button">Advance Turn</button>
-            <button type="button" className="table-button">Add Monster</button>
-            <button type="button" className="table-button">Monsters</button>
-            <button type="button" className="table-button">Open Rules</button>
-            <button type="button" className="table-button">Add Treasure</button>
-          </div>
+          <TrackerPanel mode={trackerMode} tracker={tracker} onModeChange={setTrackerModeAndState} onUpdate={updateTracker} />
+          <CombatTrackerPanel tracker={combatTracker} onUpdate={setCombatTracker} onEndCombat={endCombat} />
+          <DiceRollerPanel />
+          <MonsterLibrarySidebar
+            error={monsterError}
+            loading={monsterLoading}
+            monsters={filteredMonsters}
+            query={monsterQuery}
+            selectedMonster={selectedMonster}
+            source={monsterSource}
+            sources={monsterSources}
+            onAdd={addMonsterToEncounter}
+            onQueryChange={setMonsterQuery}
+            onSelect={setSelectedMonsterId}
+            onSourceChange={setMonsterSource}
+          />
         </aside>
 
         {mode === "mapping" ? (
@@ -919,17 +1146,20 @@ function DragoTablePage() {
               <p className="eyebrow">{gridEyebrow}</p>
               <h2>{gridTitle}</h2>
             </div>
-            <select aria-label="Grid template" value={mode === "combat" ? "8x8-ten" : "hex"} onChange={() => {}}>
-              <option value="8x8-ten">8 x 8 Ten-Foot Area</option>
-              <option value="hex">Hex Crawl</option>
-            </select>
+            {mode === "combat" ? (
+              <div className="grid-size-controls">
+                <label>Width<input type="number" min="1" max="30" value={combatGrid.columns} onChange={(event) => updateCombatGrid("columns", event.target.value)} /></label>
+                <label>Length<input type="number" min="1" max="30" value={combatGrid.rows} onChange={(event) => updateCombatGrid("rows", event.target.value)} /></label>
+              </div>
+            ) : <span className="status-pill">Hex crawl builder next phase</span>}
           </div>
           <div
             className={`drago-grid ${mode === "combat" ? "combat-grid" : "outdoors-grid"}`}
-            style={{ "--grid-columns": activeGrid.columns, "--grid-rows": activeGrid.rows }}
+            style={{ "--grid-columns": activeGrid.columns, "--grid-rows": activeGrid.rows, aspectRatio: `${activeGrid.columns} / ${activeGrid.rows}` }}
             onPointerMove={(event) => {
               if (draggedToken) moveToken(draggedToken, event);
             }}
+            onClick={addPendingMonsterToGrid}
             onPointerUp={() => setDraggedToken(null)}
             onPointerLeave={() => setDraggedToken(null)}
           >
@@ -945,13 +1175,37 @@ function DragoTablePage() {
 
         <aside className="panel drago-monster-panel">
           <p className="eyebrow">Encounter</p>
-          <div className="monster-card-stack">
-            {monsterCards.map((monster) => <MonsterCard key={monster.id} monster={monster} />)}
-          </div>
+          <EncounterList
+            monsters={encounterMonsters}
+            mode={mode}
+            pendingGridMonsterId={pendingGridMonsterId}
+            hpEditor={hpEditor}
+            onApplyHp={applyHpAdjustment}
+            onCloseHpEditor={() => setHpEditor(null)}
+            onOpenHpEditor={(monsterId, direction) => setHpEditor({ monsterId, direction, amount: 1 })}
+            onDead={markMonsterDead}
+            onFootprint={updateMonsterFootprint}
+            onPrepareGrid={setPendingGridMonsterId}
+            onSetHpEditor={setHpEditor}
+          />
         </aside>
       </div>
 
       <div className="drago-bottom-grid">
+        <section className="panel monster-type-panel">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Monsters</p>
+              <h2>Stat Blocks</h2>
+            </div>
+            {pendingMonster ? <span className="status-pill">Click combat grid to place {pendingMonster.label}</span> : null}
+          </div>
+          <MonsterTypeCards
+            groups={encounterGroups}
+            expanded={expandedMonsterTypes}
+            onToggle={(key) => setExpandedMonsterTypes((current) => ({ [key]: !current[key] }))}
+          />
+        </section>
         <section className="panel drago-roster-panel">
           <div className="section-heading">
             <div>
@@ -961,6 +1215,7 @@ function DragoTablePage() {
             <Link className="table-link" to={`/campaigns/${campaign.id}/characters`}>Manage</Link>
           </div>
           <div className="snippet-grid">
+            {!playerTokens.length ? <p className="empty-state">No characters have been added to this campaign.</p> : null}
             {playerTokens.map((token) => (
               <div className="character-snippet" key={token.id}>
                 <span className="snippet-token" style={{ background: token.color }}>{token.label}</span>
@@ -978,15 +1233,21 @@ function DragoTablePage() {
 
         <section className="panel drago-reward-panel">
           <p className="eyebrow">Rewards</p>
-          <div className="reward-ledger">
-            <div><span>Monster XP</span><strong>65</strong></div>
-            <div><span>Treasure XP</span><strong>0</strong></div>
-            <div><span>Bonus XP</span><strong>0</strong></div>
-            <div><span>Pending Total</span><strong>65</strong></div>
-          </div>
+          <RewardPanel
+            bonusXp={bonusXp}
+            busy={rewardBusy}
+            message={rewardMessage}
+            monsterXp={monsterAward}
+            onBonusXp={setBonusXp}
+            onDistribute={distributeXpAwards}
+            onTreasureXp={setTreasureXp}
+            pendingXp={pendingAward}
+            recipients={(campaign.characters || []).filter((character) => character.status !== "archived").length}
+            treasureXp={treasureXp}
+          />
           <div className="notes-box">
-            <strong>First Build Boundary</strong>
-            <p>This screen is the design scaffold. Next pass can add the Drago Table data model, shared player view, and saved session state.</p>
+            <strong>Encounter XP</strong>
+            <p>Monster XP is added when a monster is marked dead. Treasure and bonus XP can be distributed to the current character cards.</p>
           </div>
         </section>
       </div>
@@ -1000,8 +1261,9 @@ const DRAGO_TABLE_MODES = [
   ["hex_crawl", "Hex Crawl"],
 ];
 
-const DRAGO_COMBAT_GRID = { columns: 8, rows: 8 };
-const DRAGO_HEX_GRID = { columns: 12, rows: 8 };
+function createCombatTrackerState() {
+  return { round: 1, activeSide: "party" };
+}
 
 function DmMappingControls({ campaign, maps, onReload }) {
   const [name, setName] = useState("");
@@ -1081,36 +1343,605 @@ function DmMappingControls({ campaign, maps, onReload }) {
   );
 }
 
-const DRAGO_SAMPLE_PLAYERS = [
-  { id: "pc-1", name: "Aldren", label: "AL", color: "#9fb36a", hp: "18 / 24", ac: "5", move: "9", status: "Ready", x: 1, y: 1, slotX: 0, slotY: 0 },
-  { id: "pc-2", name: "Brinna", label: "BR", color: "#b56d5d", hp: "12 / 16", ac: "7", move: "12", status: "Ready", x: 1, y: 1, slotX: 1, slotY: 0 },
-  { id: "pc-3", name: "Cairn", label: "CA", color: "#5d8fb5", hp: "9 / 11", ac: "8", move: "12", status: "Hidden", x: 1, y: 1, slotX: 0, slotY: 1 },
-  { id: "pc-4", name: "Damaia", label: "DA", color: "#b59b5d", hp: "6 / 9", ac: "10", move: "12", status: "Light", x: 1, y: 1, slotX: 1, slotY: 1 },
-];
+function defaultDragoTableState() {
+  return {
+    bonusXp: 0,
+    combatGrid: { columns: 8, rows: 8 },
+    combatTracker: createCombatTrackerState(),
+    encounterMonsters: [],
+    expandedMonsterTypes: {},
+    isSessionLive: false,
+    mode: "mapping",
+    pendingGridMonsterId: null,
+    playerColors: {},
+    tracker: createTrackerState("greyhawk"),
+    trackerMode: "greyhawk",
+    treasureXp: 0,
+    tokenPositions: {},
+  };
+}
 
-const DRAGO_MONSTER_TOKENS = [
-  { id: "goblin-1-token", name: "Goblin 1", label: "G1", color: "#7f8f45", x: 5, y: 4, slotX: 0, slotY: 0 },
-  { id: "goblin-2-token", name: "Goblin 2", label: "G2", color: "#7f8f45", x: 5, y: 4, slotX: 1, slotY: 0 },
-  { id: "goblin-3-token", name: "Goblin 3", label: "G3", color: "#7f8f45", x: 5, y: 4, slotX: 0, slotY: 1 },
-];
+function loadDragoTableState(campaignId) {
+  const defaults = defaultDragoTableState();
+  if (typeof window === "undefined") return defaults;
+  try {
+    const saved = window.localStorage.getItem(`drago-table:${campaignId}`);
+    if (!saved) return defaults;
+    const parsed = JSON.parse(saved);
+    return {
+      ...defaults,
+      ...parsed,
+      combatGrid: { ...defaults.combatGrid, ...(parsed.combatGrid || {}) },
+      combatTracker: { ...defaults.combatTracker, ...(parsed.combatTracker || {}) },
+    };
+  } catch {
+    return defaults;
+  }
+}
 
-const DRAGO_SAMPLE_MONSTERS = [
-  { id: "goblin-1", name: "Goblin 1", ac: 6, hp: "2 / 5", attacks: "Short sword +1", damage: "1d6", morale: "7", xp: 15, status: "Bloodied" },
-  { id: "goblin-2", name: "Goblin 2", ac: 6, hp: "5 / 5", attacks: "Spear +1", damage: "1d6", morale: "7", xp: 15, status: "Ready" },
-  { id: "goblin-3", name: "Goblin 3", ac: 6, hp: "0 / 4", attacks: "Short bow +1", damage: "1d6", morale: "7", xp: 35, status: "Dead" },
-];
+function normalizeDragoTableState(state) {
+  if (!state || typeof state !== "object" || !Object.keys(state).length) return null;
+  const defaults = defaultDragoTableState();
+  return {
+    ...defaults,
+    ...state,
+    combatGrid: { ...defaults.combatGrid, ...(state.combatGrid || {}) },
+    combatTracker: { ...defaults.combatTracker, ...(state.combatTracker || {}) },
+    tracker: { ...defaults.tracker, ...(state.tracker || {}) },
+    trackerMode: state.trackerMode || defaults.trackerMode,
+    encounterMonsters: Array.isArray(state.encounterMonsters) ? state.encounterMonsters : [],
+    expandedMonsterTypes: state.expandedMonsterTypes || {},
+    isSessionLive: Boolean(state.isSessionLive),
+    playerColors: state.playerColors || {},
+    tokenPositions: state.tokenPositions || {},
+  };
+}
 
-function buildPlayerTokens(characters) {
-  if (!characters.length) return DRAGO_SAMPLE_PLAYERS;
-  const colors = ["#9fb36a", "#b56d5d", "#5d8fb5", "#b59b5d", "#8f75b5", "#6ab0a1"];
+function saveDragoTableState(campaignId, state) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(`drago-table:${campaignId}`, JSON.stringify(state));
+  } catch {
+    // Local persistence is a convenience; storage failures should not interrupt play.
+  }
+}
+
+function filterMonsterCatalog(monsters, query) {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return [];
+  return monsters
+    .filter((monster) => String(monster.name || "").toLowerCase().includes(needle))
+    .sort((a, b) => {
+      const aName = String(a.name || "").toLowerCase();
+      const bName = String(b.name || "").toLowerCase();
+      const aStarts = aName.startsWith(needle) ? 0 : 1;
+      const bStarts = bName.startsWith(needle) ? 0 : 1;
+      return aStarts - bStarts || aName.localeCompare(bName);
+    });
+}
+
+function uniqueMonsterSources(monsters) {
+  const sources = Array.from(new Set(monsters.map((monster) => monster.source || "Unknown"))).sort((a, b) => {
+    if (a === "OSRIC Core Rules") return -1;
+    if (b === "OSRIC Core Rules") return 1;
+    return a.localeCompare(b);
+  });
+  return sources;
+}
+
+function monsterSourceReference(monster) {
+  if (!monster) return "";
+  const source = monster.source || (monster.is_core_osric ? "OSRIC Core Rules" : "Adventure");
+  const page = monster.source_pdf_page ? ` p. ${monster.source_pdf_page}` : "";
+  return `${source}${page}`;
+}
+
+function numericReward(value) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? Math.max(0, Math.floor(parsed)) : 0;
+}
+
+function RewardPanel({ bonusXp, busy, message, monsterXp, onBonusXp, onDistribute, onTreasureXp, pendingXp, recipients, treasureXp }) {
+  const share = recipients > 0 ? Math.floor(pendingXp / recipients) : 0;
+  return (
+    <div className="reward-flow">
+      <div className="reward-ledger">
+        <div><span>Monster XP</span><strong>{monsterXp}</strong></div>
+        <label><span>Treasure XP</span><input type="number" min="0" value={treasureXp} onChange={(event) => onTreasureXp(event.target.value)} /></label>
+        <label><span>Bonus XP</span><input type="number" min="0" value={bonusXp} onChange={(event) => onBonusXp(event.target.value)} /></label>
+        <div><span>Pending Total</span><strong>{pendingXp}</strong></div>
+      </div>
+      <div className="reward-distribution">
+        <span>{recipients ? `${recipients} recipient${recipients === 1 ? "" : "s"} · ${share} XP each${pendingXp % Math.max(1, recipients) ? " + remainder" : ""}` : "No character cards"}</span>
+        <button type="button" className="table-button" disabled={busy || pendingXp <= 0 || recipients === 0} onClick={onDistribute}>
+          {busy ? "Distributing..." : "Distribute XP"}
+        </button>
+      </div>
+      {message ? <p className="compact-help">{message}</p> : null}
+    </div>
+  );
+}
+
+function MonsterLibrarySidebar({ error, loading, monsters, query, selectedMonster, source, sources, onAdd, onQueryChange, onSelect, onSourceChange }) {
+  const showResults = query.trim().length > 0;
+  return (
+    <section className="monster-library">
+      <div className="section-heading compact-heading">
+        <div>
+          <p className="eyebrow">Monsters</p>
+          <h2>Add Monster</h2>
+        </div>
+      </div>
+      <select
+        aria-label="Monster source"
+        className="monster-source-select"
+        value={source}
+        onChange={(event) => {
+          onSourceChange(event.target.value);
+          onQueryChange("");
+        }}
+      >
+        {sources.length ? sources.map((option) => (
+          <option key={option} value={option}>{option}</option>
+        )) : <option value={source}>{source}</option>}
+      </select>
+      <input
+        aria-label="Search monsters"
+        placeholder="Type monster name..."
+        value={query}
+        onChange={(event) => onQueryChange(event.target.value)}
+      />
+      <PageState loading={loading} error={error} />
+      {selectedMonster ? <p className="compact-help">Last added: {selectedMonster.name}</p> : <p className="compact-help">Type a name, then click a result to add it.</p>}
+      {showResults ? (
+        <div className="monster-library-list">
+          {monsters.map((monster) => (
+            <button
+              className={selectedMonster?.id === monster.id ? "active" : ""}
+              key={monster.id}
+              type="button"
+              onClick={() => {
+                onSelect(monster.id);
+                onAdd(monster);
+              }}
+            >
+              <strong>{monster.name}</strong>
+              <span>AC {monster.armor_class || "-"} · HD {monster.hit_dice || "-"} · XP {monster.level_xp || "-"}</span>
+              <span>{monsterSourceReference(monster)}</span>
+            </button>
+          ))}
+        </div>
+      ) : null}
+      {showResults && !loading && !error && monsters.length === 0 ? <p className="muted">No monsters match that search.</p> : null}
+    </section>
+  );
+}
+
+function MonstersPage() {
+  const { data, error, loading } = useLoad(() => api("/1e/monsters?include_source_text=true"), []);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const query = searchParams.get("q") || "";
+  const selectedMonsterId = searchParams.get("monster") || "";
+  const monsters = data || [];
+  const sortedMonsters = useMemo(
+    () => [...monsters].sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""))),
+    [monsters],
+  );
+  const visibleMonsters = useMemo(
+    () => (query.trim() ? filterMonsterCatalog(monsters, query) : sortedMonsters),
+    [monsters, query, sortedMonsters],
+  );
+  const selectedMonster = useMemo(
+    () => monsters.find((monster) => String(monster.id) === selectedMonsterId) || visibleMonsters[0] || null,
+    [monsters, selectedMonsterId, visibleMonsters],
+  );
+
+  function updateQuery(value) {
+    const next = new URLSearchParams(searchParams);
+    if (value) next.set("q", value);
+    else next.delete("q");
+    next.delete("monster");
+    setSearchParams(next);
+  }
+
+  function selectMonster(monsterId) {
+    const next = new URLSearchParams(searchParams);
+    next.set("monster", monsterId);
+    setSearchParams(next);
+  }
+
+  return (
+    <section>
+      <Header
+        eyebrow="DM Reference"
+        title="Monsters"
+        copy="Browse OSRIC and adventure monster records with complete stat blocks and source notes."
+        action={<a className="secondary-button" href="/monsters" target="_blank" rel="noreferrer">Open in New Tab</a>}
+      />
+      <PageState loading={loading} error={error} />
+      {!loading && !error ? (
+        <div className="rules-browser monster-browser">
+          <Panel className="rules-sidebar">
+            <label>Search
+              <input value={query} onChange={(event) => updateQuery(event.target.value)} placeholder="Monster name..." />
+            </label>
+            <div className="tracker-status-box">
+              <strong>{visibleMonsters.length} monsters</strong>
+              <span>Click a name to view its full monster entry.</span>
+            </div>
+          </Panel>
+
+          <Panel className="rules-results">
+            <div className="rules-panel-heading">
+              <div>
+                <p className="eyebrow">Glossary</p>
+                <h2>{query.trim() ? "Search Results" : "All Monsters"}</h2>
+              </div>
+            </div>
+            {visibleMonsters.length ? (
+              <div className="reference-list monster-glossary-list">
+                {visibleMonsters.map((monster) => (
+                  <button
+                    className={`reference-row ${selectedMonster?.id === monster.id ? "active" : ""}`}
+                    key={monster.id}
+                    type="button"
+                    onClick={() => selectMonster(monster.id)}
+                  >
+                    <div>
+                      <strong>{monster.name}</strong>
+                      <p>AC {monster.armor_class || "-"} · HD {monster.hit_dice || "-"} · XP {monster.level_xp || "-"}</p>
+                    </div>
+                    <div className="reference-meta">
+                      <span>{monsterSourceReference(monster)}</span>
+                      <span>{monster.size || "Size -"}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="muted">No monsters match that search.</p>
+            )}
+          </Panel>
+
+          <Panel className="rules-detail">
+            {selectedMonster ? <MonsterGlossaryDetail monster={selectedMonster} /> : <p className="muted">Select a monster to view the complete entry.</p>}
+          </Panel>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function MonsterGlossaryDetail({ monster }) {
+  const facts = [
+    ["AC", monster.armor_class],
+    ["HD", monster.hit_dice],
+    ["Move", monster.movement],
+    ["Attacks", monster.attacks],
+    ["Damage", monster.damage],
+    ["THAC0", monsterThac0(monster.hit_dice)],
+    ["Hit +", monsterAttackBonus(monster)],
+    ["Size", monster.size],
+    ["Morale", monster.morale],
+    ["Alignment", monster.alignment],
+    ["XP", monster.level_xp],
+    ["Lair", monster.in_lair],
+  ];
+  return (
+    <article className="reference-detail-view monster-glossary-detail">
+      <div className="detail-title-row">
+        <div>
+          <p className="eyebrow">{monsterSourceReference(monster)}</p>
+          <h2>{monster.name}</h2>
+        </div>
+      </div>
+      <dl className="reference-facts monster-detail-facts">
+        {facts.map(([label, value]) => (
+          <div key={label}><dt>{label}</dt><dd>{value || "-"}</dd></div>
+        ))}
+      </dl>
+      <MonsterTextSection title="Special Attacks" value={monster.special_attacks} />
+      <MonsterTextSection title="Special Defences" value={monster.special_defences} />
+      <MonsterTextSection title="Description" value={monster.description} />
+      <MonsterTextSection title="Treasure" value={monster.treasure} />
+      {monster.source_text ? (
+        <details className="monster-source-block">
+          <summary>Full Source Block</summary>
+          <pre>{monster.source_text}</pre>
+        </details>
+      ) : null}
+    </article>
+  );
+}
+
+function EncounterList({ monsters, mode, pendingGridMonsterId, hpEditor, onApplyHp, onCloseHpEditor, onDead, onFootprint, onOpenHpEditor, onPrepareGrid, onSetHpEditor }) {
+  if (!monsters.length) {
+    return <p className="muted">No monsters added yet.</p>;
+  }
+  return (
+    <div className="encounter-mini-list">
+      {monsters.map((monster) => (
+        <article className={`encounter-mini-card ${monster.dead ? "is-dead" : ""}`} key={monster.id}>
+          <div className="encounter-mini-top">
+            <strong>{monster.label}</strong>
+            <span>{monster.current_hp}/{monster.max_hp} HP</span>
+          </div>
+          <div className="monster-actions compact-actions">
+            <button type="button" className="table-button" onClick={() => onOpenHpEditor(monster.id, "damage")}>Damage</button>
+            <button type="button" className="table-button" onClick={() => onOpenHpEditor(monster.id, "heal")}>Heal</button>
+            <button type="button" className="table-button" onClick={() => onDead(monster.id)}>Dead</button>
+          </div>
+          <label className="footprint-control">Token
+            <select value={monster.footprint_key || monsterFootprint(monster.monster).key} onChange={(event) => onFootprint(monster.id, event.target.value)}>
+              {MONSTER_FOOTPRINTS.map((footprint) => <option key={footprint.key} value={footprint.key}>{footprint.label}</option>)}
+            </select>
+          </label>
+          {hpEditor?.monsterId === monster.id ? (
+            <form
+              className="hp-popover"
+              onSubmit={(event) => {
+                event.preventDefault();
+                onApplyHp(monster.id, hpEditor.direction, hpEditor.amount);
+              }}
+            >
+              <label>{hpEditor.direction === "damage" ? "Damage" : "Heal"}
+                <input
+                  autoFocus
+                  type="number"
+                  min="1"
+                  value={hpEditor.amount}
+                  onChange={(event) => onSetHpEditor({ ...hpEditor, amount: event.target.value })}
+                />
+              </label>
+              <div>
+                <button type="submit" className="table-button">Apply</button>
+                <button type="button" className="table-button" onClick={onCloseHpEditor}>Cancel</button>
+              </div>
+            </form>
+          ) : null}
+          <button
+            type="button"
+            className={`table-button add-grid-button ${pendingGridMonsterId === monster.id ? "active" : ""}`}
+            disabled={mode !== "combat" || monster.dead}
+            onClick={() => onPrepareGrid(monster.id)}
+          >
+            {monster.on_grid ? "Move On Grid" : mode === "combat" ? "Add To Grid" : "Combat Grid Only"}
+          </button>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function CombatTrackerPanel({ tracker, onUpdate, onEndCombat }) {
+  const activeLabel = tracker.activeSide === "party" ? "Party Turn" : "Monster Turn";
+  return (
+    <section className="combat-tracker">
+      <div className="section-heading compact-heading">
+        <div>
+          <p className="eyebrow">Combat</p>
+          <h2>Round {tracker.round}</h2>
+        </div>
+        <span className="status-pill">{activeLabel}</span>
+      </div>
+      <div className="combat-turn-toggle">
+        <button type="button" className={tracker.activeSide === "party" ? "active" : ""} onClick={() => onUpdate((current) => ({ ...current, activeSide: "party" }))}>Party</button>
+        <button type="button" className={tracker.activeSide === "monsters" ? "active" : ""} onClick={() => onUpdate((current) => ({ ...current, activeSide: "monsters" }))}>Monsters</button>
+      </div>
+      <div className="tracker-button-group">
+        <button type="button" className="table-button" onClick={() => onUpdate((current) => ({ ...current, round: current.round + 1, activeSide: "party" }))}>Advance Round</button>
+        <button type="button" className="table-button" onClick={onEndCombat}>End Combat</button>
+      </div>
+    </section>
+  );
+}
+
+function DiceRollerPanel() {
+  const dice = [20, 12, 10, 8, 6, 4, 100];
+  const [count, setCount] = useState(1);
+  const [modifier, setModifier] = useState(0);
+  const [lastRoll, setLastRoll] = useState(null);
+
+  function rollDie(sides) {
+    const quantity = Math.max(1, count);
+    const rolls = Array.from({ length: quantity }, () => Math.floor(Math.random() * sides) + 1);
+    const subtotal = rolls.reduce((sum, value) => sum + value, 0);
+    setLastRoll({
+      formula: `${quantity}d${sides}${modifier ? `${modifier > 0 ? "+" : ""}${modifier}` : ""}`,
+      rolls,
+      total: subtotal + modifier,
+    });
+  }
+
+  return (
+    <section className="dice-roller">
+      <div className="section-heading compact-heading">
+        <div>
+          <p className="eyebrow">Dice</p>
+          <h2>Roller</h2>
+        </div>
+        {lastRoll ? <span className="status-pill">{lastRoll.formula}</span> : null}
+      </div>
+      <div className="dice-controls">
+        <label>Dice
+          <span>
+            <button type="button" onClick={() => setCount((value) => Math.max(1, value - 1))}>-</button>
+            <strong>{count}</strong>
+            <button type="button" onClick={() => setCount((value) => Math.min(20, value + 1))}>+</button>
+          </span>
+        </label>
+        <label>Mod
+          <span>
+            <button type="button" onClick={() => setModifier((value) => Math.max(-99, value - 1))}>-</button>
+            <strong>{modifier >= 0 ? `+${modifier}` : modifier}</strong>
+            <button type="button" onClick={() => setModifier((value) => Math.min(99, value + 1))}>+</button>
+          </span>
+        </label>
+      </div>
+      <div className="dice-button-grid">
+        {dice.map((sides) => (
+          <button key={sides} type="button" className="table-button" onClick={() => rollDie(sides)}>D{sides}</button>
+        ))}
+      </div>
+      {lastRoll ? (
+        <div className="dice-result">
+          <strong>{lastRoll.total}</strong>
+          <span>{lastRoll.rolls.join(" + ")}{modifier ? ` ${modifier > 0 ? "+" : "-"} ${Math.abs(modifier)}` : ""}</span>
+        </div>
+      ) : <p className="compact-help">Set dice and modifier, then tap a die.</p>}
+    </section>
+  );
+}
+
+function MonsterTypeCards({ groups, expanded, onToggle }) {
+  if (!groups.length) {
+    return <p className="muted">Added monster types will appear here in compact initiative cards.</p>;
+  }
+  return (
+    <div className="monster-type-grid">
+      {groups.map((group) => (
+        <MonsterTypeCard
+          expanded={Boolean(expanded[group.key])}
+          group={group}
+          key={group.key}
+          onToggle={() => onToggle(group.key)}
+        />
+      ))}
+    </div>
+  );
+}
+
+function MonsterTypeCard({ group, expanded, onToggle }) {
+  const monster = group.monster;
+  const facts = [
+    ["AC", monster.armor_class],
+    ["HD", monster.hit_dice],
+    ["Move", monster.movement],
+    ["Attacks", monster.attacks],
+    ["Damage", monster.damage],
+    ["THAC0", monsterThac0(monster.hit_dice)],
+    ["Hit +", monsterAttackBonus(monster)],
+    ["Size", monster.size],
+    ["XP", `${monsterXp(monster, group.averageHp)} avg`],
+  ];
+  return (
+    <article className="monster-type-card">
+      <div className="monster-card-header">
+        <div>
+          <h2>{monster.name}</h2>
+          <span>{group.instances.length} in encounter · {monsterSourceReference(monster)}</span>
+        </div>
+        <button type="button" className="expand-button" onClick={onToggle} aria-label={expanded ? "Collapse monster stat block" : "Expand monster stat block"}>
+          {expanded ? "-" : "+"}
+        </button>
+      </div>
+      <dl className="monster-type-facts">
+        {facts.map(([label, value]) => (
+          <div key={label}><dt>{label}</dt><dd>{value || "-"}</dd></div>
+        ))}
+      </dl>
+      {expanded ? (
+        <div className="monster-expanded-block">
+          <MonsterTextSection title="Special Attacks" value={monster.special_attacks} />
+          <MonsterTextSection title="Special Defences" value={monster.special_defences} />
+          <MonsterTextSection title="Description" value={monster.description} />
+          <MonsterTextSection title="Treasure" value={monster.treasure} />
+          {monster.source_text ? (
+            <details className="monster-source-block">
+              <summary>Full Source Block</summary>
+              <pre>{monster.source_text}</pre>
+            </details>
+          ) : null}
+        </div>
+      ) : null}
+    </article>
+  );
+}
+
+function MonsterTextSection({ title, value, compact = false }) {
+  if (!value || value === "None" || value === "Nil") return null;
+  return (
+    <section className={`monster-text-section ${compact ? "compact" : ""}`}>
+      <h3>{title}</h3>
+      <p>{value}</p>
+    </section>
+  );
+}
+
+function TrackerPanel({ mode, tracker, onModeChange, onUpdate }) {
+  const dragonlance = mode === "dragonlance";
+  return (
+    <section className="tracker-console">
+      <div className="section-heading compact-heading">
+        <div>
+          <p className="eyebrow">Trackers</p>
+          <h2>{dragonlance ? "Dragonlance 1985" : "Classic Tracker"}</h2>
+        </div>
+        <select aria-label="Tracker preset" value={mode} onChange={(event) => onModeChange(event.target.value)}>
+          <option value="dragonlance">Dragonlance</option>
+          <option value="greyhawk">Greyhawk</option>
+        </select>
+      </div>
+      <div className="tracker-status-box">
+        <strong>{tracker.weekday}, {tracker.day} {tracker.month}, {tracker.year}</strong>
+        <span>Time: {tracker.time}</span>
+        <span>Turn: {tracker.turn}</span>
+        <span>Rest: {tracker.turnsSinceRest} / 5</span>
+        <span>Torch: {tracker.torchLit ? "Lit" : "Unlit"} · {tracker.torchTurns} turn(s) · Carried {tracker.torches}</span>
+        <span>Lantern: {tracker.lanternLit ? "Lit" : "Unlit"} · Oil {tracker.oil}</span>
+        {dragonlance ? <span>Moons: Sol {tracker.solinari} / Lun {tracker.lunitari} / Nui {tracker.nuitari}</span> : null}
+      </div>
+      <div className="tracker-button-group">
+        <button type="button" className="table-button" onClick={() => openTrackerStatusWindow(mode, tracker)}>Status</button>
+        <button type="button" className="table-button">Calendar</button>
+        {dragonlance ? <button type="button" className="table-button">Moons</button> : null}
+        <button type="button" className="table-button">Help</button>
+      </div>
+      <div className="tracker-button-group">
+        <button type="button" className="table-button" onClick={() => onUpdate({ turn: tracker.turn + 1, turnsSinceRest: tracker.turnsSinceRest + 1 })}>Turn</button>
+        <button type="button" className="table-button" onClick={() => onUpdate({ turnsSinceRest: 0 })}>Rest</button>
+        <button type="button" className="table-button">+10m</button>
+        <button type="button" className="table-button">+30m</button>
+        <button type="button" className="table-button">+1h</button>
+        <button type="button" className="table-button">+1d</button>
+      </div>
+      <div className="tracker-button-group">
+        <button type="button" className="table-button" onClick={() => onUpdate({ torches: tracker.torches + 1 })}>+1 Torch</button>
+        <button type="button" className="table-button" onClick={() => onUpdate({ torches: tracker.torches + 5 })}>+5 Torches</button>
+        <button type="button" className="table-button" onClick={() => onUpdate({ torches: Math.max(0, tracker.torches - 1) })}>-1 Torch</button>
+        <button type="button" className="table-button" onClick={() => onUpdate({ torchLit: true, torchTurns: 6 })}>Light Torch</button>
+        <button type="button" className="table-button" onClick={() => onUpdate({ torchLit: false, torchTurns: 0 })}>Snuff Torch</button>
+      </div>
+      <div className="tracker-button-group">
+        <button type="button" className="table-button" onClick={() => onUpdate({ oil: tracker.oil + 1 })}>+1 Oil</button>
+        <button type="button" className="table-button" onClick={() => onUpdate({ oil: tracker.oil + 5 })}>+5 Oil</button>
+        <button type="button" className="table-button" onClick={() => onUpdate({ oil: Math.max(0, tracker.oil - 1) })}>-1 Oil</button>
+        <button type="button" className="table-button" onClick={() => onUpdate({ lanternLit: true })}>Light Lantern</button>
+        <button type="button" className="table-button" onClick={() => onUpdate({ lanternLit: false })}>Snuff Lantern</button>
+      </div>
+      {dragonlance ? (
+        <div className="tracker-button-group">
+          <button type="button" className="table-button">Set Solinari</button>
+          <button type="button" className="table-button">Set Lunitari</button>
+          <button type="button" className="table-button">Set Nuitari</button>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+const DRAGO_MARCHING_GRID = { columns: 2, rows: 6 };
+const DRAGO_OUTDOORS_GRID = { columns: 12, rows: 8 };
+
+function buildPlayerTokens(characters, playerColors = {}) {
   return characters.slice(0, 6).map((character, index) => ({
     id: `pc-${character.id}`,
     name: character.name || `Character ${index + 1}`,
     label: String(character.name || "PC").slice(0, 2).toUpperCase(),
-    color: colors[index % colors.length],
-    hp: `${character.current_hp ?? character.hit_points ?? "-"} / ${character.max_hp ?? character.hit_points ?? "-"}`,
-    ac: character.armor_class ?? character.ac ?? "-",
-    move: character.movement_rate ?? character.move ?? "12",
+    color: playerColors[`pc-${character.id}`] || PLAYER_TOKEN_COLORS[index % PLAYER_TOKEN_COLORS.length].value,
+    hp: characterHpText(character),
+    ac: characterAcText(character),
+    move: characterMoveText(character),
     status: character.life_status || character.status || "Ready",
     x: 1,
     y: Math.floor(index / 4) + 1,
@@ -1119,24 +1950,274 @@ function buildPlayerTokens(characters) {
   }));
 }
 
+function characterHpValues(character) {
+  const combat = character?.combat || {};
+  const maxHp = Number(combat.max_hp ?? character?.max_hp ?? character?.hit_points ?? 0);
+  const currentHp = Number(combat.current_hp ?? character?.current_hp ?? maxHp);
+  return {
+    current: Number.isFinite(currentHp) ? currentHp : 0,
+    max: Number.isFinite(maxHp) ? maxHp : 0,
+    temporary: Number(combat.temporary_hp ?? 0) || 0,
+  };
+}
+
+function characterHpText(character) {
+  const hp = characterHpValues(character);
+  return `${Number.isFinite(hp.current) ? hp.current : "-"} / ${hp.max || "-"}`;
+}
+
+function characterAcText(character) {
+  return character?.combat?.armor_class ?? character?.armor_class ?? character?.ac ?? "-";
+}
+
+function characterMoveText(character) {
+  return character?.combat?.movement_rate ?? character?.movement_rate ?? character?.move ?? "12";
+}
+
+function characterThac0Text(character) {
+  const thac0 = character?.combat?.runtime?.thac0;
+  return thac0?.final_thac0 ?? thac0?.base_thac0 ?? thac0?.value ?? "-";
+}
+
+function characterAttackRateText(character) {
+  const rate = character?.combat?.runtime?.attacks_per_round;
+  return rate?.attacks_per_round ?? rate?.value ?? rate ?? "1";
+}
+
+function characterWeaponRows(character) {
+  const weapons = character?.combat?.runtime?.weapons || [];
+  return weapons.slice(0, 4).map((weapon) => ({
+    name: weapon.weapon || "Weapon",
+    attack: weapon.final_attack_value ?? weapon.total_attack_bonus ?? "-",
+    damage: weapon.damage?.final_small_medium || weapon.damage?.base_small_medium || "-",
+    mode: weapon.mode || "melee",
+  }));
+}
+
+function availablePlayerTokenColors(tableState, tokenId) {
+  const used = new Set(
+    Object.entries(tableState.playerColors || {})
+      .filter(([id]) => id !== tokenId)
+      .map(([, color]) => color),
+  );
+  return PLAYER_TOKEN_COLORS.filter((color) => !used.has(color.value));
+}
+
 function applyTokenPositions(tokens, positions) {
   return tokens.map((token) => ({ ...token, ...(positions[token.id] || {}) }));
 }
 
-function TableToken({ grid, token, monster = false, onDragStart }) {
+function buildMonsterTokens(encounterMonsters) {
+  return encounterMonsters
+    .filter((monster) => monster.on_grid && !monster.dead)
+    .map((monster, index) => {
+      const footprint = footprintByKey(monster.footprint_key || monsterFootprint(monster.monster).key);
+      return {
+        id: `monster-token-${monster.id}`,
+        name: `${monster.label} (${footprint.label})`,
+        label: monster.token_label,
+        color: monsterHealthColor(monster),
+        footprint,
+        monster: true,
+        x: 5 + (index % 4),
+        y: 4 + Math.floor(index / 4),
+        slotX: 0,
+        slotY: 0,
+      };
+    });
+}
+
+const PLAYER_TOKEN_COLORS = [
+  { key: "white", label: "White", value: "#f8f4e8" },
+  { key: "gold", label: "Gold", value: "#d6a94d" },
+  { key: "pink", label: "Pink", value: "#f08fbc" },
+  { key: "blue", label: "Blue", value: "#5aa7e8" },
+  { key: "silver", label: "Silver", value: "#c8ccd2" },
+  { key: "purple", label: "Purple", value: "#9b78e6" },
+  { key: "gray", label: "Gray", value: "#5b6068" },
+  { key: "turquoise", label: "Turquoise", value: "#31c6c0" },
+];
+
+function monsterHealthColor(monster) {
+  const maxHp = Math.max(1, Number(monster.max_hp) || 1);
+  const ratio = Math.max(0, Number(monster.current_hp) || 0) / maxHp;
+  if (ratio < 0.25) return "#b93a31";
+  if (ratio <= 0.5) return "#d87b24";
+  return "#4f9d55";
+}
+
+function groupEncounterMonsters(encounterMonsters) {
+  const groups = new Map();
+  for (const instance of encounterMonsters) {
+    const key = String(instance.monster_id);
+    if (!groups.has(key)) {
+      groups.set(key, { key, monster: instance.monster, instances: [], averageHp: instance.max_hp });
+    }
+    groups.get(key).instances.push(instance);
+  }
+  return Array.from(groups.values()).map((group) => ({
+    ...group,
+    averageHp: Math.max(1, Math.round(group.instances.reduce((sum, monster) => sum + monster.max_hp, 0) / group.instances.length)),
+  }));
+}
+
+function monsterTokenLabel(name, number) {
+  const words = String(name || "M").replace(/[^A-Za-z0-9 ]/g, " ").split(/\s+/).filter(Boolean);
+  const initials = words.slice(0, 2).map((word) => word[0]).join("").toUpperCase() || "M";
+  return `${initials}${number > 1 ? number : ""}`.slice(0, 3);
+}
+
+const MONSTER_FOOTPRINTS = [
+  { key: "slot", label: "Standard", columns: 0.45, rows: 0.45, color: "#b76b5b" },
+  { key: "1x1", label: "1 x 1", columns: 1, rows: 1, color: "#b76b5b" },
+  { key: "2x1", label: "2 x 1", columns: 2, rows: 1, color: "#b76b5b" },
+  { key: "1x2", label: "1 x 2", columns: 1, rows: 2, color: "#b76b5b" },
+  { key: "2x2", label: "2 x 2", columns: 2, rows: 2, color: "#a8574e" },
+  { key: "1x3", label: "1 x 3", columns: 1, rows: 3, color: "#a8574e" },
+  { key: "3x1", label: "3 x 1", columns: 3, rows: 1, color: "#a8574e" },
+];
+
+function footprintByKey(key) {
+  return MONSTER_FOOTPRINTS.find((footprint) => footprint.key === key) || MONSTER_FOOTPRINTS[1];
+}
+
+function monsterFootprint(monster) {
+  const text = [monster?.name, monster?.size, monster?.description].filter(Boolean).join(" ").toLowerCase();
+  const lengthMatch = text.match(/(\d+)\s*ft\s+long/);
+  const length = lengthMatch ? Number(lengthMatch[1]) : 0;
+  if (/dragon|purple worm|giant snake|constrictor|crocodile|lizard|eel|serpent/.test(text) && length >= 25) return footprintByKey("2x2");
+  if (/huge|gargantuan|mammoth|whale|elephant|dinosaur/.test(text)) return footprintByKey("2x2");
+  if (/large/.test(text) && /long/.test(text) && length >= 20) return footprintByKey("2x1");
+  if (/large|giant|ogre|troll|minotaur|bear/.test(text)) return footprintByKey("1x1");
+  return footprintByKey("slot");
+}
+
+function parseHitDice(hitDice) {
+  const text = String(hitDice || "1").replace(/\s+/g, "");
+  const match = text.match(/(\d+)(?:d(\d+))?/i);
+  const dice = match ? Number(match[1]) : 1;
+  const sides = match?.[2] ? Number(match[2]) : 8;
+  const flatMatches = [...text.matchAll(/([+-])(\d+)(?!d)/g)];
+  const flat = flatMatches.reduce((sum, matchItem) => sum + (matchItem[1] === "-" ? -1 : 1) * Number(matchItem[2]), 0);
+  return { dice: Math.max(1, dice), sides: Math.max(1, sides), flat };
+}
+
+function rollHitPoints(hitDice) {
+  const { dice, sides, flat } = parseHitDice(hitDice);
+  let total = flat;
+  for (let index = 0; index < dice; index += 1) {
+    total += Math.floor(Math.random() * sides) + 1;
+  }
+  return Math.max(1, total);
+}
+
+function monsterThac0(hitDice) {
+  const { dice } = parseHitDice(hitDice);
+  return Math.max(8, 20 - Math.max(0, dice - 1));
+}
+
+function monsterAttackBonus(monster) {
+  const text = [monster?.attacks, monster?.damage, monster?.special_attacks, monster?.description].filter(Boolean).join(" ");
+  const match = text.match(/([+-]\d+)\s*(?:to hit|to-hit|attack|hit)/i);
+  return match ? match[1] : "+0";
+}
+
+function monsterXp(monster, hp) {
+  const text = String(monster?.level_xp || "");
+  const baseMatch = text.match(/\/\s*([0-9,]+)/);
+  const perHpMatch = text.match(/\+\s*([0-9,]+)\s*\/?\s*hp/i);
+  const base = baseMatch ? Number(baseMatch[1].replace(/,/g, "")) : 0;
+  const perHp = perHpMatch ? Number(perHpMatch[1].replace(/,/g, "")) : 0;
+  if (base || perHp) return base + perHp * Math.max(1, Number(hp) || 1);
+  return fallbackMonsterXp(monster, hp);
+}
+
+function fallbackMonsterXp(monster, hp) {
+  const hdText = String(monster?.hit_dice || "");
+  const matches = [...hdText.matchAll(/\d+/g)].map((match) => Number(match[0])).filter(Number.isFinite);
+  const hd = Math.max(1, Math.max(...matches, 1));
+  const row = [
+    [1, 10, 1],
+    [2, 20, 2],
+    [3, 35, 3],
+    [4, 75, 4],
+    [5, 175, 5],
+    [6, 275, 6],
+    [7, 450, 8],
+    [8, 650, 10],
+    [9, 900, 12],
+    [10, 1100, 14],
+    [11, 1300, 16],
+    [12, 1550, 18],
+    [13, 1800, 20],
+    [14, 2100, 22],
+    [15, 2400, 24],
+    [16, 2800, 26],
+  ].find(([level]) => hd <= level) || [hd, 3000 + (hd - 16) * 400, 28 + (hd - 16) * 2];
+  return row[1] + row[2] * Math.max(1, Number(hp) || 1);
+}
+
+function createTrackerState(mode) {
+  return {
+    weekday: mode === "dragonlance" ? "Seventhday" : "Godsday",
+    day: 21,
+    month: mode === "dragonlance" ? "Rannmont" : "Harvester",
+    year: mode === "dragonlance" ? "346 AC" : "576 CY",
+    time: "10:00",
+    turn: 21,
+    turnsSinceRest: 3,
+    torchLit: true,
+    torchTurns: 3,
+    torches: 2,
+    lanternLit: false,
+    oil: 0,
+    solinari: "Low",
+    lunitari: "Waxing",
+    nuitari: "Low",
+  };
+}
+
+function openTrackerStatusWindow(mode, tracker) {
+  const moons = mode === "dragonlance"
+    ? `<section><strong>Moons</strong><br>Sol: ${tracker.solinari}<br>Lun: ${tracker.lunitari}<br>Nui: ${tracker.nuitari}</section>`
+    : "";
+  const popup = window.open("", "drago-tracker-status", "width=360,height=620");
+  if (!popup) return;
+  popup.document.write(`
+    <html><head><title>Drago Table Status</title><style>
+      body{background:#121212;color:#eee;font-family:Arial,sans-serif;margin:0;padding:22px}
+      article{border:1px solid #555;padding:16px} h1{font-size:18px;letter-spacing:2px;text-transform:uppercase}
+      section{border-top:1px solid #aaa;margin-top:18px;padding-top:18px;line-height:1.45}
+    </style></head><body><article>
+      <h1>${mode === "dragonlance" ? "Dragolance 1985" : "Classic"} - Dungeon Status</h1>
+      <section><strong>Dungeon Turn:</strong> ${tracker.turn}<br><strong>${tracker.weekday}, ${tracker.day} ${tracker.month}, ${tracker.year}</strong><br>Time: ${tracker.time}</section>
+      <section><strong>Light</strong><br>Torch: ${tracker.torchLit ? "Lit" : "Unlit"} - ${tracker.torchTurns} turn(s)<br>Torches carried: ${tracker.torches}<br>Lantern: ${tracker.lanternLit ? "Lit" : "Unlit"}<br>Oil carried: ${tracker.oil}</section>
+      <section><strong>Exploration</strong><br>Turns since rest: ${tracker.turnsSinceRest} / 5<br>Rest due in ${Math.max(0, 5 - tracker.turnsSinceRest)} turn(s)</section>
+      ${moons}
+    </article></body></html>
+  `);
+  popup.document.close();
+}
+
+function TableToken({ grid, token, monster = false, disabled = false, onDragStart }) {
   const slotX = token.slotX || 0;
   const slotY = token.slotY || 0;
-  const width = 38 / grid.columns;
-  const height = 38 / grid.rows;
-  const left = ((token.x - 1) * 100) / grid.columns + (slotX * 50) / grid.columns + 6 / grid.columns;
-  const top = ((token.y - 1) * 100) / grid.rows + (slotY * 50) / grid.rows + 6 / grid.rows;
+  const footprint = monster ? (token.footprint || footprintByKey("1x1")) : { columns: 0.38, rows: 0.38 };
+  const insetX = monster ? 4 / grid.columns : 6 / grid.columns;
+  const insetY = monster ? 4 / grid.rows : 6 / grid.rows;
+  const width = monster ? Math.max(0.1, (footprint.columns * 100) / grid.columns - insetX * 2) : 38 / grid.columns;
+  const height = monster ? Math.max(0.1, (footprint.rows * 100) / grid.rows - insetY * 2) : 38 / grid.rows;
+  const left = ((token.x - 1) * 100) / grid.columns + (monster ? insetX : (slotX * 50) / grid.columns + 6 / grid.columns);
+  const top = ((token.y - 1) * 100) / grid.rows + (monster ? insetY : (slotY * 50) / grid.rows + 6 / grid.rows);
   return (
     <button
       type="button"
       className={`table-token ${monster ? "monster-token" : ""}`}
+      disabled={disabled}
       title={token.name}
       style={{ "--token-color": token.color, height: `${height}%`, left: `${left}%`, top: `${top}%`, width: `${width}%` }}
       onPointerDown={(event) => {
+        if (!onDragStart || disabled) return;
         event.currentTarget.setPointerCapture(event.pointerId);
         onDragStart(event);
       }}
@@ -1642,6 +2723,7 @@ function PlayerCampaignHome() {
       <CampaignHeader campaign={campaign} eyebrow="Campaign Home" />
       <PlayerTabs activeTab={activeTab} onChange={setActiveTab} />
       {activeTab === "overview" ? <PlayerOverviewTab campaign={campaign} character={character} /> : null}
+      {activeTab === "table" ? <PlayerTableTab campaign={campaign} character={character} /> : null}
       {activeTab === "maps" ? <PlayerMapsTab campaign={campaign} /> : null}
       {activeTab === "character" ? <PlayerCharacterTab character={character} /> : null}
       {activeTab === "players" ? <PlayerRosterTab campaign={campaign} /> : null}
@@ -1877,6 +2959,356 @@ function PlayerOverviewTab({ campaign, character }) {
         <p className="portal-copy">{(campaign.players || []).map((entry) => entry.player?.display_name || entry.player?.player_name || `Player ${entry.user_id}`).join(", ") || "No party members listed yet."}</p>
       </section>
     </div>
+  );
+}
+
+function PlayerTableTab({ campaign, character }) {
+  const initialState = normalizeDragoTableState(campaign.table_state) || defaultDragoTableState();
+  const [tableState, setTableState] = useState(initialState);
+  const [currentCharacter, setCurrentCharacter] = useState(character);
+  const [draggedToken, setDraggedToken] = useState(null);
+  const [colorRequestOpen, setColorRequestOpen] = useState(false);
+  const [hpEditor, setHpEditor] = useState(null);
+  const tokenId = currentCharacter ? `pc-${currentCharacter.id}` : null;
+  const activeGrid = tableState.mode === "combat" ? tableState.combatGrid : tableState.mode === "outdoors" ? DRAGO_OUTDOORS_GRID : DRAGO_MARCHING_GRID;
+  const tableCharacters = currentCharacter && !(campaign.characters || []).some((entry) => entry.id === currentCharacter.id)
+    ? [...(campaign.characters || []), currentCharacter]
+    : (campaign.characters || []).map((entry) => entry.id === currentCharacter?.id ? currentCharacter : entry);
+  const playerTokens = applyTokenPositions(buildPlayerTokens(tableCharacters, tableState.playerColors), tableState.tokenPositions);
+  const monsterTokens = applyTokenPositions(buildMonsterTokens(tableState.encounterMonsters || []), tableState.tokenPositions);
+  const placedPlayerTokens = playerTokens.filter((token) => tableState.tokenPositions?.[token.id]);
+  const visibleTokens = tableState.mode === "combat" ? [...placedPlayerTokens, ...monsterTokens] : placedPlayerTokens;
+  const myToken = placedPlayerTokens.find((token) => token.id === tokenId);
+  const colorChoices = tokenId ? availablePlayerTokenColors(tableState, tokenId) : [];
+  const selectedColor = tokenId ? tableState.playerColors?.[tokenId] : null;
+  const sessionLive = Boolean(tableState.isSessionLive);
+
+  useEffect(() => {
+    setCurrentCharacter(character);
+  }, [character]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      api(`/player/campaigns/${campaign.id}`, { auth: "player" }).then((nextCampaign) => {
+        const shared = normalizeDragoTableState(nextCampaign.table_state);
+        if (shared) setTableState(shared);
+        const refreshedCharacter = (nextCampaign.characters || []).find((entry) => entry.id === currentCharacter?.id);
+        if (refreshedCharacter) setCurrentCharacter(refreshedCharacter);
+      }).catch(() => {});
+    }, 2500);
+    return () => window.clearInterval(timer);
+  }, [campaign.id, currentCharacter?.id]);
+
+  useEffect(() => {
+    if (sessionLive) return;
+    setDraggedToken(null);
+    setColorRequestOpen(false);
+    setHpEditor(null);
+  }, [sessionLive]);
+
+  function publish(nextState) {
+    if (!sessionLive) return;
+    setTableState(nextState);
+    api(`/player/campaigns/${campaign.id}/table-state`, { auth: "player", method: "PUT", body: JSON.stringify(nextState) }).catch(() => {});
+  }
+
+  function moveOwnToken(token, event) {
+    if (!sessionLive) return;
+    if (!tokenId || token.id !== tokenId) return;
+    const grid = event.currentTarget;
+    const rect = grid.getBoundingClientRect();
+    const cellWidth = rect.width / activeGrid.columns;
+    const cellHeight = rect.height / activeGrid.rows;
+    const relativeX = Math.max(0, Math.min(rect.width - 1, event.clientX - rect.left));
+    const relativeY = Math.max(0, Math.min(rect.height - 1, event.clientY - rect.top));
+    const x = Math.max(1, Math.min(activeGrid.columns, Math.floor(relativeX / cellWidth) + 1));
+    const y = Math.max(1, Math.min(activeGrid.rows, Math.floor(relativeY / cellHeight) + 1));
+    const slotX = (relativeX % cellWidth) >= cellWidth / 2 ? 1 : 0;
+    const slotY = (relativeY % cellHeight) >= cellHeight / 2 ? 1 : 0;
+    publish({ ...tableState, tokenPositions: { ...tableState.tokenPositions, [tokenId]: { x, y, slotX, slotY } } });
+  }
+
+  function setOwnColor(color, nextPosition = null) {
+    if (!sessionLive) return;
+    if (!tokenId) return;
+    publish({
+      ...tableState,
+      playerColors: { ...tableState.playerColors, [tokenId]: color },
+      tokenPositions: nextPosition ? { ...tableState.tokenPositions, [tokenId]: nextPosition } : tableState.tokenPositions,
+    });
+    setColorRequestOpen(false);
+  }
+
+  function addOwnToken() {
+    if (!sessionLive) return;
+    if (!tokenId) return;
+    const position = { x: 1, y: 1, slotX: 0, slotY: 0 };
+    if (!selectedColor) {
+      setColorRequestOpen(true);
+      return;
+    }
+    publish({ ...tableState, tokenPositions: { ...tableState.tokenPositions, [tokenId]: position } });
+  }
+
+  function chooseColorAndAdd(color) {
+    setOwnColor(color.value, { x: 1, y: 1, slotX: 0, slotY: 0 });
+  }
+
+  function openHpEditor(direction) {
+    if (!sessionLive) return;
+    setHpEditor({ direction, amount: "1" });
+  }
+
+  function updateCharacterHp(direction, amountValue) {
+    if (!sessionLive) return;
+    if (!currentCharacter) return;
+    const amount = Math.max(0, Number(amountValue) || 0);
+    const hp = characterHpValues(currentCharacter);
+    const nextCurrent = direction === "damage"
+      ? Math.max(0, hp.current - amount)
+      : hp.max ? Math.min(hp.max, hp.current + amount) : hp.current + amount;
+    const nextLifeStatus = nextCurrent <= 0 ? "dead" : currentCharacter.life_status === "dead" ? "alive" : currentCharacter.life_status;
+    const nextCharacter = {
+      ...currentCharacter,
+      combat: { ...(currentCharacter.combat || {}), current_hp: nextCurrent },
+      life_status: nextLifeStatus,
+    };
+    setCurrentCharacter(nextCharacter);
+    api(`/player/characters/${currentCharacter.id}`, {
+      auth: "player",
+      method: "PATCH",
+      body: JSON.stringify({
+        combat: { current_hp: nextCurrent },
+        life_status: nextCharacter.life_status,
+      }),
+    }).then(setCurrentCharacter).catch(() => setCurrentCharacter(currentCharacter));
+    setHpEditor(null);
+  }
+
+  return (
+    <div className="player-table-layout">
+      <aside className="panel player-table-status">
+        <ReadOnlyTrackerStatus tracker={tableState.tracker} mode={tableState.trackerMode || (isDragonlanceCampaign(campaign) ? "dragonlance" : "greyhawk")} />
+        <ReadOnlyCombatStatus tracker={tableState.combatTracker} />
+        <PlayerCharacterCombatPanel
+          character={currentCharacter}
+          colorChoices={colorChoices}
+          colorRequestOpen={colorRequestOpen}
+          hpEditor={hpEditor}
+          myToken={myToken}
+          selectedColor={selectedColor}
+          sessionLive={sessionLive}
+          onAddToken={addOwnToken}
+          onChooseColor={chooseColorAndAdd}
+          onCloseColorRequest={() => setColorRequestOpen(false)}
+          onOpenHpEditor={openHpEditor}
+          onSetHpEditor={setHpEditor}
+          onUpdateHp={updateCharacterHp}
+        />
+      </aside>
+      <main className="panel drago-map-panel player-map-panel">
+        <div className="drago-map-toolbar">
+          <div>
+            <p className="eyebrow">Player View</p>
+            <h2>{tableState.mode === "combat" ? `${activeGrid.columns} x ${activeGrid.rows} Combat Grid` : tableState.mode === "outdoors" ? "Outdoor View" : "Marching Order"}</h2>
+          </div>
+          <span className={`status-pill ${sessionLive ? "live-pill" : ""}`}>{sessionLive ? "Live Session" : "Saved View"}</span>
+        </div>
+        {!sessionLive ? <p className="table-lock-note">The DM has not started the session yet. You can view the saved table, but movement and HP controls are locked.</p> : null}
+        <div
+          className={`drago-grid ${tableState.mode === "combat" ? "combat-grid" : tableState.mode === "outdoors" ? "outdoors-grid" : "marching-grid"}`}
+          style={{ "--grid-columns": activeGrid.columns, "--grid-rows": activeGrid.rows, aspectRatio: `${activeGrid.columns} / ${activeGrid.rows}` }}
+          onPointerMove={(event) => { if (draggedToken) moveOwnToken(draggedToken, event); }}
+          onPointerUp={() => setDraggedToken(null)}
+          onPointerLeave={() => setDraggedToken(null)}
+        >
+          {visibleTokens.map((token) => (
+            <TableToken
+              key={token.id}
+              grid={activeGrid}
+              token={token}
+              monster={token.monster}
+              disabled={!sessionLive || token.id !== tokenId}
+              onDragStart={sessionLive && token.id === tokenId ? (event) => { setDraggedToken(token); moveOwnToken(token, event); } : undefined}
+            />
+          ))}
+        </div>
+      </main>
+      <aside className="panel player-table-rules">
+        <PlayerCombatRules mode={tableState.mode} />
+      </aside>
+    </div>
+  );
+}
+
+function PlayerCharacterCombatPanel({
+  character,
+  colorChoices,
+  colorRequestOpen,
+  hpEditor,
+  myToken,
+  selectedColor,
+  sessionLive,
+  onAddToken,
+  onChooseColor,
+  onCloseColorRequest,
+  onOpenHpEditor,
+  onSetHpEditor,
+  onUpdateHp,
+}) {
+  if (!character) {
+    return (
+      <section className="player-character-panel">
+        <p className="eyebrow">My Character</p>
+        <h2>No Character</h2>
+        <p className="muted">Create or assign a character to use the player table.</p>
+      </section>
+    );
+  }
+  const hp = characterHpValues(character);
+  const weapons = characterWeaponRows(character);
+  return (
+    <section className="player-character-panel">
+      <div className="section-heading compact-heading">
+        <div>
+          <p className="eyebrow">My Character</p>
+          <h2>{character.name}</h2>
+        </div>
+        <span className="status-pill">{!sessionLive ? "Locked" : myToken ? "On Grid" : selectedColor ? "Ready" : "Choose Color"}</span>
+      </div>
+      <dl className="player-combat-facts">
+        <div><dt>HP</dt><dd>{hp.current} / {hp.max || "-"}</dd></div>
+        <div><dt>AC</dt><dd>{characterAcText(character)}</dd></div>
+        <div><dt>THAC0</dt><dd>{characterThac0Text(character)}</dd></div>
+        <div><dt>Move</dt><dd>{characterMoveText(character)}</dd></div>
+        <div><dt>Attacks</dt><dd>{characterAttackRateText(character)}</dd></div>
+        <div><dt>Status</dt><dd>{character.life_status || character.status || "Ready"}</dd></div>
+      </dl>
+      <div className="player-hp-actions">
+        <button type="button" className="table-button" disabled={!sessionLive} onClick={() => onOpenHpEditor("damage")}>Damage</button>
+        <button type="button" className="table-button" disabled={!sessionLive} onClick={() => onOpenHpEditor("heal")}>Heal</button>
+      </div>
+      {hpEditor ? (
+        <form
+          className="inline-hp-editor player-inline-hp"
+          onSubmit={(event) => {
+            event.preventDefault();
+            onUpdateHp(hpEditor.direction, hpEditor.amount);
+          }}
+        >
+          <label>{hpEditor.direction === "damage" ? "Damage" : "Heal"}
+            <input
+              autoFocus
+              min="0"
+              type="number"
+              value={hpEditor.amount}
+              onChange={(event) => onSetHpEditor({ ...hpEditor, amount: event.target.value })}
+            />
+          </label>
+          <button type="submit" className="table-button">Apply</button>
+          <button type="button" className="table-button ghost-button" onClick={() => onSetHpEditor(null)}>Cancel</button>
+        </form>
+      ) : null}
+      <div>
+        <p className="eyebrow">Weapons</p>
+        {weapons.length ? (
+          <div className="player-weapon-list">
+            {weapons.map((weapon) => (
+              <div key={`${weapon.name}-${weapon.mode}`}>
+                <strong>{weapon.name}</strong>
+                <span>Hit {weapon.attack} · Dmg {weapon.damage}</span>
+              </div>
+            ))}
+          </div>
+        ) : <p className="muted compact-note">No equipped weapons listed.</p>}
+      </div>
+      <div className="player-character-actions">
+        <button className="table-button" type="button" disabled={!sessionLive} onClick={onAddToken}>Add To Grid</button>
+        <a className="table-button" href={`/1e/characters/${character.id}/`} target="_blank" rel="noreferrer">Open Sheet</a>
+      </div>
+      {colorRequestOpen ? (
+        <div className="player-token-color-request">
+          <div className="section-heading compact-heading">
+            <div><p className="eyebrow">Token Color</p><strong>Choose an open color</strong></div>
+            <button type="button" className="table-button" onClick={onCloseColorRequest}>x</button>
+          </div>
+          {colorChoices.length ? (
+            <div className="player-color-grid compact-color-grid">
+              {colorChoices.map((color) => (
+                <button key={color.key} type="button" style={{ "--swatch": color.value }} onClick={() => onChooseColor(color)}>{color.label}</button>
+              ))}
+            </div>
+          ) : <p className="muted compact-note">All player colors are already claimed.</p>}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function ReadOnlyTrackerStatus({ tracker, mode }) {
+  return (
+    <section className="tracker-console readonly-tracker">
+      <div className="section-heading compact-heading"><div><p className="eyebrow">Tracker</p><h2>{mode === "dragonlance" ? "Dragonlance 1985" : "Classic Tracker"}</h2></div></div>
+      <div className="tracker-status-box">
+        <strong>{tracker.weekday}, {tracker.day} {tracker.month}, {tracker.year}</strong>
+        <span>Time: {tracker.time}</span>
+        <span>Turn: {tracker.turn}</span>
+        <span>Rest: {tracker.turnsSinceRest} / 5</span>
+        <span>Torch: {tracker.torchLit ? "Lit" : "Unlit"} · {tracker.torchTurns} turn(s)</span>
+        <span>Lantern: {tracker.lanternLit ? "Lit" : "Unlit"} · Oil {tracker.oil}</span>
+        {mode === "dragonlance" ? <span>Moons: Sol {tracker.solinari} / Lun {tracker.lunitari} / Nui {tracker.nuitari}</span> : null}
+      </div>
+    </section>
+  );
+}
+
+function ReadOnlyCombatStatus({ tracker }) {
+  return (
+    <section className="combat-tracker readonly-tracker">
+      <div className="section-heading compact-heading">
+        <div><p className="eyebrow">Combat</p><h2>Round {tracker?.round || 1}</h2></div>
+        <span className="status-pill">{tracker?.activeSide === "monsters" ? "Monster Turn" : "Party Turn"}</span>
+      </div>
+    </section>
+  );
+}
+
+function PlayerCombatRules({ mode }) {
+  if (mode !== "combat") {
+    const explorationSteps = [
+      ["Marching order", "Your token shows the party’s current order. Keep the front, middle, and rear clear so the DM can quickly tell who sees danger first and who is exposed from behind."],
+      ["Time and light", "The tracker shows dungeon turns, torches, lantern oil, and rest pressure. Most careful exploration actions cost time, so watch the light before splitting up or lingering."],
+      ["Searching and listening", "Tell the DM exactly what your character is checking: doors, floors, walls, containers, sounds, tracks, or unusual air. The DM will call for rolls when the rules or situation require them."],
+      ["Doors and movement", "Opening stuck doors, forcing locks, moving quietly, and scouting ahead can change who is surprised. Keep your token where your character actually is before the DM advances the scene."],
+      ["Wandering danger", "Noise, delay, and light can attract trouble. If the status panel changes, treat it as shared table information and adjust your plan before the next turn passes."],
+    ];
+    return (
+      <section>
+        <p className="eyebrow">Exploration</p>
+        <h2>Exploration Flow</h2>
+        {explorationSteps.map(([title, text]) => (
+          <details className="player-rule-step" key={title}><summary>{title}</summary><p>{text}</p></details>
+        ))}
+      </section>
+    );
+  }
+  const combatSteps = [
+    ["1. Confirm position", "Put your token where your character is standing. Distance, blocked paths, marching order, cover, and who can reach whom all depend on the grid being honest."],
+    ["2. Declare intent", "When the DM asks for actions, say what you are trying to do: charge, hold, cast, fire, retreat, change weapons, protect someone, or interact with the room."],
+    ["3. Initiative and turn", "The combat tracker shows the active side. When it is Party Turn, resolve party actions in the order the DM calls. When it is Monster Turn, watch for movement, attacks, morale, or special abilities."],
+    ["4. Movement", "Move your own token when the DM allows movement. If you leave melee, cross danger, or pass through crowded squares, pause so the DM can apply the right ruling."],
+    ["5. Attacks and spells", "Use your snippet for THAC0, AC, HP, and weapon damage. For spells, announce the target, range, casting concerns, and whether damage, saving throws, or ongoing effects are involved."],
+    ["6. Damage and status", "Use Damage or Heal on your snippet as soon as HP changes. If you hit 0 HP or a condition changes, call it out so the DM can update the shared table state."],
+    ["7. End of round", "After both sides act, the DM advances the round. Check HP, spell effects, morale, light, and whether your next position or action has changed."],
+  ];
+  return (
+    <section>
+      <p className="eyebrow">Combat Rules</p>
+      <h2>Combat Flow</h2>
+      {combatSteps.map(([title, text]) => (
+        <details className="player-rule-step" key={title}><summary>{title}</summary><p>{text}</p></details>
+      ))}
+    </section>
   );
 }
 
@@ -3375,6 +4807,7 @@ export default function App() {
           <Route path="/campaigns/:id/characters" element={<CampaignWorkspace initialTab="characters" />} />
           <Route path="/campaigns/:id/notes" element={<CampaignWorkspace initialTab="session-notes" />} />
           <Route path="/rules" element={<RulesBrowserBoundary><RulesSettingsPage /></RulesBrowserBoundary>} />
+          <Route path="/monsters" element={<MonstersPage />} />
           <Route path="/players" element={<PlayersPage />} />
           <Route path="/characters" element={<CharactersPage />} />
           <Route path="/sessions" element={<Navigate to="/campaigns" replace />} />

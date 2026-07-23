@@ -80,6 +80,11 @@ CANONICAL_DIRS = [
     "content/campaigns/templates",
 ]
 
+CATALOG_FILE_NAMES = {
+    "index.json",
+    "osric_monsters.json",
+}
+
 
 class ValidationResult:
     def __init__(self) -> None:
@@ -108,7 +113,7 @@ def canonical_json_files(root: Path) -> list[Path]:
     for directory in CANONICAL_DIRS:
         target = root / directory
         if target.exists():
-            files.extend(path for path in target.rglob("*.json") if path.is_file())
+            files.extend(path for path in target.rglob("*.json") if path.is_file() and path.name not in CATALOG_FILE_NAMES)
     return sorted(files)
 
 

@@ -1,0 +1,44 @@
+{
+  "version": "2026-07-15",
+  "source": "N1 Against the Cult of the Reptile God",
+  "type": "magic_item_catalog",
+  "count": 1,
+  "items": [
+    {
+      "id": "n1.magic_item.horn_of_bubbles",
+      "type": "magic_item",
+      "name": "Horn of Bubbles",
+      "category": "Misc Magic",
+      "source": "N1 Against the Cult of the Reptile God",
+      "source_ref": {
+        "book": "N1 Against the Cult of the Reptile God",
+        "section": "Explictica Defilus treasure",
+        "page": 35
+      },
+      "base_item_ref": null,
+      "weight": null,
+      "magic_properties": [
+        {
+          "key": "adventure_specific",
+          "label": "Adventure-specific magic item"
+        },
+        {
+          "key": "manual_review",
+          "label": "Use the adventure text for exact table adjudication"
+        }
+      ],
+      "equipment_effects": {
+        "automation_status": "manual_review",
+        "kind": "misc_magic"
+      },
+      "charges": null,
+      "identification": {
+        "default_identified": false
+      },
+      "dm_only": {
+        "hidden_by_default": false
+      },
+      "description": "Adventure-specific horn found in Explictica Defilus's treasure. Use the N1 treasure entry for the exact effect at the table."
+    }
+  ]
+}

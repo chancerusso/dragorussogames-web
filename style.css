@@ -609,6 +609,16 @@ footer{
   opacity:1;
 }
 
+/* Dragostika */
+
+.dragostika-page{
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px),
+    linear-gradient(180deg,rgba(255,255,255,.035) 1px,transparent 1px),
+    #050505;
+  background-size:18px 18px;
+  color:#f4f4f0;
+}
 
 /* Daggerheart Compatible Player Portal */
 
@@ -2504,6 +2514,575 @@ footer{
   }
 }
 
+.dragostika-page [hidden]{
+  display:none!important;
+}
+
+.dragostika-page:before{
+  opacity:.12;
+  background-image:
+    repeating-linear-gradient(0deg,rgba(255,255,255,.08),rgba(255,255,255,.08) 1px,transparent 1px,transparent 4px);
+  background-size:auto;
+  mix-blend-mode:screen;
+}
+
+.dragostika-hero .hero-bg{
+  background:
+    radial-gradient(circle at 50% 20%,rgba(255,255,255,.10),transparent 36%),
+    linear-gradient(180deg,#0d0d0d,#000);
+  filter:none;
+  transform:none;
+}
+
+.dragostika-hero{
+  min-height:100vh;
+  padding:44px 22px 42px;
+  display:flex;
+  align-items:center;
+}
+
+.dragostika-hero:after{
+  background:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.72));
+}
+
+.dragostika-hero .hero-inner{
+  padding-top:0;
+}
+
+.dragostika-frame{
+  border:2px solid #efefef;
+  background:#020202;
+  box-shadow:
+    0 0 0 8px #020202,
+    0 0 0 10px rgba(255,255,255,.55),
+    0 30px 90px rgba(0,0,0,.9);
+  display:grid;
+  grid-template-columns:1fr;
+  min-height:0;
+  width:100%;
+  min-width:0;
+}
+
+.dragostika-screen{
+  border-bottom:2px solid #efefef;
+  background:#000;
+  padding:14px;
+  display:grid;
+  grid-template-rows:auto 1fr;
+  gap:12px;
+  min-width:0;
+  overflow:hidden;
+}
+
+.dragostika-screen img{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  height:100%;
+  max-height:520px;
+  min-height:360px;
+  object-fit:cover;
+  object-position:center;
+  display:block;
+  filter:grayscale(1) contrast(1.24);
+  border:1px solid rgba(255,255,255,.9);
+}
+
+.dragostika-title-plate{
+  max-width:560px;
+  pointer-events:none;
+  padding:2px 4px 0;
+}
+
+.dragostika-command{
+  padding:18px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  min-width:0;
+}
+
+.dragostika-page .eyebrow{
+  color:#f5f5f0;
+  letter-spacing:.18em;
+}
+
+.dragostika-page h1,
+.dragostika-page h2,
+.dragostika-page h3{
+  font-family:'Cinzel', serif;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+.dragostika-page h1{
+  font-size:clamp(2.35rem,3.2vw,3.35rem);
+  color:#fff;
+  max-width:100%;
+  overflow-wrap:break-word;
+  white-space:nowrap;
+  text-shadow:4px 4px 0 #000, 0 0 18px rgba(255,255,255,.28);
+}
+
+.dragostika-page .lead{
+  color:#d8d8d2;
+  font-size:1.06rem;
+}
+
+.dragostika-interaction{
+  border:2px solid #f2f2f2;
+  background:#030303;
+  padding:18px;
+}
+
+.dragostika-menu{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin-top:16px;
+}
+
+.dragostika-menu a,
+.dragostika-menu button{
+  appearance:none;
+  font-family:'Cinzel', serif;
+  color:#fff;
+  text-decoration:none;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  text-align:center;
+  border:2px solid #f2f2f2;
+  background:#050505;
+  padding:13px 12px;
+  box-shadow:inset 0 0 0 1px #000;
+  cursor:pointer;
+}
+
+.dragostika-menu a:hover,
+.dragostika-menu a:focus,
+.dragostika-menu button:hover,
+.dragostika-menu button:focus{
+  background:#f2f2f2;
+  color:#050505;
+}
+
+.dragostika-menu button:disabled{
+  border-color:#777;
+  color:#777;
+  cursor:not-allowed;
+}
+
+.dragostika-menu button:disabled:hover,
+.dragostika-menu button:disabled:focus{
+  background:#050505;
+  color:#777;
+}
+
+.dragostika-menu [data-dragostika-view-character]:not(:disabled){
+  box-shadow:0 0 0 1px #fff inset, 0 0 18px rgba(255,255,255,.22);
+}
+
+.dragostika-landing-menu{
+  grid-template-columns:repeat(2,1fr);
+}
+
+.dragostika-player-panel{
+  margin-top:0;
+}
+
+.dragostika-session-line{
+  color:#d8d8d2;
+  font-size:.84rem;
+  line-height:1.45;
+  margin:0 0 8px;
+}
+
+.dragostika-session-line strong{
+  color:#fff;
+  font-family:'Cinzel', serif;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+
+.dragostika-scene-meta{
+  align-items:start;
+  display:grid;
+  gap:12px;
+  grid-template-columns:1fr auto;
+  margin-bottom:12px;
+}
+
+.dragostika-scene-meta > .dragostika-session-line{
+  justify-self:end;
+  text-align:right;
+}
+
+.dragostika-text-button{
+  appearance:none;
+  border:none;
+  background:transparent;
+  color:#d8d8d2;
+  cursor:pointer;
+  display:block;
+  font-family:'Cinzel', serif;
+  font-size:.7rem;
+  letter-spacing:.08em;
+  margin:12px auto 0;
+  padding:6px;
+  text-transform:uppercase;
+}
+
+.dragostika-text-button:hover,
+.dragostika-text-button:focus{
+  color:#fff;
+  text-decoration:underline;
+}
+
+.dragostika-audio{
+  border:2px solid #f2f2f2;
+  margin-top:18px;
+  padding:12px;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:12px;
+  align-items:center;
+  background:#030303;
+  font-family:'Cinzel', serif;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:#f2f2f2;
+  font-size:.72rem;
+}
+
+.dragostika-audio button{
+  appearance:none;
+  border:1px solid #f2f2f2;
+  background:#050505;
+  color:#f2f2f2;
+  font-family:'Cinzel', serif;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  padding:9px 12px;
+  cursor:pointer;
+}
+
+.dragostika-audio button:hover,
+.dragostika-audio button:focus{
+  background:#f2f2f2;
+  color:#050505;
+}
+
+.dragostika-audio label{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:10px;
+  align-items:center;
+  min-width:0;
+}
+
+.dragostika-audio input{
+  width:100%;
+  accent-color:#f2f2f2;
+}
+
+.dragostika-audio span{
+  white-space:nowrap;
+}
+
+.dragostika-game-nav{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+  margin-top:10px;
+  margin-bottom:10px;
+}
+
+.dragostika-bottom-bar{
+  margin-top:34px;
+}
+
+.dragostika-decision-row{
+  border-top:1px solid rgba(255,255,255,.24);
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin-top:34px;
+  padding-top:18px;
+}
+
+.dragostika-decision-row button{
+  appearance:none;
+  border:2px solid #f2f2f2;
+  background:#050505;
+  color:#f2f2f2;
+  cursor:pointer;
+  font-family:'Cinzel', serif;
+  letter-spacing:.08em;
+  padding:12px;
+  text-transform:uppercase;
+}
+
+.dragostika-decision-row button:hover,
+.dragostika-decision-row button:focus{
+  background:#f2f2f2;
+  color:#050505;
+}
+
+.dragostika-intro-copy{
+  color:#d8d8d2;
+  display:grid;
+  gap:12px;
+  max-width:960px;
+}
+
+.dragostika-intro-copy p{
+  font-size:1.03rem;
+  line-height:1.7;
+  margin:0;
+}
+
+.dragostika-intro-panel .dragostika-decision-row,
+.dragostika-game-panel .dragostika-decision-row{
+  grid-template-columns:1fr;
+}
+
+.dragostika-builder-grid,
+.dragostika-ability-assignment{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-top:14px;
+}
+
+.dragostika-builder label,
+.dragostika-ability-assignment label{
+  display:grid;
+  gap:6px;
+}
+
+.dragostika-builder label span,
+.dragostika-ability-assignment label span{
+  color:#d8d8d2;
+  font-family:'Cinzel', serif;
+  font-size:.72rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.dragostika-builder input,
+.dragostika-builder select,
+.dragostika-ability-assignment select{
+  border:1px solid #f2f2f2;
+  background:#050505;
+  color:#f2f2f2;
+  font:inherit;
+  padding:10px;
+}
+
+.dragostika-roll-panel{
+  border-top:1px solid rgba(255,255,255,.34);
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:14px;
+  align-items:center;
+  margin-top:16px;
+  padding-top:16px;
+}
+
+.dragostika-roll-panel h3,
+.dragostika-roll-panel p{
+  margin:0;
+}
+
+.dragostika-roll-panel p{
+  color:#d8d8d2;
+}
+
+.dragostika-roll-panel button,
+.dragostika-save-row button{
+  appearance:none;
+  border:2px solid #f2f2f2;
+  background:#050505;
+  color:#f2f2f2;
+  cursor:pointer;
+  font-family:'Cinzel', serif;
+  letter-spacing:.08em;
+  padding:11px 14px;
+  text-transform:uppercase;
+}
+
+.dragostika-roll-panel button:disabled{
+  color:#777;
+  border-color:#777;
+  cursor:not-allowed;
+}
+
+.dragostika-rolls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:12px;
+}
+
+.dragostika-rolls span{
+  border:1px solid #f2f2f2;
+  min-width:44px;
+  padding:8px 10px;
+  text-align:center;
+}
+
+.dragostika-list{
+  display:grid;
+  gap:10px;
+  margin-top:12px;
+}
+
+.dragostika-save-row{
+  border:1px solid #f2f2f2;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:16px;
+  align-items:center;
+  padding:14px;
+}
+
+.dragostika-save-row h3,
+.dragostika-save-row p{
+  margin:0;
+}
+
+.dragostika-save-row p{
+  color:#d8d8d2;
+  margin-top:4px;
+}
+
+.dragostika-sheet-stats{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+  margin:16px 0;
+}
+
+.dragostika-sheet-stats span{
+  border:1px solid #f2f2f2;
+  display:grid;
+  gap:4px;
+  padding:10px;
+  text-align:center;
+  text-transform:uppercase;
+}
+
+.dragostika-sheet-stats strong{
+  font-size:1.3rem;
+}
+
+.dragostika-sheet-list{
+  display:grid;
+  gap:8px;
+}
+
+.dragostika-sheet-list div{
+  border:1px solid #f2f2f2;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+  align-items:center;
+  padding:10px;
+}
+
+.dragostika-sheet-list button{
+  appearance:none;
+  border:1px solid #f2f2f2;
+  background:#050505;
+  color:#f2f2f2;
+  cursor:pointer;
+  font-family:'Cinzel', serif;
+  padding:7px 10px;
+  text-transform:uppercase;
+}
+
+.dragostika-game-nav button{
+  appearance:none;
+  border:1px solid #f2f2f2;
+  background:#050505;
+  color:#f2f2f2;
+  cursor:pointer;
+  font-family:'Cinzel', serif;
+  font-size:.72rem;
+  letter-spacing:.06em;
+  padding:9px 8px;
+  text-transform:uppercase;
+}
+
+.dragostika-game-nav button:hover,
+.dragostika-game-nav button:focus{
+  background:#f2f2f2;
+  color:#050505;
+}
+
+.dragostika-window-page{
+  min-height:100vh;
+}
+
+.dragostika-window-shell{
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  padding:24px;
+}
+
+.dragostika-window-card{
+  width:min(760px,100%);
+  border:2px solid #f2f2f2;
+  background:#050505;
+  box-shadow:
+    0 0 0 8px #020202,
+    0 0 0 10px rgba(255,255,255,.55),
+    0 30px 90px rgba(0,0,0,.9);
+  padding:34px;
+}
+
+.dragostika-window-card h1{
+  white-space:normal;
+}
+
+.dragostika-window-card p:not(.eyebrow){
+  color:#d8d8d2;
+  font-size:1.1rem;
+  line-height:1.6;
+}
+
+.dragostika-window-actions{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin-top:24px;
+}
+
+.dragostika-window-actions button{
+  appearance:none;
+  border:2px solid #f2f2f2;
+  background:#050505;
+  color:#f2f2f2;
+  cursor:pointer;
+  font-family:'Cinzel', serif;
+  letter-spacing:.08em;
+  padding:12px;
+  text-transform:uppercase;
+}
+
+.dragostika-window-actions button:hover,
+.dragostika-window-actions button:focus{
+  background:#f2f2f2;
+  color:#050505;
+}
+
+.dragostika-home-card{
+  background:
+    linear-gradient(135deg,rgba(214,167,86,.24),rgba(179,0,22,.22)),
+    var(--panel2);
+}
+
 .daggerheart-home-card{
   background:
     radial-gradient(circle at 85% 12%,rgba(46,143,139,.25),transparent 28%),
@@ -2511,6 +3090,199 @@ footer{
     var(--panel2);
 }
 
+.dragostika-intro{
+  background:#070707;
+  border:2px solid #ededed;
+  border-radius:0;
+  box-shadow:0 20px 70px rgba(0,0,0,.78);
+}
+
+.dragostika-intro p,
+.dragostika-layout p,
+.dragostika-panel li,
+.dragostika-rulebook p,
+.dragostika-system-grid p{
+  color:#d7d7cf;
+  line-height:1.58;
+}
+
+.dragostika-intro p{
+  max-width:920px;
+  font-size:1.08rem;
+}
+
+.dragostika-system-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:16px;
+  margin-top:24px;
+}
+
+.dragostika-system-grid article,
+.dragostika-panel,
+.dragostika-rulebook{
+  background:#070707;
+  border:2px solid #ededed;
+  border-radius:0;
+  box-shadow:0 20px 70px rgba(0,0,0,.78);
+}
+
+.dragostika-system-grid article{
+  padding:22px;
+}
+
+.dragostika-system-grid span{
+  font-family:'Cinzel', serif;
+  color:#0a0a0a;
+  background:#f2f2f2;
+  display:inline-flex;
+  min-width:38px;
+  height:30px;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  margin-bottom:16px;
+}
+
+.dragostika-layout{
+  display:grid;
+  grid-template-columns:1fr 380px;
+  gap:24px;
+  align-items:start;
+}
+
+.dragostika-panel{
+  padding:24px;
+}
+
+.dragostika-panel ul{
+  margin:14px 0 0;
+  padding-left:20px;
+}
+
+.dragostika-panel li + li{
+  margin-top:10px;
+}
+
+.dragostika-rulebook{
+  padding:38px;
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.09),rgba(0,0,0,.08)),
+    #070707;
+}
+
+.dragostika-rulebook p{
+  max-width:920px;
+  font-size:1.06rem;
+}
+
+@media(max-width:1000px){
+  .dragostika-frame{
+    grid-template-columns:1fr;
+  }
+
+  .dragostika-screen{
+    border-right:none;
+    border-bottom:2px solid #efefef;
+  }
+
+  .dragostika-screen img{
+    min-height:360px;
+  }
+
+  .dragostika-system-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .dragostika-layout{
+    grid-template-columns:1fr;
+  }
+
+  .dragostika-builder-grid,
+  .dragostika-ability-assignment,
+  .dragostika-sheet-stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+@media(max-width:560px){
+  .dragostika-hero{
+    padding:28px 14px;
+  }
+
+  .dragostika-frame{
+    min-height:0;
+    width:calc(100vw - 32px);
+    max-width:calc(100vw - 32px);
+    margin:0 auto;
+    box-shadow:
+      0 0 0 5px #020202,
+      0 0 0 7px rgba(255,255,255,.55),
+      0 30px 70px rgba(0,0,0,.9);
+  }
+
+  .dragostika-command{
+    padding:24px 18px;
+  }
+
+  .dragostika-page h1{
+    font-size:clamp(2rem,11vw,2.55rem);
+    white-space:normal;
+  }
+
+  .dragostika-page .eyebrow{
+    letter-spacing:.11em;
+    overflow-wrap:anywhere;
+  }
+
+  .dragostika-page .lead{
+    max-width:100%;
+    overflow-wrap:anywhere;
+  }
+
+  .dragostika-menu{
+    grid-template-columns:1fr;
+  }
+
+  .dragostika-scene-meta{
+    grid-template-columns:1fr;
+  }
+
+  .dragostika-scene-meta > .dragostika-session-line{
+    justify-self:start;
+    text-align:left;
+  }
+
+  .dragostika-audio{
+    grid-template-columns:1fr;
+  }
+
+  .dragostika-audio button,
+  .dragostika-audio span{
+    width:100%;
+    text-align:center;
+  }
+
+  .dragostika-screen img{
+    min-height:280px;
+  }
+
+  .dragostika-system-grid{
+    grid-template-columns:1fr;
+  }
+
+  .dragostika-builder-grid,
+  .dragostika-ability-assignment,
+  .dragostika-save-row,
+  .dragostika-sheet-list div,
+  .dragostika-sheet-stats{
+    grid-template-columns:1fr;
+  }
+
+  .dragostika-rulebook{
+    padding:26px;
+  }
+}
 /* Portal Pages */
 
 .page{

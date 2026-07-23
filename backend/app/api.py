@@ -33,6 +33,7 @@ from app.db.models import (
     CharacterSpell,
     CampaignPlayer,
     EquipmentCatalog,
+    MonsterCatalog,
     Player,
     SafeStorageLocation,
     SpellsCatalog,
@@ -351,6 +352,39 @@ def spell_payload(spell: SpellsCatalog) -> dict:
         "description": spell.description,
         "rules_reference": spell.rules_reference,
     }
+
+
+def monster_payload(monster: MonsterCatalog, include_source_text: bool = False) -> dict:
+    payload = {
+        "id": monster.id,
+        "name": monster.name,
+        "slug": monster.slug,
+        "source": monster.source,
+        "source_pdf_page": monster.source_pdf_page,
+        "rules_reference": monster.rules_reference,
+        "frequency": monster.frequency,
+        "number_encountered": monster.number_encountered,
+        "size": monster.size,
+        "movement": monster.movement,
+        "armor_class": monster.armor_class,
+        "hit_dice": monster.hit_dice,
+        "attacks": monster.attacks,
+        "damage": monster.damage,
+        "special_attacks": monster.special_attacks,
+        "special_defences": monster.special_defences,
+        "magic_resistance": monster.magic_resistance,
+        "lair_probability": monster.lair_probability,
+        "intelligence": monster.intelligence,
+        "alignment": monster.alignment,
+        "level_xp": monster.level_xp,
+        "treasure": monster.treasure,
+        "description": monster.description,
+        "is_core_osric": monster.is_core_osric,
+        "archived": monster.archived,
+    }
+    if include_source_text:
+        payload["source_text"] = monster.source_text
+    return payload
 
 
 def campaign_payload(campaign: Campaign) -> dict:
@@ -783,6 +817,7 @@ def campaign_counts(db: Session, campaign_id: int) -> dict[str, int]:
 def campaign_detail_payload(db: Session, campaign: Campaign) -> dict:
     payload = campaign_payload(campaign)
     payload.update(campaign_counts(db, campaign.id))
+    payload["table_state"] = campaign.table_state or {}
     memberships = db.scalars(select(CampaignPlayer).where(CampaignPlayer.campaign_id == campaign.id)).all()
     players = {player.id: player for player in db.scalars(select(Player).where(Player.id.in_([m.user_id for m in memberships]))).all()} if memberships else {}
     characters = [character_payload(character) for character in db.scalars(select(VaultCharacter).where(VaultCharacter.campaign_id == campaign.id)).all()]
@@ -1244,6 +1279,20 @@ def get_player_campaign(campaign_id: int, claims: dict = Depends(require_player)
     return payload
 
 
+@router.put("/player/campaigns/{campaign_id}/table-state")
+def update_player_campaign_table_state(campaign_id: int, data: dict, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
+    player = player_from_claims(db, claims)
+    ensure_player_campaign_member(db, campaign_id, player.id)
+    campaign = get_campaign_or_404(db, campaign_id)
+    current_state = campaign.table_state or {}
+    if not bool(current_state.get("isSessionLive")):
+        raise HTTPException(status_code=403, detail="The DM has not started the table session.")
+    campaign.table_state = {**data, "isSessionLive": True}
+    db.commit()
+    db.refresh(campaign)
+    return {"ok": True, "table_state": campaign.table_state or {}}
+
+
 @router.get("/player/campaigns/{campaign_id}/maps")
 def list_player_campaign_maps(campaign_id: int, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> list[dict]:
     player = player_from_claims(db, claims)
@@ -1668,6 +1717,40 @@ def list_vault_spells(
     return filtered
 
 
+@router.get("/1e/monsters")
+def list_vault_monsters(
+    q: Optional[str] = None,
+    source: Optional[str] = None,
+    alignment: Optional[str] = None,
+    hit_dice: Optional[str] = None,
+    include_source_text: bool = False,
+    include_archived: bool = False,
+    actor: dict = Depends(require_player_or_admin),
+    db: Session = Depends(get_db),
+) -> list[dict]:
+    ensure_vault_seeded(db)
+    if actor.get("role") != "admin":
+        include_archived = False
+        include_source_text = False
+    monsters = db.scalars(select(MonsterCatalog).order_by(MonsterCatalog.name)).all()
+    filtered = []
+    for monster in monsters:
+        if monster.archived and not include_archived:
+            continue
+        if q:
+            needle = q.lower().strip()
+            if needle and needle not in (monster.search_text or "").lower():
+                continue
+        if source and source.lower().strip() not in (monster.source or "").lower():
+            continue
+        if alignment and alignment.lower() not in (monster.alignment or "").lower():
+            continue
+        if hit_dice and hit_dice.lower() not in (monster.hit_dice or "").lower():
+            continue
+        filtered.append(monster_payload(monster, include_source_text=include_source_text))
+    return filtered
+
+
 @router.get("/1e/campaigns")
 def list_vault_campaigns(include_archived: bool = False, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> list[dict]:
     statement = select(Campaign).order_by(Campaign.name)
@@ -1796,6 +1879,9 @@ def update_admin_campaign_table_state(campaign_id: int, data: dict, _: dict = De
         if map_id is not None:
             get_campaign_map_or_404(db, campaign_id, int(map_id))
         campaign.active_map_id = int(map_id) if map_id is not None else None
+    table_state_keys = {key: value for key, value in data.items() if key not in {"table_mode", "active_map_id"}}
+    if table_state_keys:
+        campaign.table_state = table_state_keys
     db.commit()
     db.refresh(campaign)
     return campaign_detail_payload(db, campaign)

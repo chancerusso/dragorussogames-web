@@ -20,29 +20,40 @@ Last reviewed: 2026-07-22
 The fetched remote copy of `docs/deployment.md` matched the local copy at the
 time of review.
 
-## Historically documented production values
-
-These values come from repository documentation but were not live-verified on
-2026-07-22:
+## Production values
 
 | Item | Documented value | Status |
 |---|---|---|
-| Source checkout | `/opt/russo-bot/source` | Needs live verification |
-| Backend service | `russo-backend.service` | Needs live verification |
+| VPS management address | `valves-nyc2.stonecat-marlin.ts.net` | Verified |
+| Deployment account | `root` (directly or via `sudo -i`) | Verified |
+| Source checkout | `/opt/russo-bot/source` | Verified |
+| Backend service | `russo-backend.service` | Verified |
 | Discord service | `discord-bot.service` | Needs live verification |
-| Backend listener | `127.0.0.1:8010` | Needs live verification |
-| DM web root | `/var/www/dm.dragorussogames.com/` | Needs live verification |
-| Classic web root | `/var/www/classic.dragorussogames.com/` | Needs live verification |
-| API host | `https://russo.dragorussogames.com/api/` | Needs live verification |
-| DM portal | `https://dm.dragorussogames.com/` | Needs live verification |
-| Player portal | `https://classic.dragorussogames.com/` | Needs live verification |
+| Backend listener | `127.0.0.1:8010` | Verified healthy |
+| Backend environment | `/opt/russo-bot/source/backend/.env` | Verified |
+| DM web root | `/var/www/dm.dragorussogames.com/` | Established deployment target |
+| Classic web root | `/var/www/classic.dragorussogames.com/` | Established deployment target |
+| DM portal | `https://dm.dragorussogames.com/` | Verified publicly |
+| Player portal | `https://classic.dragorussogames.com/` | Verified publicly |
+| Production branch before Mapping | `codex-osric-monster-catalog` | Verified |
+| Production commit before Mapping | `1100e11e9bf1b3d02710f2a84f44d3264188aefe` | Verified |
+| Production database | PostgreSQL at `0012_campaign_table_state` | Verified |
 
 ## Live verification result
 
-On 2026-07-22, the portal hostname `dm.dragorussogames.com` was incorrectly
-tested as though it were the VPS management address; that connection timed out.
-A public portal hostname is not assumed to be the SSH deployment target. The
-actual VPS management hostname or approved access path remains to be verified.
+The actual VPS management route was recovered from the previous deployment
+workflow and verified as `valves-nyc2.stonecat-marlin.ts.net`. Repository and
+frontend dependencies are root-owned, so deployments run as `root`, either by
+direct login or `sudo -i` after connecting as `chancerusso`.
+
+The backend service working directory is `/opt/russo-bot/source/backend`, its
+environment file is `backend/.env`, and its listener is `127.0.0.1:8010`.
+Service status and `/api/health` were verified after restoring production commit
+`1100e11`.
+
+A PostgreSQL backup was successfully created before the aborted Mapping attempt
+at `/opt/russo-bot/backups/russo-before-mapping-20260723-005657.dump`. No
+Mapping migration or frontend deployment occurred during that attempt.
 
 Public checks on the same date confirmed successful responses from the API
 health endpoint and both portal roots. Probes of representative private source
@@ -68,6 +79,6 @@ persistence is a separate service deployment.
 
 ## Deployment gate
 
-Production deployment is blocked while any live identity above is unknown.
-Update this inventory immediately after access is restored and before approving
-the first Mapping Mode deployment.
+The host and production lineage blocker is resolved. Mapping Mode must be based
+on production migration `0012_campaign_table_state`, with Mapping as `0013`,
+and the exact pushed merge commit must be used for deployment.

@@ -8,6 +8,9 @@ const coins = ["platinum", "gold", "electrum", "silver", "copper"];
 const DRAGONLANCE_RACE_PATH = "/content/settings/dragonlance/races/";
 const DRAGONLANCE_CLASS_PATH = "/content/settings/dragonlance/classes/";
 const OSRIC_MAGIC_ITEM_CATALOG_PATH = "/content/osric/core/magic_items/index.json";
+const ADVENTURE_MAGIC_ITEM_CATALOG_PATHS = [
+  "/content/adventures/n1_against_the_cult_of_the_reptile_god/magic_items.json",
+];
 const DRAGONLANCE_HIDDEN_CLASS_NAMES = new Set([
   "Barbarian",
   "Cavalier",
@@ -293,7 +296,17 @@ async function loadSpellsCatalog() {
 async function loadMagicItemCatalog() {
   if (state.magicItemCatalog.length) return state.magicItemCatalog;
   const osric = await fetchJson(OSRIC_MAGIC_ITEM_CATALOG_PATH);
-  state.magicItemCatalog = Array.isArray(osric?.items) ? osric.items : [];
+  const adventureCatalogs = await Promise.all(ADVENTURE_MAGIC_ITEM_CATALOG_PATHS.map(async (path) => {
+    try {
+      return await fetchJson(path);
+    } catch {
+      return { items: [] };
+    }
+  }));
+  state.magicItemCatalog = [
+    ...(Array.isArray(osric?.items) ? osric.items : []),
+    ...adventureCatalogs.flatMap((catalog) => Array.isArray(catalog?.items) ? catalog.items : []),
+  ];
   return state.magicItemCatalog;
 }
 

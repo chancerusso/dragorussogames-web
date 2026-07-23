@@ -109,11 +109,11 @@ These are table responsibilities, not exclusive character abilities.
 - Player viewers follow saved Mapper viewport updates through background
   refresh without remounting the canvas.
 
-## Open operational blocker
+## Deployment readiness
 
-The live VPS inventory could not be reverified on 2026-07-22. The DM portal
-hostname was incorrectly tried as an SSH management address and timed out; it
-must not be treated as the destination for player-side deployment. No
-deployment is authorized until the actual VPS access path, services, checkout,
-database, separate DM and Classic web roots, and deployed commit are verified
-and recorded in `docs/deployment-inventory.md`.
+The VPS management route, root-owned checkout, backend service, PostgreSQL
+migration level, production branch, and production commit have been verified.
+Mapping Mode is reconciled with that production lineage as
+`0013_campaign_mapping`, following `0012_campaign_table_state`. Deploy only the
+exact pushed merge commit and keep the Classic player target separate from the
+DM control target.

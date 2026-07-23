@@ -8,21 +8,21 @@
   <meta name="description" content="A compact Daggerheart-compatible player portal for characters, rules reference, and table seats." />
   <meta name="author" content="Drago Russo Games" />
 
-  <link rel="icon" type="image/png" href="./assets/drago-russo-logo.png" />
-  <link rel="stylesheet" href="./daggerheart.css" />
+  <link rel="icon" type="image/png" href="../assets/LogoDrago_Mesa_de_trabajo_1.png" />
+  <link rel="stylesheet" href="../style.css" />
 </head>
 
 <body class="dh-page">
 <main class="dh-app" data-dh-app>
   <header class="dh-topbar">
     <a class="dh-brand" href="../" aria-label="Drago Russo Games home">
-      <img src="./assets/drago-russo-logo.png" alt="" />
+      <img src="../assets/LogoDrago_Mesa_de_trabajo_1.png" alt="" />
       <span>
-        <strong data-dh-brand-title>Player Portal</strong>
+        <strong>Player Portal</strong>
         <small>Drago Russo Games</small>
       </span>
     </a>
-    <img class="dh-compatible-mark" src="./assets/DH_CGL_logos_final_full_color.png" alt="Darrington Press Community Gaming License mark" />
+    <img class="dh-compatible-mark" src="../content/daggerheart/community-logos/PNGs/DH_CGL_logos_final_full_color.png" alt="Darrington Press Community Gaming License mark" />
   </header>
 
   <nav class="dh-tabs" aria-label="Player portal sections" data-dh-tabs hidden>
@@ -39,14 +39,9 @@
       <p>
         Sign in to create characters, review the player-facing SRD, and grab a seat when a campaign invite arrives.
       </p>
-      <div class="dh-login-fields">
-        <label>Username <input type="text" autocomplete="username" aria-label="Username" data-dh-username /></label>
-        <label>Password <input type="password" autocomplete="current-password" aria-label="Password" data-dh-password /></label>
-      </div>
-      <p class="dh-login-error" data-dh-login-error hidden></p>
-      <div class="dh-login-actions">
-        <button type="button" data-dh-login="player">Player Sign In</button>
-        <button class="dh-gm-entry" type="button" data-dh-login="gm">GM Portal</button>
+      <div class="dh-login-row">
+        <input type="text" value="Chance" aria-label="Player name" data-dh-player-input />
+        <button type="button" data-dh-login>Sign In</button>
       </div>
     </div>
   </section>
@@ -55,80 +50,10 @@
     <div class="dh-portal-head">
       <div>
         <p class="dh-kicker">Signed in as <strong data-dh-player-name>Player</strong></p>
-        <h1 data-dh-portal-title>Player Portal</h1>
+        <h1>Player Portal</h1>
       </div>
       <button class="dh-link-button" type="button" data-dh-logout>Log Out</button>
     </div>
-
-    <section class="dh-tab-panel dh-gm-dashboard" data-dh-gm-dashboard hidden>
-      <div data-dh-gm-home>
-      <div class="dh-section-head">
-        <div>
-          <p class="dh-kicker">GM Portal</p>
-          <h2>Your Campaigns</h2>
-        </div>
-        <div class="dh-gm-library-links">
-          <a class="dh-button-link" href="./?reference=rules" target="_blank" rel="noopener">Open SRD</a>
-          <a class="dh-button-link" href="./?library=adversary" target="_blank" rel="noopener">Adversaries</a>
-          <a class="dh-button-link" href="./?library=environment" target="_blank" rel="noopener">Environments</a>
-          <a class="dh-button-link" href="./?library=equipment" target="_blank" rel="noopener">Equipment</a>
-        </div>
-      </div>
-      <form class="dh-panel dh-campaign-create" data-dh-campaign-create>
-        <label>Campaign Name <input name="name" required placeholder="New Daggerheart campaign" /></label>
-        <button type="submit">Create Campaign</button>
-      </form>
-      <div class="dh-character-list" data-dh-campaign-list></div>
-      </div>
-
-      <section class="dh-campaign-workspace" data-dh-campaign-workspace hidden>
-        <div class="dh-section-head">
-          <div><button class="dh-link-button" type="button" data-dh-back-campaigns>← Campaigns</button><p class="dh-kicker">Campaign Command</p><h2 data-dh-campaign-title>Campaign</h2></div>
-          <button type="button" data-dh-launch-game>Launch Game</button>
-        </div>
-        <form class="dh-campaign-planner dh-panel" data-dh-campaign-planner>
-          <label>Campaign Name <input name="name" required /></label>
-          <label>Session Number <input name="session_number" type="number" min="1" required /></label>
-          <label>Next Session <input name="next_session_at" type="datetime-local" /></label>
-          <button type="submit">Save Campaign</button>
-        </form>
-        <section class="dh-panel dh-command-roster"><div class="dh-section-head"><div><p class="dh-kicker">Players</p><h3>Campaign Roster</h3></div><button type="button" data-dh-open-invite-player>Invite New Player</button></div><form class="dh-add-existing-player" data-dh-add-existing-player><label>Add Existing Player <select name="username" required></select></label><button type="submit">Add Player</button></form><div data-dh-member-list></div><div class="dh-character-assignment"><p class="dh-kicker">Unassigned Characters</p><form data-dh-add-character><select name="character_id" required></select><button type="submit">Add Character</button></form><div data-dh-assigned-list hidden></div></div></section>
-        <details class="dh-panel dh-campaign-notes" data-dh-campaign-notes-section><summary>Campaign Notes</summary><form data-dh-campaign-notes-form><textarea name="notes" rows="10" placeholder="Campaign plans, NPCs, secrets, discoveries, and reminders..."></textarea><button type="submit">Save Campaign Notes</button></form><div class="dh-session-note-archive"><h3>Session Notes</h3><div data-dh-session-note-list></div></div></details>
-        <dialog class="dh-library-dialog dh-player-dialog" data-dh-player-dialog><form data-dh-create-player><div class="dh-section-head"><div><p class="dh-kicker">Campaign Access</p><h2>Create Player Account</h2></div><button type="button" data-dh-player-dialog-close>Close</button></div><label>Username <input name="username" required minlength="3" autocomplete="off" /></label><label>Temporary Password <input name="password" required minlength="4" autocomplete="new-password" /></label><label>Display Name <input name="display_name" placeholder="Optional" /></label><button type="submit">Create and Add Player</button></form></dialog>
-        <dialog class="dh-library-dialog dh-character-popout" data-dh-character-popout><div data-dh-character-popout-body></div><button type="button" data-dh-character-popout-close>Close</button></dialog>
-      </section>
-
-      <section class="dh-vtt" data-dh-vtt hidden>
-        <div class="dh-vtt-toolbar"><div class="dh-vtt-toolbar-actions"><button type="button" data-dh-back-campaign>← Campaign</button><button class="dh-end-session" type="button" data-dh-end-session>End Session</button></div><div><p class="dh-kicker">Live Table</p><h2 data-dh-vtt-title>Campaign</h2></div><span data-dh-vtt-save>Saved</span></div>
-        <div class="dh-vtt-trackers"><div class="dh-fear"><button type="button" data-dh-fear-minus>−</button><div><small>Fear</small><div class="dh-fear-beads" data-dh-fear-beads></div></div><button type="button" data-dh-fear-plus>+</button></div><div class="dh-countdowns"><div><div data-dh-countdown-list></div></div><button type="button" data-dh-add-countdown>Countdown</button></div></div>
-        <section class="dh-dice-roller dh-panel" data-dh-dice-roller="gm">
-          <div class="dh-dice-controls"><div><p class="dh-kicker">GM Dice Roller</p><h3>Make a Roll</h3></div><label>Roll <select data-dh-roll-mode><option value="normal">Normal</option><option value="advantage">Advantage</option><option value="disadvantage">Disadvantage</option></select></label><label>Dice <input data-dh-dice-count type="number" min="1" max="20" value="1" /></label><label>Modifier <span class="dh-mod-stepper"><button type="button" data-dh-mod-step="-1">−</button><input data-dh-dice-mod type="number" min="-99" max="99" value="0" /><button type="button" data-dh-mod-step="1">+</button></span></label><div class="dh-dice-buttons"><button type="button" data-dh-die="4">d4</button><button type="button" data-dh-die="6">d6</button><button type="button" data-dh-die="8">d8</button><button type="button" data-dh-die="10">d10</button><button type="button" data-dh-die="12">d12</button><button type="button" data-dh-die="20">d20</button><button class="dh-duality-button" type="button" data-dh-duality>Duality Dice</button><button class="dh-gm-roll-button" type="button" data-dh-gm-roll>GM Roll · d20</button></div></div><div class="dh-roll-result" data-dh-roll-result><span>Ready</span></div><div class="dh-roll-history" data-dh-roll-history></div>
-        </section>
-        <section class="dh-panel dh-vtt-map"><div class="dh-vtt-grid-head"><h3>Battle Map</h3><form class="dh-grid-builder" data-dh-grid-builder><label>Across <input name="columns" type="number" min="4" max="20" value="16" /></label><span>×</span><label>Down <input name="rows" type="number" min="4" max="20" value="12" /></label><button type="submit">Build Grid</button></form></div><div class="dh-battle-grid" data-dh-battle-grid></div></section>
-        <section class="dh-panel dh-vtt-encounter"><div class="dh-section-head"><div><p class="dh-kicker">Encounter</p><h3>Adversaries</h3></div><button type="button" data-dh-add-adversary>+ Add Adversary</button></div><div data-dh-vtt-adversaries></div></section>
-        <section class="dh-panel dh-vtt-environments"><p class="dh-kicker">Scene</p><h3>Environments</h3><button type="button" data-dh-add-environment>+ Load Environment</button><div data-dh-vtt-environment-list></div></section>
-        <details class="dh-panel dh-session-notes" open><summary>Session Notes</summary><label>Notes for this session<textarea rows="10" data-dh-session-notes placeholder="Scenes, discoveries, NPCs, rulings, rewards, and reminders..."></textarea></label><p class="dh-helper">Saved continuously with the table. End Session archives these notes under the current session number.</p></details>
-        <dialog class="dh-table-dialog" data-dh-countdown-dialog><form data-dh-countdown-form><div class="dh-section-head"><div><p class="dh-kicker">GM Table</p><h2>Add Countdown Die</h2></div><button type="button" data-dh-countdown-close>Close</button></div><label>Name <input name="name" required placeholder="Collapsing chamber" /></label><label>Die <select name="die"><option value="4">d4</option><option value="6" selected>d6</option><option value="8">d8</option><option value="10">d10</option><option value="12">d12</option></select></label><button type="submit">Add Countdown</button></form></dialog>
-        <dialog class="dh-table-dialog dh-picker-dialog" data-dh-picker-dialog><div class="dh-section-head"><div><p class="dh-kicker">GM Table</p><h2 data-dh-picker-title>Add Adversary</h2></div><button type="button" data-dh-picker-close>Close</button></div><div class="dh-picker-filters"><label>Search <input type="search" data-dh-picker-search placeholder="Search by name..." /></label><label>Type <select data-dh-picker-type><option value="">All Types</option></select></label><label>Tier <select data-dh-picker-tier><option value="">All Tiers</option><option value="1">Tier 1</option><option value="2">Tier 2</option><option value="3">Tier 3</option><option value="4">Tier 4</option></select></label></div><div class="dh-picker-results" data-dh-picker-results></div></dialog>
-      </section>
-    </section>
-
-    <section class="dh-tab-panel dh-library" data-dh-library hidden>
-      <div class="dh-section-head"><div><p class="dh-kicker">GM Library</p><h2 data-dh-library-title>Adversaries</h2></div><button type="button" data-dh-create-library>Create New</button></div>
-      <nav class="dh-equipment-tabs" data-dh-equipment-tabs hidden><button type="button" data-equipment-type="Weapon">Weapons</button><button type="button" data-equipment-type="Armor">Armor</button><button type="button" data-equipment-type="Loot">Loot</button><button type="button" data-equipment-type="Consumable">Consumables</button></nav>
-      <div class="dh-library-filters dh-panel"><label>Search <input type="search" data-dh-library-search placeholder="Search by name..." /></label><label>Type <select data-dh-library-type><option value="">All Types</option></select></label><label>Tier <select data-dh-library-tier><option value="">All Tiers</option><option value="1">Tier 1</option><option value="2">Tier 2</option><option value="3">Tier 3</option><option value="4">Tier 4</option></select></label><span data-dh-library-count></span></div>
-      <div class="dh-library-grid" data-dh-library-grid></div>
-      <dialog class="dh-library-dialog" data-dh-library-dialog>
-        <form data-dh-library-form>
-          <div class="dh-section-head"><div><p class="dh-kicker">GM Library</p><h2 data-dh-editor-title>Create</h2></div><button type="button" data-dh-editor-close>Close</button></div>
-          <input type="hidden" name="id" /><input type="hidden" name="kind" />
-          <label>Name <input name="name" required maxlength="180" /></label><label>Source <input name="source" value="Custom" maxlength="180" /></label>
-          <div class="dh-library-editor-fields" data-dh-editor-fields></div>
-          <label>Features / Description <textarea name="description" rows="10"></textarea></label>
-          <button type="submit">Save to My Library</button>
-        </form>
-      </dialog>
-    </section>
 
     <section class="dh-tab-panel" data-dh-panel="characters">
       <div class="dh-section-head">
@@ -145,7 +70,7 @@
       <div class="dh-section-head">
         <div>
           <p class="dh-kicker" data-dh-builder-kicker>Guided Builder</p>
-          <h2 data-dh-builder-title>Build a Character</h2>
+          <h2 data-dh-builder-title>Build a compact character.</h2>
         </div>
         <button type="button" data-dh-save-character>Save Character</button>
       </div>
@@ -169,17 +94,18 @@
     <section class="dh-tab-panel" data-dh-panel="table" hidden>
       <div class="dh-section-head">
         <div>
-          <p class="dh-kicker">Player Table</p>
-          <h2 data-dh-player-table-title>Your Campaign</h2>
+          <p class="dh-kicker">Table</p>
+          <h2>Waiting for the GM.</h2>
         </div>
-        <label>Campaign <select data-dh-player-campaign></select></label>
       </div>
-      <div class="dh-vtt-trackers dh-player-trackers"><div class="dh-fear"><div><small>Fear</small><div class="dh-fear-beads" data-dh-player-fear></div></div></div><div class="dh-countdowns"><div><div data-dh-player-countdowns></div></div></div></div>
-      <section class="dh-dice-roller dh-panel" data-dh-dice-roller="player">
-        <div class="dh-dice-controls"><div><p class="dh-kicker">Player Dice Roller</p><h3>Make a Roll</h3></div><label>Roll <select data-dh-roll-mode><option value="normal">Normal</option><option value="advantage">Advantage +d6</option><option value="disadvantage">Disadvantage −d6</option></select></label><label>Dice <input data-dh-dice-count type="number" min="1" max="20" value="1" /></label><label>Modifier <span class="dh-mod-stepper"><button type="button" data-dh-mod-step="-1">−</button><input data-dh-dice-mod type="number" min="-99" max="99" value="0" /><button type="button" data-dh-mod-step="1">+</button></span></label><div class="dh-dice-buttons"><button type="button" data-dh-die="4">d4</button><button type="button" data-dh-die="6">d6</button><button type="button" data-dh-die="8">d8</button><button type="button" data-dh-die="10">d10</button><button type="button" data-dh-die="12">d12</button><button type="button" data-dh-die="20">d20</button><button class="dh-duality-button" type="button" data-dh-duality>Duality Dice</button></div></div><div class="dh-roll-result" data-dh-roll-result><span>Ready</span></div><div class="dh-roll-history" data-dh-roll-history></div>
-      </section>
-      <section class="dh-panel dh-player-map"><div class="dh-vtt-grid-head"><div><p class="dh-kicker">Live Table</p><h3>Battle Map</h3></div><div class="dh-player-token-tools"><label>Character <select data-dh-player-token-character></select></label><button type="button" data-dh-place-player-token>Place / Move Token</button></div></div><p class="dh-helper" data-dh-player-map-help>Select your character, click Place / Move Token, then choose a square.</p><div class="dh-battle-grid" data-dh-player-grid></div></section>
-      <section class="dh-panel dh-player-sheet" data-dh-player-sheet><p class="dh-helper">Choose an active campaign to load your character sheet.</p></section>
+      <article class="dh-seat-card">
+        <div>
+          <p class="dh-kicker">Session Seat</p>
+          <h3>Friday Night Daggerheart</h3>
+          <p>The table becomes ready when the GM starts the session. Choose a character, then grab your seat.</p>
+        </div>
+        <button type="button" data-dh-grab-seat>Grab A Seat</button>
+      </article>
     </section>
   </section>
 
