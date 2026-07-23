@@ -386,6 +386,8 @@ def monster_payload(monster: MonsterCatalog, include_source_text: bool = False) 
         "name": monster.name,
         "slug": monster.slug,
         "source": monster.source,
+        "supplemental_source": monster.supplemental_source,
+        "verification": monster.verification,
         "source_pdf_page": monster.source_pdf_page,
         "rules_reference": monster.rules_reference,
         "frequency": monster.frequency,
@@ -1787,13 +1789,10 @@ def list_vault_monsters(
     hit_dice: Optional[str] = None,
     include_source_text: bool = False,
     include_archived: bool = False,
-    actor: dict = Depends(require_player_or_admin),
+    _: dict = Depends(require_jwt_admin),
     db: Session = Depends(get_db),
 ) -> list[dict]:
     ensure_vault_seeded(db)
-    if actor.get("role") != "admin":
-        include_archived = False
-        include_source_text = False
     monsters = db.scalars(select(MonsterCatalog).order_by(MonsterCatalog.name)).all()
     filtered = []
     for monster in monsters:

@@ -387,7 +387,14 @@ class MonsterCatalog(TimestampMixin, Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(160), nullable=False)
     slug: Mapped[str] = mapped_column(String(180), unique=True, nullable=False)
-    source: Mapped[str] = mapped_column(String(120), default="OSRIC Core Rules", server_default="OSRIC Core Rules", nullable=False)
+    source: Mapped[str] = mapped_column(String(120), default="Monster Manual", server_default="Monster Manual", nullable=False)
+    supplemental_source: Mapped[Optional[str]] = mapped_column(String(160), nullable=True)
+    verification: Mapped[str] = mapped_column(
+        String(80),
+        default="legacy_unverified",
+        server_default="legacy_unverified",
+        nullable=False,
+    )
     source_pdf_page: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     rules_reference: Mapped[Optional[str]] = mapped_column(String(240), nullable=True)
     frequency: Mapped[Optional[str]] = mapped_column(String(160), nullable=True)

@@ -25,6 +25,22 @@ Result:
 Approved.
 
 Date:
+2026-07-23
+
+Decision:
+Adventure-specific monsters retain the adventure title as their source and
+coexist with core Monster Manual entries.
+
+Reason:
+Adventure records may contain scenario-specific statistics or mechanics and
+more adventure monsters will be imported over time. They must not be silently
+merged into, relabeled as, or superseded by the core catalog merely because
+their names are similar.
+
+Result:
+Approved.
+
+Date:
 2026-06-17
 
 Decision:
@@ -112,3 +128,23 @@ Players should read the rules, follow clear steps, make manual choices, write in
 
 Result:
 Approved. House rules remain clearly separated from official rules and campaign procedures.
+
+Date:
+2026-07-23
+
+Decision:
+Reuse existing legacy monster records when their structured statistics match
+the Monster Manual, but change their official provenance only after
+field-by-field verification.
+
+Reason:
+Many OSRIC monsters may reproduce the same First Edition mechanics. Updating a
+verified row in place preserves stable slugs and saved references while avoiding
+unnecessary duplicate records. A record verified completely against the
+Monster Manual will use `Monster Manual` as its primary source. A record that
+still contains unverified OSRIC-derived fields will retain legacy provenance;
+it will not be presented as an official-book record merely because its name
+matches.
+
+Result:
+Approved.

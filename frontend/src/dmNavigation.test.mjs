@@ -36,7 +36,7 @@ test("Rules & Settings routes inside the authenticated DM app", () => {
   assert.equal(item?.href, undefined);
 });
 
-test("Monsters opens the OSRIC monster glossary inside the DM app", () => {
+test("Monsters opens the DM monster glossary in a separate window", () => {
   const item = DM_NAV_ITEMS.find((navItem) => navItem.label === "Monsters");
   const appSource = readFileSync(new URL("./App.jsx", import.meta.url), "utf8");
 

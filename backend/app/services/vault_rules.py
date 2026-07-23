@@ -1175,15 +1175,37 @@ def spell_seed() -> list[dict]:
 
 
 def monster_seed() -> list[dict]:
-    monster_path = content_root().parent / "osric" / "core" / "monsters" / "osric_monsters.json"
-    seeds = json.loads(monster_path.read_text())
+    monster_manual_path = Path(__file__).resolve().parents[1] / "data" / "monster_manual_monsters.json"
+    legacy_path = content_root().parent / "osric" / "core" / "monsters" / "osric_monsters.json"
+    seeds = json.loads(monster_manual_path.read_text())
+    official_slugs = {seed["slug"] for seed in seeds}
+    for legacy_seed in json.loads(legacy_path.read_text()):
+        if legacy_seed["slug"] in official_slugs:
+            continue
+        legacy_seed = {
+            **legacy_seed,
+            "source": "Legacy OSRIC Catalog",
+            "supplemental_source": None,
+            "verification": "legacy_unverified",
+        }
+        seeds.append(legacy_seed)
     adventure_root = content_root().parent / "adventures"
     for adventure_path in sorted(adventure_root.glob("*/monsters.json")):
         adventure_monsters = json.loads(adventure_path.read_text())
         if isinstance(adventure_monsters, list):
-            seeds.extend(adventure_monsters)
+            records = adventure_monsters
         elif isinstance(adventure_monsters, dict):
-            seeds.extend(adventure_monsters.get("monsters", []))
+            records = adventure_monsters.get("monsters", [])
+        else:
+            records = []
+        seeds.extend(
+            {
+                **record,
+                "supplemental_source": None,
+                "verification": "adventure_source",
+            }
+            for record in records
+        )
     return seeds
 
 

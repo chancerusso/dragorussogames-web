@@ -835,7 +835,7 @@ function DragoTablePage() {
   const { data: monsterCatalog, error: monsterError, loading: monsterLoading } = useLoad(() => api("/1e/monsters?include_source_text=true"), []);
   const savedTable = useMemo(() => loadDragoTableState(id), [id]);
   const [mode, setMode] = useState(savedTable.mode);
-  const [monsterSource, setMonsterSource] = useState("OSRIC Core Rules");
+  const [monsterSource, setMonsterSource] = useState("Monster Manual");
   const [monsterQuery, setMonsterQuery] = useState("");
   const [selectedMonsterId, setSelectedMonsterId] = useState(null);
   const [encounterMonsters, setEncounterMonsters] = useState(savedTable.encounterMonsters);
@@ -1422,24 +1422,26 @@ function filterMonsterCatalog(monsters, query) {
 
 function uniqueMonsterSources(monsters) {
   const sources = Array.from(new Set(monsters.map((monster) => monster.source || "Unknown"))).sort((a, b) => {
-    if (a === "OSRIC Core Rules") return -1;
-    if (b === "OSRIC Core Rules") return 1;
+    if (a === "Monster Manual") return -1;
+    if (b === "Monster Manual") return 1;
     return a.localeCompare(b);
   });
   return sources;
 }
 
 function monsterSourceLabel(source) {
-  return source === "OSRIC Core Rules"
-    ? "Legacy Monster Catalog — Monster Manual Import Pending"
-    : source;
+  if (source === "OSRIC Core Rules" || source === "Legacy OSRIC Catalog") {
+    return "Legacy Monster Catalog";
+  }
+  return source;
 }
 
 function monsterSourceReference(monster) {
   if (!monster) return "";
   const source = monster.source || (monster.is_core_osric ? "OSRIC Core Rules" : "Adventure");
   const page = monster.source_pdf_page ? ` p. ${monster.source_pdf_page}` : "";
-  return `${monsterSourceLabel(source)}${page}`;
+  const supplemental = monster.supplemental_source ? ` · ${monster.supplemental_source}` : "";
+  return `${monsterSourceLabel(source)}${page}${supplemental}`;
 }
 
 function numericReward(value) {

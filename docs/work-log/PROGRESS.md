@@ -201,6 +201,10 @@ DM control target.
 - Player-facing First Edition and Dragolance reference labels no longer present
   OSRIC as the library or rules authority. Unverified legacy rules remain
   clearly described as drafts pending official-book verification.
-- The DM monster catalog remains legacy data and is visibly labelled
-  `Legacy Monster Catalog — Monster Manual Import Pending`; Monster Manual
-  records have not yet been imported.
+- The revised DM catalog contains 217 Monster Manual main entries with printed
+  statistics, retained legacy monsters under an explicit legacy source, and
+  adventure-specific monsters under their adventure titles.
+- Migration `0020_monster_manual_catalog` updates matching slugs in place,
+  inserts missing Monster Manual entries, and preserves adventure records.
+- Monster Manual is the default Drago Table source. Operational notes retained
+  from OSRIC are separately identified as supplemental provenance.
