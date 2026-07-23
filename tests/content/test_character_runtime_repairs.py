@@ -123,11 +123,11 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertIn("Dwarf Constitution save adjustment", " ".join(payload["combat"]["saving_throws"]["notes"]))
 
     def test_equipping_splint_persists_status_and_recalculates_ac(self) -> None:
-        splint = self.equipment("Splint")
+        splint = self.equipment("Splinted")
         payload = add_inventory_record(self.character_model, {"equipment_id": splint.id, "status": "equipped"}, self.db)
         row = payload["inventory"][0]
         self.assertEqual("equipped", row["status"])
-        self.assertEqual("Splint", row["equipment"]["name"])
+        self.assertEqual("Splinted", row["equipment"]["name"])
         self.assertEqual(4, payload["combat"]["armor_class"])
 
         updated = update_inventory_record(self.character_model, row["id"], {"status": "carried"}, self.db)
@@ -158,9 +158,9 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
             self.db,
         )
         model = self.db.get(VaultCharacter, character["id"])
-        payload = add_inventory_record(model, {"equipment_id": self.equipment("Splint").id, "status": "equipped"}, self.db)
+        payload = add_inventory_record(model, {"equipment_id": self.equipment("Splinted").id, "status": "equipped"}, self.db)
         self.db.refresh(model)
-        payload = add_inventory_record(model, {"equipment_id": self.equipment("Backpack").id, "quantity": 4, "status": "carried"}, self.db)
+        payload = add_inventory_record(model, {"equipment_id": self.equipment("Backpack, leather").id, "quantity": 4, "status": "carried"}, self.db)
 
         self.assertEqual("18/43", payload["strength_display"])
         self.assertEqual(90, payload["combat"]["carried_weight"])
@@ -171,7 +171,7 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertEqual(135, payload["combat"]["encumbrance"]["unencumbered_through"])
         self.assertEqual(136, payload["combat"]["encumbrance"]["next_encumbrance"])
         self.assertEqual(60, payload["combat"]["encumbrance"]["armor_move_limit"])
-        self.assertEqual("Splint", payload["combat"]["encumbrance"]["armor_move_source"])
+        self.assertEqual("Splinted", payload["combat"]["encumbrance"]["armor_move_source"])
         self.assertEqual(10, payload["combat"]["encumbrance"]["coin_weight"])
         self.assertEqual(80, payload["combat"]["encumbrance"]["equipment_weight"])
         self.assertEqual(135, payload["combat"]["encumbrance"]["thresholds"]["unencumbered"])
@@ -212,7 +212,7 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertEqual(90, movement)
 
     def test_drop_deletes_inventory_row_and_removes_armor_effects(self) -> None:
-        splint = self.equipment("Splint")
+        splint = self.equipment("Splinted")
         payload = add_inventory_record(self.character_model, {"equipment_id": splint.id, "status": "equipped"}, self.db)
         dropped = delete_inventory_record(self.character_model, payload["inventory"][0]["id"], self.db)
         self.assertEqual([], dropped["inventory"])
@@ -237,6 +237,23 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         runtime = next(item for item in payload["combat"]["runtime"]["weapons"] if item["equipment_id"] == sword.id)
         self.assertEqual("5", runtime["weapon_speed"])
 
+    def test_phb_general_equipment_costs_and_armor_are_canonical(self) -> None:
+        backpack = self.equipment("Backpack, leather")
+        plate_barding = self.equipment("Barding, plate")
+        chain = self.equipment("Chain")
+
+        self.assertEqual((2.0, "gp"), (backpack.cost_amount, backpack.cost_coin))
+        self.assertEqual("miscellaneous", backpack.subtype)
+        self.assertEqual("Player's Handbook", backpack.properties["source"])
+        self.assertEqual("pending_official_verification", backpack.properties["runtime_weight_status"])
+
+        self.assertEqual((500.0, "gp"), (plate_barding.cost_amount, plate_barding.cost_coin))
+        self.assertEqual("tack_and_harness", plate_barding.subtype)
+
+        self.assertEqual(5, chain.armor_class_value)
+        self.assertEqual(-5, chain.armor_class_adjustment)
+        self.assertEqual("cost_and_ac_verified", chain.properties["verification"])
+
     def test_ammunition_is_inventory_not_runtime_weapon(self) -> None:
         crossbow = self.equipment("Crossbow, heavy")
         bolts = self.equipment("Quarrel (or Bolt), heavy, score")
@@ -256,7 +273,7 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
     def test_ammunition_addition_merges_bundles_and_non_bundled_gear_stays_one(self) -> None:
         bolts = self.equipment("Quarrel (or Bolt), heavy, score")
         arrows = self.equipment("Arrow, normal, dozen")
-        backpack = self.equipment("Backpack")
+        backpack = self.equipment("Backpack, leather")
 
         payload = add_inventory_record(self.character_model, {"equipment_id": bolts.id, "status": "carried"}, self.db)
         payload = add_inventory_record(self.character_model, {"equipment_id": bolts.id, "status": "carried"}, self.db)
@@ -334,7 +351,7 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertEqual(404, raised.exception.status_code)
 
     def test_armor_class_breakdown_excludes_unequipped_armor_and_applies_shield(self) -> None:
-        payload = add_inventory_record(self.character_model, {"equipment_id": self.equipment("Splint").id, "status": "carried"}, self.db)
+        payload = add_inventory_record(self.character_model, {"equipment_id": self.equipment("Splinted").id, "status": "carried"}, self.db)
         self.assertEqual(10, payload["combat"]["armor_class"])
         self.assertEqual("No armor", payload["combat"]["armor_class_breakdown"]["armor"]["label"])
 
@@ -361,7 +378,7 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
             self.db,
         )
         model = self.db.get(VaultCharacter, character["id"])
-        payload = add_inventory_record(model, {"equipment_id": self.equipment("Splint").id, "status": "equipped"}, self.db)
+        payload = add_inventory_record(model, {"equipment_id": self.equipment("Splinted").id, "status": "equipped"}, self.db)
         payload = add_inventory_record(model, {"equipment_id": self.equipment("Shield, large").id, "status": "equipped"}, self.db)
         ac = payload["combat"]["armor_class_breakdown"]
 
@@ -883,7 +900,7 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertEqual({"short": 30, "medium": 60, "long": 90, "raw": "30 ft"}, runtime["range"])
 
     def test_applied_magic_armor_uses_base_armor_and_ac_adjustment(self) -> None:
-        splint = self.equipment("Splint")
+        splint = self.equipment("Splinted")
         self.character_model.magic_items = [
             {
                 "id": "magic-splint-plus-1",

@@ -928,11 +928,39 @@ def equipment_seed() -> list[dict]:
     markdown = (content_root() / "equipment.md").read_text()
     seeds: list[dict] = []
     for row in table_rows(markdown, "General Equipment"):
-        cost_amount, cost_coin = parse_cost(row[2])
-        seeds.append({"name": row[0], "type": "adventuring_gear", "subtype": "general", "weight": parse_weight(row[1]), "cost_amount": cost_amount, "cost_coin": cost_coin})
+        cost_amount, cost_coin = parse_cost(row[3])
+        seeds.append({
+            "name": row[0],
+            "type": "adventuring_gear",
+            "subtype": row[1].lower().replace(" ", "_"),
+            "weight": parse_weight(row[2]),
+            "cost_amount": cost_amount,
+            "cost_coin": cost_coin,
+            "properties": {
+                "source": "Player's Handbook",
+                "source_page": 35 if row[1] in {"Clothing", "Herbs"} else 36,
+                "verification": "cost_verified",
+                "runtime_weight_status": "pending_official_verification",
+            },
+        })
     for row in table_rows(markdown, "Animals And Transport"):
-        cost_amount, cost_coin = parse_cost(row[2])
-        seeds.append({"name": row[0], "type": "mount" if any(word in row[0].lower() for word in ("horse", "mule", "ox", "pony")) else "transport", "subtype": "animal_transport", "weight": parse_weight(row[1]), "cost_amount": cost_amount, "cost_coin": cost_coin})
+        cost_amount, cost_coin = parse_cost(row[3])
+        category = row[1]
+        is_mount = category == "Livestock" and any(word in row[0].lower() for word in ("horse", "mule", "ox", "pony", "donkey"))
+        seeds.append({
+            "name": row[0],
+            "type": "mount" if is_mount else "transport" if category == "Transport" else "adventuring_gear",
+            "subtype": category.lower().replace(" ", "_"),
+            "weight": parse_weight(row[2]),
+            "cost_amount": cost_amount,
+            "cost_coin": cost_coin,
+            "properties": {
+                "source": "Player's Handbook",
+                "source_page": 36,
+                "verification": "cost_verified",
+                "runtime_weight_status": "pending_official_verification",
+            },
+        })
     for row in table_rows(markdown, "Master Weapon Table"):
         cost_amount, cost_coin = parse_cost(row[7])
         weight, printed_weight = parse_gp_weight(row[6])
@@ -985,21 +1013,28 @@ def equipment_seed() -> list[dict]:
                 "verification": "verified",
             },
         })
-    armor_ac = {"Banded": 4, "Mail hauberk or byrnie": 5, "Mail, elfin": 5, "Leather": 8, "Padded gambeson": 8, "Plate": 3, "Ring": 7, "Scale or lamellar": 6, "Splint": 4, "Studded": 7}
     for row in table_rows(markdown, "Armour"):
         cost_amount, cost_coin = parse_cost(row[4])
         is_shield = row[0].startswith("Shield")
         max_move = parse_weight(row[2]) if not is_shield else None
+        armor_class = int(row[3]) if row[3].isdigit() else None
         seeds.append({
             "name": row[0],
             "type": "shield" if is_shield else "armor",
-            "subtype": "shield" if is_shield else "armor",
+            "subtype": "shield" if is_shield else "helmet" if row[0].startswith("Helmet") else "armor",
             "weight": parse_weight(row[1]),
             "cost_amount": cost_amount,
             "cost_coin": cost_coin,
-            "armor_class_value": 9 if is_shield else armor_ac.get(row[0]),
-            "armor_class_adjustment": -1 if is_shield else parse_weight(row[3]) * -1,
-            "properties": {"max_move": int(max_move) if max_move else None},
+            "armor_class_value": armor_class,
+            "armor_class_adjustment": -1 if is_shield else armor_class - 10 if armor_class is not None else None,
+            "properties": {
+                "max_move": int(max_move) if max_move else None,
+                "source": "Player's Handbook",
+                "source_page": 36,
+                "verification": "cost_and_ac_verified",
+                "runtime_weight_status": "pending_official_verification",
+                "runtime_move_status": "pending_official_verification",
+            },
         })
     deduped = {}
     for seed in seeds:

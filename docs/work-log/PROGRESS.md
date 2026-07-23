@@ -165,3 +165,12 @@ DM control target.
   and archives superseded OSRIC-only choices without deleting inventory data.
 - The same audit standard will next cover PHB spells and player rules, followed
   by Monster Manual mechanics and DMG procedures.
+- PHB general equipment costs are now reconciled across clothing, herbs,
+  livestock, miscellaneous gear, provisions, religious items, tack, transport,
+  armour, helmets, and shields.
+- Every reconciled row carries book, printed page, category, and verification
+  status. Non-weapon weights and armour movement caps are clearly marked as
+  pending official verification rather than attributed to the PHB.
+- The PHB main-table plate-barding `15 sp` anomaly is documented; the catalog
+  uses the condensed PHB reference value of `500 gp`.
+- Next source-replacement checkpoint: PHB spell lists and spell mechanics.

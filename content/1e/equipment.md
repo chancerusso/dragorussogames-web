@@ -36,104 +36,116 @@ assumes coins are approximately equal in size and weight.
 
 ## General Equipment
 
-| Item | Weight | Cost |
-| --- | ---: | ---: |
-| Ale, pint | 1 lb | 1 sp |
-| Backpack | 10 lb empty | 2 gp |
-| Barrel | 30 lb empty | 2 gp |
-| Bedroll | 5 lb | 2 sp |
-| Bell | - | 1 gp |
-| Belt | - | 5 sp |
-| Blanket, woollen | 2 lb | 5 cp |
-| Block and tackle | 5 lb | 5 gp |
-| Boots, soft | 3 lb | 1 gp |
-| Boots, heavy | 5 lb | 2 gp |
-| Bottle, glass | 1 lb | 2 gp |
-| Box | 15 lb empty | 1 gp |
-| Bracer, leather | 1 lb | 8 sp |
-| Caltrops | 2 lb | 1 gp |
-| Candle, beeswax | - | 1 cp |
-| Canvas, per square yard | 1 lb | 1 sp |
-| Cauldron and tripod | 15 lb | 2 gp |
-| Chain, per 10 ft | 10 lb | 30 gp |
-| Chalk, piece | - | 1 cp |
-| Chest | 25 lb empty | 2 gp |
-| Cloak | 2 lb | 3 cp |
-| Crowbar | 5 lb | 2 gp |
-| Dice, bone pair | - | 5 sp |
-| Dice, loaded pair | - | 5 gp |
-| Firewood, per day | 20 lb | 1 cp |
-| Fish hook | - | 1 sp |
-| Fishing net, per 25 sq ft | - | 1 sp |
-| Flask, leather | - | 3 cp |
-| Flint and steel | - | 1 gp |
-| Grappling hook | 4 lb | 1 gp |
-| Hammer, tool | 2 lb | 5 sp |
-| Holy symbol, silver | 1 lb | 25 gp |
-| Holy symbol, pewter | 1 lb | 5 gp |
-| Holy symbol, wooden | 1 lb | 6 sp |
-| Iron spikes, dozen | 5 lb | 1 gp |
-| Ladder, per 10 ft | 20 lb | 5 sp |
-| Lamp, bronze | 1 lb | 1 sp |
-| Lantern, bullseye | 3 lb | 12 gp |
-| Lantern, hooded | 2 lb | 7 gp |
-| Lock | 1 lb | 20+ gp |
-| Manacles | 2 lb | 15 gp |
-| Mirror, small steel | 1/2 lb | 20 gp |
-| Mirror, small silver | 1/2 lb | 45 gp |
-| Musical instrument | 1+ lb | 5+ gp |
-| Needle and thread | - | 3 cp |
-| Oil, lamp, per pint | 1 lb | 1 sp |
-| Parchment, per sheet | - | 2 sp |
-| Pin, cloak | - | 4 sp |
-| Piton | 1/2 lb | 1 sp |
-| Pole, per 10 ft | 8 lb | 2 sp |
-| Pot, iron | 10 lb | 5 sp |
-| Pouch, belt, large | 2 lb empty | 4 sp |
-| Pouch, belt, small | 1 lb empty | 2 sp |
-| Quill | - | 1 sp |
-| Rations, standard, per day | 2 lb | 2 gp |
-| Rations, trail, per day | 1 lb | 6 gp |
-| Rope, hemp, 50 ft | 10 lb | 1 gp |
-| Rope, silk, 50 ft | 5 lb | 10 gp |
-| Sack, small | 1/2 lb empty | 9 cp |
-| Sack, large | 1 lb empty | 15 cp |
-| Satchel | 5 lb empty | 1 gp |
-| Scrollcase, bone | 1/2 lb | 4 gp |
-| Scrollcase, leather | 1/2 lb | 1 gp |
-| Shovel | 8 lb | 2 gp |
-| Signal whistle | - | 8 sp |
-| Skillet | 5 lb | 1 gp |
-| Soap, per lb | 1 lb | 5 sp |
-| Spell book, blank | 5 lb | 25 gp |
-| Tent | 20 lb | 10 gp |
-| Thieves' tools | 1 lb | 30 gp |
-| Torch | 1 lb | 1 cp |
-| Twine, linen, 100 ft | 1/2 lb | 8 cp |
-| Vellum, per sheet | - | 3 sp |
-| Water, holy, vial | 1/2 lb | 25 gp |
-| Waterskin, 3 pint | 1 lb empty | 1 gp |
-| Whetstone | 1/2 lb | 2 cp |
-| Wine, pint | 1 lb | 5 sp |
+| Item | Category | Runtime Weight* | Cost |
+| --- | --- | ---: | ---: |
+| Belt | Clothing | — | 3 sp |
+| Boots, high, hard | Clothing | — | 2 gp |
+| Boots, high, soft | Clothing | — | 1 gp |
+| Boots, low, hard | Clothing | — | 1 gp |
+| Boots, low, soft | Clothing | — | 8 sp |
+| Cap | Clothing | — | 1 sp |
+| Cloak | Clothing | 2 lb | 5 sp |
+| Girdle, broad | Clothing | — | 2 gp |
+| Girdle, normal | Clothing | — | 10 sp |
+| Hat | Clothing | — | 7 sp |
+| Robe | Clothing | — | 6 sp |
+| Belladonna, sprig | Herbs | — | 4 sp |
+| Garlic, bud | Herbs | — | 5 cp |
+| Wolvesbane, sprig | Herbs | — | 10 sp |
+| Backpack, leather | Miscellaneous | 10 lb empty | 2 gp |
+| Box, iron, large | Miscellaneous | — | 28 gp |
+| Box, iron, small | Miscellaneous | — | 9 gp |
+| Candle, tallow | Miscellaneous | — | 1 cp |
+| Candle, wax | Miscellaneous | — | 1 sp |
+| Case, bone, map or scroll | Miscellaneous | 1/2 lb | 5 gp |
+| Case, leather, map or scroll | Miscellaneous | 1/2 lb | 15 sp |
+| Chest, wooden, large | Miscellaneous | 25 lb empty | 17 sp |
+| Chest, wooden, small | Miscellaneous | — | 8 sp |
+| Lantern, bullseye | Miscellaneous | 3 lb | 12 gp |
+| Lantern, hooded | Miscellaneous | 2 lb | 7 gp |
+| Mirror, large metal | Miscellaneous | — | 10 gp |
+| Mirror, small, silver | Miscellaneous | 1/2 lb | 20 gp |
+| Oil, flask | Miscellaneous | 1 lb | 1 gp |
+| Pole, 10 ft | Miscellaneous | 8 lb | 3 cp |
+| Pouch, belt, large | Miscellaneous | 2 lb empty | 1 gp |
+| Pouch, belt, small | Miscellaneous | 1 lb empty | 15 sp |
+| Quiver, 1 dozen arrows capacity | Miscellaneous | — | 8 sp |
+| Quiver, 1 score arrows capacity | Miscellaneous | — | 12 sp |
+| Quiver, 1 score bolts capacity | Miscellaneous | — | 15 sp |
+| Quiver, 2 score bolts capacity | Miscellaneous | — | 1 gp |
+| Rope, 50 ft | Miscellaneous | 10 lb | 4 sp |
+| Sack, large | Miscellaneous | 1 lb empty | 16 cp |
+| Sack, small | Miscellaneous | 1/2 lb empty | 10 cp |
+| Skin for water or wine | Miscellaneous | 1 lb empty | 15 sp |
+| Spike, iron, large | Miscellaneous | — | 1 cp |
+| Thieves' picks and tools | Miscellaneous | 1 lb | 30 gp |
+| Tinder box, with flint and steel | Miscellaneous | — | 1 gp |
+| Torch | Miscellaneous | 1 lb | 1 cp |
+| Ale, pint | Provisions | 1 lb | 1 sp |
+| Beer, small, pint | Provisions | 1 lb | 5 cp |
+| Food, merchant's meal | Provisions | — | 1 sp |
+| Food, rich meal | Provisions | — | 1 gp |
+| Grain, horse meal, 1 day | Provisions | — | 1 sp |
+| Mead, pint | Provisions | 1 lb | 5 sp |
+| Rations, iron, 1 week | Provisions | — | 5 gp |
+| Rations, standard, 1 week | Provisions | — | 3 gp |
+| Wine, pint, good | Provisions | 1 lb | 10 sp |
+| Wine, pint, watered | Provisions | 1 lb | 5 sp |
+| Beads, prayer | Religious | — | 1 gp |
+| Incense, stick | Religious | — | 1 gp |
+| Symbol, holy or unholy, iron | Religious | 1 lb | 2 gp |
+| Symbol, holy or unholy, silver | Religious | 1 lb | 50 gp |
+| Symbol, holy or unholy, wooden | Religious | 1 lb | 7 sp |
+| Water, holy or unholy, vial | Religious | 1/2 lb | 25 gp |
+
+*The PHB cost table does not print carried weights for these rows. Runtime
+weights shown here are retained only where the current character encumbrance
+system already requires one; they remain pending official-book verification.
 
 ## Animals And Transport
 
-| Item | Weight | Cost |
-| --- | ---: | ---: |
-| Horse, cart | N/A | 15 gp |
-| Horse, nag | N/A | 8 gp |
-| Horse, palfrey | N/A | 40+ gp |
-| Horse, rouncey | N/A | 25 gp |
-| Horse, war, light | N/A | 200+ gp |
-| Horse, war, medium | N/A | 350+ gp |
-| Horse, war, heavy | N/A | 500+ gp |
-| Mule | N/A | 18 gp |
-| Ox | N/A | 15 gp |
-| Pony | N/A | 12 gp |
-| Reins, bit and bridle | 5 lb | 2 gp |
-| Saddle and stirrups | 20 lb | 10 gp |
-| Wagon, small | N/A | 100 gp |
-| Wagon, large | N/A | 250 gp |
+| Item | Category | Runtime Weight* | Cost |
+| --- | --- | ---: | ---: |
+| Chicken | Livestock | N/A | 3 cp |
+| Cow | Livestock | N/A | 10 gp |
+| Dog, guard | Livestock | N/A | 25 gp |
+| Dog, hunting | Livestock | N/A | 17 gp |
+| Donkey | Livestock | N/A | 8 gp |
+| Goat | Livestock | N/A | 1 gp |
+| Hawk, large | Livestock | N/A | 40 gp |
+| Hawk, small | Livestock | N/A | 18 gp |
+| Horse, draft | Livestock | N/A | 30 gp |
+| Horse, heavy war | Livestock | N/A | 300 gp |
+| Horse, light war | Livestock | N/A | 150 gp |
+| Horse, medium war | Livestock | N/A | 225 gp |
+| Horse, riding (light) | Livestock | N/A | 25 gp |
+| Mule | Livestock | N/A | 20 gp |
+| Ox | Livestock | N/A | 15 gp |
+| Pigeon | Livestock | N/A | 2 cp |
+| Piglet | Livestock | N/A | 1 gp |
+| Pig | Livestock | N/A | 3 gp |
+| Pony | Livestock | N/A | 15 gp |
+| Sheep | Livestock | N/A | 2 gp |
+| Songbird | Livestock | N/A | 4 cp |
+| Barding, chain | Tack and Harness | — | 250 gp |
+| Barding, leather | Tack and Harness | — | 100 gp |
+| Barding, plate | Tack and Harness | — | 500 gp |
+| Bit and bridle | Tack and Harness | 5 lb | 15 sp |
+| Harness | Tack and Harness | — | 12 sp |
+| Saddle | Tack and Harness | 20 lb | 10 gp |
+| Saddle bags, large | Tack and Harness | — | 4 gp |
+| Saddle bags, small | Tack and Harness | — | 3 gp |
+| Saddle blanket | Tack and Harness | — | 3 sp |
+| Barge (or Raft), small | Transport | N/A | 50 gp |
+| Boat, small | Transport | N/A | 75 gp |
+| Boat, long | Transport | N/A | 150 gp |
+| Cart | Transport | N/A | 50 gp |
+| Galley, large | Transport | N/A | 25000 gp |
+| Galley, small | Transport | N/A | 10000 gp |
+| Ship, merchant, large | Transport | N/A | 15000 gp |
+| Ship, merchant, small | Transport | N/A | 5000 gp |
+| Ship, war | Transport | N/A | 20000 gp |
+| Wagon | Transport | N/A | 150 gp |
 
 ## Master Weapon Table
 
@@ -221,23 +233,26 @@ Medium, and Long are separate range bands, not modern range increments.
 
 ## Armour
 
-| Armour | Encumbrance | Max Move | AC Effect | Cost |
+| Armour | Runtime Weight* | Runtime Max Move* | AC | Cost |
 | --- | ---: | ---: | ---: | ---: |
-| Banded | 35 lb | 90 ft | -6 | 90 gp |
-| Mail hauberk or byrnie | 30 lb | 90 ft | -5 | 75 gp |
-| Mail, elfin | 15 lb | 120 ft | -5 | Not sold |
-| Leather | 15 lb | 120 ft | -2 | 5 gp |
-| Padded gambeson | 10 lb | 90 ft | -2 | 4 gp |
-| Plate | 45 lb | 60 ft | -7 | 400 gp |
-| Ring | 35 lb | 90 ft | -3 | 30 gp |
-| Scale or lamellar | 40 lb | 60 ft | -4 | 45 gp |
-| Shield, large | 10 lb | N/A | -1 | 15 gp |
-| Shield, medium | 8 lb | N/A | -1 | 12 gp |
-| Shield, small | 5 lb | N/A | -1 | 10 gp |
-| Splint | 40 lb | 60 ft | -6 | 80 gp |
-| Studded | 20 lb | 90 ft | -3 | 15 gp |
+| Banded | 35 lb | 90 ft | 4 | 90 gp |
+| Chain | 30 lb | 90 ft | 5 | 75 gp |
+| Helmet, great | — | N/A | — | 15 gp |
+| Helmet, small | — | N/A | — | 10 gp |
+| Leather | 15 lb | 120 ft | 8 | 5 gp |
+| Padded | 10 lb | 90 ft | 8 | 4 gp |
+| Plate | 45 lb | 60 ft | 3 | 400 gp |
+| Ring | 35 lb | 90 ft | 7 | 30 gp |
+| Scale | 40 lb | 60 ft | 6 | 45 gp |
+| Shield, large | 10 lb | N/A | 9 | 15 gp |
+| Shield, small | 5 lb | N/A | 9 | 10 gp |
+| Shield, small, wooden | 5 lb | N/A | 9 | 1 gp |
+| Splinted | 40 lb | 60 ft | 4 | 80 gp |
+| Studded | 20 lb | 90 ft | 7 | 15 gp |
 
-Magic armour is unencumbering and allows a maximum movement rate 30 ft faster than normal, up to 120 ft. Magic shields weigh as normal shields.
+The PHB states that magic armour does not count toward encumbrance. The
+runtime weights and movement caps above remain pending official-book
+verification and are not claimed as values from the PHB cost table.
 
 ## Armour Class Reference
 
@@ -248,8 +263,8 @@ Magic armour is unencumbering and allows a maximum movement rate 30 ft faster th
 | Leather or padded | 8 |
 | Studded leather or ring | 7 |
 | Scale or lamellar | 6 |
-| Mail hauberk or byrnie | 5 |
-| Banded | 4 |
+| Chain | 5 |
+| Banded or splinted | 4 |
 | Plate | 3 |
 
 A shield improves AC by 1 against attacks it can cover. Shields do not help against rear attacks. Against multiple attackers, a small shield can apply to one attack, a medium shield to two, and a large shield to three in a round.
@@ -261,6 +276,9 @@ After buying equipment, total carried weight and compare it to **[Equipment & En
 ## Notes
 
 Weapon and missile tables are verified against the Player's Handbook main
-tables on printed pages 37-38. Money and starting funds are verified against
-printed page 35. General gear, animals, transport, and armour are still being
-reconciled row by row and must not yet be treated as PHB-complete.
+tables on printed pages 37-38. Money, starting funds, equipment costs, and
+armour classes are verified against printed pages 35-36 and the condensed
+reference on printed pages 123-124. The main cost table appears to misprint
+plate barding as 15 sp; the condensed PHB reference gives 500 gp, which is the
+catalog value. Non-weapon carried weights and armour movement caps remain
+pending verification against the controlling official rules.
