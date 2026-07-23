@@ -2482,17 +2482,19 @@ tbody tr:hover {
 .mapping-colors {
   display: grid;
   gap: 6px;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: 30px;
+  justify-content: start;
   margin: 8px 0;
 }
 
 .mapping-colors button {
-  aspect-ratio: 1;
   background: var(--map-color);
   border: 2px solid transparent;
   border-radius: 50%;
-  min-width: 0;
+  height: 30px;
+  min-width: 30px;
   padding: 0;
+  width: 30px;
 }
 
 .mapping-colors button.is-active {
@@ -2589,6 +2591,8 @@ tbody tr:hover {
 }
 
 .mapping-note-row textarea {
+  font-size: 0.78rem;
+  line-height: 1.35;
   min-height: 68px;
   resize: vertical;
 }

@@ -28,6 +28,33 @@ export function snapPoint(point, cellSize = MAP_CELL_SIZE) {
   };
 }
 
+export function snapCellCenter(point, cellSize = MAP_CELL_SIZE) {
+  return {
+    x: Math.floor(point.x / cellSize) * cellSize + cellSize / 2,
+    y: Math.floor(point.y / cellSize) * cellSize + cellSize / 2,
+  };
+}
+
+export function snapEdgeMidpoint(point, cellSize = MAP_CELL_SIZE) {
+  const vertical = {
+    x: Math.round(point.x / cellSize) * cellSize,
+    y: Math.floor(point.y / cellSize) * cellSize + cellSize / 2,
+  };
+  const horizontal = {
+    x: Math.floor(point.x / cellSize) * cellSize + cellSize / 2,
+    y: Math.round(point.y / cellSize) * cellSize,
+  };
+  const verticalDistance = Math.hypot(point.x - vertical.x, point.y - vertical.y);
+  const horizontalDistance = Math.hypot(point.x - horizontal.x, point.y - horizontal.y);
+  return verticalDistance <= horizontalDistance ? vertical : horizontal;
+}
+
+export function snapPlacementPoint(type, point) {
+  if (["door", "secret-door", "window"].includes(type)) return snapEdgeMidpoint(point);
+  if (["stairs-up", "stairs-down", "trap", "pit", "note"].includes(type)) return snapCellCenter(point);
+  return snapPoint(point);
+}
+
 export function nextNoteNumber(notes = []) {
   return notes.reduce((highest, note) => Math.max(highest, Number(note.number) || 0), 0) + 1;
 }
@@ -64,4 +91,14 @@ export function makeMapObject(type, point, color, extra = {}) {
     y: point.y,
     ...extra,
   };
+}
+
+export function translateMapObject(object, dx, dy) {
+  if (object.type === "freehand") {
+    return { ...object, points: (object.points || []).map((point) => ({ x: point.x + dx, y: point.y + dy })) };
+  }
+  if (object.type === "line") {
+    return { ...object, x: object.x + dx, y: object.y + dy, x2: object.x2 + dx, y2: object.y2 + dy };
+  }
+  return { ...object, x: object.x + dx, y: object.y + dy };
 }

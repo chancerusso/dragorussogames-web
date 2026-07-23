@@ -106,6 +106,9 @@ These are table responsibilities, not exclusive character abilities.
 - Mapper desk provides graph paper, snapped straight walls, freehand pencil,
   doors, secret-door suspicions, windows, stairs, traps, pits, numbered notes,
   color, eraser, undo, and redo.
+- Square-contained symbols snap to square centers; wall fixtures snap to edge
+  midpoints; right-click ends a connected wall chain; and Move repositions
+  placed objects.
 - Autosave creates durable revisions and saves the Mapper viewport.
 - Player viewers follow saved Mapper viewport updates through background
   refresh without remounting the canvas.

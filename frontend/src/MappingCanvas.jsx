@@ -8,7 +8,9 @@ import {
   makeMapObject,
   nextNoteNumber,
   removeObject,
+  snapPlacementPoint,
   snapPoint,
+  translateMapObject,
   updateNoteText,
 } from "./mapping.js";
 
@@ -17,6 +19,7 @@ export function MappingCanvas({ campaignMap, editable = false, onChange, onViewp
   const [color, setColor] = useState(MAP_COLORS[0]);
   const [lineStart, setLineStart] = useState(null);
   const [freehand, setFreehand] = useState(null);
+  const [moving, setMoving] = useState(null);
   const [history, setHistory] = useState([]);
   const [future, setFuture] = useState([]);
   const scrollRef = useRef(null);
@@ -48,8 +51,9 @@ export function MappingCanvas({ campaignMap, editable = false, onChange, onViewp
   }
 
   function handleCanvasPointerDown(event) {
-    if (!editable || tool === "pan" || tool === "eraser") return;
-    const point = pointFromEvent(event, tool !== "freehand");
+    if (!editable || event.button !== 0 || tool === "pan" || tool === "eraser") return;
+    const rawPoint = pointFromEvent(event, false);
+    const point = tool === "freehand" ? rawPoint : snapPlacementPoint(tool, rawPoint);
     if (tool === "line") {
       if (!lineStart) {
         setLineStart(point);
@@ -76,7 +80,15 @@ export function MappingCanvas({ campaignMap, editable = false, onChange, onViewp
   }
 
   function handleCanvasPointerMove(event) {
-    if (!editable || !freehand) return;
+    if (!editable) return;
+    if (moving) {
+      const point = pointFromEvent(event, false);
+      const snapped = snapPlacementPoint(moving.object.type, point);
+      const start = snapPlacementPoint(moving.object.type, moving.pointerStart);
+      setMoving({ ...moving, preview: translateMapObject(moving.object, snapped.x - start.x, snapped.y - start.y) });
+      return;
+    }
+    if (!freehand) return;
     const point = pointFromEvent(event, false);
     const previous = freehand.points[freehand.points.length - 1];
     if (Math.hypot(point.x - previous.x, point.y - previous.y) < 3) return;
@@ -89,10 +101,26 @@ export function MappingCanvas({ campaignMap, editable = false, onChange, onViewp
     setFreehand(null);
   }
 
-  function eraseObject(event, id) {
-    if (!editable || tool !== "eraser") return;
+  function finishPointerAction() {
+    finishFreehand();
+    if (!moving) return;
+    if (moving.preview) {
+      commit({ ...state, objects: (state.objects || []).map((object) => object.id === moving.object.id ? moving.preview : object) });
+    }
+    setMoving(null);
+  }
+
+  function handleObjectPointerDown(event, object) {
+    if (!editable || event.button !== 0) return;
+    if (tool === "eraser") {
+      event.stopPropagation();
+      commit(removeObject(state, object.id));
+      return;
+    }
+    if (tool !== "pan") return;
     event.stopPropagation();
-    commit(removeObject(state, id));
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    setMoving({ object, pointerStart: pointFromEvent(event, false), preview: object });
   }
 
   function undo() {
@@ -142,8 +170,13 @@ export function MappingCanvas({ campaignMap, editable = false, onChange, onViewp
             viewBox={`0 0 ${width} ${height}`}
             onPointerDown={handleCanvasPointerDown}
             onPointerMove={handleCanvasPointerMove}
-            onPointerUp={finishFreehand}
-            onPointerCancel={finishFreehand}
+            onPointerUp={finishPointerAction}
+            onPointerCancel={finishPointerAction}
+            onContextMenu={(event) => {
+              if (!editable || tool !== "line") return;
+              event.preventDefault();
+              setLineStart(null);
+            }}
           >
             <defs>
               <pattern id={`small-grid-${campaignMap?.id}`} width={MAP_CELL_SIZE} height={MAP_CELL_SIZE} patternUnits="userSpaceOnUse">
@@ -155,12 +188,15 @@ export function MappingCanvas({ campaignMap, editable = false, onChange, onViewp
               </pattern>
             </defs>
             <rect width={width} height={height} fill={`url(#large-grid-${campaignMap?.id})`} />
-            {(state.objects || []).map((object) => <MapObject key={object.id} object={object} onPointerDown={(event) => eraseObject(event, object.id)} />)}
+            {(state.objects || []).map((object) => {
+              const renderedObject = moving?.object.id === object.id ? moving.preview : object;
+              return <MapObject key={object.id} object={renderedObject} onPointerDown={(event) => handleObjectPointerDown(event, object)} />;
+            })}
             {freehand ? <MapObject object={freehand} /> : null}
             {lineStart ? <circle cx={lineStart.x} cy={lineStart.y} r="4" fill={color} /> : null}
           </svg>
         </div>
-        {editable && lineStart ? <p className="mapping-hint">Choose the next grid intersection. Continue clicking for connected walls; choose another tool to finish.</p> : null}
+        {editable && lineStart ? <p className="mapping-hint">Choose the next grid intersection. Continue clicking for connected walls; right-click to end this wall and begin somewhere new.</p> : null}
       </div>
       <aside className="mapping-notes-panel">
         <p className="eyebrow">Map Notes</p>
