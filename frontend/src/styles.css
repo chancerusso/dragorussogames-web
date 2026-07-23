@@ -3135,8 +3135,10 @@ tbody tr:hover {
 }
 
 .live-pill {
-  border-color: var(--gold);
-  color: var(--gold-2);
+  background: #2f6b3b;
+  border-color: #75b97f;
+  box-shadow: 0 0 0 1px rgba(117, 185, 127, 0.18), 0 0 14px rgba(47, 107, 59, 0.28);
+  color: #efffe9;
 }
 
 .table-lock-note {

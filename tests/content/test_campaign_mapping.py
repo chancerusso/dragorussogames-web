@@ -19,6 +19,7 @@ from app.api import (
     update_admin_campaign_table_state,
     update_player_campaign_journal,
     update_player_campaign_map,
+    update_player_campaign_table_state,
 )
 from app.db.base import Base
 from app.db.models import Campaign, CampaignMapRevision, CampaignPlayer, Player
@@ -108,6 +109,16 @@ class CampaignMappingApiTests(unittest.TestCase):
         )
         self.assertEqual(mapper_journal["journal"], "The north door is trapped.")
         self.assertEqual(viewer_journal["journal"], "I distrust the statue.")
+
+        self.campaign.table_state = {"isSessionLive": True, "playerColors": {}, "tokenPositions": {}}
+        self.db.commit()
+        saved_table = update_player_campaign_table_state(
+            self.campaign.id,
+            {"isSessionLive": True, "playerColors": {"pc-42": "#32658c"}, "tokenPositions": {"pc-42": {"x": 1, "y": 1}}},
+            {"sub": str(self.mapper.id)},
+            self.db,
+        )
+        self.assertEqual(saved_table["table_state"]["playerColors"]["pc-42"], "#32658c")
 
 
 if __name__ == "__main__":

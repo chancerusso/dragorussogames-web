@@ -1990,6 +1990,7 @@ function characterWeaponRows(character) {
     name: weapon.weapon || "Weapon",
     attack: weapon.final_attack_value ?? weapon.total_attack_bonus ?? "-",
     damage: weapon.damage?.final_small_medium || weapon.damage?.base_small_medium || "-",
+    speed: weapon.weapon_speed ?? "—",
     mode: weapon.mode || "melee",
   }));
 }
@@ -3036,6 +3037,8 @@ function PlayerTableTab({ campaign, character }) {
   const [draggedToken, setDraggedToken] = useState(null);
   const [colorRequestOpen, setColorRequestOpen] = useState(false);
   const [hpEditor, setHpEditor] = useState(null);
+  const tableSaveCountRef = useRef(0);
+  const tableSaveVersionRef = useRef(0);
   const tokenId = currentCharacter ? `pc-${currentCharacter.id}` : null;
   const activeGrid = tableState.mode === "combat" ? tableState.combatGrid : tableState.mode === "outdoors" ? DRAGO_OUTDOORS_GRID : DRAGO_MARCHING_GRID;
   const tableCharacters = currentCharacter && !(campaign.characters || []).some((entry) => entry.id === currentCharacter.id)
@@ -3056,7 +3059,10 @@ function PlayerTableTab({ campaign, character }) {
 
   useEffect(() => {
     const timer = window.setInterval(() => {
+      if (tableSaveCountRef.current) return;
+      const version = tableSaveVersionRef.current;
       api(`/player/campaigns/${campaign.id}`, { auth: "player" }).then((nextCampaign) => {
+        if (tableSaveCountRef.current || version !== tableSaveVersionRef.current) return;
         const shared = normalizeDragoTableState(nextCampaign.table_state);
         if (shared) setTableState(shared);
         const refreshedCharacter = (nextCampaign.characters || []).find((entry) => entry.id === currentCharacter?.id);
@@ -3076,7 +3082,22 @@ function PlayerTableTab({ campaign, character }) {
   function publish(nextState) {
     if (!sessionLive) return;
     setTableState(nextState);
-    api(`/player/campaigns/${campaign.id}/table-state`, { auth: "player", method: "PUT", body: JSON.stringify(nextState) }).catch(() => {});
+    const version = ++tableSaveVersionRef.current;
+    tableSaveCountRef.current += 1;
+    api(`/player/campaigns/${campaign.id}/table-state`, { auth: "player", method: "PUT", body: JSON.stringify(nextState) })
+      .then((result) => {
+        if (version !== tableSaveVersionRef.current) return;
+        const saved = normalizeDragoTableState(result.table_state);
+        if (saved) setTableState(saved);
+      })
+      .catch(() => {
+        if (version !== tableSaveVersionRef.current) return;
+        api(`/player/campaigns/${campaign.id}`, { auth: "player" }).then((nextCampaign) => {
+          const saved = normalizeDragoTableState(nextCampaign.table_state);
+          if (saved) setTableState(saved);
+        }).catch(() => {});
+      })
+      .finally(() => { tableSaveCountRef.current = Math.max(0, tableSaveCountRef.current - 1); });
   }
 
   function moveOwnToken(token, event) {
@@ -3283,7 +3304,7 @@ function PlayerCharacterCombatPanel({
             {weapons.map((weapon) => (
               <div key={`${weapon.name}-${weapon.mode}`}>
                 <strong>{weapon.name}</strong>
-                <span>Hit {weapon.attack} · Dmg {weapon.damage}</span>
+                <span>Hit {weapon.attack} · Dmg {weapon.damage} · Spd {weapon.speed}</span>
               </div>
             ))}
           </div>
@@ -3359,18 +3380,18 @@ function PlayerCombatRules({ mode }) {
     );
   }
   const combatSteps = [
-    ["1. Confirm position", "Put your token where your character is standing. Distance, blocked paths, marching order, cover, and who can reach whom all depend on the grid being honest."],
-    ["2. Declare intent", "When the DM asks for actions, say what you are trying to do: charge, hold, cast, fire, retreat, change weapons, protect someone, or interact with the room."],
-    ["3. Initiative and turn", "The combat tracker shows the active side. When it is Party Turn, resolve party actions in the order the DM calls. When it is Monster Turn, watch for movement, attacks, morale, or special abilities."],
-    ["4. Movement", "Move your own token when the DM allows movement. If you leave melee, cross danger, or pass through crowded squares, pause so the DM can apply the right ruling."],
-    ["5. Attacks and spells", "Use your snippet for THAC0, AC, HP, and weapon damage. For spells, announce the target, range, casting concerns, and whether damage, saving throws, or ongoing effects are involved."],
-    ["6. Damage and status", "Use Damage or Heal on your snippet as soon as HP changes. If you hit 0 HP or a condition changes, call it out so the DM can update the shared table state."],
-    ["7. End of round", "After both sides act, the DM advances the round. Check HP, spell effects, morale, light, and whether your next position or action has changed."],
+    ["1. Surprise", "The DM checks whether either side is surprised before normal initiative. Surprise can grant one or more opening segments in which the surprised side cannot act, so resolve those actions first."],
+    ["2. Confirm position", "Put your token where your character is standing. Distance, blocked paths, marching order, cover, and who can reach whom all depend on the grid being honest."],
+    ["3. Declare actions", "Before initiative is resolved, state what your character will attempt: charge, attack, cast, fire, retreat, change weapons, protect someone, or interact with the room."],
+    ["4. Roll initiative", "The DM resolves initiative for the round and calls the acting order. Spell casting time, charging, reach, multiple attacks, and other circumstances can change when an action occurs."],
+    ["5. Movement", "Move your own token when the DM allows movement. If you leave melee, cross danger, or pass through crowded squares, pause so the DM can apply the right ruling."],
+    ["6. Attacks, spells, and weapon speed", "Use your snippet for THAC0, damage, and Speed Factor. Speed Factor is not a universal initiative bonus: the DM uses it when weapon timing matters, especially important individual melees and certain tied or close exchanges. Lower numbers indicate a quicker weapon. For spells, announce the target, range, casting time, and saving throw."],
+    ["7. Damage and status", "Apply Damage or Heal as soon as HP changes. If you reach 0 HP or a condition changes, call it out so the DM can update the shared table state."],
+    ["8. End of round", "After both sides act, the DM advances the round. Check HP, spell effects, morale, light, and whether your next position or declared action has changed."],
   ];
   return (
     <section>
       <p className="eyebrow">Combat Rules</p>
-      <h2>Combat Flow</h2>
       {combatSteps.map(([title, text]) => (
         <details className="player-rule-step" key={title}><summary>{title}</summary><p>{text}</p></details>
       ))}

@@ -920,11 +920,11 @@ def equipment_seed() -> list[dict]:
         cost_amount, cost_coin = parse_cost(row[2])
         seeds.append({"name": row[0], "type": "mount" if any(word in row[0].lower() for word in ("horse", "mule", "ox", "pony")) else "transport", "subtype": "animal_transport", "weight": parse_weight(row[1]), "cost_amount": cost_amount, "cost_coin": cost_coin})
     for row in table_rows(markdown, "Master Weapon Table"):
-        cost_amount, cost_coin = parse_cost(row[4])
-        seeds.append({"name": row[0], "type": "weapon", "subtype": "melee", "damage_small_medium": row[1], "damage_large": row[2], "weight": parse_weight(row[3]), "cost_amount": cost_amount, "cost_coin": cost_coin})
+        cost_amount, cost_coin = parse_cost(row[5])
+        seeds.append({"name": row[0], "type": "weapon", "subtype": "melee", "damage_small_medium": row[1], "damage_large": row[2], "weight": parse_weight(row[4]), "cost_amount": cost_amount, "cost_coin": cost_coin, "properties": {"speed": row[3]}})
     for row in table_rows(markdown, "Missile Weapon Table"):
-        cost_amount, cost_coin = parse_cost(row[6])
-        seeds.append({"name": row[0], "type": "weapon", "subtype": "missile", "damage_small_medium": row[1], "damage_large": row[2], "rate_of_fire": row[3], "range": row[4], "weight": parse_weight(row[5]), "cost_amount": cost_amount, "cost_coin": cost_coin})
+        cost_amount, cost_coin = parse_cost(row[7])
+        seeds.append({"name": row[0], "type": "weapon", "subtype": "missile", "damage_small_medium": row[1], "damage_large": row[2], "rate_of_fire": row[4], "range": row[5], "weight": parse_weight(row[6]), "cost_amount": cost_amount, "cost_coin": cost_coin, "properties": {"speed": row[3]}})
     armor_ac = {"Banded": 4, "Mail hauberk or byrnie": 5, "Mail, elfin": 5, "Leather": 8, "Padded gambeson": 8, "Plate": 3, "Ring": 7, "Scale or lamellar": 6, "Splint": 4, "Studded": 7}
     for row in table_rows(markdown, "Armour"):
         cost_amount, cost_coin = parse_cost(row[4])

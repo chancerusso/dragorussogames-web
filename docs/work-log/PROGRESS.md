@@ -134,3 +134,21 @@ DM control target.
   `0013_campaign_mapping` migration.
 - Frontend tests (69), focused backend tests, production build, and a fresh
   migration chain all pass.
+
+## Player table correction release ready for commit
+
+- The Mapper source includes the accepted square-center snapping, smaller note
+  typography, vertical color controls below Undo/Redo, movable placed objects,
+  right-click wall reset, and editable map names. These fixes were not included
+  in the last proven production deployment.
+- Player combat flow now begins with Surprise and includes a concise First
+  Edition weapon Speed Factor explanation.
+- Weapon Speed Factor is stored in the equipment catalog, migrated onto
+  existing weapon records, passed through combat runtime, and shown anywhere
+  players or the DM inspect a weapon.
+- Live Session uses a filled green status treatment.
+- Player token-color changes no longer lose to an older background refresh;
+  both saves already in flight and refreshes started before a save are guarded.
+- This correction release deploys its frontend only to the Classic player root.
+  It also requires backend migration `0015_weapon_speed_factors` and a backend
+  restart. It does not authorize copying the player build to the DM web root.

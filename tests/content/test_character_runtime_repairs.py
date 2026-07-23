@@ -229,6 +229,14 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertFalse(any(item["id"] == row["id"] for item in dropped["inventory"]))
         self.assertEqual([], dropped["combat"]["runtime"]["weapons"])
 
+    def test_seeded_weapon_speed_reaches_combat_runtime(self) -> None:
+        sword = self.equipment("Sword, long")
+        self.assertEqual("5", sword.properties["speed"])
+
+        payload = add_inventory_record(self.character_model, {"equipment_id": sword.id, "status": "equipped"}, self.db)
+        runtime = next(item for item in payload["combat"]["runtime"]["weapons"] if item["equipment_id"] == sword.id)
+        self.assertEqual("5", runtime["weapon_speed"])
+
     def test_ammunition_is_inventory_not_runtime_weapon(self) -> None:
         crossbow = self.equipment("Crossbow, heavy")
         bolts = self.equipment("Bolt, heavy crossbow, dozen")

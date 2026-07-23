@@ -901,7 +901,7 @@ function equipmentRows(items) {
   return items.map((item) => {
     const ammo = isAmmunition(item);
     const detail = ammo ? ammunitionLabel(item)
-      : item.type === "weapon" ? `${item.damage_small_medium || ""} vs S/M, ${item.damage_large || ""} vs L`
+      : item.type === "weapon" ? `${item.damage_small_medium || ""} vs S/M, ${item.damage_large || ""} vs L, Spd ${item.properties?.speed ?? "—"}`
       : item.type === "armor" || item.type === "shield" ? `AC ${item.armor_class_value ?? ""}, adjustment ${item.armor_class_adjustment ?? ""}`
       : item.rules_reference || "";
     const allowed = classAllowsEquipment(state.draft?.class_name, item);
@@ -943,10 +943,10 @@ function initialEquipmentQuantity(equipmentId) {
 function proficiencyManager() {
   const weapons = state.equipment.filter((item) => item.type === "weapon" && !isAmmunition(item)).slice(0, 80);
   const classInfo = state.rules?.classes?.[rulesClassName(state.draft.class_name)] || {};
-  return `<div class="vault-full"><table class="vault-table"><thead><tr><th>Weapon</th><th>Damage</th><th>Status</th><th></th></tr></thead><tbody>${weapons.map((weapon) => {
+  return `<div class="vault-full"><table class="vault-table"><thead><tr><th>Weapon</th><th>Damage</th><th>Speed</th><th>Status</th><th></th></tr></thead><tbody>${weapons.map((weapon) => {
     const entry = weaponProficiencyEntry(weapon.id, state.character?.weapon_proficiencies || []);
     const proficient = Boolean(entry?.proficient);
-    return `<tr class="${proficient ? "vault-proficient-row" : ""}"><td>${h(weapon.name)}</td><td>${h(weapon.damage_small_medium || "")}</td><td><span class="${proficient ? "vault-status-good" : "vault-muted"}">${proficient ? "Proficient" : "Non-proficient"}</span></td><td><button class="vault-button secondary" type="button" data-prof="${weapon.id}" data-prof-action="${proficient ? "unmark" : "mark"}">${proficient ? "Unmark" : "Mark"}</button></td></tr>`;
+    return `<tr class="${proficient ? "vault-proficient-row" : ""}"><td>${h(weapon.name)}</td><td>${h(weapon.damage_small_medium || "")}</td><td>${h(weapon.properties?.speed ?? "—")}</td><td><span class="${proficient ? "vault-status-good" : "vault-muted"}">${proficient ? "Proficient" : "Non-proficient"}</span></td><td><button class="vault-button secondary" type="button" data-prof="${weapon.id}" data-prof-action="${proficient ? "unmark" : "mark"}">${proficient ? "Unmark" : "Mark"}</button></td></tr>`;
   }).join("")}</tbody></table><p class="vault-rules">Rules: ${h(proficiencyCount(state.draft.class_name, state.draft.level) ?? "Needs Review")} allowed proficiencies at this level. Non-proficiency penalty: ${h(classInfo.non_proficiency_penalty ?? "Needs Review")}.</p></div>`;
 }
 
@@ -2472,6 +2472,7 @@ function inventoryRow(item, proficiencies = []) {
   const isMagicInventory = Boolean(item.is_magic_item || equipment.is_magic_item);
   const ammo = item.is_ammunition || isAmmunition(equipment);
   const damage = equipment.type === "weapon" && !ammo ? [equipment.damage_small_medium, equipment.damage_large].filter(Boolean).join(" / ") : "";
+  const speed = equipment.type === "weapon" ? equipment.properties?.speed ?? "—" : "";
   const proficiency = equipment.type === "weapon" && !ammo ? weaponProficiencyLabel(equipment, proficiencies) : "";
   const itemName = inventoryItemName(item);
   const cost = inventoryItemValue(item);
@@ -2481,7 +2482,7 @@ function inventoryRow(item, proficiencies = []) {
   const quantityActions = isMagicInventory ? "" : `<span class="vault-ammo-quantity"><button type="button" class="vault-button secondary" data-inventory-action="${item.id}:quantity:${Math.max(0, Number(item.quantity || 0) - 1)}">-</button><strong>${h(item.quantity || 0)}</strong><button type="button" class="vault-button secondary" data-inventory-action="${item.id}:quantity:${Number(item.quantity || 0) + 1}">+</button></span>`;
   const normalActions = `${quantityActions}${isEquipped ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Unequip</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:equipped">Equip</button>`} ${isStored ? `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:carried">Carry</button>` : `<button type="button" class="vault-button secondary" data-inventory-action="${item.id}:stored">Store</button>`} <button type="button" class="vault-button secondary" data-inventory-action="${item.id}:delete">Drop</button>`;
   const magicActions = `${isEquipped ? `<button class="vault-button secondary" type="button" data-magic-item-action="${h(item.magic_item_id || item.id)}:status:carried">Unequip</button>` : `<button class="vault-button secondary" type="button" data-magic-item-action="${h(item.magic_item_id || item.id)}:status:equipped">Equip</button>`} ${isStored ? `<button class="vault-button secondary" type="button" data-magic-item-action="${h(item.magic_item_id || item.id)}:status:carried">Carry</button>` : `<button class="vault-button secondary" type="button" data-magic-item-action="${h(item.magic_item_id || item.id)}:status:stored">Store</button>`} <button class="vault-button secondary" type="button" data-magic-item-action="${h(item.magic_item_id || item.id)}:delete">Remove</button>`;
-  return `<tr class="${isEquipped ? "vault-equipped-row" : ""}" data-inventory-row="${h(item.id)}"><td>${ammo ? `<strong>${h(itemName)}</strong> ×${h(item.quantity || 0)}` : `${h(item.quantity)} x <strong>${h(itemName)}</strong>`}<br><span class="vault-mini">${damage ? `Damage ${h(damage)}` : ""}${damage && proficiency ? " / " : ""}${proficiency ? `<span class="${proficiencyClass}">${h(proficiency)}</span>` : ""}${isMagicInventory ? `${damage || proficiency ? " / " : ""}Magic item` : ""}</span></td><td>${h(equipmentDisplayType(equipment))}</td><td>${h(weight)}</td><td>${h(cost)}</td><td>${h(status)}</td><td>${isMagicInventory ? magicActions : normalActions}</td></tr>`;
+  return `<tr class="${isEquipped ? "vault-equipped-row" : ""}" data-inventory-row="${h(item.id)}"><td>${ammo ? `<strong>${h(itemName)}</strong> ×${h(item.quantity || 0)}` : `${h(item.quantity)} x <strong>${h(itemName)}</strong>`}<br><span class="vault-mini">${damage ? `Damage ${h(damage)} / Spd ${h(speed)}` : speed ? `Spd ${h(speed)}` : ""}${damage && proficiency ? " / " : ""}${proficiency ? `<span class="${proficiencyClass}">${h(proficiency)}</span>` : ""}${isMagicInventory ? `${damage || proficiency ? " / " : ""}Magic item` : ""}</span></td><td>${h(equipmentDisplayType(equipment))}</td><td>${h(weight)}</td><td>${h(cost)}</td><td>${h(status)}</td><td>${isMagicInventory ? magicActions : normalActions}</td></tr>`;
 }
 
 function magicItemFromCatalogRecord(record, baseEquipment = null) {
@@ -2930,6 +2931,7 @@ function weaponCardHtml(runtime, equipment = {}, proficiencyLabel = "", characte
       ${statRow("THAC0", runtime.base_thac0 ?? "-")}
       ${statRow("TO HIT", formatSigned(runtime.total_attack_bonus || 0))}
       ${statRow("DAMAGE", damage.final_small_medium || damage.base_small_medium || "-")}
+      ${statRow("SPEED", runtime.weapon_speed ?? equipment.properties?.speed ?? "—")}
       ${runtime.rate_of_fire ? statRow("ROF", runtime.rate_of_fire) : statRow("APR", compactAttackRate(runtime.attacks_per_round?.value || "1"))}
       ${range.raw ? statRow("RANGE", rangeLabel(range)) : ""}
       ${runtime.mode === "missile" ? statRow("AMMO", ammo ? `${ammunitionLabel(ammo)} ×${ammo.quantity || 0}` : "None Equipped") : ""}
@@ -3163,6 +3165,8 @@ function renderCampaigns() {
       data.armor_class_adjustment = data.armor_class_adjustment ? Number(data.armor_class_adjustment) : null;
       data.campaign_id = c.id;
       data.is_dm_created = true;
+      data.properties = data.type === "weapon" ? { speed: data.speed_factor || "—" } : {};
+      delete data.speed_factor;
       await api("/equipment", { method: "POST", body: JSON.stringify(data) });
       invalidateEquipmentCache();
       state.equipment = await loadEquipmentCatalog();
@@ -3363,6 +3367,7 @@ function equipmentEditorFields(item = {}) {
     ${field("Weight", "weight", item.weight ?? 0, "number")}
     ${field("Damage Small/Medium", "damage_small_medium", item.damage_small_medium || "")}
     ${field("Damage Large", "damage_large", item.damage_large || "")}
+    ${field("Speed Factor", "speed_factor", item.properties?.speed ?? "")}
     ${field("Armor/Shield AC", "armor_class_value", item.armor_class_value ?? "", "number")}
     ${field("AC Adjustment", "armor_class_adjustment", item.armor_class_adjustment ?? "", "number")}
     ${selectField("Campaign", "campaign_id", item.campaign_id ? String(item.campaign_id) : "", ["", ...state.campaigns.map((campaign) => String(campaign.id))])}
@@ -3381,7 +3386,7 @@ function equipmentFormPayload(formData) {
   } catch {
     properties = { note: data.properties_json };
   }
-  return {
+  const payload = {
     ...data,
     cost_amount: data.cost_amount ? Number(data.cost_amount) : null,
     weight: Number(data.weight || 0),
@@ -3389,8 +3394,11 @@ function equipmentFormPayload(formData) {
     armor_class_adjustment: data.armor_class_adjustment ? Number(data.armor_class_adjustment) : null,
     campaign_id: data.campaign_id ? Number(data.campaign_id) : null,
     is_dm_created: data.is_dm_created === "on",
-    properties,
+    properties: { ...properties, ...(data.type === "weapon" ? { speed: data.speed_factor || "—" } : {}) },
   };
+  delete payload.properties_json;
+  delete payload.speed_factor;
+  return payload;
 }
 
 function campaignPlayersTable(players) {
@@ -3419,6 +3427,7 @@ function campaignEquipmentTable(c) {
 function equipmentCombatText(item) {
   const parts = [];
   if (item.damage_small_medium) parts.push(`Dmg ${item.damage_small_medium}`);
+  if (item.type === "weapon") parts.push(`Spd ${item.properties?.speed ?? "—"}`);
   if (item.armor_class_value) parts.push(`AC ${item.armor_class_value}`);
   if (item.armor_class_adjustment) parts.push(`Adj ${item.armor_class_adjustment}`);
   return parts.length ? h(parts.join(" / ")) : `<span class="vault-muted">-</span>`;
@@ -3435,6 +3444,7 @@ function dmCatalogHtml(c) {
     ${field("Weight", "weight", 0, "number")}
     ${field("Damage S/M", "damage_small_medium", "")}
     ${field("Damage L", "damage_large", "")}
+    ${field("Speed Factor", "speed_factor", "")}
     ${field("Armor AC", "armor_class_value", "", "number")}
     ${field("AC Adjustment", "armor_class_adjustment", "", "number")}
     ${field("Rules Reference", "rules_reference", "", "text", "wide")}
