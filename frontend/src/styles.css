@@ -3110,7 +3110,8 @@ tbody tr:hover {
   align-items: start;
   display: grid;
   gap: 14px;
-  grid-template-columns: 280px minmax(420px, 1fr) 300px;
+  grid-template-columns: minmax(240px, 280px) minmax(0, 1fr) minmax(240px, 300px);
+  min-width: 0;
 }
 
 .player-map-panel {
@@ -3135,6 +3136,17 @@ tbody tr:hover {
 .player-table-rules {
   display: grid;
   gap: 12px;
+  min-width: 0;
+}
+
+.player-table-rules {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.player-table-rules > section {
+  min-width: 0;
+  width: 100%;
 }
 
 .player-character-panel {
@@ -3291,13 +3303,20 @@ tbody tr:hover {
 
 .player-rule-step {
   border-top: 1px solid var(--line);
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
   padding: 9px 0;
+  width: 100%;
 }
 
 .player-rule-step summary {
   color: var(--gold-2);
   cursor: pointer;
   font-weight: 900;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .player-rule-step p {
@@ -3305,6 +3324,9 @@ tbody tr:hover {
   font-size: 0.82rem;
   line-height: 1.45;
   margin: 8px 0 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .table-campaign-card .action-button {

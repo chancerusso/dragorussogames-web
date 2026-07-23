@@ -3307,7 +3307,6 @@ function PlayerCombatRules({ mode }) {
     return (
       <section>
         <p className="eyebrow">Exploration</p>
-        <h2>Exploration Flow</h2>
         {explorationSteps.map(([title, text]) => (
           <details className="player-rule-step" key={title}><summary>{title}</summary><p>{text}</p></details>
         ))}
