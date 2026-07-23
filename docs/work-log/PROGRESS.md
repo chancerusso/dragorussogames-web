@@ -208,3 +208,9 @@ DM control target.
   inserts missing Monster Manual entries, and preserves adventure records.
 - Monster Manual is the default Drago Table source. Operational notes retained
   from OSRIC are separately identified as supplemental provenance.
+- Production is deployed at application SHA
+  `9c12ea3ca4ada443bceae921a5bd1d1cd7597d85` and migration
+  `0020_monster_manual_catalog`.
+- The monster API is DM/admin-only. Sanitized DM and Classic builds exclude
+  static core and adventure monster catalogs, development tools, and private
+  rulebook sources.
