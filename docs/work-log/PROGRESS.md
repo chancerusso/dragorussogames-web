@@ -214,3 +214,31 @@ DM control target.
 - The monster API is DM/admin-only. Sanitized DM and Classic builds exclude
   static core and adventure monster catalogs, development tools, and private
   rulebook sources.
+
+## Ordered completion backlog
+
+Work proceeds one independently tested, committed, and deployed item at a time:
+
+1. Complete Monster Manual level/XP values.
+2. Verify and regression-test right-click wall-chain termination while keeping
+   the Mapper's Wall tool selected.
+3. Complete Mapping Mode floors, zoom/navigation, revision restoration,
+   conflict-safe synchronization, and multiplayer smoke testing.
+4. Complete persistent multiplayer Combat Mode verification.
+5. Implement First Edition multi-class characters.
+6. Implement First Edition dual-class characters and former-class
+   restrictions/reactivation.
+7. Finish PHB verification of spells, character creation, progression,
+   equipment gaps, and remaining player rules.
+8. Remove remaining player-visible OSRIC labels.
+9. Build persistent Hex Crawl Mode.
+10. Build DM-controlled player handouts.
+11. Complete responsive, accessibility, error/reconnect, and player-journey
+    review.
+
+The current item is Monster XP completion. All 217 imported Monster Manual
+records currently have a null `level_xp`, so the displayed dash is accurate to
+the incomplete catalog and is not merely a frontend formatting problem. The
+Monster Manual supplies the creature statistics, but not a printed level/XP
+field. Standard XP formulas must come from the Dungeon Master's Guide Appendix
+E and carry separate provenance.
