@@ -298,9 +298,9 @@ function PlayerShell({ children }) {
             { label: "Home", to: classic ? "/" : "/portal", end: true },
             { label: "My Campaigns", to: classic ? "/campaigns" : "/portal/campaigns", end: true },
             { label: "My Characters", to: classic ? "/characters" : "/portal/characters" },
-            { label: "Create Character", href: "/1e/characters/new/" },
-            { label: "OSRIC Reference", href: "/1e/" },
-            { label: "Dragolance Reference", to: classic ? "/dragonlance" : "/portal/dragonlance" },
+            { label: "Create Character", href: "/1e/characters/new/", target: "_blank" },
+            { label: "OSRIC Reference", href: "/1e/", target: "_blank" },
+            { label: "Dragolance Reference", href: classic ? "/dragonlance" : "/portal/dragonlance", target: "_blank" },
           ]}
           account={
             <div className="account-card">
@@ -2727,7 +2727,7 @@ function PlayerCampaignHome() {
       {activeTab === "maps" ? <PlayerMapsTab campaign={campaign} /> : null}
       {activeTab === "character" ? <PlayerCharacterTab character={character} /> : null}
       {activeTab === "players" ? <PlayerRosterTab campaign={campaign} /> : null}
-      {activeTab === "journal" ? <ReadOnlyPlaceholder title="Journal" copy="Read-only session summaries will appear here once the journal backend exists." /> : null}
+      {activeTab === "journal" ? <PlayerJournalTab campaign={campaign} /> : null}
       {activeTab === "handouts" ? <ReadOnlyPlaceholder title="Handouts" copy="Read-only campaign handouts, maps, and clues will appear here once uploaded." /> : null}
       {activeTab === "rules" ? <PlayerRulesTab campaign={campaign} /> : null}
     </section>
@@ -2771,6 +2771,51 @@ function PlayerMapsTab({ campaign }) {
         {!maps.length && !loading ? <p className="muted">No player maps have been created for this campaign.</p> : null}
       </section>
     </div>
+  );
+}
+
+function PlayerJournalTab({ campaign }) {
+  const [journal, setJournal] = useState(campaign.my_journal || "");
+  const [saveState, setSaveState] = useState("Saved");
+  const dirtyRef = useRef(false);
+
+  useEffect(() => {
+    if (!dirtyRef.current) setJournal(campaign.my_journal || "");
+  }, [campaign.id, campaign.my_journal]);
+
+  useEffect(() => {
+    if (!dirtyRef.current) return undefined;
+    setSaveState("Saving...");
+    const timer = window.setTimeout(async () => {
+      try {
+        await api(`/player/campaigns/${campaign.id}/journal`, {
+          auth: "player",
+          method: "PUT",
+          body: JSON.stringify({ journal }),
+        });
+        dirtyRef.current = false;
+        setSaveState("Saved");
+      } catch (error) {
+        setSaveState(error.message || "Save failed");
+      }
+    }, 800);
+    return () => window.clearTimeout(timer);
+  }, [campaign.id, journal]);
+
+  return (
+    <section className="panel player-journal-panel">
+      <div className="section-heading">
+        <div><p className="eyebrow">My Campaign Journal</p><h2>Journal Notes</h2></div>
+        <span className={`map-save-state ${saveState !== "Saved" ? "is-saving" : ""}`}>{saveState}</span>
+      </div>
+      <p className="muted">Your private notes for this campaign. They save automatically.</p>
+      <textarea
+        aria-label="Campaign journal notes"
+        value={journal}
+        onChange={(event) => { dirtyRef.current = true; setJournal(event.target.value); }}
+        placeholder="Record clues, names, plans, treasure, suspicions, and session notes..."
+      />
+    </section>
   );
 }
 
@@ -3361,8 +3406,8 @@ function PlayerCharacterTab({ character }) {
         <div><dt>XP</dt><dd>{character.xp || 0}</dd></div>
       </dl>
       <div className="form-actions">
-        <a className="secondary-button" href={`/characters/${character.id}`}>View Character</a>
-        <a className="table-link" href={`/characters/${character.id}/edit`}>Edit Character</a>
+        <a className="secondary-button" href={`/characters/${character.id}`} target="_blank" rel="noreferrer">View Character</a>
+        <a className="table-link" href={`/characters/${character.id}/edit`} target="_blank" rel="noreferrer">Edit Character</a>
       </div>
     </section>
   );
@@ -3485,12 +3530,12 @@ function PlayerRulesTab({ campaign }) {
   const dragonlance = setting === "dragonlance" || setting === "dragolance";
   return (
     <div className="rule-link-grid">
-      <a className="panel rule-card" href="/1e/">
+      <a className="panel rule-card" href="/1e/" target="_blank" rel="noreferrer">
         <p className="eyebrow">1e Rules</p>
         <h2>Rules Library</h2>
         <p>Open the shared classic First Edition rules reference.</p>
       </a>
-      <Link className={`panel rule-card ${dragonlance ? "" : "muted-card"}`} to={dragonlance ? dragonlanceBasePath() : "#"}>
+      <Link className={`panel rule-card ${dragonlance ? "" : "muted-card"}`} target="_blank" rel="noreferrer" to={dragonlance ? dragonlanceBasePath() : "#"}>
         <p className="eyebrow">{titleCase(setting)}</p>
         <h2>{dragonlance ? "Dragolance Reference" : "Campaign Rules"}</h2>
         <p>{dragonlance ? "Open our player-safe Krynn campaign reference." : "Setting-specific sourcebook rules will appear here as the library expands."}</p>

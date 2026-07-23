@@ -17,6 +17,7 @@ from app.api import (
     get_player_campaign_map,
     list_player_campaign_maps,
     update_admin_campaign_table_state,
+    update_player_campaign_journal,
     update_player_campaign_map,
 )
 from app.db.base import Base
@@ -92,6 +93,21 @@ class CampaignMappingApiTests(unittest.TestCase):
                 self.db,
             )
         self.assertEqual(denied.exception.status_code, 403)
+
+        mapper_journal = update_player_campaign_journal(
+            self.campaign.id,
+            {"journal": "The north door is trapped."},
+            {"sub": str(self.mapper.id)},
+            self.db,
+        )
+        viewer_journal = update_player_campaign_journal(
+            self.campaign.id,
+            {"journal": "I distrust the statue."},
+            {"sub": str(self.viewer.id)},
+            self.db,
+        )
+        self.assertEqual(mapper_journal["journal"], "The north door is trapped.")
+        self.assertEqual(viewer_journal["journal"], "I distrust the statue.")
 
 
 if __name__ == "__main__":

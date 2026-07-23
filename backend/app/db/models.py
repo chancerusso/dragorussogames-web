@@ -196,6 +196,7 @@ class CampaignPlayer(TimestampMixin, Base):
     campaign_id: Mapped[int] = mapped_column(ForeignKey("campaigns.id", ondelete="CASCADE"), primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("players.id", ondelete="CASCADE"), primary_key=True)
     role: Mapped[str] = mapped_column(String(40), default="player", server_default="player", nullable=False)
+    journal: Mapped[str] = mapped_column(Text, default="", server_default="", nullable=False)
 
 
 class SafeStorageLocation(TimestampMixin, Base):

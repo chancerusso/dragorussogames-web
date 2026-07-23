@@ -1272,11 +1272,25 @@ def list_player_campaigns(claims: dict = Depends(require_player), db: Session = 
 @router.get("/player/campaigns/{campaign_id}")
 def get_player_campaign(campaign_id: int, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
     player = player_from_claims(db, claims)
-    ensure_player_campaign_member(db, campaign_id, player.id)
+    membership = ensure_player_campaign_member(db, campaign_id, player.id)
     campaign = get_campaign_or_404(db, campaign_id)
     payload = campaign_detail_payload(db, campaign)
     payload["my_character"] = next((character for character in payload["characters"] if character["user_id"] == player.id), None)
+    payload["my_journal"] = membership.journal or ""
     return payload
+
+
+@router.put("/player/campaigns/{campaign_id}/journal")
+def update_player_campaign_journal(campaign_id: int, data: dict, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
+    player = player_from_claims(db, claims)
+    membership = ensure_player_campaign_member(db, campaign_id, player.id)
+    journal = str(data.get("journal") or "")
+    if len(journal) > 100_000:
+        raise HTTPException(status_code=422, detail="Journal cannot exceed 100,000 characters.")
+    membership.journal = journal
+    db.commit()
+    db.refresh(membership)
+    return {"ok": True, "journal": membership.journal, "updated_at": membership.updated_at}
 
 
 @router.put("/player/campaigns/{campaign_id}/table-state")

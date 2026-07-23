@@ -123,3 +123,14 @@ Mapping Mode is reconciled with that production lineage as
 `0013_campaign_mapping`, following `0012_campaign_table_state`. Deploy only the
 exact pushed merge commit and keep the Classic player target separate from the
 DM control target.
+
+## Player journal completed
+
+- Each campaign member has a private campaign journal on the player portal.
+- Journal text autosaves and is returned only to the logged-in campaign member.
+- Character sheets, First Edition rules, and campaign references opened from
+  the player campaign area use a separate browser tab so the table stays open.
+- Database migration `0014_player_campaign_journal` follows Mapping Mode's
+  `0013_campaign_mapping` migration.
+- Frontend tests (69), focused backend tests, production build, and a fresh
+  migration chain all pass.
