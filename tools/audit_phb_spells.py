@@ -35,6 +35,15 @@ LABEL_PATTERNS = {
     "area_of_effect": r"Area of Effect\s*:",
 }
 
+HEADER_OVERRIDES = {
+    # The source page begins the Find Familiar table immediately after the
+    # Identify header. PDF text extraction otherwise appends that table to the
+    # preceding Area of Effect field.
+    ("magic-user", "Identify"): {
+        "area_of_effect": "One item",
+    },
+}
+
 
 def normalized_key(value: str) -> str:
     value = (
@@ -177,6 +186,7 @@ def main() -> int:
                 if mechanics is None:
                     missing.append(f"{spell_class} {level_text}: {name}")
                     continue
+                mechanics.update(HEADER_OVERRIDES.get((spell_class, name), {}))
                 result["entries"].setdefault(name, {})[spell_class] = mechanics
 
     expected = sum(

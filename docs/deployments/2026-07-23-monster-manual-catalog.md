@@ -41,3 +41,17 @@
 - Notes: Deployment includes pending migration `0019_phb_spell_mechanics`
   followed by `0020_monster_manual_catalog`. Database backup and migration
   checks are mandatory before service restart.
+- Pre-migration VPS verification:
+  - focused Monster Manual tests: 4 passed;
+  - frontend tests: 75 passed;
+  - production build and DM-only artifact exclusions passed;
+  - full backend suite reported 150 passes plus two environment-only failures:
+    a macOS `/private/tmp` test path and an intentionally absent private
+    Dragonlance PDF.
+- First migration attempt: `0019_phb_spell_mechanics` failed transactionally
+  and remained at `0018`. PostgreSQL rejected an overlong `Identify`
+  `area_of_effect` value containing the following Find Familiar table.
+- Corrective action: changed Identify to the printed compact value `One item`,
+  added an extraction override, and added database-field length regression
+  tests. No database rollback was required because PostgreSQL rolled back the
+  failed migration transaction.

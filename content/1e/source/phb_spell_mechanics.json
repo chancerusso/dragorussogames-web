@@ -3327,7 +3327,7 @@
         "casting_time": "1 turn",
         "duration": "1 segment/level",
         "saving_throw": "Special",
-        "area_of_effect": "One item Die Roll (d20) Familiar Sensory Powers 1-4 cat, black excellent night vision & superior hearing 5-6 crow excellent vision 7-8 hawk very superior distance vision 9-10 owl, screech night vision equals human daylight visual ability, superior hearing 11-12 toad wide angle vision 13-14 weasel superior hearing & very superior olfactory power 15 special — see sub-table below for details 16-20* no familiar available within spell range *Subtract 1 from the die score for each 3 levels of experience of the spell caster, and if the score is 15 or less roll again using d16, and if a 16 is rolled then the result is final. Alignment of Magic-User Result of Special Familiar chaotic evil or chaotic neutral quasit (see AD&D, MONSTER MANUAL) chaotic good, neutral, or neutral good pseudo-dragon (see AD&D, MONSTER MANUAL) lawful neutral or lawful good brownie (see AD&D, MONSTER MANUAL) lawful evil or neutral evil imp (see AD&D, MONSTER MANUAL)",
+        "area_of_effect": "One item",
         "school": "Divination",
         "reversible": false,
         "source": "Player's Handbook",
