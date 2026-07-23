@@ -4,8 +4,9 @@ Last updated: 2026-07-22
 
 ## Current focus
 
-Mapping Mode first usable slice is implemented locally. Continue hardening
-editor behavior and synchronization before deployment.
+Mapping Mode first usable slice was deployed on 2026-07-23 UTC. Complete the
+authenticated DM/Mapper/player smoke test, then continue hardening editor
+behavior and synchronization.
 
 ## Confirmed product direction
 
