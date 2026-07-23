@@ -115,15 +115,29 @@ DISCORD_GUILD_ID=
 RUSSO_API_BASE_URL=http://127.0.0.1:8010/api
 ```
 
-## DM Portal Frontend
+## Portal Frontends
+
+Treat DM and Classic as separate deployment targets even when they are built
+from the same frontend source. Never copy a player-only release to the DM web
+root, and never describe the DM portal as the destination for player features.
+Choose the affected target explicitly:
 
 ```bash
 cd /opt/russo-bot/source/frontend
 npm install
 VITE_API_BASE_URL=https://dm.dragorussogames.com/api npm run build
-sudo rsync -a --delete dist/ /var/www/dm.dragorussogames.com/
-sudo rsync -a --delete dist/ /var/www/classic.dragorussogames.com/
 ```
+
+- DM controls only: copy the reviewed build to
+  `/var/www/dm.dragorussogames.com/`.
+- Player features only: copy the reviewed build to
+  `/var/www/classic.dragorussogames.com/`.
+- A coordinated feature affecting both portals: verify each portal separately,
+  then copy to each explicit web root as two recorded deployment actions.
+
+Mapping Mode's Mapper desk, player viewer, and map library deploy to the Classic
+web root. Its DM mode, active-map, and Mapper-assignment controls deploy to the
+DM web root. Shared persistence changes deploy through the backend service.
 
 Private reference PDFs must never be copied into a served web root. Keep
 `private-reference/sources/*.pdf`, `docs/sources/*.pdf`, and legacy

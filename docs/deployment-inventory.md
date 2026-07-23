@@ -39,9 +39,10 @@ These values come from repository documentation but were not live-verified on
 
 ## Live verification result
 
-On 2026-07-22, a read-only SSH connection to
-`dm.dragorussogames.com:22` timed out. No server command executed and no live
-identity was verified.
+On 2026-07-22, the portal hostname `dm.dragorussogames.com` was incorrectly
+tested as though it were the VPS management address; that connection timed out.
+A public portal hostname is not assumed to be the SSH deployment target. The
+actual VPS management hostname or approved access path remains to be verified.
 
 Public checks on the same date confirmed successful responses from the API
 health endpoint and both portal roots. Probes of representative private source
@@ -60,6 +61,10 @@ Before any deployment, confirm and record without exposing secret values:
 - Current production commit
 - Health endpoints and critical smoke-test routes
 - Which portal(s) receive the frontend build
+
+Portal-target rule: player-facing Mapping Mode code goes to the Classic web
+root only. DM mode/map/Mapper controls go to the DM web root only. Backend
+persistence is a separate service deployment.
 
 ## Deployment gate
 

@@ -111,7 +111,9 @@ These are table responsibilities, not exclusive character abilities.
 
 ## Open operational blocker
 
-The live VPS inventory could not be reverified on 2026-07-22 because SSH to
-`dm.dragorussogames.com:22` timed out. No deployment is authorized until the
-actual host/access path, services, checkout, database, web roots, and deployed
-commit are verified and recorded in `docs/deployment-inventory.md`.
+The live VPS inventory could not be reverified on 2026-07-22. The DM portal
+hostname was incorrectly tried as an SSH management address and timed out; it
+must not be treated as the destination for player-side deployment. No
+deployment is authorized until the actual VPS access path, services, checkout,
+database, separate DM and Classic web roots, and deployed commit are verified
+and recorded in `docs/deployment-inventory.md`.
