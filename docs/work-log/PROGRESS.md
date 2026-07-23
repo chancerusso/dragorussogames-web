@@ -4,9 +4,12 @@ Last updated: 2026-07-23
 
 ## Current focus
 
-Mapping Mode first usable slice was deployed on 2026-07-23 UTC. Complete the
-authenticated DM/Mapper/player smoke test, then continue hardening editor
-behavior and synchronization.
+Mapping Mode group readiness was deployed on 2026-07-23 UTC at
+`1761590b539caa758394ff77373b79d1ba0307a4`. Right-click/Escape wall-chain
+termination, independent named floors, centered saved zoom, revision restore,
+stale-window conflict protection, and read-only viewer following are ready for
+group testing. The Greyhawk Darlene image is stored as a Classic-only player
+asset for the later Hex Crawl phase.
 
 ## Confirmed product direction
 
