@@ -50,7 +50,12 @@ def upgrade() -> None:
     for seed in spell_seed():
         canonical_name = seed["name"]
         legacy_name = PHB_SPELL_LEGACY_NAMES.get(canonical_name, canonical_name)
-        values = dict(seed)
+        # Keep this historical migration limited to the columns that existed
+        # at revision 0017. Later spell mechanics are added by revision 0019.
+        values = {
+            column.name: seed.get(column.name)
+            for column in spells.c
+        }
         if legacy_name in existing_names:
             bind.execute(spells.update().where(spells.c.name == legacy_name).values(**values))
             existing_names.discard(legacy_name)

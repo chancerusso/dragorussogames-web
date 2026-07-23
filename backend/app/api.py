@@ -345,21 +345,37 @@ def spell_payload(spell: SpellsCatalog, class_lists: set[str] | None = None) -> 
         (int((spell.levels_by_class or {}).get(name, spell.spell_level)) for name in matching_lists),
         default=spell.spell_level,
     )
+    matching_mechanics = [
+        (spell.mechanics_by_class or {}).get(name)
+        for name in matching_lists
+        if (spell.mechanics_by_class or {}).get(name)
+    ]
+    mechanics = min(
+        matching_mechanics,
+        key=lambda entry: int(entry.get("level", effective_level)),
+        default={},
+    )
     return {
         "id": spell.id,
         "name": spell.name,
         "class_list": spell.class_list or [],
         "levels_by_class": spell.levels_by_class or {},
+        "mechanics_by_class": spell.mechanics_by_class or {},
         "spell_level": effective_level,
-        "range": spell.range,
-        "duration": spell.duration,
-        "area_of_effect": spell.area_of_effect,
-        "components": spell.components,
+        "range": mechanics.get("range", spell.range),
+        "duration": mechanics.get("duration", spell.duration),
+        "area_of_effect": mechanics.get("area_of_effect", spell.area_of_effect),
+        "components": mechanics.get("components", spell.components),
+        "casting_time": mechanics.get("casting_time", spell.casting_time),
+        "saving_throw": mechanics.get("saving_throw", spell.saving_throw),
+        "school": mechanics.get("school", spell.school),
+        "reversible": mechanics.get("reversible", spell.reversible),
         "description": spell.description,
         "rules_reference": spell.rules_reference,
         "source": spell.source,
-        "source_page": spell.source_page,
+        "source_page": mechanics.get("source_page", spell.source_page),
         "verification": spell.verification,
+        "effect_verification": mechanics.get("effect_verification", spell.effect_verification),
         "archived": spell.archived,
     }
 

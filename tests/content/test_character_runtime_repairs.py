@@ -656,11 +656,19 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
     def test_phb_spell_lists_preserve_class_specific_levels_and_source(self) -> None:
         spells = self.db.scalars(select(SpellsCatalog)).all()
         self.assertEqual(350, len(spells))
+        self.assertEqual(414, sum(len(spell.mechanics_by_class) for spell in spells))
 
         cure = self.db.scalar(select(SpellsCatalog).where(SpellsCatalog.name == "Cure Light Wounds"))
         self.assertEqual({"cleric": 1, "druid": 2}, cure.levels_by_class)
         self.assertEqual("Player's Handbook", cure.source)
-        self.assertEqual("spell_list_verified", cure.verification)
+        self.assertEqual("spell_header_mechanics_verified", cure.verification)
+        self.assertEqual("pending_semantic_review", cure.effect_verification)
+        self.assertEqual("V, S", cure.mechanics_by_class["cleric"]["components"])
+        self.assertEqual("5 segments", cure.mechanics_by_class["cleric"]["casting_time"])
+        self.assertEqual(43, cure.mechanics_by_class["cleric"]["source_page"])
+        self.assertEqual("V, S, M", cure.mechanics_by_class["druid"]["components"])
+        self.assertEqual("4 segments", cure.mechanics_by_class["druid"]["casting_time"])
+        self.assertEqual(56, cure.mechanics_by_class["druid"]["source_page"])
 
         cleric_level_one = list_vault_spells(class_name="Cleric", spell_level=1, _={}, db=self.db)
         druid_level_two = list_vault_spells(class_name="Druid", spell_level=2, _={}, db=self.db)
@@ -668,6 +676,20 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertIn("Cure Light Wounds", {spell["name"] for spell in cleric_level_one})
         self.assertIn("Cure Light Wounds", {spell["name"] for spell in druid_level_two})
         self.assertNotIn("Cure Light Wounds", {spell["name"] for spell in druid_level_one})
+
+        cleric_cure = next(spell for spell in cleric_level_one if spell["name"] == "Cure Light Wounds")
+        druid_cure = next(spell for spell in druid_level_two if spell["name"] == "Cure Light Wounds")
+        self.assertEqual(("V, S", "5 segments", 43), (cleric_cure["components"], cleric_cure["casting_time"], cleric_cure["source_page"]))
+        self.assertEqual(("V, S, M", "4 segments", 56), (druid_cure["components"], druid_cure["casting_time"], druid_cure["source_page"]))
+
+    def test_phb_spell_payload_selects_class_specific_mechanics(self) -> None:
+        cleric = list_vault_spells(class_name="Cleric", spell_level=1, q="Detect Magic", _={}, db=self.db)[0]
+        druid = list_vault_spells(class_name="Druid", spell_level=1, q="Detect Magic", _={}, db=self.db)[0]
+        magic_user = list_vault_spells(class_name="Magic-User", spell_level=1, q="Detect Magic", _={}, db=self.db)[0]
+
+        self.assertEqual(("3\"", "1 turn", "1 round", 44), (cleric["range"], cleric["duration"], cleric["casting_time"], cleric["source_page"]))
+        self.assertEqual(("0", "12 rounds", "3 segments", 54), (druid["range"], druid["duration"], druid["casting_time"], druid["source_page"]))
+        self.assertEqual(("0", "2 rounds/level", "1 segment", 65), (magic_user["range"], magic_user["duration"], magic_user["casting_time"], magic_user["source_page"]))
 
     def test_phb_spell_list_uses_printed_names(self) -> None:
         names = set(self.db.scalars(select(SpellsCatalog.name)).all())

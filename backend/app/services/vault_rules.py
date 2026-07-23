@@ -131,17 +131,17 @@ RACES = {
 }
 
 CLASSES = {
-    "Assassin": {"hit_die": 6, "hit_die_text": "d6", "wealth": "2d6 x 10 gp", "spellcaster": False, "armor": "Leather or studded leather; shields allowed.", "armor_types": ["Leather", "Studded"], "shields": True, "weapons": "Any weapon", "weapon_policy": "any", "proficiency_initial": 3, "proficiency_every": 4, "non_proficiency_penalty": -3, "alignment": "Any evil alignment", "allowed_alignments": ["Lawful Evil", "Neutral Evil", "Chaotic Evil"], "manual_review": ["Scroll use begins at 12th level and remains referee-adjudicated."]},
+    "Assassin": {"hit_die": 6, "hit_die_text": "d6", "wealth": "2d6 x 10 gp", "wealth_source": "Thief category, Player's Handbook p. 35", "spellcaster": False, "armor": "Leather or studded leather; shields allowed.", "armor_types": ["Leather", "Studded"], "shields": True, "weapons": "Any weapon", "weapon_policy": "any", "proficiency_initial": 3, "proficiency_every": 4, "non_proficiency_penalty": -3, "alignment": "Any evil alignment", "allowed_alignments": ["Lawful Evil", "Neutral Evil", "Chaotic Evil"], "manual_review": ["Scroll use begins at 12th level and remains referee-adjudicated."]},
     "Bard": {"hit_die": 6, "hit_die_text": "d6 after Bard entry", "wealth": "Use the starting class before Bard entry", "spellcaster": True, "armor": "Manual DM Review: Bard is not a normal starting class and depends on prior class path.", "armor_types": [], "shields": False, "weapons": "Manual DM Review", "weapon_policy": "manual", "proficiency_initial": None, "proficiency_every": None, "non_proficiency_penalty": None, "alignment": "Manual DM Review", "allowed_alignments": ALIGNMENTS if "ALIGNMENTS" in globals() else [], "manual_review": ["Bard entry path, equipment, spellcasting, and saves require campaign confirmation."]},
-    "Cleric": {"hit_die": 8, "hit_die_text": "d8", "wealth": "3d6 x 10 gp", "spellcaster": True, "spell_lists": ["cleric"], "armor": "Any armor and any shield.", "armor_types": ["any"], "shields": True, "weapons": "Blunt weapons only: club, flail, hammer, mace, oil, staff.", "weapon_policy": "list", "allowed_weapon_terms": ["club", "flail", "hammer", "mace", "oil", "staff"], "proficiency_initial": 2, "proficiency_every": 3, "non_proficiency_penalty": -3, "alignment": "Any alignment", "allowed_alignments": [], "manual_review": []},
-    "Druid": {"hit_die": 8, "hit_die_text": "d8", "wealth": "3d6 x 10 gp", "spellcaster": True, "spell_lists": ["druid"], "armor": "Leather armor only. Wooden shields only.", "armor_types": ["Leather"], "shields": True, "shield_note": "Wooden shield only; catalog shield material is Manual DM Review.", "weapons": "Club, dagger, dart, hammer, oil, scimitar, sling, spear, staff.", "weapon_policy": "list", "allowed_weapon_terms": ["club", "dagger", "dart", "hammer", "oil", "scimitar", "sling", "spear", "staff"], "proficiency_initial": 2, "proficiency_every": 3, "non_proficiency_penalty": -4, "alignment": "Neutral only", "allowed_alignments": ["True Neutral"], "manual_review": ["Wooden shield material is not represented in the core shield catalog.", "Druid +2 saves vs fire/lightning is situational and displayed as a note."]},
-    "Fighter": {"hit_die": 10, "hit_die_text": "d10", "wealth": "(3d6 + 2) x 10 gp", "spellcaster": False, "armor": "Any armor and any shield.", "armor_types": ["any"], "shields": True, "weapons": "Any weapon", "weapon_policy": "any", "proficiency_initial": 4, "proficiency_every": 2, "non_proficiency_penalty": -2, "alignment": "Any alignment", "allowed_alignments": [], "manual_review": ["Weapon specialization is optional campaign policy."]},
-    "Illusionist": {"hit_die": 4, "hit_die_text": "d4", "wealth": "2d4 x 10 gp", "spellcaster": True, "spell_lists": ["illusionist"], "armor": "No armor or shield.", "armor_types": [], "shields": False, "weapons": "Dagger, dart, oil, staff.", "weapon_policy": "list", "allowed_weapon_terms": ["dagger", "dart", "oil", "staff"], "proficiency_initial": 1, "proficiency_every": 5, "non_proficiency_penalty": -5, "alignment": "Any alignment", "allowed_alignments": [], "manual_review": []},
-    "Magic-User": {"hit_die": 4, "hit_die_text": "d4", "wealth": "2d4 x 10 gp", "spellcaster": True, "spell_lists": ["magic-user"], "armor": "No armor or shield.", "armor_types": [], "shields": False, "weapons": "Dagger, dart, oil, staff.", "weapon_policy": "list", "allowed_weapon_terms": ["dagger", "dart", "oil", "staff"], "proficiency_initial": 1, "proficiency_every": 5, "non_proficiency_penalty": -5, "alignment": "Any alignment", "allowed_alignments": [], "manual_review": []},
-    "Monk": {"hit_die": 4, "hit_die_text": "Manual DM Review", "wealth": "5d4 gp", "spellcaster": False, "armor": "No armor.", "armor_types": [], "shields": False, "weapons": "Restricted monk weapon list; referee-approved.", "weapon_policy": "manual", "proficiency_initial": None, "proficiency_every": None, "non_proficiency_penalty": None, "alignment": "Lawful only", "allowed_alignments": ["Lawful Good", "Lawful Neutral", "Lawful Evil"], "manual_review": ["Monk hit dice, AC progression, saves, and weapon list need full class table encoding."]},
-    "Paladin": {"hit_die": 10, "hit_die_text": "d10", "wealth": "(3d6 + 2) x 10 gp", "spellcaster": True, "spell_lists": ["cleric"], "spellcasting_starts_level": 9, "armor": "Any armor and any shield.", "armor_types": ["any"], "shields": True, "weapons": "Any weapon", "weapon_policy": "any", "proficiency_initial": 3, "proficiency_every": 2, "non_proficiency_penalty": -2, "alignment": "Lawful Good only", "allowed_alignments": ["Lawful Good"], "manual_review": []},
-    "Ranger": {"hit_die": 8, "hit_die_text": "2d8 at 1st level, then d8", "wealth": "(3d6 + 2) x 10 gp", "spellcaster": True, "spell_lists": ["druid", "magic-user"], "spellcasting_starts_level": 8, "armor": "Any armor and any shield.", "armor_types": ["any"], "shields": True, "weapons": "Any weapon", "weapon_policy": "any", "proficiency_initial": 3, "proficiency_every": 2, "non_proficiency_penalty": -2, "alignment": "Any good alignment", "allowed_alignments": ["Lawful Good", "Neutral Good", "Chaotic Good"], "manual_review": []},
-    "Thief": {"hit_die": 6, "hit_die_text": "d6", "wealth": "2d6 x 10 gp", "spellcaster": False, "armor": "Leather or studded leather only. No shields.", "armor_types": ["Leather", "Studded"], "shields": False, "weapons": "Club, dagger, dart, oil, sling, and single-handed swords except bastard swords.", "weapon_policy": "thief", "proficiency_initial": 2, "proficiency_every": 4, "non_proficiency_penalty": -3, "alignment": "Any neutral or any evil alignment; Neutral Good allowed.", "allowed_alignments": ["Lawful Neutral", "Neutral Good", "True Neutral", "Neutral Evil", "Chaotic Neutral", "Chaotic Evil", "Lawful Evil"], "manual_review": ["Scroll use begins at 10th level and remains referee-adjudicated."]},
+    "Cleric": {"hit_die": 8, "hit_die_text": "d8", "wealth": "3d6 x 10 gp", "wealth_source": "Player's Handbook p. 35", "spellcaster": True, "spell_lists": ["cleric"], "armor": "Any armor and any shield.", "armor_types": ["any"], "shields": True, "weapons": "Blunt weapons only: club, flail, hammer, mace, oil, staff.", "weapon_policy": "list", "allowed_weapon_terms": ["club", "flail", "hammer", "mace", "oil", "staff"], "proficiency_initial": 2, "proficiency_every": 3, "non_proficiency_penalty": -3, "alignment": "Any alignment", "allowed_alignments": [], "manual_review": []},
+    "Druid": {"hit_die": 8, "hit_die_text": "d8", "wealth": "3d6 x 10 gp", "wealth_source": "Cleric category, Player's Handbook p. 35", "spellcaster": True, "spell_lists": ["druid"], "armor": "Leather armor only. Wooden shields only.", "armor_types": ["Leather"], "shields": True, "shield_note": "Wooden shield only; catalog shield material is Manual DM Review.", "weapons": "Club, dagger, dart, hammer, oil, scimitar, sling, spear, staff.", "weapon_policy": "list", "allowed_weapon_terms": ["club", "dagger", "dart", "hammer", "oil", "scimitar", "sling", "spear", "staff"], "proficiency_initial": 2, "proficiency_every": 3, "non_proficiency_penalty": -4, "alignment": "Neutral only", "allowed_alignments": ["True Neutral"], "manual_review": ["Wooden shield material is not represented in the core shield catalog.", "Druid +2 saves vs fire/lightning is situational and displayed as a note."]},
+    "Fighter": {"hit_die": 10, "hit_die_text": "d10", "wealth": "5d4 x 10 gp", "wealth_source": "Player's Handbook p. 35", "spellcaster": False, "armor": "Any armor and any shield.", "armor_types": ["any"], "shields": True, "weapons": "Any weapon", "weapon_policy": "any", "proficiency_initial": 4, "proficiency_every": 2, "non_proficiency_penalty": -2, "alignment": "Any alignment", "allowed_alignments": [], "manual_review": ["Weapon specialization is optional campaign policy."]},
+    "Illusionist": {"hit_die": 4, "hit_die_text": "d4", "wealth": "2d4 x 10 gp", "wealth_source": "Magic-user category, Player's Handbook p. 35", "spellcaster": True, "spell_lists": ["illusionist"], "armor": "No armor or shield.", "armor_types": [], "shields": False, "weapons": "Dagger, dart, oil, staff.", "weapon_policy": "list", "allowed_weapon_terms": ["dagger", "dart", "oil", "staff"], "proficiency_initial": 1, "proficiency_every": 5, "non_proficiency_penalty": -5, "alignment": "Any alignment", "allowed_alignments": [], "manual_review": []},
+    "Magic-User": {"hit_die": 4, "hit_die_text": "d4", "wealth": "2d4 x 10 gp", "wealth_source": "Player's Handbook p. 35", "spellcaster": True, "spell_lists": ["magic-user"], "armor": "No armor or shield.", "armor_types": [], "shields": False, "weapons": "Dagger, dart, oil, staff.", "weapon_policy": "list", "allowed_weapon_terms": ["dagger", "dart", "oil", "staff"], "proficiency_initial": 1, "proficiency_every": 5, "non_proficiency_penalty": -5, "alignment": "Any alignment", "allowed_alignments": [], "manual_review": []},
+    "Monk": {"hit_die": 4, "hit_die_text": "Manual DM Review", "wealth": "5d4 gp", "wealth_source": "Player's Handbook p. 35", "spellcaster": False, "armor": "No armor.", "armor_types": [], "shields": False, "weapons": "Restricted monk weapon list; referee-approved.", "weapon_policy": "manual", "proficiency_initial": None, "proficiency_every": None, "non_proficiency_penalty": None, "alignment": "Lawful only", "allowed_alignments": ["Lawful Good", "Lawful Neutral", "Lawful Evil"], "manual_review": ["Monk hit dice, AC progression, saves, and weapon list need full class table encoding."]},
+    "Paladin": {"hit_die": 10, "hit_die_text": "d10", "wealth": "5d4 x 10 gp", "wealth_source": "Fighter category, Player's Handbook p. 35", "spellcaster": True, "spell_lists": ["cleric"], "spellcasting_starts_level": 9, "armor": "Any armor and any shield.", "armor_types": ["any"], "shields": True, "weapons": "Any weapon", "weapon_policy": "any", "proficiency_initial": 3, "proficiency_every": 2, "non_proficiency_penalty": -2, "alignment": "Lawful Good only", "allowed_alignments": ["Lawful Good"], "manual_review": []},
+    "Ranger": {"hit_die": 8, "hit_die_text": "2d8 at 1st level, then d8", "wealth": "5d4 x 10 gp", "wealth_source": "Fighter category, Player's Handbook p. 35", "spellcaster": True, "spell_lists": ["druid", "magic-user"], "spellcasting_starts_level": 8, "armor": "Any armor and any shield.", "armor_types": ["any"], "shields": True, "weapons": "Any weapon", "weapon_policy": "any", "proficiency_initial": 3, "proficiency_every": 2, "non_proficiency_penalty": -2, "alignment": "Any good alignment", "allowed_alignments": ["Lawful Good", "Neutral Good", "Chaotic Good"], "manual_review": []},
+    "Thief": {"hit_die": 6, "hit_die_text": "d6", "wealth": "2d6 x 10 gp", "wealth_source": "Player's Handbook p. 35", "spellcaster": False, "armor": "Leather or studded leather only. No shields.", "armor_types": ["Leather", "Studded"], "shields": False, "weapons": "Club, dagger, dart, oil, sling, and single-handed swords except bastard swords.", "weapon_policy": "thief", "proficiency_initial": 2, "proficiency_every": 4, "non_proficiency_penalty": -3, "alignment": "Any neutral or any evil alignment; Neutral Good allowed.", "allowed_alignments": ["Lawful Neutral", "Neutral Good", "True Neutral", "Neutral Evil", "Chaotic Neutral", "Chaotic Evil", "Lawful Evil"], "manual_review": ["Scroll use begins at 10th level and remains referee-adjudicated."]},
 }
 
 ALIGNMENTS = (
@@ -1120,6 +1120,7 @@ def spell_seed() -> list[dict]:
             }
 
     source = json.loads((content_root() / "source" / "phb_spell_lists.json").read_text())
+    mechanics_source = json.loads((content_root() / "source" / "phb_spell_mechanics.json").read_text())
     seeds: dict[str, dict] = {}
     for spell_class, levels in source["lists"].items():
         for level_text, names in levels.items():
@@ -1145,26 +1146,31 @@ def spell_seed() -> list[dict]:
                 seed["spell_level"] = min(seed["spell_level"], int(level_text))
 
     for seed in seeds.values():
+        mechanics_by_class = mechanics_source["entries"].get(seed["name"], {})
+        seed["mechanics_by_class"] = mechanics_by_class
+        default_class = min(
+            seed["class_list"],
+            key=lambda name: int(seed["levels_by_class"][name]),
+        )
+        default_mechanics = mechanics_by_class.get(default_class, {})
+        seed["range"] = default_mechanics.get("range")
+        seed["duration"] = default_mechanics.get("duration")
+        seed["area_of_effect"] = default_mechanics.get("area_of_effect")
+        seed["components"] = default_mechanics.get("components")
+        seed["casting_time"] = default_mechanics.get("casting_time")
+        seed["saving_throw"] = default_mechanics.get("saving_throw")
+        seed["school"] = default_mechanics.get("school")
+        seed["reversible"] = bool(default_mechanics.get("reversible"))
+        seed["source_page"] = default_mechanics.get("source_page", seed["source_page"])
+        seed["verification"] = mechanics_source["verification"]
+        seed["effect_verification"] = default_mechanics.get(
+            "effect_verification",
+            "pending_semantic_review",
+        )
         legacy_name = PHB_SPELL_LEGACY_NAMES.get(seed["name"], seed["name"])
         legacy = legacy_entries.get(spell_name_key(legacy_name))
         href = (legacy or {}).get("href") or "/1e/spells/all-spells/"
         seed["rules_reference"] = href
-        slug = href.strip("/").split("/")[-1] if href.startswith("/1e/spells/") else ""
-        spell_file = spells_dir / f"{slug}.md"
-        if not spell_file.exists():
-            continue
-        text = spell_file.read_text()
-        fields = {}
-        for row in re.findall(r"\| ([^|]+) \| ([^|]+) \|", text):
-            key = row[0].strip().lower()
-            value = row[1].strip()
-            fields[key] = value
-        # These mechanics remain available for table continuity, but are not
-        # represented as PHB-verified until the individual entry is audited.
-        seed["range"] = fields.get("range")
-        seed["duration"] = fields.get("duration")
-        seed["area_of_effect"] = fields.get("area of effect")
-        seed["components"] = fields.get("components")
     return list(seeds.values())
 
 
