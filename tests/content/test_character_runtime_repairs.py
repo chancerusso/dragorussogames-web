@@ -677,6 +677,24 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertNotIn("Chariot of Fire", names)
         self.assertNotIn("Detect Pits and Snares", names)
 
+    def test_archived_legacy_spell_is_hidden_from_catalog_but_retained(self) -> None:
+        legacy = SpellsCatalog(
+            name="Legacy Test Spell",
+            class_list=["magic-user"],
+            levels_by_class={"magic-user": 1},
+            spell_level=1,
+            description="Legacy compatibility record.",
+            source="Legacy",
+            verification="not_in_phb_spell_tables",
+            archived=True,
+        )
+        self.db.add(legacy)
+        self.db.commit()
+
+        names = {spell["name"] for spell in list_vault_spells(_={}, db=self.db)}
+        self.assertNotIn("Legacy Test Spell", names)
+        self.assertIsNotNone(self.db.get(SpellsCatalog, legacy.id))
+
     def test_magic_user_and_cleric_combat_sources_are_separate(self) -> None:
         magic_user = create_vault_character_for_player(
             {

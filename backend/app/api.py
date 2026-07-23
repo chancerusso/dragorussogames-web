@@ -360,6 +360,7 @@ def spell_payload(spell: SpellsCatalog, class_lists: set[str] | None = None) -> 
         "source": spell.source,
         "source_page": spell.source_page,
         "verification": spell.verification,
+        "archived": spell.archived,
     }
 
 
@@ -1741,7 +1742,11 @@ def list_vault_spells(
     db: Session = Depends(get_db),
 ) -> list[dict]:
     ensure_vault_seeded(db)
-    spells = db.scalars(select(SpellsCatalog).order_by(SpellsCatalog.name)).all()
+    spells = db.scalars(
+        select(SpellsCatalog)
+        .where(SpellsCatalog.archived.is_(False))
+        .order_by(SpellsCatalog.name)
+    ).all()
     filtered = []
     for spell in spells:
         if q and q.lower() not in spell.name.lower():

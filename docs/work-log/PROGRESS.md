@@ -183,6 +183,9 @@ DM control target.
 - Migration `0017_phb_spell_lists` upgrades existing spell rows in place,
   retains character-spell relationships, inserts missing PHB entries, and adds
   Player's Handbook source/page/verification metadata.
+- Migration `0018_archive_legacy_spells` hides unmatched legacy spell records
+  from new selection without deleting records that an existing character may
+  reference.
 - Player spell indexes and class-list pages now use the PHB spell names and no
   longer present OSRIC as the authority. Individual spell mechanics remain the
   next audit checkpoint and are not yet labelled PHB-verified.

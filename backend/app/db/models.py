@@ -372,6 +372,7 @@ class SpellsCatalog(TimestampMixin, Base):
     source: Mapped[str] = mapped_column(String(120), default="Player's Handbook", server_default="Player's Handbook", nullable=False)
     source_page: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     verification: Mapped[str] = mapped_column(String(80), default="spell_list_verified", server_default="spell_list_verified", nullable=False)
+    archived: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
 
 
 class MonsterCatalog(TimestampMixin, Base):
