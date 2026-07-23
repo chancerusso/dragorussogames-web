@@ -1326,6 +1326,18 @@ def update_player_campaign_map(campaign_id: int, map_id: int, data: dict, claims
         campaign_map.viewport = data["viewport"]
     if "active_level" in data:
         campaign_map.active_level = str(data["active_level"] or "Level 1")[:80]
+    if "name" in data:
+        name = str(data["name"] or "").strip()[:160]
+        if not name:
+            raise HTTPException(status_code=422, detail="Map name is required.")
+        existing = db.scalar(select(CampaignMap).where(
+            CampaignMap.campaign_id == campaign_id,
+            CampaignMap.name == name,
+            CampaignMap.id != map_id,
+        ))
+        if existing:
+            raise HTTPException(status_code=409, detail="A map with that name already exists in this campaign.")
+        campaign_map.name = name
     campaign_map.updated_by_user_id = player.id
     campaign_map.revision += 1
     save_map_revision(db, campaign_map, player.id)

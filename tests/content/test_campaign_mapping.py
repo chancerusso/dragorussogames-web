@@ -66,6 +66,7 @@ class CampaignMappingApiTests(unittest.TestCase):
             self.campaign.id,
             created["id"],
             {
+                "name": "The Renamed Ruins",
                 "drawing_state": {
                     "objects": [{"id": "wall-1", "type": "line", "x": 0, "y": 0, "x2": 20, "y2": 0}],
                     "notes": [],
@@ -76,6 +77,7 @@ class CampaignMappingApiTests(unittest.TestCase):
             self.db,
         )
         self.assertEqual(updated["revision"], 2)
+        self.assertEqual(updated["name"], "The Renamed Ruins")
         self.assertEqual(updated["viewport"]["x"], 120)
         self.assertEqual(get_player_campaign_map(self.campaign.id, created["id"], {"sub": str(self.viewer.id)}, self.db)["drawing_state"]["objects"][0]["id"], "wall-1")
         revision_count = self.db.scalar(select(func.count()).select_from(CampaignMapRevision))

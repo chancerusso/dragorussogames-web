@@ -2780,11 +2780,33 @@ function PlayerMapPage() {
   const [draft, setDraft] = useState(null);
   const [viewport, setViewport] = useState(null);
   const [saveState, setSaveState] = useState("Saved");
+  const [mapName, setMapName] = useState("");
   const dirtyRef = useRef(false);
 
   useEffect(() => {
     if (campaignMap && !dirtyRef.current) setDraft(campaignMap.drawing_state || emptyDrawingState());
   }, [campaignMap]);
+
+  useEffect(() => {
+    if (campaignMap) setMapName(campaignMap.name || "");
+  }, [campaignMap?.id, campaignMap?.name]);
+
+  async function saveMapName() {
+    const name = mapName.trim();
+    if (!campaignMap?.can_edit || !name || name === campaignMap.name) return;
+    setSaveState("Saving...");
+    try {
+      await api(`/player/campaigns/${id}/maps/${mapId}`, {
+        auth: "player",
+        method: "PUT",
+        body: JSON.stringify({ name }),
+      });
+      setSaveState("Saved");
+      await reload({ silent: true });
+    } catch (renameError) {
+      setSaveState(renameError.message || "Rename failed");
+    }
+  }
 
   useEffect(() => {
     if (!campaignMap?.can_edit || !dirtyRef.current || !draft) return undefined;
@@ -2818,7 +2840,7 @@ function PlayerMapPage() {
   return (
     <section className="player-map-page">
       <header className="player-map-header">
-        <div><p className="eyebrow">{campaignMap.can_edit ? "Mapper Desk" : "Player Map"}</p><h1>{campaignMap.name}</h1><p>{campaignMap.active_level} · {campaignMap.mapper_name || "No Mapper assigned"}</p></div>
+        <div><p className="eyebrow">{campaignMap.can_edit ? "Mapper Desk" : "Player Map"}</p>{campaignMap.can_edit ? <input className="player-map-name-input" aria-label="Map name" value={mapName} onChange={(event) => setMapName(event.target.value)} onBlur={saveMapName} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /> : <h1>{campaignMap.name}</h1>}<p>{campaignMap.active_level} · {campaignMap.mapper_name || "No Mapper assigned"}</p></div>
         <div><span className={`map-save-state ${saveState !== "Saved" ? "is-saving" : ""}`}>{saveState}</span><Link className="secondary-button" to={`/campaigns/${id}`}>Campaign Home</Link></div>
       </header>
       <MappingCanvas

@@ -55,6 +55,18 @@ export function snapPlacementPoint(type, point) {
   return snapPoint(point);
 }
 
+export function normalizeDrawingPositions(state) {
+  let changed = false;
+  const objects = (state.objects || []).map((object) => {
+    if (!["door", "secret-door", "window", "stairs-up", "stairs-down", "trap", "pit", "note"].includes(object.type)) return object;
+    const snapped = snapPlacementPoint(object.type, object);
+    if (snapped.x === object.x && snapped.y === object.y) return object;
+    changed = true;
+    return { ...object, x: snapped.x, y: snapped.y };
+  });
+  return changed ? { ...state, objects } : state;
+}
+
 export function nextNoteNumber(notes = []) {
   return notes.reduce((highest, note) => Math.max(highest, Number(note.number) || 0), 0) + 1;
 }

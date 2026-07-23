@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { appendObject, emptyDrawingState, nextNoteNumber, removeObject, snapCellCenter, snapEdgeMidpoint, snapPoint, translateMapObject, updateNoteText } from "./mapping.js";
+import { appendObject, emptyDrawingState, nextNoteNumber, normalizeDrawingPositions, removeObject, snapCellCenter, snapEdgeMidpoint, snapPoint, translateMapObject, updateNoteText } from "./mapping.js";
 
 test("map points snap to graph-paper intersections", () => {
   assert.deepEqual(snapPoint({ x: 31, y: 49 }), { x: 40, y: 40 });
@@ -18,6 +18,11 @@ test("moving a wall translates both endpoints", () => {
     translateMapObject({ id: "wall", type: "line", x: 20, y: 20, x2: 60, y2: 20 }, 20, 40),
     { id: "wall", type: "line", x: 40, y: 60, x2: 80, y2: 60 },
   );
+});
+
+test("previously saved room symbols are normalized to square centers", () => {
+  const state = { objects: [{ id: "pit", type: "pit", x: 40, y: 60 }], notes: [] };
+  assert.deepEqual(normalizeDrawingPositions(state).objects[0], { id: "pit", type: "pit", x: 50, y: 70 });
 });
 
 test("numbered notes remain stable and are removed with their marker", () => {

@@ -7,6 +7,7 @@ import {
   emptyDrawingState,
   makeMapObject,
   nextNoteNumber,
+  normalizeDrawingPositions,
   removeObject,
   snapPlacementPoint,
   snapPoint,
@@ -23,6 +24,7 @@ export function MappingCanvas({ campaignMap, editable = false, onChange, onViewp
   const [history, setHistory] = useState([]);
   const [future, setFuture] = useState([]);
   const scrollRef = useRef(null);
+  const movingRef = useRef(null);
   const state = campaignMap?.drawing_state || emptyDrawingState();
   const width = (campaignMap?.width || 80) * MAP_CELL_SIZE;
   const height = (campaignMap?.height || 80) * MAP_CELL_SIZE;
@@ -32,6 +34,12 @@ export function MappingCanvas({ campaignMap, editable = false, onChange, onViewp
     const viewport = campaignMap?.viewport || {};
     scrollRef.current.scrollTo({ left: viewport.x || 0, top: viewport.y || 0 });
   }, [campaignMap?.revision, campaignMap?.viewport, followViewport]);
+
+  useEffect(() => {
+    if (!editable || !onChange) return;
+    const normalized = normalizeDrawingPositions(state);
+    if (normalized !== state) onChange(normalized);
+  }, [campaignMap?.id, campaignMap?.revision, editable]);
 
   function commit(nextState) {
     if (!editable) return;
@@ -85,7 +93,9 @@ export function MappingCanvas({ campaignMap, editable = false, onChange, onViewp
       const point = pointFromEvent(event, false);
       const snapped = snapPlacementPoint(moving.object.type, point);
       const start = snapPlacementPoint(moving.object.type, moving.pointerStart);
-      setMoving({ ...moving, preview: translateMapObject(moving.object, snapped.x - start.x, snapped.y - start.y) });
+      const nextMoving = { ...moving, preview: translateMapObject(moving.object, snapped.x - start.x, snapped.y - start.y) };
+      movingRef.current = nextMoving;
+      setMoving(nextMoving);
       return;
     }
     if (!freehand) return;
@@ -103,10 +113,12 @@ export function MappingCanvas({ campaignMap, editable = false, onChange, onViewp
 
   function finishPointerAction() {
     finishFreehand();
-    if (!moving) return;
-    if (moving.preview) {
-      commit({ ...state, objects: (state.objects || []).map((object) => object.id === moving.object.id ? moving.preview : object) });
+    const currentMove = movingRef.current;
+    if (!currentMove) return;
+    if (currentMove.preview) {
+      commit({ ...state, objects: (state.objects || []).map((object) => object.id === currentMove.object.id ? currentMove.preview : object) });
     }
+    movingRef.current = null;
     setMoving(null);
   }
 
@@ -119,8 +131,9 @@ export function MappingCanvas({ campaignMap, editable = false, onChange, onViewp
     }
     if (tool !== "pan") return;
     event.stopPropagation();
-    event.currentTarget.setPointerCapture?.(event.pointerId);
-    setMoving({ object, pointerStart: pointFromEvent(event, false), preview: object });
+    const nextMoving = { object, pointerStart: pointFromEvent(event, false), preview: object };
+    movingRef.current = nextMoving;
+    setMoving(nextMoving);
   }
 
   function undo() {
@@ -140,18 +153,18 @@ export function MappingCanvas({ campaignMap, editable = false, onChange, onViewp
   }
 
   return (
-    <div className={`mapping-workspace ${editable ? "is-editable" : "is-viewer"}`}>
+    <div className={`mapping-workspace ${editable ? `is-editable tool-${tool}` : "is-viewer"}`}>
       {editable ? (
         <aside className="mapping-toolrail" aria-label="Map tools">
           {MAP_TOOLS.map(([value, label]) => (
             <button key={value} type="button" className={tool === value ? "is-active" : ""} onClick={() => { setTool(value); setLineStart(null); }}>{label}</button>
           ))}
-          <div className="mapping-colors" aria-label="Pencil color">
-            {MAP_COLORS.map((value) => <button key={value} type="button" aria-label={value} className={color === value ? "is-active" : ""} style={{ "--map-color": value }} onClick={() => setColor(value)} />)}
-          </div>
           <div className="mapping-history-actions">
             <button type="button" disabled={!history.length} onClick={undo}>Undo</button>
             <button type="button" disabled={!future.length} onClick={redo}>Redo</button>
+          </div>
+          <div className="mapping-colors" aria-label="Pencil color">
+            {MAP_COLORS.map((value) => <button key={value} type="button" aria-label={value} className={color === value ? "is-active" : ""} style={{ "--map-color": value }} onClick={() => setColor(value)} />)}
           </div>
         </aside>
       ) : null}

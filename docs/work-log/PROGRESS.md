@@ -109,6 +109,8 @@ These are table responsibilities, not exclusive character abilities.
 - Square-contained symbols snap to square centers; wall fixtures snap to edge
   midpoints; right-click ends a connected wall chain; and Move repositions
   placed objects.
+- Previously saved symbols normalize to the new snap rules when opened by the
+  Mapper, and the assigned Mapper can rename the map.
 - Autosave creates durable revisions and saves the Mapper viewport.
 - Player viewers follow saved Mapper viewport updates through background
   refresh without remounting the canvas.
