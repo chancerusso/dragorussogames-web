@@ -186,6 +186,10 @@ DM control target.
 - Migration `0018_archive_legacy_spells` hides unmatched legacy spell records
   from new selection without deleting records that an existing character may
   reference.
+- The player-table, PHB equipment, and PHB spell-list release is deployed at
+  application SHA `0b6f26c24c071ed9d977ba259fcfcf0376f63c2c`.
+  Production is at migration `0018_archive_legacy_spells`; Classic has the new
+  player build and the DM frontend was not overwritten.
 - Player spell indexes and class-list pages now use the PHB spell names and no
   longer present OSRIC as the authority. Individual spell mechanics remain the
   next audit checkpoint and are not yet labelled PHB-verified.
