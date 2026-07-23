@@ -361,6 +361,7 @@ class SpellsCatalog(TimestampMixin, Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(160), unique=True, nullable=False)
     class_list: Mapped[list[str]] = mapped_column(JSONType, default=list, nullable=False)
+    levels_by_class: Mapped[dict] = mapped_column(JSONType, default=dict, nullable=False)
     spell_level: Mapped[int] = mapped_column(Integer, default=1, server_default="1", nullable=False)
     range: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
     duration: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
@@ -368,6 +369,9 @@ class SpellsCatalog(TimestampMixin, Base):
     components: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     rules_reference: Mapped[Optional[str]] = mapped_column(String(240), nullable=True)
+    source: Mapped[str] = mapped_column(String(120), default="Player's Handbook", server_default="Player's Handbook", nullable=False)
+    source_page: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    verification: Mapped[str] = mapped_column(String(80), default="spell_list_verified", server_default="spell_list_verified", nullable=False)
 
 
 class MonsterCatalog(TimestampMixin, Base):

@@ -1,8 +1,5 @@
 # Illusionist Spells
-
-Illusionist spells are phantasmal magic kept in spell books and prepared like other arcane spells.
-
-Use the links below to open each individual spell page.
+Class membership and spell levels are verified against the First Edition Player's Handbook spell tables on printed pages 40-42. Individual spell mechanics remain pending until each complete entry is audited.
 
 ## Spell Lists By Level
 
@@ -10,9 +7,9 @@ Use the links below to open each individual spell page.
 
 | Spell | Reference |
 | --- | --- |
-| Audible Glamour | **[Open spell](/1e/spells/audible-glamour/)** |
+| Audible Glamer | **[Open spell](/1e/spells/audible-glamour/)** |
 | Change Self | **[Open spell](/1e/spells/change-self/)** |
-| Colour Spray | **[Open spell](/1e/spells/colour-spray/)** |
+| Color Spray | **[Open spell](/1e/spells/colour-spray/)** |
 | Dancing Lights | **[Open spell](/1e/spells/dancing-lights/)** |
 | Darkness | **[Open spell](/1e/spells/darkness/)** |
 | Detect Illusion | **[Open spell](/1e/spells/detect-illusion/)** |
@@ -21,7 +18,7 @@ Use the links below to open each individual spell page.
 | Hypnotism | **[Open spell](/1e/spells/hypnotism/)** |
 | Light | **[Open spell](/1e/spells/light/)** |
 | Phantasmal Force | **[Open spell](/1e/spells/phantasmal-force/)** |
-| Wall of Fog | **[Open spell](/1e/spells/wall-of-fog/)** |
+| Wall Of Fog | **[Open spell](/1e/spells/wall-of-fog/)** |
 
 ### Level 2
 
@@ -49,10 +46,10 @@ Use the links below to open each individual spell page.
 | Dispel Illusion | **[Open spell](/1e/spells/dispel-illusion/)** |
 | Fear | **[Open spell](/1e/spells/fear/)** |
 | Hallucinatory Terrain | **[Open spell](/1e/spells/hallucinatory-terrain/)** |
-| Illusory Script | **[Open spell](/1e/spells/illusory-script/)** |
-| Invisibility 10 ft Radius | **[Open spell](/1e/spells/invisibility-10-ft-radius/)** |
-| Non-Detection | **[Open spell](/1e/spells/non-detection/)** |
-| Paralysation | **[Open spell](/1e/spells/paralysation/)** |
+| Illusionary Script | **[Open spell](/1e/spells/illusory-script/)** |
+| Invisibility 10' Radius | **[Open spell](/1e/spells/invisibility-10-ft-radius/)** |
+| Non-detection | **[Open spell](/1e/spells/non-detection/)** |
+| Paralyzation | **[Open spell](/1e/spells/paralysation/)** |
 | Rope Trick | **[Open spell](/1e/spells/rope-trick/)** |
 | Spectral Force | **[Open spell](/1e/spells/spectral-force/)** |
 | Suggestion | **[Open spell](/1e/spells/suggestion/)** |
@@ -78,7 +75,7 @@ Use the links below to open each individual spell page.
 | Demi-Shadow Monsters | **[Open spell](/1e/spells/demi-shadow-monsters/)** |
 | Major Creation | **[Open spell](/1e/spells/major-creation/)** |
 | Maze | **[Open spell](/1e/spells/maze/)** |
-| Project Image | **[Open spell](/1e/spells/project-image/)** |
+| Projected Image | **[Open spell](/1e/spells/projected-image/)** |
 | Shadow Door | **[Open spell](/1e/spells/shadow-door/)** |
 | Shadow Magic | **[Open spell](/1e/spells/shadow-magic/)** |
 | Summon Shadow | **[Open spell](/1e/spells/summon-shadow/)** |
@@ -105,11 +102,8 @@ Use the links below to open each individual spell page.
 | Prismatic Spray | **[Open spell](/1e/spells/prismatic-spray/)** |
 | Prismatic Wall | **[Open spell](/1e/spells/prismatic-wall/)** |
 | Vision | **[Open spell](/1e/spells/vision/)** |
+| First Level Magic-User Spells | **[Open spell](/1e/spells/first-level-magic-user-spells/)** |
 
-## Table UseUse the spell page for range, duration, area, components, casting time, saving throw, and description.
-- For spell timing and interruption, see **[Magic](/1e/how-to-play/magic/)**.
-- For scroll use, see **[Spell Scrolls](/1e/spells/spell-scrolls/)**.
+## Trusted Source
 
-## OSRIC Source
-
-Verified against OSRIC core rules, Chapter II, spell lists and spell descriptions.
+Verified against the Player's Handbook spell tables, printed pages 40-42.

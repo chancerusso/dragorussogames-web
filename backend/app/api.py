@@ -339,18 +339,27 @@ def magic_item_inventory_payload(item: dict) -> dict | None:
     }
 
 
-def spell_payload(spell: SpellsCatalog) -> dict:
+def spell_payload(spell: SpellsCatalog, class_lists: set[str] | None = None) -> dict:
+    matching_lists = (class_lists or set()).intersection(set(spell.class_list or []))
+    effective_level = min(
+        (int((spell.levels_by_class or {}).get(name, spell.spell_level)) for name in matching_lists),
+        default=spell.spell_level,
+    )
     return {
         "id": spell.id,
         "name": spell.name,
         "class_list": spell.class_list or [],
-        "spell_level": spell.spell_level,
+        "levels_by_class": spell.levels_by_class or {},
+        "spell_level": effective_level,
         "range": spell.range,
         "duration": spell.duration,
         "area_of_effect": spell.area_of_effect,
         "components": spell.components,
         "description": spell.description,
         "rules_reference": spell.rules_reference,
+        "source": spell.source,
+        "source_page": spell.source_page,
+        "verification": spell.verification,
     }
 
 
@@ -561,7 +570,7 @@ def character_payload(character: VaultCharacter) -> dict:
         {
             "id": spell.id,
             "spell_id": spell.spell_id,
-            "spell": spell_payload(spell.spell),
+            "spell": spell_payload(spell.spell, spell_filter_lists(character.class_name)),
             "known": spell.known,
             "in_spellbook": spell.in_spellbook,
             "prepared": spell.prepared,
@@ -1000,7 +1009,7 @@ def character_spell_entries(character: VaultCharacter, exclude_id: int | None = 
         entries.append(
             {
                 "id": spell.id,
-                "spell": spell_payload(spell.spell),
+                "spell": spell_payload(spell.spell, spell_filter_lists(character.class_name)),
                 "prepared": spell.prepared,
                 "memorized_count": spell.memorized_count,
             }
@@ -1086,9 +1095,10 @@ def rules_race_name(race: str) -> str:
 def spell_has_available_slot(class_name: str, level: int, spell: SpellsCatalog) -> bool:
     rules_class = spell_rules_class_name(class_name)
     slots = spell_slot_summary(rules_class, level, [])["slots"]
-    level_key = str(spell.spell_level)
+    matching_lists = set(spell_filter_lists(class_name)).intersection(set(spell.class_list or []))
+    effective_level = min((int((spell.levels_by_class or {}).get(name, spell.spell_level)) for name in matching_lists), default=spell.spell_level)
+    level_key = str(effective_level)
     if rules_class == "Ranger":
-        matching_lists = set(spell.class_list or [])
         return any(int(levels.get(level_key) or 0) > 0 for bucket, levels in slots.items() if bucket in matching_lists)
     return int(slots.get(level_key) or 0) > 0
 
@@ -1105,8 +1115,9 @@ def validate_spell_preparation(character: VaultCharacter, spell: SpellsCatalog, 
     matching_lists = set(class_lists).intersection(set(spell.class_list or []))
     if not matching_lists:
         raise HTTPException(status_code=422, detail=f"{spell.name} is not on the {character.class_name} spell list.")
+    effective_level = min((int((spell.levels_by_class or {}).get(name, spell.spell_level)) for name in matching_lists), default=spell.spell_level)
     if data.get("known", True) and not spell_has_available_slot(character.class_name, character.level, spell):
-        raise HTTPException(status_code=422, detail=f"{character.class_name} cannot use level {spell.spell_level} spells at level {character.level}.")
+        raise HTTPException(status_code=422, detail=f"{character.class_name} cannot use level {effective_level} spells at level {character.level}.")
     prepared = bool(data.get("prepared", False))
     memorized_count = int(data.get("memorized_count") or (1 if prepared else 0))
     if memorized_count < 0:
@@ -1115,7 +1126,7 @@ def validate_spell_preparation(character: VaultCharacter, spell: SpellsCatalog, 
         if not (data.get("known") or data.get("in_spellbook")):
             raise HTTPException(status_code=422, detail=f"{character.class_name} can only prepare known spells.")
         candidate = {
-            "spell": spell_payload(spell),
+            "spell": {**spell_payload(spell), "spell_level": effective_level},
             "prepared": prepared,
             "memorized_count": memorized_count,
         }
@@ -1123,14 +1134,14 @@ def validate_spell_preparation(character: VaultCharacter, spell: SpellsCatalog, 
         remaining = summary["remaining"]
         if rules_class == "Ranger":
             buckets = [name for name in ("druid", "magic-user") if name in matching_lists]
-            if not any(remaining.get(bucket, {}).get(str(spell.spell_level), 0) >= 0 for bucket in buckets):
-                raise HTTPException(status_code=422, detail=f"No remaining level {spell.spell_level} spell slots.")
-            if all(summary["used"].get(bucket, {}).get(str(spell.spell_level), 0) > summary["slots"].get(bucket, {}).get(str(spell.spell_level), 0) for bucket in buckets):
-                raise HTTPException(status_code=422, detail=f"No remaining level {spell.spell_level} spell slots.")
+            if not any(remaining.get(bucket, {}).get(str((spell.levels_by_class or {}).get(bucket, effective_level)), 0) >= 0 for bucket in buckets):
+                raise HTTPException(status_code=422, detail=f"No remaining level {effective_level} spell slots.")
+            if all(summary["used"].get(bucket, {}).get(str((spell.levels_by_class or {}).get(bucket, effective_level)), 0) > summary["slots"].get(bucket, {}).get(str((spell.levels_by_class or {}).get(bucket, effective_level)), 0) for bucket in buckets):
+                raise HTTPException(status_code=422, detail=f"No remaining level {effective_level} spell slots.")
         else:
-            level_key = str(spell.spell_level)
+            level_key = str(effective_level)
             if summary["used"].get(level_key, 0) > summary["slots"].get(level_key, 0):
-                raise HTTPException(status_code=422, detail=f"No remaining level {spell.spell_level} spell slots.")
+                raise HTTPException(status_code=422, detail=f"No remaining level {effective_level} spell slots.")
 
 
 def add_spell_record(character: VaultCharacter, data: dict, db: Session) -> dict:
@@ -1737,9 +1748,13 @@ def list_vault_spells(
             continue
         if class_name and not spell_filter_lists(class_name).intersection(set(spell.class_list or [])):
             continue
-        if spell_level is not None and spell.spell_level != spell_level:
+        matching_levels = (spell.levels_by_class or {}).values() if not class_name else [
+            (spell.levels_by_class or {}).get(name)
+            for name in spell_filter_lists(class_name).intersection(set(spell.class_list or []))
+        ]
+        if spell_level is not None and spell_level not in matching_levels:
             continue
-        filtered.append(spell_payload(spell))
+        filtered.append(spell_payload(spell, spell_filter_lists(class_name)))
     return filtered
 
 

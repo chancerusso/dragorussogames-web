@@ -1055,30 +1055,100 @@ def strip_md_links(value: str) -> tuple[str, str | None]:
     return re.sub(r"[*_`]", "", value).strip(), None
 
 
+def spell_name_key(value: str) -> str:
+    value = value.lower()
+    replacements = {
+        "colour": "color",
+        "glamour": "glamer",
+        "neutralise": "neutralize",
+        "paralysation": "paralyzation",
+        "illusory": "illusionary",
+        "non detection": "nondetection",
+    }
+    value = re.sub(r"[^a-z0-9]+", " ", value).strip()
+    for old, new in replacements.items():
+        value = value.replace(old, new)
+    return value.replace(" ", "")
+
+
+PHB_SPELL_LEGACY_NAMES = {
+    "Bigby's Clenched Fist": "Clenched Fist",
+    "Bigby's Crushing Hand": "Crushing Hand",
+    "Bigby's Forceful Hand": "Forceful Hand",
+    "Bigby's Grasping Hand": "Grasping Hand",
+    "Bigby's Interposing Hand": "Interposing Hand",
+    "Chariot Of Sustarre": "Chariot of Fire",
+    "Detect Snares & Pits": "Detect Pits and Snares",
+    "Drawmij's Instant Summons": "Instant Summons",
+    "Glassee": "Glasseye",
+    "Glassteel": "Glass-steel",
+    "Holy (Unholy) Word": "Holy Word",
+    "Leomund's Secret Chest": "Secret Chest",
+    "Leomund's Tiny Hut": "Tiny Hut",
+    "Leomund's Trap": "False Trap",
+    "Mordenkainen's Faithful Hound": "Mage's Faithful Hound",
+    "Mordenkainen's Sword": "Mage's Sword",
+    "Nystul's Magic Aura": "Magic Aura",
+    "Otiluke's Freezing Sphere": "Freezing Sphere",
+    "Otto's Irresistible Dance": "Irresistible Dance",
+    "Polymorph Any Object": "Polymorph Object",
+    "Protection From Evil 10' Radius": "Protection from Evil, 10 ft Radius",
+    "Purify Food & Drink": "Purify Food and Drink",
+    "Create Food & Water": "Create Food and Water",
+    "Control Temperature 10' Radius": "Control Temperature 10 ft Radius",
+    "Darkness 15' Radius": "Darkness, 15 ft Radius",
+    "Invisibility 10' Radius": "Invisibility, 10 ft Radius",
+    "Rary's Mnemonic Enhancer": "Mnemonic Enhancement",
+    "Serten's Spell Immunity": "Spell Immunity",
+    "Silence 15' Radius": "Silence, 15 ft Radius",
+    "Spiritual Hammer": "Spiritual Weapon",
+    "Spiritwrack": "Spirit-Rack",
+    "Tenser's Floating Disc": "Floating Disk",
+    "Tenser's Transformation": "Transformation",
+}
+
+
 def spell_seed() -> list[dict]:
-    markdown = (content_root() / "spells" / "all-spells.md").read_text()
-    seeds = {}
-    for row in table_rows(markdown, "Spell Index"):
-        name, href = strip_md_links(row[0])
-        class_entries = []
-        min_level = 9
-        for part in row[1].split(","):
-            match = re.search(r"([A-Za-z -]+)\s+(\d+)", part.strip())
-            if match:
-                spell_class = match.group(1).strip().lower().replace(" ", "-")
-                level = int(match.group(2))
-                class_entries.append(spell_class)
-                min_level = min(min_level, level)
-        seeds[name] = {
-            "name": name,
-            "class_list": class_entries,
-            "spell_level": min_level if min_level != 9 or "9" in row[1] else 1,
-            "description": "Manual DM Review: see linked spell page for full OSRIC text.",
-            "rules_reference": href or "/1e/spells/all-spells/",
-        }
+    legacy_entries = {}
     spells_dir = content_root() / "spells"
+    for spell_file in spells_dir.glob("*.md"):
+        title = re.search(r"^# (.+)$", spell_file.read_text(), re.M)
+        if title:
+            legacy_entries[spell_name_key(title.group(1))] = {
+                "name": title.group(1),
+                "href": f"/1e/spells/{spell_file.stem}/",
+            }
+
+    source = json.loads((content_root() / "source" / "phb_spell_lists.json").read_text())
+    seeds: dict[str, dict] = {}
+    for spell_class, levels in source["lists"].items():
+        for level_text, names in levels.items():
+            for name in names:
+                seed = seeds.setdefault(name, {
+                    "name": name,
+                    "class_list": [],
+                    "levels_by_class": {},
+                    "spell_level": int(level_text),
+                    "description": "Individual spell mechanics pending Player's Handbook verification.",
+                    "source": source["source"],
+                    "source_page": (
+                        source["printed_pages"][0]
+                        if spell_class == "cleric"
+                        else source["printed_pages"][1]
+                        if spell_class == "druid" or (spell_class == "magic-user" and int(level_text) <= 5)
+                        else source["printed_pages"][2]
+                    ),
+                    "verification": source["verification"],
+                })
+                seed["class_list"].append(spell_class)
+                seed["levels_by_class"][spell_class] = int(level_text)
+                seed["spell_level"] = min(seed["spell_level"], int(level_text))
+
     for seed in seeds.values():
-        href = seed.get("rules_reference") or ""
+        legacy_name = PHB_SPELL_LEGACY_NAMES.get(seed["name"], seed["name"])
+        legacy = legacy_entries.get(spell_name_key(legacy_name))
+        href = (legacy or {}).get("href") or "/1e/spells/all-spells/"
+        seed["rules_reference"] = href
         slug = href.strip("/").split("/")[-1] if href.startswith("/1e/spells/") else ""
         spell_file = spells_dir / f"{slug}.md"
         if not spell_file.exists():
@@ -1089,13 +1159,12 @@ def spell_seed() -> list[dict]:
             key = row[0].strip().lower()
             value = row[1].strip()
             fields[key] = value
+        # These mechanics remain available for table continuity, but are not
+        # represented as PHB-verified until the individual entry is audited.
         seed["range"] = fields.get("range")
         seed["duration"] = fields.get("duration")
         seed["area_of_effect"] = fields.get("area of effect")
         seed["components"] = fields.get("components")
-        description = re.search(r"### Spell Description\n\n(.+?)(?:\n\n###|\n\n##|$)", text, re.S)
-        if description:
-            seed["description"] = re.sub(r"\s+", " ", description.group(1)).strip()
     return list(seeds.values())
 
 

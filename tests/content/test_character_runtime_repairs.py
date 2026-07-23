@@ -653,6 +653,30 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertEqual(1, payload["spell_slots"]["used"]["1"])
         self.assertEqual(1, payload["spell_slots"]["remaining"]["1"])
 
+    def test_phb_spell_lists_preserve_class_specific_levels_and_source(self) -> None:
+        spells = self.db.scalars(select(SpellsCatalog)).all()
+        self.assertEqual(350, len(spells))
+
+        cure = self.db.scalar(select(SpellsCatalog).where(SpellsCatalog.name == "Cure Light Wounds"))
+        self.assertEqual({"cleric": 1, "druid": 2}, cure.levels_by_class)
+        self.assertEqual("Player's Handbook", cure.source)
+        self.assertEqual("spell_list_verified", cure.verification)
+
+        cleric_level_one = list_vault_spells(class_name="Cleric", spell_level=1, _={}, db=self.db)
+        druid_level_two = list_vault_spells(class_name="Druid", spell_level=2, _={}, db=self.db)
+        druid_level_one = list_vault_spells(class_name="Druid", spell_level=1, _={}, db=self.db)
+        self.assertIn("Cure Light Wounds", {spell["name"] for spell in cleric_level_one})
+        self.assertIn("Cure Light Wounds", {spell["name"] for spell in druid_level_two})
+        self.assertNotIn("Cure Light Wounds", {spell["name"] for spell in druid_level_one})
+
+    def test_phb_spell_list_uses_printed_names(self) -> None:
+        names = set(self.db.scalars(select(SpellsCatalog.name)).all())
+        self.assertIn("Chariot Of Sustarre", names)
+        self.assertIn("Detect Snares & Pits", names)
+        self.assertIn("First Level Magic-User Spells", names)
+        self.assertNotIn("Chariot of Fire", names)
+        self.assertNotIn("Detect Pits and Snares", names)
+
     def test_magic_user_and_cleric_combat_sources_are_separate(self) -> None:
         magic_user = create_vault_character_for_player(
             {

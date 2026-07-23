@@ -1,6 +1,8 @@
 # Spells
 
-This is the DRG 1e player-facing OSRIC Chapter II spell reference.
+This is the DRG 1e player-facing spell reference. The spell lists are verified
+against the First Edition Player's Handbook; individual spell mechanics are
+being verified entry by entry.
 
 Use it to browse spell lists, open individual spell writeups, and check scroll rules at the table.
 
@@ -16,7 +18,7 @@ Use it to browse spell lists, open individual spell writeups, and check scroll r
 
 ## Casting Basics
 
-| Topic | OSRIC Baseline |
+| Topic | Player's Handbook Baseline |
 | --- | --- |
 | Preparation | Spell memorisation requires at least 4 hours of quiet rest, then 15 minutes per spell level being memorised. |
 | After casting | A cast spell is lost from memory until prepared again. |
@@ -25,6 +27,9 @@ Use it to browse spell lists, open individual spell writeups, and check scroll r
 | Saving throw: none (neg.) | The normal spell has no save, but the reversed form allows one. |
 | Components | Verbal, somatic, and material components matter as listed on each spell page. |
 
-## OSRIC Source
+## Trusted Source
 
-Verified against OSRIC core rules, Chapter II, Spells. No DRG 1e spellcasting table rule is added here.
+Spell preparation and the cleric, druid, magic-user, and illusionist lists are
+verified against the Player's Handbook, printed pages 40-42. Individual spell
+pages remain marked for review until their complete mechanics have been checked
+against the printed entry.

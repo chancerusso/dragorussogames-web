@@ -174,3 +174,15 @@ DM control target.
 - The PHB main-table plate-barding `15 sp` anomaly is documented; the catalog
   uses the condensed PHB reference value of `500 gp`.
 - Next source-replacement checkpoint: PHB spell lists and spell mechanics.
+- PHB spell lists are now reconciled: 416 class/level entries across 350
+  distinct cleric, druid, magic-user, and illusionist spells match the printed
+  tables on Player's Handbook pages 40-42.
+- Spell records now retain a level for each class list. Shared spells therefore
+  use the correct class-specific slot level rather than the lowest level from
+  any class.
+- Migration `0017_phb_spell_lists` upgrades existing spell rows in place,
+  retains character-spell relationships, inserts missing PHB entries, and adds
+  Player's Handbook source/page/verification metadata.
+- Player spell indexes and class-list pages now use the PHB spell names and no
+  longer present OSRIC as the authority. Individual spell mechanics remain the
+  next audit checkpoint and are not yet labelled PHB-verified.
