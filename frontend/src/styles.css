@@ -2519,6 +2519,63 @@ tbody tr:hover {
   position: relative;
 }
 
+.mapping-view-controls {
+  align-items: center;
+  background: #211910;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: -1px -1px 8px;
+  padding: 7px;
+}
+
+.mapping-view-controls label {
+  align-items: center;
+  display: flex;
+  gap: 7px;
+}
+
+.mapping-view-controls label > span {
+  color: #d9bd7e;
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.mapping-view-controls button,
+.mapping-view-controls input,
+.mapping-view-controls select,
+.map-history-panel button,
+.map-conflict-notice button {
+  background: rgba(255, 248, 229, 0.06);
+  border: 1px solid rgba(210, 173, 103, 0.35);
+  border-radius: 5px;
+  color: #eadfc8;
+  font: inherit;
+  font-size: 0.72rem;
+  min-height: 30px;
+  padding: 5px 9px;
+}
+
+.mapping-view-controls input {
+  min-width: 120px;
+  width: 150px;
+}
+
+.mapping-zoom-controls {
+  align-items: center;
+  display: flex;
+  gap: 5px;
+  margin-left: auto;
+}
+
+.mapping-zoom-controls span {
+  color: #eadfc8;
+  font-size: 0.72rem;
+  min-width: 42px;
+  text-align: center;
+}
+
 .mapping-paper-scroll {
   background: #f5f0df;
   height: min(74vh, 860px);
@@ -2631,6 +2688,53 @@ tbody tr:hover {
   outline: none;
 }
 
+.player-map-header-actions {
+  flex-wrap: wrap;
+}
+
+.map-conflict-notice {
+  align-items: center;
+  background: #4b211d;
+  border: 1px solid #be6b5e;
+  border-radius: 7px;
+  color: #fff0df;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 auto 12px;
+  max-width: 1800px;
+  padding: 10px 12px;
+}
+
+.map-conflict-notice span {
+  color: #e6c9b9;
+  font-size: 0.8rem;
+}
+
+.map-history-panel {
+  margin: 0 auto 12px;
+  max-width: 1800px;
+}
+
+.map-history-list {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.map-history-list > div {
+  align-items: center;
+  border-top: 1px solid rgba(210, 173, 103, 0.2);
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 120px minmax(0, 1fr) auto;
+  padding-top: 7px;
+}
+
+.map-history-list small {
+  color: var(--muted);
+}
+
 .mapping-note-row p {
   font-size: 0.82rem;
   margin: 2px 0 0;
@@ -2673,6 +2777,10 @@ tbody tr:hover {
 
   .mapping-paper-scroll {
     height: 62vh;
+  }
+
+  .mapping-zoom-controls {
+    margin-left: 0;
   }
 
   .player-map-header {

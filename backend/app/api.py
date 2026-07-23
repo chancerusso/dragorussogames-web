@@ -468,6 +468,15 @@ def campaign_player_payload(membership: CampaignPlayer, player: Player | None = 
 
 def map_payload(campaign_map: CampaignMap, player_id: int | None = None) -> dict:
     mapper = campaign_map.mapper
+    drawing_state = campaign_map.drawing_state or {"objects": [], "notes": []}
+    active_level = campaign_map.active_level
+    if isinstance(drawing_state.get("levels"), list):
+        selected = next(
+            (level for level in drawing_state["levels"] if level.get("id") == drawing_state.get("activeLevelId")),
+            drawing_state["levels"][0] if drawing_state["levels"] else None,
+        )
+        if selected:
+            active_level = str(selected.get("name") or active_level)
     return {
         "id": campaign_map.id,
         "campaign_id": campaign_map.campaign_id,
@@ -479,8 +488,8 @@ def map_payload(campaign_map: CampaignMap, player_id: int | None = None) -> dict
         "can_edit": bool(player_id and campaign_map.mapper_user_id == player_id),
         "width": campaign_map.width,
         "height": campaign_map.height,
-        "active_level": campaign_map.active_level,
-        "drawing_state": campaign_map.drawing_state or {"objects": [], "notes": []},
+        "active_level": active_level,
+        "drawing_state": drawing_state,
         "viewport": campaign_map.viewport or {"x": 0, "y": 0, "zoom": 1},
         "revision": campaign_map.revision,
         "created_at": campaign_map.created_at,
@@ -512,6 +521,39 @@ def normalize_table_mode(value: str | None) -> str:
 def normalize_drawing_state(value: Any) -> dict:
     if not isinstance(value, dict):
         raise HTTPException(status_code=422, detail="drawing_state must be an object.")
+    levels = value.get("levels")
+    if levels is not None:
+        if not isinstance(levels, list) or not levels:
+            raise HTTPException(status_code=422, detail="drawing_state levels must be a non-empty list.")
+        normalized_levels = []
+        total_objects = 0
+        total_notes = 0
+        seen_ids: set[str] = set()
+        for index, level in enumerate(levels):
+            if not isinstance(level, dict):
+                raise HTTPException(status_code=422, detail="Each map level must be an object.")
+            level_id = str(level.get("id") or f"level-{index + 1}")[:120]
+            if level_id in seen_ids:
+                raise HTTPException(status_code=422, detail="Map level identifiers must be unique.")
+            seen_ids.add(level_id)
+            objects = level.get("objects", [])
+            notes = level.get("notes", [])
+            if not isinstance(objects, list) or not isinstance(notes, list):
+                raise HTTPException(status_code=422, detail="Map level objects and notes must be lists.")
+            total_objects += len(objects)
+            total_notes += len(notes)
+            normalized_levels.append({
+                "id": level_id,
+                "name": str(level.get("name") or f"Level {index + 1}")[:80],
+                "objects": objects,
+                "notes": notes,
+            })
+        if total_objects > 10000 or total_notes > 1000:
+            raise HTTPException(status_code=422, detail="Map exceeds the supported object or note limit.")
+        active_level_id = str(value.get("activeLevelId") or normalized_levels[0]["id"])[:120]
+        if active_level_id not in seen_ids:
+            active_level_id = normalized_levels[0]["id"]
+        return {"version": 2, "activeLevelId": active_level_id, "levels": normalized_levels}
     objects = value.get("objects", [])
     notes = value.get("notes", [])
     if not isinstance(objects, list) or not isinstance(notes, list):
@@ -519,6 +561,16 @@ def normalize_drawing_state(value: Any) -> dict:
     if len(objects) > 10000 or len(notes) > 1000:
         raise HTTPException(status_code=422, detail="Map exceeds the supported object or note limit.")
     return {"objects": objects, "notes": notes}
+
+
+def map_revision_payload(revision: CampaignMapRevision) -> dict:
+    return {
+        "revision": revision.revision,
+        "drawing_state": revision.drawing_state,
+        "viewport": revision.viewport,
+        "created_by_user_id": revision.created_by_user_id,
+        "created_at": revision.created_at,
+    }
 
 
 def save_map_revision(db: Session, campaign_map: CampaignMap, user_id: int | None) -> None:
@@ -1355,6 +1407,48 @@ def get_player_campaign_map(campaign_id: int, map_id: int, claims: dict = Depend
     return map_payload(get_campaign_map_or_404(db, campaign_id, map_id), player.id)
 
 
+@router.get("/player/campaigns/{campaign_id}/maps/{map_id}/revisions")
+def list_player_campaign_map_revisions(campaign_id: int, map_id: int, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> list[dict]:
+    player = player_from_claims(db, claims)
+    ensure_player_campaign_member(db, campaign_id, player.id)
+    campaign_map = get_campaign_map_or_404(db, campaign_id, map_id)
+    if campaign_map.mapper_user_id != player.id:
+        raise HTTPException(status_code=403, detail="Only the assigned Mapper may review map history.")
+    revisions = db.scalars(
+        select(CampaignMapRevision)
+        .where(CampaignMapRevision.map_id == map_id)
+        .order_by(CampaignMapRevision.revision.desc())
+        .limit(50)
+    ).all()
+    return [map_revision_payload(revision) for revision in revisions]
+
+
+@router.post("/player/campaigns/{campaign_id}/maps/{map_id}/revisions/{revision_number}/restore")
+def restore_player_campaign_map_revision(campaign_id: int, map_id: int, revision_number: int, data: dict, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
+    player = player_from_claims(db, claims)
+    ensure_player_campaign_member(db, campaign_id, player.id)
+    campaign_map = get_campaign_map_or_404(db, campaign_id, map_id)
+    if campaign_map.mapper_user_id != player.id:
+        raise HTTPException(status_code=403, detail="Only the assigned Mapper may restore map history.")
+    expected_revision = data.get("expected_revision")
+    if expected_revision is None or int(expected_revision) != campaign_map.revision:
+        raise HTTPException(status_code=409, detail="This map changed in another window. Reload before restoring history.")
+    revision = db.scalar(select(CampaignMapRevision).where(
+        CampaignMapRevision.map_id == map_id,
+        CampaignMapRevision.revision == revision_number,
+    ))
+    if revision is None:
+        raise HTTPException(status_code=404, detail="Map revision not found.")
+    campaign_map.drawing_state = revision.drawing_state
+    campaign_map.viewport = revision.viewport
+    campaign_map.updated_by_user_id = player.id
+    campaign_map.revision += 1
+    save_map_revision(db, campaign_map, player.id)
+    db.commit()
+    db.refresh(campaign_map)
+    return map_payload(campaign_map, player.id)
+
+
 @router.put("/player/campaigns/{campaign_id}/maps/{map_id}")
 def update_player_campaign_map(campaign_id: int, map_id: int, data: dict, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
     player = player_from_claims(db, claims)
@@ -1362,6 +1456,9 @@ def update_player_campaign_map(campaign_id: int, map_id: int, data: dict, claims
     campaign_map = get_campaign_map_or_404(db, campaign_id, map_id)
     if campaign_map.mapper_user_id != player.id:
         raise HTTPException(status_code=403, detail="Only the assigned Mapper may edit this map.")
+    expected_revision = data.get("expected_revision")
+    if expected_revision is not None and int(expected_revision) != campaign_map.revision:
+        raise HTTPException(status_code=409, detail="This map changed in another window. Reload before saving again.")
     if "drawing_state" in data:
         campaign_map.drawing_state = normalize_drawing_state(data["drawing_state"])
     if "viewport" in data:

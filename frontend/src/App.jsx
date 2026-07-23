@@ -2836,10 +2836,18 @@ function PlayerMapPage() {
   const [viewport, setViewport] = useState(null);
   const [saveState, setSaveState] = useState("Saved");
   const [mapName, setMapName] = useState("");
+  const [revisions, setRevisions] = useState([]);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [conflict, setConflict] = useState(false);
   const dirtyRef = useRef(false);
+  const serverRevisionRef = useRef(null);
 
   useEffect(() => {
-    if (campaignMap && !dirtyRef.current) setDraft(campaignMap.drawing_state || emptyDrawingState());
+    if (campaignMap && !dirtyRef.current) {
+      setDraft(campaignMap.drawing_state || emptyDrawingState());
+      setViewport(campaignMap.viewport || { x: 0, y: 0, zoom: 1 });
+      serverRevisionRef.current = campaignMap.revision;
+    }
   }, [campaignMap]);
 
   useEffect(() => {
@@ -2851,11 +2859,12 @@ function PlayerMapPage() {
     if (!campaignMap?.can_edit || !name || name === campaignMap.name) return;
     setSaveState("Saving...");
     try {
-      await api(`/player/campaigns/${id}/maps/${mapId}`, {
+      const renamed = await api(`/player/campaigns/${id}/maps/${mapId}`, {
         auth: "player",
         method: "PUT",
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, expected_revision: serverRevisionRef.current }),
       });
+      serverRevisionRef.current = renamed.revision;
       setSaveState("Saved");
       await reload({ silent: true });
     } catch (renameError) {
@@ -2868,15 +2877,22 @@ function PlayerMapPage() {
     setSaveState("Saving...");
     const timer = window.setTimeout(async () => {
       try {
-        await api(`/player/campaigns/${id}/maps/${mapId}`, {
+        const saved = await api(`/player/campaigns/${id}/maps/${mapId}`, {
           auth: "player",
           method: "PUT",
-          body: JSON.stringify({ drawing_state: draft, viewport: viewport || campaignMap.viewport }),
+          body: JSON.stringify({
+            drawing_state: draft,
+            viewport: viewport || campaignMap.viewport,
+            expected_revision: serverRevisionRef.current,
+          }),
         });
+        serverRevisionRef.current = saved.revision;
         dirtyRef.current = false;
+        setConflict(false);
         setSaveState("Saved");
         await reload({ silent: true });
       } catch (saveError) {
+        if (saveError.status === 409 || /another window/i.test(saveError.message || "")) setConflict(true);
         setSaveState(saveError.message || "Save failed");
       }
     }, 800);
@@ -2889,6 +2905,50 @@ function PlayerMapPage() {
     return () => window.clearInterval(timer);
   }, [campaignMap?.can_edit, id, mapId]);
 
+  async function toggleHistory() {
+    if (historyOpen) {
+      setHistoryOpen(false);
+      return;
+    }
+    try {
+      const entries = await api(`/player/campaigns/${id}/maps/${mapId}/revisions`, { auth: "player" });
+      setRevisions(entries || []);
+      setHistoryOpen(true);
+    } catch (historyError) {
+      setSaveState(historyError.message || "Could not load map history");
+    }
+  }
+
+  async function restoreRevision(revisionNumber) {
+    if (!window.confirm(`Restore map revision ${revisionNumber}? The current map will remain available in history.`)) return;
+    setSaveState("Restoring...");
+    try {
+      const restored = await api(`/player/campaigns/${id}/maps/${mapId}/revisions/${revisionNumber}/restore`, {
+        auth: "player",
+        method: "POST",
+        body: JSON.stringify({ expected_revision: serverRevisionRef.current }),
+      });
+      serverRevisionRef.current = restored.revision;
+      dirtyRef.current = false;
+      setDraft(restored.drawing_state);
+      setViewport(restored.viewport);
+      setConflict(false);
+      setHistoryOpen(false);
+      setSaveState("Saved");
+      await reload({ silent: true });
+    } catch (restoreError) {
+      if (restoreError.status === 409 || /another window/i.test(restoreError.message || "")) setConflict(true);
+      setSaveState(restoreError.message || "Restore failed");
+    }
+  }
+
+  async function reloadAfterConflict() {
+    dirtyRef.current = false;
+    setConflict(false);
+    setSaveState("Saved");
+    await reload({ silent: true });
+  }
+
   if (loading || error || !campaignMap || !draft) return <PageState loading={loading} error={error} />;
   const displayedMap = { ...campaignMap, drawing_state: draft, viewport: viewport || campaignMap.viewport };
 
@@ -2896,8 +2956,27 @@ function PlayerMapPage() {
     <section className="player-map-page">
       <header className="player-map-header">
         <div><p className="eyebrow">{campaignMap.can_edit ? "Mapper Desk" : "Player Map"}</p>{campaignMap.can_edit ? <input className="player-map-name-input" aria-label="Map name" value={mapName} onChange={(event) => setMapName(event.target.value)} onBlur={saveMapName} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /> : <h1>{campaignMap.name}</h1>}<p>{campaignMap.active_level} · {campaignMap.mapper_name || "No Mapper assigned"}</p></div>
-        <div><span className={`map-save-state ${saveState !== "Saved" ? "is-saving" : ""}`}>{saveState}</span><Link className="secondary-button" to={`/campaigns/${id}`}>Campaign Home</Link></div>
+        <div className="player-map-header-actions">
+          <span className={`map-save-state ${saveState !== "Saved" ? "is-saving" : ""}`}>{saveState}</span>
+          {campaignMap.can_edit ? <button type="button" className="secondary-button" onClick={toggleHistory}>History</button> : null}
+          <Link className="secondary-button" to={`/campaigns/${id}`}>Campaign Home</Link>
+        </div>
       </header>
+      {conflict ? <div className="map-conflict-notice"><strong>This map changed in another window.</strong><span>Your unsaved view has not overwritten it.</span><button type="button" onClick={reloadAfterConflict}>Reload Latest Map</button></div> : null}
+      {campaignMap.can_edit && historyOpen ? (
+        <section className="panel map-history-panel">
+          <div><p className="eyebrow">Recoverable History</p><h2>Saved Map Revisions</h2></div>
+          <div className="map-history-list">
+            {revisions.map((entry) => (
+              <div key={entry.revision}>
+                <span>Revision {entry.revision}</span>
+                <small>{entry.created_at ? new Date(entry.created_at).toLocaleString() : "Saved revision"}</small>
+                <button type="button" disabled={entry.revision === serverRevisionRef.current} onClick={() => restoreRevision(entry.revision)}>Restore</button>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
       <MappingCanvas
         campaignMap={displayedMap}
         editable={campaignMap.can_edit}

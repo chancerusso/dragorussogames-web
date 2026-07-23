@@ -18,7 +18,94 @@ export const MAP_TOOLS = [
 export const MAP_COLORS = ["#2b2926", "#8f2f28", "#315b7d", "#3f6b43", "#815e2c"];
 
 export function emptyDrawingState() {
-  return { objects: [], notes: [] };
+  return {
+    version: 2,
+    activeLevelId: "level-1",
+    levels: [{ id: "level-1", name: "Level 1", objects: [], notes: [] }],
+  };
+}
+
+export function normalizeLevelDrawingState(state) {
+  if (Array.isArray(state?.levels) && state.levels.length) {
+    const alreadyNormalized = state.version === 2
+      && typeof state.activeLevelId === "string"
+      && state.levels.some((level) => level?.id === state.activeLevelId)
+      && state.levels.every((level) => (
+        typeof level?.id === "string"
+        && typeof level?.name === "string"
+        && Array.isArray(level?.objects)
+        && Array.isArray(level?.notes)
+      ));
+    if (alreadyNormalized) return state;
+    const levels = state.levels.map((level, index) => ({
+      id: String(level?.id || `level-${index + 1}`),
+      name: String(level?.name || `Level ${index + 1}`),
+      objects: Array.isArray(level?.objects) ? level.objects : [],
+      notes: Array.isArray(level?.notes) ? level.notes : [],
+    }));
+    const activeLevelId = levels.some((level) => level.id === state.activeLevelId)
+      ? state.activeLevelId
+      : levels[0].id;
+    return { version: 2, activeLevelId, levels };
+  }
+  return {
+    version: 2,
+    activeLevelId: "level-1",
+    levels: [{
+      id: "level-1",
+      name: "Level 1",
+      objects: Array.isArray(state?.objects) ? state.objects : [],
+      notes: Array.isArray(state?.notes) ? state.notes : [],
+    }],
+  };
+}
+
+export function activeMapLevel(state) {
+  const normalized = normalizeLevelDrawingState(state);
+  return normalized.levels.find((level) => level.id === normalized.activeLevelId) || normalized.levels[0];
+}
+
+export function updateActiveMapLevel(state, nextLevel) {
+  const normalized = normalizeLevelDrawingState(state);
+  return {
+    ...normalized,
+    levels: normalized.levels.map((level) => level.id === normalized.activeLevelId ? { ...level, ...nextLevel } : level),
+  };
+}
+
+export function selectMapLevel(state, levelId) {
+  const normalized = normalizeLevelDrawingState(state);
+  return normalized.levels.some((level) => level.id === levelId)
+    ? { ...normalized, activeLevelId: levelId }
+    : normalized;
+}
+
+export function addMapLevel(state, name) {
+  const normalized = normalizeLevelDrawingState(state);
+  const id = globalThis.crypto?.randomUUID?.() || `level-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  const level = { id, name: String(name || `Level ${normalized.levels.length + 1}`).trim(), objects: [], notes: [] };
+  return { ...normalized, activeLevelId: id, levels: [...normalized.levels, level] };
+}
+
+export function renameMapLevel(state, levelId, name) {
+  const normalized = normalizeLevelDrawingState(state);
+  const nextName = String(name || "").trim();
+  if (!nextName) return normalized;
+  return {
+    ...normalized,
+    levels: normalized.levels.map((level) => level.id === levelId ? { ...level, name: nextName } : level),
+  };
+}
+
+export function removeMapLevel(state, levelId) {
+  const normalized = normalizeLevelDrawingState(state);
+  if (normalized.levels.length === 1) return normalized;
+  const levels = normalized.levels.filter((level) => level.id !== levelId);
+  return {
+    ...normalized,
+    levels,
+    activeLevelId: normalized.activeLevelId === levelId ? levels[0].id : normalized.activeLevelId,
+  };
 }
 
 export function snapPoint(point, cellSize = MAP_CELL_SIZE) {
@@ -56,6 +143,16 @@ export function snapPlacementPoint(type, point) {
 }
 
 export function normalizeDrawingPositions(state) {
+  if (Array.isArray(state?.levels)) {
+    let changed = false;
+    const normalized = normalizeLevelDrawingState(state);
+    const levels = normalized.levels.map((level) => {
+      const nextLevel = normalizeDrawingPositions({ objects: level.objects, notes: level.notes });
+      if (nextLevel.objects !== level.objects) changed = true;
+      return { ...level, objects: nextLevel.objects, notes: nextLevel.notes };
+    });
+    return changed ? { ...normalized, levels } : normalized;
+  }
   let changed = false;
   const objects = (state.objects || []).map((object) => {
     if (!["door", "secret-door", "window", "stairs-up", "stairs-down", "trap", "pit", "note"].includes(object.type)) return object;
@@ -113,4 +210,8 @@ export function translateMapObject(object, dx, dy) {
     return { ...object, x: object.x + dx, y: object.y + dy, x2: object.x2 + dx, y2: object.y2 + dy };
   }
   return { ...object, x: object.x + dx, y: object.y + dy };
+}
+
+export function shouldEndWallChain({ editable, tool, button = 2 }) {
+  return Boolean(editable && tool === "line" && button === 2);
 }

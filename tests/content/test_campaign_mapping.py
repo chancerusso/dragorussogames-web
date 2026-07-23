@@ -15,7 +15,9 @@ from sqlalchemy.orm import Session
 from app.api import (
     create_admin_campaign_map,
     get_player_campaign_map,
+    list_player_campaign_map_revisions,
     list_player_campaign_maps,
+    restore_player_campaign_map_revision,
     update_admin_campaign_table_state,
     update_player_campaign_journal,
     update_player_campaign_map,
@@ -74,6 +76,7 @@ class CampaignMappingApiTests(unittest.TestCase):
                     "notes": [],
                 },
                 "viewport": {"x": 120, "y": 80, "zoom": 1},
+                "expected_revision": 1,
             },
             {"sub": str(self.mapper.id)},
             self.db,
@@ -84,6 +87,64 @@ class CampaignMappingApiTests(unittest.TestCase):
         self.assertEqual(get_player_campaign_map(self.campaign.id, created["id"], {"sub": str(self.viewer.id)}, self.db)["drawing_state"]["objects"][0]["id"], "wall-1")
         revision_count = self.db.scalar(select(func.count()).select_from(CampaignMapRevision))
         self.assertEqual(revision_count, 2)
+
+        with self.assertRaises(HTTPException) as conflict:
+            update_player_campaign_map(
+                self.campaign.id,
+                created["id"],
+                {
+                    "drawing_state": {"objects": [], "notes": []},
+                    "expected_revision": 1,
+                },
+                {"sub": str(self.mapper.id)},
+                self.db,
+            )
+        self.assertEqual(conflict.exception.status_code, 409)
+
+        multilevel = update_player_campaign_map(
+            self.campaign.id,
+            created["id"],
+            {
+                "expected_revision": 2,
+                "drawing_state": {
+                    "version": 2,
+                    "activeLevelId": "lower",
+                    "levels": [
+                        {"id": "upper", "name": "Upper Ruins", "objects": [], "notes": []},
+                        {
+                            "id": "lower",
+                            "name": "Lower Vault",
+                            "objects": [{"id": "pit-1", "type": "pit", "x": 10, "y": 10}],
+                            "notes": [],
+                        },
+                    ],
+                },
+            },
+            {"sub": str(self.mapper.id)},
+            self.db,
+        )
+        self.assertEqual(multilevel["revision"], 3)
+        self.assertEqual(multilevel["active_level"], "Lower Vault")
+        self.assertEqual(len(multilevel["drawing_state"]["levels"]), 2)
+
+        revisions = list_player_campaign_map_revisions(
+            self.campaign.id,
+            created["id"],
+            {"sub": str(self.mapper.id)},
+            self.db,
+        )
+        self.assertEqual([entry["revision"] for entry in revisions], [3, 2, 1])
+
+        restored = restore_player_campaign_map_revision(
+            self.campaign.id,
+            created["id"],
+            2,
+            {"expected_revision": 3},
+            {"sub": str(self.mapper.id)},
+            self.db,
+        )
+        self.assertEqual(restored["revision"], 4)
+        self.assertEqual(restored["drawing_state"]["objects"][0]["id"], "wall-1")
 
         with self.assertRaises(HTTPException) as denied:
             update_player_campaign_map(

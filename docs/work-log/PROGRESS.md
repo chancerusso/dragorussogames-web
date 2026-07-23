@@ -236,9 +236,22 @@ Work proceeds one independently tested, committed, and deployed item at a time:
 11. Complete responsive, accessibility, error/reconnect, and player-journey
     review.
 
-The current item is Monster XP completion. All 217 imported Monster Manual
-records currently have a null `level_xp`, so the displayed dash is accurate to
-the incomplete catalog and is not merely a frontend formatting problem. The
-Monster Manual supplies the creature statistics, but not a printed level/XP
-field. Standard XP formulas must come from the Dungeon Master's Guide Appendix
-E and carry separate provenance.
+Monster XP completion is deferred until after the Mapping Mode group test. All
+217 imported Monster Manual records currently have a null `level_xp`, so the
+displayed dash is accurate to the incomplete catalog and is not merely a
+frontend formatting problem. The Monster Manual supplies creature statistics,
+while standard XP formulas must come from Dungeon Master's Guide Appendix E
+with separate provenance.
+
+The active item is Mapping Mode group-test readiness: wall-chain termination,
+floors, zoom/navigation, revision recovery, conflict-safe shared updates, and
+authenticated DM/Mapper/player verification. Greyhawk Hex Crawl follows and
+will use the user-supplied Darlene digital map. Dragonlance Hex Crawl remains
+unassigned until its separate map is supplied.
+
+The current Mapping Mode implementation now includes explicit right-click and
+Escape wall-chain termination without changing tools, independently persisted
+named floors, centered 50%-200% zoom, Mapper revision history and restoration,
+and stale-window conflict protection. Automated suites and the initial live
+browser interaction pass; separate authenticated DM/Mapper/player
+synchronization remains the final readiness gate before deployment.

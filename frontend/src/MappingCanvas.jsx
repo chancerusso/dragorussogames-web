@@ -3,15 +3,23 @@ import {
   MAP_CELL_SIZE,
   MAP_COLORS,
   MAP_TOOLS,
+  activeMapLevel,
+  addMapLevel,
   appendObject,
   emptyDrawingState,
   makeMapObject,
   nextNoteNumber,
   normalizeDrawingPositions,
+  normalizeLevelDrawingState,
   removeObject,
+  removeMapLevel,
+  renameMapLevel,
+  selectMapLevel,
+  shouldEndWallChain,
   snapPlacementPoint,
   snapPoint,
   translateMapObject,
+  updateActiveMapLevel,
   updateNoteText,
 } from "./mapping.js";
 
@@ -23,29 +31,37 @@ export function MappingCanvas({ campaignMap, editable = false, onChange, onViewp
   const [moving, setMoving] = useState(null);
   const [history, setHistory] = useState([]);
   const [future, setFuture] = useState([]);
+  const [zoom, setZoom] = useState(Number(campaignMap?.viewport?.zoom) || 1);
+  const [levelName, setLevelName] = useState("");
   const scrollRef = useRef(null);
   const movingRef = useRef(null);
-  const state = campaignMap?.drawing_state || emptyDrawingState();
+  const drawingState = normalizeLevelDrawingState(campaignMap?.drawing_state || emptyDrawingState());
+  const state = activeMapLevel(drawingState);
   const width = (campaignMap?.width || 80) * MAP_CELL_SIZE;
   const height = (campaignMap?.height || 80) * MAP_CELL_SIZE;
 
   useEffect(() => {
+    setLevelName(state.name);
+  }, [state.id, state.name]);
+
+  useEffect(() => {
     if (!followViewport || !scrollRef.current) return;
     const viewport = campaignMap?.viewport || {};
+    setZoom(Number(viewport.zoom) || 1);
     scrollRef.current.scrollTo({ left: viewport.x || 0, top: viewport.y || 0 });
   }, [campaignMap?.revision, campaignMap?.viewport, followViewport]);
 
   useEffect(() => {
     if (!editable || !onChange) return;
-    const normalized = normalizeDrawingPositions(state);
-    if (normalized !== state) onChange(normalized);
+    const normalized = normalizeDrawingPositions(drawingState);
+    if (normalized !== drawingState) onChange(normalized);
   }, [campaignMap?.id, campaignMap?.revision, editable]);
 
   function commit(nextState) {
     if (!editable) return;
-    setHistory((entries) => [...entries.slice(-49), state]);
+    setHistory((entries) => [...entries.slice(-49), drawingState]);
     setFuture([]);
-    onChange(nextState);
+    onChange(updateActiveMapLevel(drawingState, nextState));
   }
 
   function pointFromEvent(event, snap = true) {
@@ -140,7 +156,7 @@ export function MappingCanvas({ campaignMap, editable = false, onChange, onViewp
     const previous = history[history.length - 1];
     if (!previous) return;
     setHistory(history.slice(0, -1));
-    setFuture([state, ...future].slice(0, 50));
+    setFuture([drawingState, ...future].slice(0, 50));
     onChange(previous);
   }
 
@@ -148,12 +164,73 @@ export function MappingCanvas({ campaignMap, editable = false, onChange, onViewp
     const next = future[0];
     if (!next) return;
     setFuture(future.slice(1));
-    setHistory([...history, state].slice(-50));
+    setHistory([...history, drawingState].slice(-50));
     onChange(next);
   }
 
+  function changeLevel(levelId) {
+    setLineStart(null);
+    setFreehand(null);
+    movingRef.current = null;
+    setMoving(null);
+    onChange(selectMapLevel(drawingState, levelId));
+  }
+
+  function createLevel() {
+    const name = levelName.trim() && levelName.trim() !== state.name
+      ? levelName.trim()
+      : `Level ${drawingState.levels.length + 1}`;
+    setHistory((entries) => [...entries.slice(-49), drawingState]);
+    setFuture([]);
+    onChange(addMapLevel(drawingState, name));
+  }
+
+  function renameLevel() {
+    const name = levelName.trim();
+    if (!name || name === state.name) return;
+    setHistory((entries) => [...entries.slice(-49), drawingState]);
+    setFuture([]);
+    onChange(renameMapLevel(drawingState, state.id, name));
+  }
+
+  function deleteLevel() {
+    if (drawingState.levels.length === 1) return;
+    if (!window.confirm(`Delete "${state.name}" and everything drawn on it? You can recover it from map history.`)) return;
+    setHistory((entries) => [...entries.slice(-49), drawingState]);
+    setFuture([]);
+    onChange(removeMapLevel(drawingState, state.id));
+  }
+
+  function updateZoom(nextZoom) {
+    const clamped = Math.max(0.5, Math.min(2, Number(nextZoom.toFixed(2))));
+    const scroller = scrollRef.current;
+    const centerX = scroller ? (scroller.scrollLeft + scroller.clientWidth / 2) / zoom : 0;
+    const centerY = scroller ? (scroller.scrollTop + scroller.clientHeight / 2) / zoom : 0;
+    setZoom(clamped);
+    window.requestAnimationFrame(() => {
+      if (!scroller) return;
+      const x = Math.max(0, centerX * clamped - scroller.clientWidth / 2);
+      const y = Math.max(0, centerY * clamped - scroller.clientHeight / 2);
+      scroller.scrollTo({ left: x, top: y });
+      if (editable && onViewportChange) onViewportChange({ x, y, zoom: clamped });
+    });
+  }
+
   return (
-    <div className={`mapping-workspace ${editable ? `is-editable tool-${tool}` : "is-viewer"}`}>
+    <div
+      className={`mapping-workspace ${editable ? `is-editable tool-${tool}` : "is-viewer"}`}
+      onContextMenu={(event) => {
+        if (!shouldEndWallChain({ editable, tool, button: event.button })) return;
+        event.preventDefault();
+        setLineStart(null);
+      }}
+      onKeyDown={(event) => {
+        if (editable && tool === "line" && event.key === "Escape") {
+          event.preventDefault();
+          setLineStart(null);
+        }
+      }}
+    >
       {editable ? (
         <aside className="mapping-toolrail" aria-label="Map tools">
           {MAP_TOOLS.map(([value, label]) => (
@@ -169,6 +246,24 @@ export function MappingCanvas({ campaignMap, editable = false, onChange, onViewp
         </aside>
       ) : null}
       <div className="mapping-paper-frame">
+        <div className="mapping-view-controls">
+          <label>
+            <span>Floor</span>
+            <select disabled={!editable} value={drawingState.activeLevelId} onChange={(event) => changeLevel(event.target.value)}>
+              {drawingState.levels.map((level) => <option key={level.id} value={level.id}>{level.name}</option>)}
+            </select>
+          </label>
+          {editable ? <input aria-label="Floor name" value={levelName} onChange={(event) => setLevelName(event.target.value)} /> : null}
+          {editable ? <button type="button" onClick={createLevel}>New Floor</button> : null}
+          {editable ? <button type="button" disabled={!levelName.trim() || levelName.trim() === state.name} onClick={renameLevel}>Rename Floor</button> : null}
+          {editable ? <button type="button" disabled={drawingState.levels.length === 1} onClick={deleteLevel}>Delete Floor</button> : null}
+          <div className="mapping-zoom-controls" aria-label="Map zoom">
+            <button type="button" disabled={!editable || zoom <= 0.5} onClick={() => updateZoom(zoom - 0.25)}>−</button>
+            <span>{Math.round(zoom * 100)}%</span>
+            <button type="button" disabled={!editable || zoom >= 2} onClick={() => updateZoom(zoom + 0.25)}>+</button>
+            <button type="button" disabled={!editable} onClick={() => updateZoom(1)}>Reset</button>
+          </div>
+        </div>
         <div
           className="mapping-paper-scroll"
           ref={scrollRef}
@@ -179,17 +274,12 @@ export function MappingCanvas({ campaignMap, editable = false, onChange, onViewp
         >
           <svg
             className="mapping-paper"
-            style={{ width, height }}
+            style={{ width: width * zoom, height: height * zoom }}
             viewBox={`0 0 ${width} ${height}`}
             onPointerDown={handleCanvasPointerDown}
             onPointerMove={handleCanvasPointerMove}
             onPointerUp={finishPointerAction}
             onPointerCancel={finishPointerAction}
-            onContextMenu={(event) => {
-              if (!editable || tool !== "line") return;
-              event.preventDefault();
-              setLineStart(null);
-            }}
           >
             <defs>
               <pattern id={`small-grid-${campaignMap?.id}`} width={MAP_CELL_SIZE} height={MAP_CELL_SIZE} patternUnits="userSpaceOnUse">
@@ -213,11 +303,11 @@ export function MappingCanvas({ campaignMap, editable = false, onChange, onViewp
       </div>
       <aside className="mapping-notes-panel">
         <p className="eyebrow">Map Notes</p>
-        <h2>{campaignMap?.active_level || "Level 1"}</h2>
+        <h2>{state.name}</h2>
         {(state.notes || []).length ? (state.notes || []).map((note) => (
           <label className="mapping-note-row" key={note.number}>
             <span>{note.number}</span>
-            {editable ? <textarea value={note.text || ""} onChange={(event) => onChange(updateNoteText(state, note.number, event.target.value))} /> : <p>{note.text || "No description yet."}</p>}
+            {editable ? <textarea value={note.text || ""} onChange={(event) => onChange(updateActiveMapLevel(drawingState, updateNoteText(state, note.number, event.target.value)))} /> : <p>{note.text || "No description yet."}</p>}
           </label>
         )) : <p className="muted">No numbered notes yet.</p>}
         <div className="mapping-key">
