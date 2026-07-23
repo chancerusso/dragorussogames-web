@@ -36,10 +36,48 @@ class Campaign(TimestampMixin, Base):
     current_campaign_day: Mapped[int] = mapped_column(Integer, default=1, server_default="1", nullable=False)
     default_location: Mapped[str] = mapped_column(String(160), default="Town", server_default="Town", nullable=False)
     status: Mapped[str] = mapped_column(String(40), default="active", server_default="active", nullable=False)
+    table_mode: Mapped[str] = mapped_column(String(40), default="mapping", server_default="mapping", nullable=False)
+    active_map_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
 
     parties: Mapped[list["Party"]] = relationship(back_populates="campaign")
     characters: Mapped[list["Character"]] = relationship(back_populates="campaign")
     safe_locations: Mapped[list["SafeStorageLocation"]] = relationship(back_populates="campaign", cascade="all, delete-orphan")
+    maps: Mapped[list["CampaignMap"]] = relationship(back_populates="campaign", cascade="all, delete-orphan")
+
+
+class CampaignMap(TimestampMixin, Base):
+    __tablename__ = "campaign_maps"
+    __table_args__ = (UniqueConstraint("campaign_id", "name", name="uq_campaign_maps_campaign_name"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    campaign_id: Mapped[int] = mapped_column(ForeignKey("campaigns.id", ondelete="CASCADE"), nullable=False, index=True)
+    name: Mapped[str] = mapped_column(String(160), nullable=False)
+    map_type: Mapped[str] = mapped_column(String(40), default="square", server_default="square", nullable=False)
+    status: Mapped[str] = mapped_column(String(40), default="active", server_default="active", nullable=False)
+    mapper_user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("players.id", ondelete="SET NULL"), nullable=True)
+    width: Mapped[int] = mapped_column(Integer, default=80, server_default="80", nullable=False)
+    height: Mapped[int] = mapped_column(Integer, default=80, server_default="80", nullable=False)
+    active_level: Mapped[str] = mapped_column(String(80), default="Level 1", server_default="Level 1", nullable=False)
+    drawing_state: Mapped[dict[str, Any]] = mapped_column(JSONType, default=dict, nullable=False)
+    viewport: Mapped[dict[str, Any]] = mapped_column(JSONType, default=dict, nullable=False)
+    revision: Mapped[int] = mapped_column(Integer, default=1, server_default="1", nullable=False)
+    updated_by_user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("players.id", ondelete="SET NULL"), nullable=True)
+
+    campaign: Mapped[Campaign] = relationship(back_populates="maps")
+    mapper: Mapped[Optional["Player"]] = relationship(foreign_keys=[mapper_user_id])
+
+
+class CampaignMapRevision(Base):
+    __tablename__ = "campaign_map_revisions"
+    __table_args__ = (UniqueConstraint("map_id", "revision", name="uq_campaign_map_revision"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    map_id: Mapped[int] = mapped_column(ForeignKey("campaign_maps.id", ondelete="CASCADE"), nullable=False, index=True)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    drawing_state: Mapped[dict[str, Any]] = mapped_column(JSONType, nullable=False)
+    viewport: Mapped[dict[str, Any]] = mapped_column(JSONType, nullable=False)
+    created_by_user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("players.id", ondelete="SET NULL"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
 
 class Player(TimestampMixin, Base):

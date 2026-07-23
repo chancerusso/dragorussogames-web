@@ -23,6 +23,8 @@ from app.config import settings
 from app.db.models import (
     AuditLog,
     Campaign,
+    CampaignMap,
+    CampaignMapRevision,
     Character,
     CharacterAbilityScores,
     CharacterCoins,
@@ -366,6 +368,8 @@ def campaign_payload(campaign: Campaign) -> dict:
         "current_campaign_day": campaign.current_campaign_day,
         "default_location": campaign.default_location,
         "status": campaign.status,
+        "table_mode": campaign.table_mode,
+        "active_map_id": campaign.active_map_id,
         "created_at": campaign.created_at,
         "updated_at": campaign.updated_at,
     }
@@ -398,6 +402,71 @@ def campaign_player_payload(membership: CampaignPlayer, player: Player | None = 
     if player:
         payload["player"] = player_payload(player)
     return payload
+
+
+def map_payload(campaign_map: CampaignMap, player_id: int | None = None) -> dict:
+    mapper = campaign_map.mapper
+    return {
+        "id": campaign_map.id,
+        "campaign_id": campaign_map.campaign_id,
+        "name": campaign_map.name,
+        "map_type": campaign_map.map_type,
+        "status": campaign_map.status,
+        "mapper_user_id": campaign_map.mapper_user_id,
+        "mapper_name": (mapper.display_name or mapper.player_name) if mapper else None,
+        "can_edit": bool(player_id and campaign_map.mapper_user_id == player_id),
+        "width": campaign_map.width,
+        "height": campaign_map.height,
+        "active_level": campaign_map.active_level,
+        "drawing_state": campaign_map.drawing_state or {"objects": [], "notes": []},
+        "viewport": campaign_map.viewport or {"x": 0, "y": 0, "zoom": 1},
+        "revision": campaign_map.revision,
+        "created_at": campaign_map.created_at,
+        "updated_at": campaign_map.updated_at,
+    }
+
+
+def get_campaign_map_or_404(db: Session, campaign_id: int, map_id: int) -> CampaignMap:
+    campaign_map = db.get(CampaignMap, map_id)
+    if campaign_map is None or campaign_map.campaign_id != campaign_id or campaign_map.status == "archived":
+        raise HTTPException(status_code=404, detail="Map not found.")
+    return campaign_map
+
+
+def normalize_map_type(value: str | None) -> str:
+    map_type = value or "square"
+    if map_type not in {"square", "hex"}:
+        raise HTTPException(status_code=422, detail="map_type must be square or hex.")
+    return map_type
+
+
+def normalize_table_mode(value: str | None) -> str:
+    mode = value or "mapping"
+    if mode not in {"mapping", "combat", "hex_crawl"}:
+        raise HTTPException(status_code=422, detail="table_mode must be mapping, combat, or hex_crawl.")
+    return mode
+
+
+def normalize_drawing_state(value: Any) -> dict:
+    if not isinstance(value, dict):
+        raise HTTPException(status_code=422, detail="drawing_state must be an object.")
+    objects = value.get("objects", [])
+    notes = value.get("notes", [])
+    if not isinstance(objects, list) or not isinstance(notes, list):
+        raise HTTPException(status_code=422, detail="drawing_state objects and notes must be lists.")
+    if len(objects) > 10000 or len(notes) > 1000:
+        raise HTTPException(status_code=422, detail="Map exceeds the supported object or note limit.")
+    return {"objects": objects, "notes": notes}
+
+
+def save_map_revision(db: Session, campaign_map: CampaignMap, user_id: int | None) -> None:
+    db.add(CampaignMapRevision(
+        map_id=campaign_map.id,
+        revision=campaign_map.revision,
+        drawing_state=campaign_map.drawing_state or {"objects": [], "notes": []},
+        viewport=campaign_map.viewport or {"x": 0, "y": 0, "zoom": 1},
+        created_by_user_id=user_id,
+    ))
 
 
 def safe_storage_payload(location: SafeStorageLocation, stored_items: list[dict] | None = None) -> dict:
@@ -1175,6 +1244,47 @@ def get_player_campaign(campaign_id: int, claims: dict = Depends(require_player)
     return payload
 
 
+@router.get("/player/campaigns/{campaign_id}/maps")
+def list_player_campaign_maps(campaign_id: int, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> list[dict]:
+    player = player_from_claims(db, claims)
+    ensure_player_campaign_member(db, campaign_id, player.id)
+    maps = db.scalars(select(CampaignMap).where(
+        CampaignMap.campaign_id == campaign_id,
+        CampaignMap.status != "archived",
+    ).order_by(CampaignMap.updated_at.desc())).all()
+    return [map_payload(campaign_map, player.id) for campaign_map in maps]
+
+
+@router.get("/player/campaigns/{campaign_id}/maps/{map_id}")
+def get_player_campaign_map(campaign_id: int, map_id: int, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
+    player = player_from_claims(db, claims)
+    ensure_player_campaign_member(db, campaign_id, player.id)
+    return map_payload(get_campaign_map_or_404(db, campaign_id, map_id), player.id)
+
+
+@router.put("/player/campaigns/{campaign_id}/maps/{map_id}")
+def update_player_campaign_map(campaign_id: int, map_id: int, data: dict, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
+    player = player_from_claims(db, claims)
+    ensure_player_campaign_member(db, campaign_id, player.id)
+    campaign_map = get_campaign_map_or_404(db, campaign_id, map_id)
+    if campaign_map.mapper_user_id != player.id:
+        raise HTTPException(status_code=403, detail="Only the assigned Mapper may edit this map.")
+    if "drawing_state" in data:
+        campaign_map.drawing_state = normalize_drawing_state(data["drawing_state"])
+    if "viewport" in data:
+        if not isinstance(data["viewport"], dict):
+            raise HTTPException(status_code=422, detail="viewport must be an object.")
+        campaign_map.viewport = data["viewport"]
+    if "active_level" in data:
+        campaign_map.active_level = str(data["active_level"] or "Level 1")[:80]
+    campaign_map.updated_by_user_id = player.id
+    campaign_map.revision += 1
+    save_map_revision(db, campaign_map, player.id)
+    db.commit()
+    db.refresh(campaign_map)
+    return map_payload(campaign_map, player.id)
+
+
 @router.get("/1e/rules-data")
 def vault_rules_data(_: dict = Depends(require_player_or_admin)) -> dict:
     return {"races": RACES, "classes": CLASSES, "alignments": ALIGNMENTS}
@@ -1597,6 +1707,97 @@ def create_vault_campaign(data: dict, _: dict = Depends(require_jwt_admin), db: 
 @router.get("/1e/campaigns/{campaign_id}")
 def get_vault_campaign(campaign_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     campaign = get_campaign_or_404(db, campaign_id)
+    return campaign_detail_payload(db, campaign)
+
+
+@router.get("/1e/campaigns/{campaign_id}/maps")
+def list_admin_campaign_maps(campaign_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> list[dict]:
+    get_campaign_or_404(db, campaign_id)
+    maps = db.scalars(select(CampaignMap).where(
+        CampaignMap.campaign_id == campaign_id,
+        CampaignMap.status != "archived",
+    ).order_by(CampaignMap.updated_at.desc())).all()
+    return [map_payload(campaign_map) for campaign_map in maps]
+
+
+@router.post("/1e/campaigns/{campaign_id}/maps")
+def create_admin_campaign_map(campaign_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    campaign = get_campaign_or_404(db, campaign_id)
+    name = str(data.get("name") or "New Player Map").strip()[:160]
+    if not name:
+        raise HTTPException(status_code=422, detail="Map name is required.")
+    if db.scalar(select(CampaignMap).where(CampaignMap.campaign_id == campaign_id, CampaignMap.name == name)):
+        raise HTTPException(status_code=409, detail="A map with that name already exists in this campaign.")
+    mapper_user_id = data.get("mapper_user_id")
+    if mapper_user_id is not None:
+        ensure_player_campaign_member(db, campaign_id, int(mapper_user_id))
+    campaign_map = CampaignMap(
+        campaign_id=campaign_id,
+        name=name,
+        map_type=normalize_map_type(data.get("map_type")),
+        mapper_user_id=int(mapper_user_id) if mapper_user_id is not None else None,
+        width=max(20, min(200, int(data.get("width") or 80))),
+        height=max(20, min(200, int(data.get("height") or 80))),
+        active_level=str(data.get("active_level") or "Level 1")[:80],
+        drawing_state={"objects": [], "notes": []},
+        viewport={"x": 0, "y": 0, "zoom": 1},
+    )
+    db.add(campaign_map)
+    db.flush()
+    save_map_revision(db, campaign_map, None)
+    if campaign.active_map_id is None:
+        campaign.active_map_id = campaign_map.id
+    db.commit()
+    db.refresh(campaign_map)
+    return map_payload(campaign_map)
+
+
+@router.put("/1e/campaigns/{campaign_id}/maps/{map_id}")
+def update_admin_campaign_map(campaign_id: int, map_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    campaign_map = get_campaign_map_or_404(db, campaign_id, map_id)
+    if "name" in data:
+        name = str(data["name"] or "").strip()[:160]
+        if not name:
+            raise HTTPException(status_code=422, detail="Map name is required.")
+        existing = db.scalar(select(CampaignMap).where(CampaignMap.campaign_id == campaign_id, CampaignMap.name == name, CampaignMap.id != map_id))
+        if existing:
+            raise HTTPException(status_code=409, detail="A map with that name already exists in this campaign.")
+        campaign_map.name = name
+    if "mapper_user_id" in data:
+        mapper_user_id = data["mapper_user_id"]
+        if mapper_user_id is not None:
+            ensure_player_campaign_member(db, campaign_id, int(mapper_user_id))
+        campaign_map.mapper_user_id = int(mapper_user_id) if mapper_user_id is not None else None
+    if "active_level" in data:
+        campaign_map.active_level = str(data["active_level"] or "Level 1")[:80]
+    db.commit()
+    db.refresh(campaign_map)
+    return map_payload(campaign_map)
+
+
+@router.delete("/1e/campaigns/{campaign_id}/maps/{map_id}")
+def archive_admin_campaign_map(campaign_id: int, map_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    campaign = get_campaign_or_404(db, campaign_id)
+    campaign_map = get_campaign_map_or_404(db, campaign_id, map_id)
+    campaign_map.status = "archived"
+    if campaign.active_map_id == map_id:
+        campaign.active_map_id = None
+    db.commit()
+    return {"ok": True, "archived": True}
+
+
+@router.put("/1e/campaigns/{campaign_id}/table-state")
+def update_admin_campaign_table_state(campaign_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    campaign = get_campaign_or_404(db, campaign_id)
+    if "table_mode" in data:
+        campaign.table_mode = normalize_table_mode(data["table_mode"])
+    if "active_map_id" in data:
+        map_id = data["active_map_id"]
+        if map_id is not None:
+            get_campaign_map_or_404(db, campaign_id, int(map_id))
+        campaign.active_map_id = int(map_id) if map_id is not None else None
+    db.commit()
+    db.refresh(campaign)
     return campaign_detail_payload(db, campaign)
 
 

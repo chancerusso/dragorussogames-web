@@ -1,6 +1,57 @@
-# Deployment Instructions
+# Drago Russo Games Deployment Standard
 
-These instructions describe the intended DigitalOcean VPS deployment from a checked-out `dragorussogames-web` repo.
+This is the mandatory procedure for every Drago Russo Games deployment. Read it
+from the beginning each time. Do not deploy from memory.
+
+The commands later in this document describe the historically intended
+DigitalOcean VPS layout. Before using them, verify every live value against
+`docs/deployment-inventory.md`. If the server identity, source checkout, active
+branch, service, database, web root, or prior deployed commit is unknown, stop.
+
+## Deployment policy
+
+- A push is not a deployment.
+- Deploy only a reviewed full commit SHA that has been pushed to the approved
+  remote branch.
+- Record every deployment using `docs/deployments/TEMPLATE.md`.
+- Confirm the server checkout is the expected repository and is clean before
+  switching revisions.
+- Verify a database backup before applying migrations.
+- Review migration impact before running `alembic upgrade head`.
+- Build and test before mutating production.
+- Record the prior commit and a viable code rollback target.
+- Never automatically downgrade the production database during a code rollback.
+- Never expose or copy `private-reference/sources/` into a build, web root,
+  static mount, API response, log, commit, or deployment artifact.
+- Do not record secrets in work logs or deployment records.
+
+## Required preflight
+
+- [ ] Read `docs/work-log/PROGRESS.md` and the latest daily work log.
+- [ ] Read `docs/deployment-inventory.md` and the latest deployment record.
+- [ ] Fetch the remote repository and verify the exact intended full commit SHA.
+- [ ] Confirm required tests and the frontend production build pass.
+- [ ] Inspect the built artifact for private PDFs and source-library paths.
+- [ ] Confirm the live host identity, source checkout, branch, prior commit, and
+      clean server worktree.
+- [ ] Confirm active services, web roots, database identity, migration state,
+      backup destination, and health endpoints.
+- [ ] Create the deployment record before the first production mutation.
+
+## Required completion checks
+
+- [ ] Expected database migration is active.
+- [ ] Required services are active and not repeatedly logging new errors.
+- [ ] Internal API health check passes.
+- [ ] Public API and both affected portals pass focused smoke tests.
+- [ ] DM-only mode/map controls appear only on `dm.dragorussogames.com`, and
+      Mapper/editor/viewer/library experiences appear only on
+      `classic.dragorussogames.com` with the correct authorization.
+- [ ] Private source routes return no content and no source PDFs exist in served
+      roots.
+- [ ] Deployment record contains previous/deployed SHAs, backup, health,
+      verification, and rollback outcome.
+- [ ] Daily work log and `PROGRESS.md` are updated.
 
 ## Server Paths
 
@@ -34,7 +85,7 @@ Set backend values in `.env`:
 DATABASE_URL=
 ADMIN_PASSWORD=
 SECRET_KEY=
-CORS_ORIGINS=https://dm.dragorussogames.com,https://dragorussogames.com,https://www.dragorussogames.com,https://russo.dragorussogames.com
+CORS_ORIGINS=https://dm.dragorussogames.com,https://classic.dragorussogames.com,https://dragorussogames.com,https://www.dragorussogames.com,https://russo.dragorussogames.com
 ```
 
 Then run:

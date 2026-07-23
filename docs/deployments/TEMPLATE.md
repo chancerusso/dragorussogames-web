@@ -1,0 +1,25 @@
+# YYYY-MM-DD Environment Deployment
+
+- Date/time (UTC):
+- Environment:
+- Operator/approver:
+- Repository:
+- Branch:
+- Deployed commit SHA:
+- Previous commit SHA:
+- Server identity verified:
+- Source checkout verified:
+- Clean server worktree verified:
+- Database backup:
+- Migration before:
+- Migration after:
+- Frontend build result:
+- Private-reference exclusion result:
+- Services restarted/reloaded:
+- Internal health result:
+- Public health result:
+- Smoke-test result:
+- Rollback required:
+- Rollback result:
+- User impact:
+- Notes:

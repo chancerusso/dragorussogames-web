@@ -1,4 +1,4 @@
-import { Component, createContext, useContext, useEffect, useMemo, useState } from "react";
+import { Component, createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Link, Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import dragonlanceRaceManifest from "../../content/settings/dragonlance/races/index.json";
 import gullyDwarfRace from "../../content/settings/dragonlance/races/gully-dwarf.json";
@@ -31,6 +31,8 @@ import {
 } from "./dragonlanceReference.js";
 import { CLASSIC_PORTAL_URL, DM_NAV_ITEMS } from "./dmNavigation.js";
 import { filterReferenceItems, isCanonicalId, makeTypeOptions, recordSummary, recordTitle, reviewStatus, safeDisplayText, sourceLabel, titleize, typeLabel } from "./rulesReference.js";
+import { MappingCanvas } from "./MappingCanvas.jsx";
+import { emptyDrawingState } from "./mapping.js";
 
 const AuthContext = createContext(null);
 const PlayerPortalContext = createContext(null);
@@ -53,6 +55,7 @@ const BUNDLED_DRAGONLANCE_RACE_FILES = {
 const BUNDLED_DRAGONLANCE_RACES = dragonlanceRaceManifest.map((file) => BUNDLED_DRAGONLANCE_RACE_FILES[file]).filter(Boolean);
 const PLAYER_TABS = [
   ["overview", "Overview"],
+  ["maps", "Maps"],
   ["character", "My Character"],
   ["players", "Party"],
   ["journal", "Journal"],
@@ -84,11 +87,11 @@ function isDragolanceHost() {
 }
 
 function isClassicHost() {
-  return window.location.hostname === "classic.dragorussogames.com";
+  return ["classic.dragorussogames.com", "classic.localhost"].includes(window.location.hostname);
 }
 
 function isDmHost() {
-  return window.location.hostname === "dm.dragorussogames.com";
+  return ["dm.dragorussogames.com", "dm.localhost"].includes(window.location.hostname);
 }
 
 function isPlayerHostname() {
@@ -404,8 +407,8 @@ function useLoad(loader, deps = []) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
-  async function reload() {
-    setLoading(true);
+  async function reload({ silent = false } = {}) {
+    if (!silent) setLoading(true);
     setError("");
     try {
       setData(await loader());
@@ -820,14 +823,24 @@ function DragoTableIndexPage() {
 function DragoTablePage() {
   const { id } = useParams();
   const { data: campaign, error, loading } = useLoad(() => api(`/1e/campaigns/${id}`), [id]);
-  const [mode, setMode] = useState("marching");
+  const [mode, setMode] = useState("mapping");
   const [tokenPositions, setTokenPositions] = useState({});
   const [draggedToken, setDraggedToken] = useState(null);
   const basePlayerTokens = useMemo(() => buildPlayerTokens(campaign?.characters || []), [campaign]);
   const monsterCards = DRAGO_SAMPLE_MONSTERS;
-  const activeGrid = mode === "combat" ? DRAGO_COMBAT_GRID : mode === "outdoors" ? DRAGO_OUTDOORS_GRID : DRAGO_MARCHING_GRID;
+  const { data: campaignMaps, reload: reloadMaps } = useLoad(() => api(`/1e/campaigns/${id}/maps`), [id]);
+  const activeGrid = mode === "combat" ? DRAGO_COMBAT_GRID : DRAGO_HEX_GRID;
   const playerTokens = useMemo(() => applyTokenPositions(basePlayerTokens, tokenPositions), [basePlayerTokens, tokenPositions]);
   const monsterTokens = useMemo(() => applyTokenPositions(DRAGO_MONSTER_TOKENS, tokenPositions), [tokenPositions]);
+
+  useEffect(() => {
+    if (campaign?.table_mode) setMode(campaign.table_mode);
+  }, [campaign?.table_mode]);
+
+  async function changeTableMode(nextMode) {
+    setMode(nextMode);
+    await api(`/1e/campaigns/${id}/table-state`, { method: "PUT", body: JSON.stringify({ table_mode: nextMode }) });
+  }
 
   function moveToken(token, event) {
     const grid = event.currentTarget;
@@ -845,9 +858,9 @@ function DragoTablePage() {
 
   if (loading || error || !campaign) return <PageState loading={loading} error={error} />;
 
-  const modeLabel = mode === "combat" ? "Combat Mode" : mode === "outdoors" ? "Outdoors Mode" : "Marching Mode";
-  const gridTitle = mode === "combat" ? "8 x 8 Ten-Foot Area" : mode === "outdoors" ? "12 x 8 Ten-Foot Area" : "2 x 6 Ten-Foot Column";
-  const gridEyebrow = mode === "combat" ? "10-Foot Tactical Grid" : mode === "outdoors" ? "Outdoor Ground" : "Marching Order";
+  const modeLabel = mode === "combat" ? "Combat Mode" : mode === "hex_crawl" ? "Hex Crawl Mode" : "Mapping Mode";
+  const gridTitle = mode === "combat" ? "8 x 8 Ten-Foot Area" : "Hex Crawl Coming Next";
+  const gridEyebrow = mode === "combat" ? "10-Foot Tactical Grid" : "Campaign Travel";
 
   return (
     <section className="drago-table-page">
@@ -861,12 +874,12 @@ function DragoTablePage() {
           <span>{modeLabel}</span>
           <span>Session #{campaign.session_number || 1}</span>
           <span>Day {campaign.current_campaign_day || 1}</span>
-          <span>10 ft squares / four token slots</span>
+          <span>{mode === "combat" ? "10 ft squares / four token slots" : mode === "mapping" ? "Player-authored graph paper" : "Wilderness travel hexes"}</span>
         </div>
       </Header>
 
       <div className="drago-modebar">
-        <Tabs tabs={DRAGO_TABLE_MODES} activeTab={mode} onChange={setMode} className="drago-mode-tabs" />
+        <Tabs tabs={DRAGO_TABLE_MODES} activeTab={mode} onChange={changeTableMode} className="drago-mode-tabs" />
         <div className="drago-live-actions">
           <button type="button" className="ghost-button">Player View</button>
           <button type="button" className="ghost-button">Rules</button>
@@ -895,21 +908,24 @@ function DragoTablePage() {
           </div>
         </aside>
 
+        {mode === "mapping" ? (
+          <main className="panel drago-map-panel dm-mapping-control-panel">
+            <DmMappingControls campaign={campaign} maps={campaignMaps || []} onReload={reloadMaps} />
+          </main>
+        ) : (
         <main className="panel drago-map-panel">
           <div className="drago-map-toolbar">
             <div>
               <p className="eyebrow">{gridEyebrow}</p>
               <h2>{gridTitle}</h2>
             </div>
-            <select aria-label="Grid template" value={mode === "combat" ? "8x8-ten" : mode === "outdoors" ? "12x8-ten" : "2x6-ten"} onChange={() => {}}>
-              <option value="2x6-ten">2 x 6 Marching</option>
+            <select aria-label="Grid template" value={mode === "combat" ? "8x8-ten" : "hex"} onChange={() => {}}>
               <option value="8x8-ten">8 x 8 Ten-Foot Area</option>
-              <option value="12x8-ten">12 x 8 Outdoor Area</option>
-              <option value="corridor-ten">2 x 12 Ten-Foot Corridor</option>
+              <option value="hex">Hex Crawl</option>
             </select>
           </div>
           <div
-            className={`drago-grid ${mode === "combat" ? "combat-grid" : mode === "outdoors" ? "outdoors-grid" : "marching-grid"}`}
+            className={`drago-grid ${mode === "combat" ? "combat-grid" : "outdoors-grid"}`}
             style={{ "--grid-columns": activeGrid.columns, "--grid-rows": activeGrid.rows }}
             onPointerMove={(event) => {
               if (draggedToken) moveToken(draggedToken, event);
@@ -917,14 +933,15 @@ function DragoTablePage() {
             onPointerUp={() => setDraggedToken(null)}
             onPointerLeave={() => setDraggedToken(null)}
           >
-            {playerTokens.map((token) => (
+            {mode === "combat" ? playerTokens.map((token) => (
               <TableToken key={token.id} grid={activeGrid} token={token} onDragStart={(event) => { setDraggedToken(token); moveToken(token, event); }} />
-            ))}
+            )) : null}
             {mode === "combat" ? monsterTokens.map((token) => (
               <TableToken key={token.id} grid={activeGrid} token={token} monster onDragStart={(event) => { setDraggedToken(token); moveToken(token, event); }} />
             )) : null}
           </div>
         </main>
+        )}
 
         <aside className="panel drago-monster-panel">
           <p className="eyebrow">Encounter</p>
@@ -978,14 +995,91 @@ function DragoTablePage() {
 }
 
 const DRAGO_TABLE_MODES = [
-  ["marching", "Marching"],
+  ["mapping", "Mapping"],
   ["combat", "Combat"],
-  ["outdoors", "Outdoors"],
+  ["hex_crawl", "Hex Crawl"],
 ];
 
-const DRAGO_MARCHING_GRID = { columns: 2, rows: 6 };
 const DRAGO_COMBAT_GRID = { columns: 8, rows: 8 };
-const DRAGO_OUTDOORS_GRID = { columns: 12, rows: 8 };
+const DRAGO_HEX_GRID = { columns: 12, rows: 8 };
+
+function DmMappingControls({ campaign, maps, onReload }) {
+  const [name, setName] = useState("");
+  const [mapperId, setMapperId] = useState("");
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const activeMap = maps.find((campaignMap) => campaignMap.id === campaign.active_map_id);
+  const players = (campaign.players || []).filter((membership) => membership.role !== "observer" && membership.player);
+
+  async function createMap(event) {
+    event.preventDefault();
+    setSaving(true);
+    setError("");
+    try {
+      const created = await api(`/1e/campaigns/${campaign.id}/maps`, {
+        method: "POST",
+        body: JSON.stringify({ name, map_type: "square", mapper_user_id: mapperId ? Number(mapperId) : null }),
+      });
+      await api(`/1e/campaigns/${campaign.id}/table-state`, { method: "PUT", body: JSON.stringify({ active_map_id: created.id, table_mode: "mapping" }) });
+      setName("");
+      await onReload();
+      window.location.reload();
+    } catch (saveError) {
+      setError(saveError.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function selectActiveMap(mapId) {
+    await api(`/1e/campaigns/${campaign.id}/table-state`, { method: "PUT", body: JSON.stringify({ active_map_id: mapId ? Number(mapId) : null }) });
+    window.location.reload();
+  }
+
+  async function assignMapper(mapId, userId) {
+    await api(`/1e/campaigns/${campaign.id}/maps/${mapId}`, { method: "PUT", body: JSON.stringify({ mapper_user_id: userId ? Number(userId) : null }) });
+    await onReload();
+  }
+
+  return (
+    <div className="dm-mapping-controls">
+      <div>
+        <p className="eyebrow">Player Mapping</p>
+        <h2>{activeMap?.name || "No active player map"}</h2>
+        <p className="muted">You choose the active map here. Drawing and player viewing remain on Drago Classic.</p>
+      </div>
+      <label>Active Player Map
+        <select value={campaign.active_map_id || ""} onChange={(event) => selectActiveMap(event.target.value)}>
+          <option value="">No active map</option>
+          {maps.filter((map) => map.map_type === "square").map((map) => <option key={map.id} value={map.id}>{map.name}</option>)}
+        </select>
+      </label>
+      {maps.length ? (
+        <div className="dm-map-list">
+          {maps.map((map) => (
+            <label key={map.id}><span><strong>{map.name}</strong><small>{map.active_level} · Revision {map.revision}</small></span>
+              <select value={map.mapper_user_id || ""} onChange={(event) => assignMapper(map.id, event.target.value)}>
+                <option value="">No Mapper assigned</option>
+                {players.map((membership) => <option key={membership.user_id} value={membership.user_id}>{membership.player.display_name || membership.player.player_name}</option>)}
+              </select>
+            </label>
+          ))}
+        </div>
+      ) : null}
+      <form className="dm-create-map" onSubmit={createMap}>
+        <label>New Map Name<input value={name} onChange={(event) => setName(event.target.value)} placeholder="Moathouse — Ground Floor" required /></label>
+        <label>Mapper
+          <select value={mapperId} onChange={(event) => setMapperId(event.target.value)}>
+            <option value="">Assign later</option>
+            {players.map((membership) => <option key={membership.user_id} value={membership.user_id}>{membership.player.display_name || membership.player.player_name}</option>)}
+          </select>
+        </label>
+        <button disabled={saving}>{saving ? "Creating..." : "Create Player Map"}</button>
+      </form>
+      {error ? <p className="error">{error}</p> : null}
+    </div>
+  );
+}
 
 const DRAGO_SAMPLE_PLAYERS = [
   { id: "pc-1", name: "Aldren", label: "AL", color: "#9fb36a", hp: "18 / 24", ac: "5", move: "9", status: "Ready", x: 1, y: 1, slotX: 0, slotY: 0 },
@@ -1531,8 +1625,13 @@ function PlayerCampaignsPage() {
 function PlayerCampaignHome() {
   const { id } = useParams();
   const { activePlayerId } = usePlayerPortal();
-  const { data: campaign, error, loading } = useLoad(() => api(`/player/campaigns/${id}`, { auth: "player" }), [id]);
+  const { data: campaign, error, loading, reload } = useLoad(() => api(`/player/campaigns/${id}`, { auth: "player" }), [id]);
   const [activeTab, setActiveTab] = useState("overview");
+
+  useEffect(() => {
+    const timer = window.setInterval(() => reload({ silent: true }), 2500);
+    return () => window.clearInterval(timer);
+  }, [id]);
 
   if (loading || error || !campaign) return <PageState loading={loading} error={error} />;
 
@@ -1543,11 +1642,110 @@ function PlayerCampaignHome() {
       <CampaignHeader campaign={campaign} eyebrow="Campaign Home" />
       <PlayerTabs activeTab={activeTab} onChange={setActiveTab} />
       {activeTab === "overview" ? <PlayerOverviewTab campaign={campaign} character={character} /> : null}
+      {activeTab === "maps" ? <PlayerMapsTab campaign={campaign} /> : null}
       {activeTab === "character" ? <PlayerCharacterTab character={character} /> : null}
       {activeTab === "players" ? <PlayerRosterTab campaign={campaign} /> : null}
       {activeTab === "journal" ? <ReadOnlyPlaceholder title="Journal" copy="Read-only session summaries will appear here once the journal backend exists." /> : null}
       {activeTab === "handouts" ? <ReadOnlyPlaceholder title="Handouts" copy="Read-only campaign handouts, maps, and clues will appear here once uploaded." /> : null}
       {activeTab === "rules" ? <PlayerRulesTab campaign={campaign} /> : null}
+    </section>
+  );
+}
+
+function PlayerMapsTab({ campaign }) {
+  const { data, error, loading, reload } = useLoad(() => api(`/player/campaigns/${campaign.id}/maps`, { auth: "player" }), [campaign.id]);
+  const maps = data || [];
+  const activeMap = maps.find((map) => map.id === campaign.active_map_id);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => reload({ silent: true }), 2500);
+    return () => window.clearInterval(timer);
+  }, [campaign.id]);
+
+  return (
+    <div className="player-maps-area">
+      <PageState loading={loading} error={error} />
+      {campaign.table_mode === "mapping" && activeMap ? (
+        <section className="panel player-active-map">
+          <div className="section-heading">
+            <div><p className="eyebrow">Active Player Map</p><h2>{activeMap.name}</h2><p className="muted">Mapper: {activeMap.mapper_name || "Not assigned"}</p></div>
+            <Link className="secondary-button" target="_blank" to={`/campaigns/${campaign.id}/maps/${activeMap.id}`}>{activeMap.can_edit ? "Open Mapper" : "Open Map"}</Link>
+          </div>
+          <MappingCanvas campaignMap={activeMap} followViewport />
+        </section>
+      ) : (
+        <ReadOnlyPlaceholder title={campaign.table_mode === "combat" ? "Combat Mode Active" : campaign.table_mode === "hex_crawl" ? "Hex Crawl Mode Active" : "No Active Map"} copy="The DM controls the current table mode and active player map." />
+      )}
+      <section className="panel map-library-panel">
+        <p className="eyebrow">Campaign Map Library</p>
+        <h2>Saved Player Maps</h2>
+        <div className="map-library-grid">
+          {maps.map((map) => (
+            <Link key={map.id} className="map-library-card" target="_blank" to={`/campaigns/${campaign.id}/maps/${map.id}`}>
+              <strong>{map.name}</strong><span>{map.active_level}</span><small>{map.mapper_name ? `Mapper: ${map.mapper_name}` : "No Mapper assigned"} · Revision {map.revision}</small>
+            </Link>
+          ))}
+        </div>
+        {!maps.length && !loading ? <p className="muted">No player maps have been created for this campaign.</p> : null}
+      </section>
+    </div>
+  );
+}
+
+function PlayerMapPage() {
+  const { id, mapId } = useParams();
+  const { data: campaignMap, error, loading, reload } = useLoad(() => api(`/player/campaigns/${id}/maps/${mapId}`, { auth: "player" }), [id, mapId]);
+  const [draft, setDraft] = useState(null);
+  const [viewport, setViewport] = useState(null);
+  const [saveState, setSaveState] = useState("Saved");
+  const dirtyRef = useRef(false);
+
+  useEffect(() => {
+    if (campaignMap && !dirtyRef.current) setDraft(campaignMap.drawing_state || emptyDrawingState());
+  }, [campaignMap]);
+
+  useEffect(() => {
+    if (!campaignMap?.can_edit || !dirtyRef.current || !draft) return undefined;
+    setSaveState("Saving...");
+    const timer = window.setTimeout(async () => {
+      try {
+        await api(`/player/campaigns/${id}/maps/${mapId}`, {
+          auth: "player",
+          method: "PUT",
+          body: JSON.stringify({ drawing_state: draft, viewport: viewport || campaignMap.viewport }),
+        });
+        dirtyRef.current = false;
+        setSaveState("Saved");
+        await reload({ silent: true });
+      } catch (saveError) {
+        setSaveState(saveError.message || "Save failed");
+      }
+    }, 800);
+    return () => window.clearTimeout(timer);
+  }, [draft, viewport, campaignMap?.can_edit, id, mapId]);
+
+  useEffect(() => {
+    if (campaignMap?.can_edit) return undefined;
+    const timer = window.setInterval(() => reload({ silent: true }), 2500);
+    return () => window.clearInterval(timer);
+  }, [campaignMap?.can_edit, id, mapId]);
+
+  if (loading || error || !campaignMap || !draft) return <PageState loading={loading} error={error} />;
+  const displayedMap = { ...campaignMap, drawing_state: draft, viewport: viewport || campaignMap.viewport };
+
+  return (
+    <section className="player-map-page">
+      <header className="player-map-header">
+        <div><p className="eyebrow">{campaignMap.can_edit ? "Mapper Desk" : "Player Map"}</p><h1>{campaignMap.name}</h1><p>{campaignMap.active_level} · {campaignMap.mapper_name || "No Mapper assigned"}</p></div>
+        <div><span className={`map-save-state ${saveState !== "Saved" ? "is-saving" : ""}`}>{saveState}</span><Link className="secondary-button" to={`/campaigns/${id}`}>Campaign Home</Link></div>
+      </header>
+      <MappingCanvas
+        campaignMap={displayedMap}
+        editable={campaignMap.can_edit}
+        followViewport={!campaignMap.can_edit}
+        onChange={(nextState) => { dirtyRef.current = true; setDraft(nextState); }}
+        onViewportChange={(nextViewport) => { dirtyRef.current = true; setViewport(nextViewport); }}
+      />
     </section>
   );
 }
@@ -3137,6 +3335,7 @@ export default function App() {
           <Route element={<Protected role="player"><PlayerShell /></Protected>}>
             <Route path="/campaigns" element={<PlayerCampaignsPage />} />
             <Route path="/campaigns/:id" element={<PlayerCampaignHome />} />
+            <Route path="/campaigns/:id/maps/:mapId" element={<PlayerMapPage />} />
             <Route path="/characters" element={<PlayerCharactersPage />} />
             <Route path="/characters/new" element={<PlayerCreateCharacterPage />} />
             <Route path="/dragonlance/*" element={<DragonlanceGuidePage />} />
