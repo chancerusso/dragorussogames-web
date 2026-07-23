@@ -135,6 +135,15 @@ VITE_API_BASE_URL=https://dm.dragorussogames.com/api npm run build
 - A coordinated feature affecting both portals: verify each portal separately,
   then copy to each explicit web root as two recorded deployment actions.
 
+Player-only static assets live under `frontend/player-assets/`, outside Vite's
+shared `public/` directory. They must never be copied to the DM root. After the
+sanitized shared build is deployed to Classic, copy player assets explicitly:
+
+```bash
+rsync -a /opt/russo-bot/source/frontend/player-assets/ \
+  /var/www/classic.dragorussogames.com/assets/
+```
+
 Mapping Mode's Mapper desk, player viewer, and map library deploy to the Classic
 web root. Its DM mode, active-map, and Mapper-assignment controls deploy to the
 DM web root. Shared persistence changes deploy through the backend service.

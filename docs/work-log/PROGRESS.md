@@ -249,6 +249,11 @@ authenticated DM/Mapper/player verification. Greyhawk Hex Crawl follows and
 will use the user-supplied Darlene digital map. Dragonlance Hex Crawl remains
 unassigned until its separate map is supplied.
 
+The Greyhawk map is stored under `frontend/player-assets/`, outside the shared
+Vite public build, and is copied explicitly to the Classic root only. This
+prevents coordinated frontend deployments from placing the player map in the
+DM web root.
+
 The current Mapping Mode implementation now includes explicit right-click and
 Escape wall-chain termination without changing tools, independently persisted
 named floors, centered 50%-200% zoom, Mapper revision history and restoration,

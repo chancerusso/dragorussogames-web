@@ -35,11 +35,16 @@
   protection, and read-only player following.
 - Portal targets:
   - Classic receives Mapper/editor/viewer/library behavior and the supplied
-    Greyhawk Darlene map asset for the later Hex Crawl phase.
+    Greyhawk Darlene map asset for the later Hex Crawl phase. The image is
+    copied from `frontend/player-assets/` after the shared build.
   - DM receives the coordinated frontend build only because its existing mode,
     active-map, and Mapper-assignment controls are part of the same Mapping
     Mode workflow.
   - Shared map history and conflict protection require a backend restart.
+- Player-asset boundary: The initial shared build placed the Greyhawk image in
+  both roots. The exact image was removed from the DM root, retained on
+  Classic, and moved outside Vite's shared `public/` directory so future
+  deployments cannot repeat the mistake.
 - Notes:
   - No database schema migration is included.
   - Monster XP remains intentionally deferred.
