@@ -9,6 +9,7 @@ Last reviewed: 2026-07-22
 | Repository | `https://github.com/chancerusso/dragorussogames-web.git` |
 | Current local branch | `codex/first-edition-mapping` |
 | Branch baseline commit | `8f4f4d440da70f153acb6c4f5021ed5eddc44fc7` |
+| Mapping feature commit | `af4d2d5` |
 | Backend | FastAPI, SQLAlchemy, Alembic |
 | Backend documented port | `8010` |
 | Frontend | React and Vite |
