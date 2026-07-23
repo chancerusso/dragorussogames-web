@@ -1,6 +1,6 @@
 # Project Progress
 
-Last updated: 2026-07-22
+Last updated: 2026-07-23
 
 ## Current focus
 
@@ -174,7 +174,7 @@ DM control target.
 - The PHB main-table plate-barding `15 sp` anomaly is documented; the catalog
   uses the condensed PHB reference value of `500 gp`.
 - Next source-replacement checkpoint: PHB spell lists and spell mechanics.
-- PHB spell lists are now reconciled: 416 class/level entries across 350
+- PHB spell lists are now reconciled: 414 class/level entries across 350
   distinct cleric, druid, magic-user, and illusionist spells match the printed
   tables on Player's Handbook pages 40-42.
 - Spell records now retain a level for each class list. Shared spells therefore
@@ -193,3 +193,14 @@ DM control target.
 - Player spell indexes and class-list pages now use the PHB spell names and no
   longer present OSRIC as the authority. Individual spell mechanics remain the
   next audit checkpoint and are not yet labelled PHB-verified.
+
+## First Edition reference presentation
+
+- The shared Markdown renderer now combines source-wrapped prose into proper
+  flowing paragraphs across every First Edition reference page.
+- Player-facing First Edition and Dragolance reference labels no longer present
+  OSRIC as the library or rules authority. Unverified legacy rules remain
+  clearly described as drafts pending official-book verification.
+- The DM monster catalog remains legacy data and is visibly labelled
+  `Legacy Monster Catalog — Monster Manual Import Pending`; Monster Manual
+  records have not yet been imported.

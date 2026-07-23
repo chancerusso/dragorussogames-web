@@ -13,6 +13,13 @@ const spellSlotRoot = resolve(repoRoot, "content/options/dragolance/spell_slots"
 const languageRoot = resolve(repoRoot, "content/options/dragolance/languages");
 const availabilityRoot = resolve(repoRoot, "content/options/dragolance/availability");
 
+function filesBelow(directory) {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const path = resolve(directory, entry.name);
+    return entry.isDirectory() ? filesBelow(path) : [path];
+  });
+}
+
 test("Dragolance player reference exposes only the phase 4 top-level sections", () => {
   for (const label of ["What is Dragolance?", "The World of Krynn", "Races of Krynn", "Classes", "Gods"]) {
     assert.match(referenceSource, new RegExp(`label: "${label.replace(/[?]/g, "\\?")}"`));
@@ -33,7 +40,7 @@ test("Dragonlance reference is routed as a nested player rulebook", () => {
 test("player portal separates the Player's Guide from Dragonlance campaign setting", () => {
   assert.match(appSource, /Player's Guide/);
   assert.match(appSource, /Dragolance Reference/);
-  assert.match(appSource, /Dragolance is our campaign branch for the shared OSRIC rules engine/);
+  assert.match(appSource, /Dragolance is our campaign branch for the shared First Edition rules engine/);
   assert.match(appSource, /Dragonlance Adventures as the canonical foundation/);
 });
 
@@ -67,7 +74,7 @@ test("Races of Krynn navigation matches the approved Unit 2A hierarchy", () => {
   }
 
   assert.equal(referenceSource.includes('label: "Human"'), false);
-  assert.match(referenceSource, /OSRIC Human/);
+  assert.match(referenceSource, /First Edition Human/);
 });
 
 test("Races of Krynn pages render from canonical records or presentation-only pages", () => {
@@ -217,15 +224,73 @@ test("incomplete race mechanics retain visible review flags", () => {
   assert.equal(dargonesti.review.status, "verified");
 });
 
-test("OSRIC reference shell exposes a persistent player portal return", () => {
+test("First Edition reference shell exposes a persistent player portal return", () => {
   const shellSource = readFileSync(resolve(repoRoot, "components/first-edition-app.js"), "utf8");
   assert.match(shellSource, /Return to Player Portal/);
   assert.match(shellSource, /one-e-portal-return/);
 });
 
-test("OSRIC reference shell does not crash when loaded by React character routes", () => {
+test("First Edition reference shell does not crash when loaded by React character routes", () => {
   const shellSource = readFileSync(resolve(repoRoot, "components/first-edition-app.js"), "utf8");
   assert.match(shellSource, /const nav = document\.querySelector\("\[data-rules-nav\]"\);\n  if \(!nav\) return;/);
   assert.match(shellSource, /const sidebar = document\.querySelector\("\[data-section-nav\]"\);\n  if \(!sidebar\) return;/);
   assert.match(shellSource, /const article = document\.querySelector\("\[data-markdown\]"\);\n  if \(!article\) return;/);
+});
+
+test("First Edition markdown joins source-wrapped prose into flowing paragraphs", () => {
+  const shellSource = readFileSync(resolve(repoRoot, "components/first-edition-app.js"), "utf8");
+  const loadRenderer = new Function(
+    "document",
+    "window",
+    "fetch",
+    `${shellSource}; return { markdownToHtml, playerFacingText };`,
+  );
+  const { markdownToHtml, playerFacingText } = loadRenderer(
+    { querySelector: () => null },
+    { location: { pathname: "/1e/" }, addEventListener: () => {} },
+    async () => ({ ok: false }),
+  );
+  const rendered = markdownToHtml(`# Example
+
+This paragraph is wrapped
+across three physical
+source lines.
+
+## Next
+
+Another paragraph.`);
+
+  assert.match(rendered, /<p>This paragraph is wrapped across three physical source lines\.<\/p>/);
+  assert.equal((rendered.match(/<p>/g) || []).length, 2);
+  assert.equal(
+    playerFacingText("OSRIC Baseline"),
+    "First Edition Baseline (Pending Official Verification)",
+  );
+  assert.equal(playerFacingText("OSRIC Source"), "Source Status");
+});
+
+test("First Edition reference renders every markdown page without visible OSRIC labels", () => {
+  const shellSource = readFileSync(resolve(repoRoot, "components/first-edition-app.js"), "utf8");
+  const loadRenderer = new Function(
+    "document",
+    "window",
+    "fetch",
+    `${shellSource}; return { markdownToHtml };`,
+  );
+  const { markdownToHtml } = loadRenderer(
+    { querySelector: () => null },
+    { location: { pathname: "/1e/" }, addEventListener: () => {} },
+    async () => ({ ok: false }),
+  );
+  const markdownFiles = filesBelow(resolve(repoRoot, "content/1e"))
+    .filter((path) => path.endsWith(".md"));
+
+  assert.ok(markdownFiles.length > 400);
+  for (const path of markdownFiles) {
+    assert.equal(
+      markdownToHtml(readFileSync(path, "utf8")).includes("OSRIC"),
+      false,
+      path,
+    );
+  }
 });

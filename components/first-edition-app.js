@@ -90,7 +90,7 @@ const sectionItems = {
     ["Wilderness Exploration", "/1e/how-to-play/wilderness-exploration/", "Daily wilderness sequence, navigation, encounters, camping, and exhaustion."],
     ["Aerial Agility", "/1e/how-to-play/aerial-agility/", "Flying movement, turning, climbing, diving, hovering, and mounted flight."],
     ["Adventures in Town", "/1e/how-to-play/adventures-in-town/", "Town activity, abstract downtime, hiring, shopping, and dangerous districts."],
-    ["Exploring the Planes", "/1e/how-to-play/exploring-the-planes/", "High-level planar play and what OSRIC leaves to the campaign."]
+    ["Exploring the Planes", "/1e/how-to-play/exploring-the-planes/", "High-level planar play and what the current First Edition draft leaves to the campaign."]
   ],
   equipment: [
     ["Equipment", "/1e/equipment/", "Player's Handbook equipment reference."],
@@ -100,7 +100,7 @@ const sectionItems = {
   ],
   spells: [
     ["Spells", "/1e/spells/", "Spell reference index."],
-    ["All Spells", "/1e/spells/all-spells/", "Alphabetical spell descriptions with OSRIC metadata."],
+    ["All Spells", "/1e/spells/all-spells/", "Alphabetical spell descriptions with First Edition review metadata."],
     ["Spell Lists By Level", "/1e/spells/spell-lists-by-level/", "All class spell lists by spell level."],
     ["Spell Scrolls", "/1e/spells/spell-scrolls/", "Casting and copying scrolls."],
     ["Cleric Spells", "/1e/spells/cleric-spells/", "Cleric spell list and spell use notes."],
@@ -159,11 +159,22 @@ function escapeHtml(value) {
 }
 
 function inlineMarkdown(text) {
-  return escapeHtml(text)
+  return escapeHtml(playerFacingText(text))
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
     .replace(/\*([^*]+)\*/g, "<em>$1</em>")
     .replace(/`([^`]+)`/g, "<code>$1</code>");
+}
+
+function playerFacingText(text) {
+  return text
+    .replace(/\bOSRIC Reference\b/g, "Player's Guide")
+    .replace(/\bOSRIC Source\b/g, "Source Status")
+    .replace(/\bOSRIC Baseline\b/g, "First Edition Baseline (Pending Official Verification)")
+    .replace(/\bOSRIC Value\b/g, "First Edition Draft Value")
+    .replace(/\bOSRIC Note\b/g, "Source Note")
+    .replace(/\bOSRIC's\b/g, "the First Edition rules draft's")
+    .replace(/\bOSRIC\b/g, "First Edition rules draft");
 }
 
 function slugify(text) {
@@ -325,7 +336,23 @@ function markdownToHtml(markdown) {
     }
 
     closeList();
-    html.push(`<p>${inlineMarkdown(line)}</p>`);
+    const paragraphLines = [line];
+    while (index + 1 < lines.length) {
+      const candidate = lines[index + 1].trim();
+      const afterCandidate = lines[index + 2]?.trim() || "";
+      const isStructural = (
+        !candidate
+        || candidate.startsWith("#")
+        || candidate.startsWith("- ")
+        || /^\d+\.\s+/.test(candidate)
+        || (isTableRow(candidate) && isTableSeparator(afterCandidate))
+        || /^[A-Za-z][A-Za-z0-9 /&'()?-]{1,48}:$/.test(candidate)
+      );
+      if (isStructural) break;
+      paragraphLines.push(candidate);
+      index += 1;
+    }
+    html.push(`<p>${inlineMarkdown(paragraphLines.join(" "))}</p>`);
   }
 
   closeList();

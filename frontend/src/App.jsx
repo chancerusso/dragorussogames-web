@@ -542,7 +542,7 @@ function CampaignsPage() {
         <ActionCard tone="gold" title="Drago Table" copy="Launch the DM screen for marching order, combat, trackers, monsters, treasure, and XP." action="Launch Table" to={activeCampaigns[0] ? `/campaigns/${activeCampaigns[0].id}/table` : "/table"} />
         <ActionCard tone="green" title="Players" copy="Manage the table roster and campaign membership." action="Manage Players" to="/players" />
         <ActionCard tone="blue" title="Characters" copy="Review characters and open the existing sheet tools." action="View Characters" to="/characters" />
-        <ActionCard tone="violet" title="Rules & Settings" copy="Browse OSRIC rules, Dragolance records, and campaign reference material." action="Open Reference" to="/rules" />
+        <ActionCard tone="violet" title="Rules & Settings" copy="Browse First Edition rules, Dragolance records, and campaign reference material." action="Open Reference" to="/rules" />
       </div>
 
       <div className="command-grid" id="active-campaigns">
@@ -1429,11 +1429,17 @@ function uniqueMonsterSources(monsters) {
   return sources;
 }
 
+function monsterSourceLabel(source) {
+  return source === "OSRIC Core Rules"
+    ? "Legacy Monster Catalog — Monster Manual Import Pending"
+    : source;
+}
+
 function monsterSourceReference(monster) {
   if (!monster) return "";
   const source = monster.source || (monster.is_core_osric ? "OSRIC Core Rules" : "Adventure");
   const page = monster.source_pdf_page ? ` p. ${monster.source_pdf_page}` : "";
-  return `${source}${page}`;
+  return `${monsterSourceLabel(source)}${page}`;
 }
 
 function numericReward(value) {
@@ -1482,8 +1488,8 @@ function MonsterLibrarySidebar({ error, loading, monsters, query, selectedMonste
         }}
       >
         {sources.length ? sources.map((option) => (
-          <option key={option} value={option}>{option}</option>
-        )) : <option value={source}>{source}</option>}
+          <option key={option} value={option}>{monsterSourceLabel(option)}</option>
+        )) : <option value={source}>{monsterSourceLabel(source)}</option>}
       </select>
       <input
         aria-label="Search monsters"
@@ -1555,7 +1561,7 @@ function MonstersPage() {
       <Header
         eyebrow="DM Reference"
         title="Monsters"
-        copy="Browse OSRIC and adventure monster records with complete stat blocks and source notes."
+        copy="Browse the legacy and adventure monster records currently installed. The Monster Manual import is still pending."
         action={<a className="secondary-button" href="/monsters" target="_blank" rel="noreferrer">Open in New Tab</a>}
       />
       <PageState loading={loading} error={error} />
@@ -3720,7 +3726,7 @@ function DragonlanceHub({ basePath }) {
     <>
       <p className="eyebrow">Player Reference</p>
       <h1>Dragolance Reference</h1>
-      <p className="portal-copy">Dragolance is our campaign branch for the shared OSRIC rules engine: an interpretation of Krynn grounded in Dragonlance Adventures and built for our table.</p>
+      <p className="portal-copy">Dragolance is our campaign branch for the shared First Edition rules engine: an interpretation of Krynn grounded in Dragonlance Adventures and built for our table.</p>
       <div className="reference-hub-grid">
         {dragonlanceIa.map((item) => (
           <Link className="guide-card" key={item.path} to={`${basePath}/${item.path}`}>
@@ -3737,7 +3743,7 @@ function dragonlanceHubCopy(path) {
   const copy = {
     "what-is-dragonlance": "An introduction to Dragolance, our interpretation of Krynn.",
     "world-of-krynn": "A player introduction to Krynn, the Balance, and the choices that shape the setting.",
-    races: "Krynn-specific peoples. Humans remain in the OSRIC Reference.",
+    races: "Krynn-specific peoples. Humans remain in the Player's Guide.",
     classes: "Only Knights of Solamnia, Wizards of High Sorcery, and Tinkers.",
     gods: "Player-facing deity reference organized by Good, Neutral, and Evil.",
   };
@@ -3847,7 +3853,7 @@ function DragonlanceWorldPage({ basePath }) {
           </Link>
           <Link className="guide-card" to={`${basePath}/classes`}>
             <h4>Classes</h4>
-            <p>The Knights of Solamnia, Wizards of High Sorcery, Tinker Gnomes, and how Dragonlance expands upon OSRIC.</p>
+            <p>The Knights of Solamnia, Wizards of High Sorcery, Tinker Gnomes, and how Dragonlance expands upon First Edition.</p>
           </Link>
           <Link className="guide-card" to={`${basePath}/gods`}>
             <h4>Gods</h4>
@@ -3899,7 +3905,7 @@ function DragonlanceSectionLanding({ title, page, basePath }) {
     <>
       <p className="eyebrow">Section</p>
       <h1>{title}</h1>
-      <p className="portal-copy">Choose a page from this section. Standard OSRIC material is linked rather than duplicated.</p>
+      <p className="portal-copy">Choose a page from this section. Standard First Edition material is linked rather than duplicated.</p>
       <div className="reference-hub-grid">
         {(page.children || []).map((child) => (
           <Link className="guide-card" key={child.path} to={`${basePath}/${child.path}`}>
@@ -3925,7 +3931,7 @@ function DragonlanceRacePage({ path, title }) {
         <div><strong>Canonical Source</strong><span>Dragonlance Adventures</span></div>
         <div><strong>Source Pages</strong><span>{presentation.sourcePages || sourcePageLabel(record)}</span></div>
         <div><strong>Review Status</strong><span>{titleCase(record.review?.status || "source pending")}</span></div>
-        <div><strong>OSRIC Base</strong><span>{osricBaseRaceLink(record, presentation)}</span></div>
+        <div><strong>First Edition Base</strong><span>{osricBaseRaceLink(record, presentation)}</span></div>
       </div>
       <SourceStatus record={record} />
       {presentation.notice ? <div className="guide-banner">{presentation.notice}</div> : null}
@@ -4097,7 +4103,7 @@ function DragonlanceDeityPage({ deityPage }) {
         <div><dt>Relationships</dt><dd>{formatRulesRefs(record.cleric_extensions)}</dd></div>
         <div><dt>Clerical Information</dt><dd>{formatRecordList(record.allowed_cleric_alignments)}</dd></div>
       </dl>
-      <ReferenceLinks links={[{ label: "Holy Orders", path: "gods/holy-orders" }, { label: "OSRIC Cleric", href: "/1e/classes/cleric/" }]} />
+      <ReferenceLinks links={[{ label: "Holy Orders", path: "gods/holy-orders" }, { label: "First Edition Cleric", href: "/1e/classes/cleric/" }]} />
     </>
   );
 }
@@ -4229,7 +4235,7 @@ function osricBaseRaceLink(record, presentation = {}) {
   const base = record.base_osric_race_ref?.split(".").pop() || presentation.osricBase?.toLowerCase().replace(/\s+/g, "-");
   if (!base) return "None";
   const label = presentation.osricBase || titleCase(base);
-  return <a href={`/1e/races/${base}/`}>OSRIC {label}</a>;
+  return <a href={`/1e/races/${base}/`}>First Edition {label}</a>;
 }
 
 function RulesRelationships({ record, presentation }) {
@@ -4238,7 +4244,7 @@ function RulesRelationships({ record, presentation }) {
   ];
   if (record.base_osric_race_ref) {
     const base = record.base_osric_race_ref.split(".").pop();
-    links.unshift({ label: `OSRIC ${titleCase(base)}`, href: `/1e/races/${base}/` });
+    links.unshift({ label: `First Edition ${titleCase(base)}`, href: `/1e/races/${base}/` });
   }
   const languageText = record.languages?.length ? formatRulesRefs(record.languages) : null;
   const classText = record.class_access?.length ? formatRulesRefs(record.class_access) : null;
@@ -4246,7 +4252,7 @@ function RulesRelationships({ record, presentation }) {
     <>
       <h2>Rules Relationships</h2>
       <div className="source-pending-box compact-source-box">
-        {links.length ? <p>{links.map((link, index) => <span key={`${link.href}-${link.label}`}>{index > 0 ? " | " : ""}<a href={link.href}>{link.label}</a></span>)}</p> : <p>No OSRIC base race is recorded for this Krynn race.</p>}
+        {links.length ? <p>{links.map((link, index) => <span key={`${link.href}-${link.label}`}>{index > 0 ? " | " : ""}<a href={link.href}>{link.label}</a></span>)}</p> : <p>No First Edition base race is recorded for this Krynn race.</p>}
         {languageText ? <p>Languages: {languageText}</p> : null}
         {classText ? <p>Class records: {classText}</p> : null}
       </div>
@@ -4270,7 +4276,7 @@ function formatRecordList(value = []) {
 
 function formatRulesRefs(value = []) {
   if (!value?.length) return "Source verification required";
-  return value.map((entry) => String(entry).replace(/^osric\./, "OSRIC: ").replace(/^dragolance\./, "Dragolance: ").replace(/\./g, " ")).join(", ");
+  return value.map((entry) => String(entry).replace(/^osric\./, "First Edition: ").replace(/^dragolance\./, "Dragolance: ").replace(/\./g, " ")).join(", ");
 }
 
 function formatCell(value) {
@@ -4544,7 +4550,7 @@ function RulesSettingsPage() {
       <Header
         eyebrow="DM Reference"
         title="Rules & Settings"
-        copy="Browse the installed OSRIC rules pages and canonical source-library records from one read-only desk."
+        copy="Browse the installed First Edition rules pages and canonical source-library records from one read-only desk."
         action={<a className="secondary-button" href="/rules" target="_blank" rel="noreferrer">Open in New Tab</a>}
       />
       <PageState loading={loading} error={error} />
@@ -4599,7 +4605,7 @@ function RulesSettingsPage() {
               <div className="empty-reference">
                 <p className="eyebrow">Detail</p>
                 <h2>Select a canonical record.</h2>
-                <p className="muted">Rules pages open in the protected OSRIC reference. Canonical records render here with relationships and internal review metadata.</p>
+                <p className="muted">Rules pages open in the protected Player's Guide. Canonical records render here with relationships and internal review metadata.</p>
               </div>
             )}
           </Panel>
