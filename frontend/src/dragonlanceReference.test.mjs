@@ -30,8 +30,8 @@ test("Dragonlance reference is routed as a nested player rulebook", () => {
   assert.match(appSource, /function DragonlanceReaderNav/);
 });
 
-test("player portal separates OSRIC core rules from Dragonlance campaign setting", () => {
-  assert.match(appSource, /OSRIC Reference/);
+test("player portal separates the Player's Guide from Dragonlance campaign setting", () => {
+  assert.match(appSource, /Player's Guide/);
   assert.match(appSource, /Dragolance Reference/);
   assert.match(appSource, /Dragolance is our campaign branch for the shared OSRIC rules engine/);
   assert.match(appSource, /Dragonlance Adventures as the canonical foundation/);

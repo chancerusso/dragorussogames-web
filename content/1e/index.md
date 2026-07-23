@@ -1,12 +1,16 @@
 # Drago Russo Games First Edition
 
 ## Overview
-Drago Russo Games First Edition is an OSRIC-inspired version of AD&D First Edition with Drago Russo table rules.
+Drago Russo Games First Edition is our table-ready Player's Guide for the
+original AD&D First Edition rules, with Drago Russo campaign rules identified
+separately.
 
 This is a step-by-step online rules manual. It teaches players how to build characters and use the rules with paper or printable character sheets.
 
 ## What This Is
-OSRIC is an open First Edition rules reference.
+The Player's Handbook is the trusted source for player rules. The Dungeon
+Masters Guide and Monster Manual supply DM procedures and monster mechanics.
+Every section is being verified against the applicable official book.
 
 This site is our presentation of those rules where the license permits, with our layout, examples, procedures, table guidance, and clearly separated table rules.
 

@@ -152,3 +152,16 @@ DM control target.
 - This correction release deploys its frontend only to the Classic player root.
   It also requires backend migration `0015_weapon_speed_factors` and a backend
   restart. It does not authorize copying the player build to the DM web root.
+
+## PHB source replacement in progress
+
+- Deployment of the player-table correction commit is paused while its
+  equipment work is replaced with a complete PHB-authoritative catalog.
+- Weapon data now distinguishes Speed Factor, S/M damage, L damage, length,
+  space required, and printed gold-piece weight.
+- Missile weapons store exact Short, Medium, and Long PHB ranges in inches.
+  "Range Increment" and preconverted feet are not part of the canonical model.
+- Migration `0016_phb_equipment_catalog` synchronizes verified PHB catalog rows
+  and archives superseded OSRIC-only choices without deleting inventory data.
+- The same audit standard will next cover PHB spells and player rules, followed
+  by Monster Manual mechanics and DMG procedures.

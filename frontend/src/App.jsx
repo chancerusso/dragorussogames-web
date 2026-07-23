@@ -299,7 +299,7 @@ function PlayerShell({ children }) {
             { label: "My Campaigns", to: classic ? "/campaigns" : "/portal/campaigns", end: true },
             { label: "My Characters", to: classic ? "/characters" : "/portal/characters" },
             { label: "Create Character", href: "/1e/characters/new/", target: "_blank" },
-            { label: "OSRIC Reference", href: "/1e/", target: "_blank" },
+            { label: "Player's Guide", href: "/1e/", target: "_blank" },
             { label: "Dragolance Reference", href: classic ? "/dragonlance" : "/portal/dragonlance", target: "_blank" },
           ]}
           account={
@@ -1991,6 +1991,7 @@ function characterWeaponRows(character) {
     attack: weapon.final_attack_value ?? weapon.total_attack_bonus ?? "-",
     damage: weapon.damage?.final_small_medium || weapon.damage?.base_small_medium || "-",
     speed: weapon.weapon_speed ?? "—",
+    range: weapon.range?.raw || null,
     mode: weapon.mode || "melee",
   }));
 }
@@ -3304,7 +3305,7 @@ function PlayerCharacterCombatPanel({
             {weapons.map((weapon) => (
               <div key={`${weapon.name}-${weapon.mode}`}>
                 <strong>{weapon.name}</strong>
-                <span>Hit {weapon.attack} · Dmg {weapon.damage} · Spd {weapon.speed}</span>
+                <span>Hit {weapon.attack} · Dmg {weapon.damage} · Spd {weapon.speed}{weapon.range ? ` · Rng ${weapon.range}` : ""}</span>
               </div>
             ))}
           </div>
@@ -3598,7 +3599,7 @@ function DragonlanceGuidePage() {
       />
       <div className="reference-return-row">
         <Link className="secondary-button" to={isClassicHost() ? "/" : "/portal"}>Return to Player Portal</Link>
-        <a className="secondary-button" href="/1e/">OSRIC Reference</a>
+        <a className="secondary-button" href="/1e/">Player's Guide</a>
       </div>
       <div className="dragonlance-reader">
         <aside className="dragonlance-tree" aria-label="Dragolance reference navigation">

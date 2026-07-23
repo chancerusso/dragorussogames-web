@@ -1,36 +1,38 @@
 # Equipment
 
-This is the player equipment reference for DRG 1e. Costs, weights, weapon damage, armour, and coin rules are taken from OSRIC Chapter I.
+This is the player equipment reference for DRG 1e. The Player's Handbook is
+the authority for the equipment, money, weapon, and armour information on this
+page. Sections that have not yet completed the PHB audit are identified as
+pending review rather than silently treated as PHB data.
 
 Use this page when buying starting gear, replacing lost gear, checking encumbrance, or reading weapon and armour entries at the table.
 
 ## Money
 
-Coins are heavy in OSRIC: 10 coins weigh 1 lb.
+The Player's Handbook uses the gold piece as the basic unit of exchange and
+assumes coins are approximately equal in size and weight.
 
 | Coin | Conversion |
 | --- | --- |
 | 1 platinum piece | 5 gold pieces |
 | 1 gold piece | 2 electrum pieces |
-| 1 gold piece | 10 silver pieces |
-| 1 gold piece | 100 copper pieces |
-
-Treasure recovered from adventure is important because OSRIC awards experience for wealth brought back to safety.
+| 1 gold piece | 20 silver pieces |
+| 1 gold piece | 200 copper pieces |
 
 ## Starting Money
 
 | Class | Starting Money |
 | --- | --- |
 | Cleric | 3d6 x 10 gp |
-| Druid | 3d6 x 10 gp |
-| Fighter | (3d6 + 2) x 10 gp |
-| Ranger | (3d6 + 2) x 10 gp |
-| Paladin | (3d6 + 2) x 10 gp |
+| Druid | Use Cleric |
+| Fighter | 5d4 x 10 gp |
+| Ranger | Use Fighter |
+| Paladin | Use Fighter |
 | Magic-User | 2d4 x 10 gp |
-| Illusionist | 2d4 x 10 gp |
+| Illusionist | Use Magic-User |
 | Thief | 2d6 x 10 gp |
-| Assassin | 2d6 x 10 gp |
-| Multi-class | Use the wealthiest class |
+| Assassin | Use Thief |
+| Monk | 5d4 gp |
 
 ## General Equipment
 
@@ -135,63 +137,87 @@ Treasure recovered from adventure is important because OSRIC awards experience f
 
 ## Master Weapon Table
 
-| Weapon | Damage vs S/M | Damage vs L | Speed Factor | Encumbrance | Cost |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Arrows, dozen | 1d6 | 1d6 | — | 4 | 2 gp |
-| Axe, battle | 1d8 | 1d8 | 7 | 7 | 5 gp |
-| Axe, hand | 1d6 | 1d4 | 4 | 5 | 1 gp |
-| Bolt, heavy crossbow, dozen | 1d6+1 | 1d6+1 | — | 4 | 4 gp |
-| Bolt, light crossbow, dozen | 1d4+1 | 1d4+1 | — | 2 | 2 gp |
-| Club | 1d4 | 1d3 | 4 | 3 | 2 cp |
-| Dagger | 1d4 | 1d3 | 2 | 1 | 2 gp |
-| Dart | 1d3 | 1d2 | — | 1/2 | 2 sp |
-| Flail, heavy | 1d6+1 | 2d4 | 7 | 10 | 3 gp |
-| Flail, light | 1d4+1 | 1d4+1 | 6 | 4 | 6 gp |
-| Halberd | 1d10 | 2d6 | 9 | 18 | 9 gp |
-| Hammer, war, heavy | 1d6+1 | 1d6 | 4 | 10 | 7 gp |
-| Hammer, war, light | 1d4+1 | 1d4 | 4 | 5 | 1 gp |
-| Javelin | 1d6 | 1d4 | — | 4 | 5 sp |
-| Lance | 2d4+1 | 3d6 | 6-8 | 15 | 6 gp |
-| Mace, heavy | 1d6+1 | 1d6 | 7 | 10 | 10 gp |
-| Mace, light | 1d4+1 | 1d4+1 | 6 | 5 | 4 gp |
-| Morning star | 2d4 | 1d6+1 | 7 | 12 | 5 gp |
-| Pick, heavy | 1d6+1 | 2d4 | 7 | 10 | 8 gp |
-| Pick, light | 1d4+1 | 1d4 | 5 | 4 | 5 gp |
-| Pole arm | 1d6+1 | 1d10 | Varies | 8 | 6 gp |
-| Sling bullet, dozen | 1d4+1 | 1d6+1 | — | 4 | 1 gp |
-| Sling stone, dozen | 1d4 | 1d4 | — | 2 | Free |
-| Spear | 1d6 | 1d8 | 6-8 | 5 | 1 gp |
-| Staff | 1d6 | 1d6 | 4 | 5 | Free |
-| Sword, claymore/bastard | 2d4 | 2d8 | 6 | 10 | 25 gp |
-| Sword, broad | 2d4 | 1d6+1 | 5 | 8 | 10 gp |
-| Sword, long | 1d8 | 1d12 | 5 | 7 | 15 gp |
-| Sword, scimitar | 1d8 | 1d8 | 4 | 5 | 15 gp |
-| Sword, short | 1d6 | 1d8 | 3 | 3 | 8 gp |
-| Sword, two-handed | 1d10 | 3d6 | 10 | 25 | 30 gp |
-| Trident | 1d6+1 | 3d4 | 6-8 | 5 | 4 gp |
+| Weapon | Damage vs S/M | Damage vs L | Length | Space Required | Speed Factor | Weight (gp) | Cost |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Arrow, normal, single | 1d6 | 1d6 | — | — | — | 2 | 2 sp |
+| Arrow, normal, dozen | 1d6 | 1d6 | — | — | — | 24 | 1 gp |
+| Arrow, silver, single | 1d6 | 1d6 | — | — | — | 2 | 1 gp |
+| Axe, battle | 1d8 | 1d4 | c. 4 ft | 4 ft | 7 | 75 | 5 gp |
+| Axe, hand or throwing | 1d6 | 1d4 | c. 1.5 ft | 1 ft | 4 | 50 | 1 gp |
+| Bardiche | 2d4 | 3d4 | c. 5 ft | 5 ft | 9 | 125 | 7 gp |
+| Bec de corbin | 1d8 | 1d6 | c. 6 ft | 6 ft | 9 | 100 | 6 gp |
+| Bill-Guisarme | 2d4 | 1d10 | 8+ ft | 2 ft | 10 | 150 | 6 gp |
+| Bo Stick | 1d6 | 1d3 | c. 5 ft | 3 ft | 3 | 15 | — |
+| Club | 1d6 | 1d3 | c. 3 ft | 1-3 ft | 4 | 30 | — |
+| Dagger | 1d4 | 1d3 | c. 15 in | 1 ft | 2 | 10 | 2 gp |
+| Dart | 1d3 | 1d2 | — | — | — | 5 | 5 sp |
+| Fauchard | 1d6 | 1d8 | 8+ ft | 2 ft | 8 | 60 | 3 gp |
+| Fauchard-Fork | 1d8 | 1d10 | 8 ft | 2 ft | 8 | 80 | 8 gp |
+| Flail, footman's | 1d6+1 | 2d4 | c. 4 ft | 6 ft | 7 | 150 | 3 gp |
+| Flail, horseman's | 1d4+1 | 1d4+1 | c. 2 ft | 4 ft | 6 | 35 | 8 gp |
+| Fork, military | 1d8 | 2d4 | 7+ ft | 1 ft | 7 | 75 | 4 gp |
+| Glaive | 1d6 | 1d10 | 8+ ft | 1 ft | 8 | 75 | 6 gp |
+| Glaive-Guisarme | 2d4 | 2d6 | 8+ ft | 1 ft | 9 | 100 | 10 gp |
+| Guisarme | 2d4 | 1d8 | 6+ ft | 2 ft | 8 | 80 | 5 gp |
+| Guisarme-Voulge | 2d4 | 2d4 | 7+ ft | 2 ft | 10 | 150 | 7 gp |
+| Halberd | 1d10 | 2d6 | 5+ ft | 5 ft | 9 | 175 | 9 gp |
+| Hammer, lucern | 2d4 | 1d6 | 5+ ft | 5 ft | 9 | 150 | 7 gp |
+| Hammer | 1d4+1 | 1d4 | c. 1.5 ft | 2 ft | 4 | 50 | 1 gp |
+| Javelin | 1d6 | 1d6 | — | — | — | 20 | 10 sp |
+| Jo Stick | 1d6 | 1d4 | c. 3 ft | 2 ft | 2 | 40 | — |
+| Lance, light horse | 1d6 | 1d8 | c. 10 ft | 1 ft | 7 | 50 | 6 gp |
+| Lance, medium horse | 1d6+1 | 2d6 | c. 12 ft | 1 ft | 6 | 100 | 6 gp |
+| Lance, heavy horse | 3d3 | 3d6 | c. 14 ft | 1 ft | 8 | 150 | 6 gp |
+| Mace, footman's | 1d6+1 | 1d6 | c. 2.5 ft | 4 ft | 7 | 100 | 8 gp |
+| Mace, horseman's | 1d6 | 1d4 | c. 1.5 ft | 2 ft | 6 | 50 | 4 gp |
+| Morning Star | 2d4 | 1d6+1 | c. 4 ft | 5 ft | 7 | 125 | 5 gp |
+| Partisan | 1d6 | 1d6+1 | 7+ ft | 3 ft | 9 | 80 | 10 gp |
+| Pick, military, footman's | 1d6+1 | 2d4 | c. 4 ft | 4 ft | 7 | 60 | 8 gp |
+| Pick, military, horseman's | 1d4+1 | 1d4 | c. 2 ft | 2 ft | 5 | 40 | 5 gp |
+| Pike, awl | 1d6 | 1d12 | 18+ ft | 1 ft | 13 | 80 | 3 gp |
+| Quarrel (or Bolt), light, single | 1d4 | 1d4 | — | — | — | 1 | 1 sp |
+| Quarrel (or Bolt), heavy, score | 1d4+1 | 1d6+1 | — | — | — | 40 | 2 gp |
+| Ranseur | 2d4 | 2d4 | 8+ ft | 1 ft | 8 | 50 | 4 gp |
+| Scimitar | 1d8 | 1d8 | c. 3 ft | 2 ft | 4 | 40 | 15 gp |
+| Sling bullets, score | 1d4+1 | 1d6+1 | — | — | — | 40 | 10 sp |
+| Sling stone | 1d4 | 1d4 | — | — | — | 1 | — |
+| Spear | 1d6 | 1d8 | 5-13+ ft | 1 ft | 6-8 | 40-60 | 1 gp |
+| Spetum | 1d6+1 | 2d6 | 8+ ft | 1 ft | 8 | 50 | 3 gp |
+| Staff, quarter | 1d6 | 1d6 | 6-8 ft | 3 ft | 4 | 50 | — |
+| Sword, bastard | 2d4 | 2d8 | c. 4.5 ft | 4+ ft | 6 | 100 | 25 gp |
+| Sword, broad | 2d4 | 1d6+1 | c. 3.5 ft | 4 ft | 5 | 75 | 10 gp |
+| Sword, long | 1d8 | 1d12 | c. 3.5 ft | 3 ft | 5 | 60 | 15 gp |
+| Sword, short | 1d6 | 1d8 | c. 2 ft | 1 ft | 3 | 35 | 8 gp |
+| Sword, two-handed | 1d10 | 3d6 | c. 6 ft | 6 ft | 10 | 250 | 30 gp |
+| Trident | 1d6+1 | 3d4 | 4-8+ ft | 1 ft | 6-8 | 50 | 4 gp |
+| Voulge | 2d4 | 2d4 | 8+ ft | 2 ft | 10 | 125 | 2 gp |
 
 Long-hafted pointed weapons such as spear, dismounted lance, pole arm, and trident deal double damage when set to receive a charge and the foe actually charges.
 
 ## Missile Weapon Table
 
-| Weapon | Damage vs S/M | Damage vs L | Speed Factor | Rate | Range Increment | Encumbrance | Cost |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Axe, hand | 1d6 | 1d4 | 4 | 1 | 10 ft | 5 | 1 gp |
-| Bow, long | 1d6 | 1d6 | — | 2 | 70 ft | 12 | 60 gp |
-| Bow, short | 1d6 | 1d6 | — | 2 | 50 ft | 8 | 15 gp |
-| Club | 1d4 | 1d3 | 4 | 1 | 10 ft | 3 | 2 cp |
-| Composite bow, long | 1d6 | 1d6 | — | 2 | 60 ft | 13 | 100 gp |
-| Composite bow, short | 1d6 | 1d6 | — | 2 | 50 ft | 9 | 75 gp |
-| Crossbow, heavy | 1d6+1 | 1d6+1 | — | 1/2 | 60 ft | 12 | 20 gp |
-| Crossbow, light | 1d4+1 | 1d4+1 | — | 1 | 60 ft | 4 | 12 gp |
-| Dagger | 1d4 | 1d4 | 2 | 2 | 10 ft | 1 | 2 gp |
-| Dart | 1d3 | 1d2 | — | 3 | 15 ft | 1/2 | 2 sp |
-| Hammer | 1d4+1 | 1d4 | 4 | 1 | 10 ft | 5 | 1 gp |
-| Javelin | 1d6 | 1d4 | — | 1 | 20 ft | 2 | 5 sp |
-| Sling | 1d4+1 or 1d4 | 1d6+1 or 1d4 | — | 1 | 35 ft | 1/2 | 5 sp |
-| Spear | 1d6 | 1d8 | 6-8 | 1 | 15 ft | 5 | 1 gp |
+| Weapon | Damage vs S/M | Damage vs L | Speed Factor | Fire Rate | Short | Medium | Long | Weight (gp) | Cost |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Axe, hand or throwing | 1d6 | 1d4 | 4 | 1 | 1 | 2 | 3 | 50 | 1 gp |
+| Bow, composite, long | 1d6 | 1d6 | — | 2 | 6 | 12 | 21 | — | 100 gp |
+| Bow, composite, short | 1d6 | 1d6 | — | 2 | 5 | 10 | 18 | — | 75 gp |
+| Bow, long | 1d6 | 1d6 | — | 2 | 7 | 14 | 21 | — | 60 gp |
+| Bow, short | 1d6 | 1d6 | — | 2 | 5 | 10 | 15 | — | 15 gp |
+| Club | 1d6 | 1d3 | 4 | 1 | 1 | 2 | 3 | 30 | — |
+| Crossbow, heavy | 1d4+1 | 1d6+1 | — | 1/2 | 8 | 16 | 24 | — | 20 gp |
+| Crossbow, light | 1d4 | 1d4 | — | 1 | 6 | 12 | 18 | — | 12 gp |
+| Dagger | 1d4 | 1d3 | 2 | 2 | 1 | 2 | 3 | 10 | 2 gp |
+| Dart | 1d3 | 1d2 | — | 3 | 1.5 | 3 | 4.5 | 5 | 5 sp |
+| Hammer | 1d4+1 | 1d4 | 4 | 1 | 1 | 2 | 3 | 50 | 1 gp |
+| Javelin | 1d6 | 1d6 | — | 1 | 2 | 4 | 6 | 20 | 10 sp |
+| Sling (bullet) | 1d4+1 | 1d6+1 | — | 1 | 5 | 10 | 20 | — | 15 sp |
+| Sling (stone) | 1d4 | 1d4 | — | 1 | 4 | 8 | 16 | — | — |
+| Spear | 1d6 | 1d8 | 6-8 | 1 | 1 | 2 | 3 | 40-60 | 1 gp |
 
 Heavy crossbows may not be used from horseback. Strength damage bonuses apply to hurled weapons unless a specially made bow allows otherwise.
+
+All range values above are the Player's Handbook's printed inches. Short,
+Medium, and Long are separate range bands, not modern range increments.
 
 ## Armour
 
@@ -234,4 +260,7 @@ After buying equipment, total carried weight and compare it to **[Equipment & En
 
 ## Notes
 
-Verified against OSRIC core rules, Chapter I, Money, Equipment, Master Weapon Table, Missile Weapon Table, and Armour. DRG 1e's ability-score generation table rule does not modify these equipment tables.
+Weapon and missile tables are verified against the Player's Handbook main
+tables on printed pages 37-38. Money and starting funds are verified against
+printed page 35. General gear, animals, transport, and armour are still being
+reconciled row by row and must not yet be treated as PHB-complete.

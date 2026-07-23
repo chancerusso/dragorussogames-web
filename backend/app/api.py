@@ -303,7 +303,7 @@ def default_applied_magic_equipment(item: dict) -> dict | None:
         "range": "30 ft",
         "armor_class_value": None,
         "armor_class_adjustment": None,
-        "properties": {"weapon_mode": "melee", "attack_ability": "strength", "attack_bonus": 3, "damage_bonus": 3, "proficiency_equipment_name": "Hammer, war, heavy"},
+        "properties": {"weapon_mode": "melee", "attack_ability": "strength", "attack_bonus": 3, "damage_bonus": 3, "proficiency_equipment_name": "Hammer"},
         "rules_reference": "/1e/how-to-play/magic/",
     }
 

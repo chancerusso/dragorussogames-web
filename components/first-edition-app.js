@@ -18,7 +18,7 @@ const sectionItems = {
   index: [
     ["Character Creation", "/1e/character-creation/", "Build a character step by step with rules, tables, and write-this-down guidance."],
     ["Rules", "/1e/how-to-play/", "Read the procedures for exploration, encounters, combat, magic, and advancement."],
-    ["Equipment", "/1e/equipment/", "Use OSRIC costs, weights, weapons, armor, and adventuring gear."],
+    ["Equipment", "/1e/equipment/", "Use Player's Handbook costs, weapons, armor, and adventuring gear."],
     ["Spells", "/1e/spells/", "Reference spell lists, spell scrolls, and class spell rules."],
     ["Races", "/1e/races/", "Use race references after reading the Race step."],
     ["Classes", "/1e/classes/", "Use class references after reading the Class step."],
@@ -40,7 +40,7 @@ const sectionItems = {
     ["Alignment", "/1e/character-creation/004-alignment/", "Choose the moral and cosmic direction of the character."],
     ["Starting Wealth", "/1e/character-creation/005-starting-wealth/", "Roll starting money before buying equipment."],
     ["Equipment", "/1e/character-creation/006-equipment/", "Buy armor, weapons, gear, and expedition supplies."],
-    ["Equipment Reference", "/1e/equipment/", "Use the complete OSRIC equipment tables."],
+    ["Equipment Reference", "/1e/equipment/", "Use the Player's Handbook equipment tables."],
     ["Hit Points", "/1e/character-creation/007-hit-points/", "Determine starting durability and record hit points."],
     ["Languages", "/1e/character-creation/008-languages/", "Record starting languages and any Intelligence-based choices."]
   ],
@@ -93,7 +93,7 @@ const sectionItems = {
     ["Exploring the Planes", "/1e/how-to-play/exploring-the-planes/", "High-level planar play and what OSRIC leaves to the campaign."]
   ],
   equipment: [
-    ["Equipment", "/1e/equipment/", "Complete OSRIC player equipment reference."],
+    ["Equipment", "/1e/equipment/", "Player's Handbook equipment reference."],
     ["Character Equipment Step", "/1e/character-creation/006-equipment/", "Use during character creation."],
     ["Equipment & Encumbrance", "/1e/how-to-play/equipment-encumbrance/", "Use carried weight at the table."],
     ["Light, Vision & Infravision", "/1e/how-to-play/light-vision/", "Track torches, lanterns, and vision."]

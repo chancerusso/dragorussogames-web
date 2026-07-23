@@ -158,8 +158,8 @@ const sessionDataCache = {
 };
 const AMMUNITION_COMPATIBILITY = [
   { kind: "arrow", terms: ["arrow"], label: "Arrows", weaponTerms: ["bow"] },
-  { kind: "light_bolt", terms: ["light crossbow bolt", "bolt, light crossbow", "bolts, light crossbow"], label: "Light Crossbow Bolts", weaponTerms: ["crossbow, light", "light crossbow"] },
-  { kind: "heavy_bolt", terms: ["heavy crossbow bolt", "bolt, heavy crossbow", "bolts, heavy crossbow"], label: "Heavy Crossbow Bolts", weaponTerms: ["crossbow, heavy", "heavy crossbow"] },
+  { kind: "light_bolt", terms: ["light crossbow bolt", "bolt, light crossbow", "bolts, light crossbow", "quarrel (or bolt), light"], label: "Light Crossbow Bolts", weaponTerms: ["crossbow, light", "light crossbow"] },
+  { kind: "heavy_bolt", terms: ["heavy crossbow bolt", "bolt, heavy crossbow", "bolts, heavy crossbow", "quarrel (or bolt), heavy"], label: "Heavy Crossbow Bolts", weaponTerms: ["crossbow, heavy", "heavy crossbow"] },
   { kind: "sling_bullet", terms: ["sling bullet", "sling bullets", "bullet, dozen"], label: "Sling Bullets", weaponTerms: ["sling"] },
   { kind: "sling_stone", terms: ["sling stone", "sling stones", "stone, dozen"], label: "Sling Stones", weaponTerms: ["sling"] },
 ];
@@ -893,7 +893,7 @@ function equipmentManager() {
     </div>
     <div class="vault-equipment-catalog-scroll"><table class="vault-table"><thead><tr><th>Item</th><th>Type</th><th>Wt</th><th>Cost</th><th>Use</th><th></th></tr></thead><tbody data-equipment-results>${equipmentRows(filteredEquipmentRows())}</tbody></table></div>
     <h3 data-builder-inventory>Character Inventory</h3>${state.character?.inventory?.length ? inventoryTable(state.character.inventory, state.character.weapon_proficiencies || []) : `<p class="vault-muted">No equipment added yet.</p>`}
-    <p class="vault-rules">Rules: <a href="/1e/equipment/">OSRIC equipment catalog</a>. Free-typed player equipment is intentionally blocked.</p>
+    <p class="vault-rules">Rules: <a href="/1e/equipment/">Player's Handbook equipment catalog</a>. Free-typed player equipment is intentionally blocked.</p>
   </div>`;
 }
 
@@ -901,7 +901,7 @@ function equipmentRows(items) {
   return items.map((item) => {
     const ammo = isAmmunition(item);
     const detail = ammo ? ammunitionLabel(item)
-      : item.type === "weapon" ? `${item.damage_small_medium || ""} vs S/M, ${item.damage_large || ""} vs L, Spd ${item.properties?.speed ?? "—"}`
+      : item.type === "weapon" ? `${item.damage_small_medium || ""} vs S/M, ${item.damage_large || ""} vs L, Spd ${item.properties?.speed ?? "—"}${item.range ? `, Rng ${item.range}` : ""}`
       : item.type === "armor" || item.type === "shield" ? `AC ${item.armor_class_value ?? ""}, adjustment ${item.armor_class_adjustment ?? ""}`
       : item.rules_reference || "";
     const allowed = classAllowsEquipment(state.draft?.class_name, item);
@@ -2509,7 +2509,7 @@ function magicItemFromCatalogRecord(record, baseEquipment = null) {
 
 function magicDefaultAppliedEquipment(record = {}) {
   if (record.id !== "osric.magic_item.hammer_of_thunderbolts") return null;
-  const heavyHammer = state.equipment.find((item) => item.name === "Hammer, war, heavy") || {};
+  const heavyHammer = state.equipment.find((item) => item.name === "Hammer") || {};
   return {
     ...magicAppliedEquipmentPayload(heavyHammer),
     id: heavyHammer.id || 0,
@@ -2523,7 +2523,7 @@ function magicDefaultAppliedEquipment(record = {}) {
     damage_large: "4d6",
     rate_of_fire: null,
     range: "30 ft",
-    properties: { ...(heavyHammer.properties || {}), weapon_mode: "melee", attack_ability: "strength", attack_bonus: 3, damage_bonus: 3, proficiency_equipment_name: "Hammer, war, heavy" },
+    properties: { ...(heavyHammer.properties || {}), weapon_mode: "melee", attack_ability: "strength", attack_bonus: 3, damage_bonus: 3, proficiency_equipment_name: "Hammer" },
     rules_reference: "/1e/how-to-play/magic/",
   };
 }
@@ -3316,7 +3316,7 @@ function filteredDmCharacters() {
 function renderDmEquipment() {
   const editItem = state.equipment.find((item) => item.id === state.editEquipmentId) || null;
   const items = filteredDmEquipment();
-  document.querySelector("[data-vault-view]").innerHTML = `<section class="vault-panel"><h2>DM Equipment Catalog</h2><div class="vault-actions">${field("Search", "dm_equipment_search", state.equipmentFilters.q)}${selectField("Type", "dm_equipment_type", state.equipmentFilters.type, ["", ...equipmentTypeOptions()])}</div><form class="vault-form" data-dm-equipment-form>${equipmentEditorFields(editItem)}<div class="vault-actions vault-full"><button class="vault-button" type="submit">${editItem ? "Save Item" : "Create Item"}</button>${editItem ? `<button class="vault-button secondary" type="button" data-cancel-equipment-edit>Cancel Edit</button>` : ""}</div></form><table class="vault-table"><thead><tr><th>Item</th><th>Type</th><th>Cost</th><th>Wt</th><th>Campaign</th><th>Actions</th></tr></thead><tbody>${items.length ? items.map((item) => `<tr><td><strong>${h(item.name)}</strong><br><span class="vault-mini">${h(item.notes || item.rules_reference || "")}</span></td><td>${h(labelize(item.type))}${item.subtype ? `<br><span class="vault-mini">${h(labelize(item.subtype))}</span>` : ""}</td><td>${h(item.cost_amount ?? "")} ${h(item.cost_coin ?? "")}</td><td>${h(item.weight ?? 0)}</td><td>${h(campaignName(item.campaign_id))}</td><td>${item.is_dm_created ? `<button class="vault-button secondary" type="button" data-edit-equipment="${item.id}">Edit</button> <button class="vault-button secondary" type="button" data-archive-equipment="${item.id}">Archive</button>` : `<span class="vault-muted">Core OSRIC</span>`}</td></tr>`).join("") : `<tr><td colspan="6">No equipment matches these filters.</td></tr>`}</tbody></table></section>`;
+  document.querySelector("[data-vault-view]").innerHTML = `<section class="vault-panel"><h2>DM Equipment Catalog</h2><div class="vault-actions">${field("Search", "dm_equipment_search", state.equipmentFilters.q)}${selectField("Type", "dm_equipment_type", state.equipmentFilters.type, ["", ...equipmentTypeOptions()])}</div><form class="vault-form" data-dm-equipment-form>${equipmentEditorFields(editItem)}<div class="vault-actions vault-full"><button class="vault-button" type="submit">${editItem ? "Save Item" : "Create Item"}</button>${editItem ? `<button class="vault-button secondary" type="button" data-cancel-equipment-edit>Cancel Edit</button>` : ""}</div></form><table class="vault-table"><thead><tr><th>Item</th><th>Type</th><th>Cost</th><th>Wt</th><th>Campaign</th><th>Actions</th></tr></thead><tbody>${items.length ? items.map((item) => `<tr><td><strong>${h(item.name)}</strong><br><span class="vault-mini">${h(item.notes || item.rules_reference || "")}</span></td><td>${h(labelize(item.type))}${item.subtype ? `<br><span class="vault-mini">${h(labelize(item.subtype))}</span>` : ""}</td><td>${h(item.cost_amount ?? "")} ${h(item.cost_coin ?? "")}</td><td>${h(item.weight ?? 0)}</td><td>${h(campaignName(item.campaign_id))}</td><td>${item.is_dm_created ? `<button class="vault-button secondary" type="button" data-edit-equipment="${item.id}">Edit</button> <button class="vault-button secondary" type="button" data-archive-equipment="${item.id}">Archive</button>` : item.properties?.source === "Player's Handbook" ? `<span class="vault-muted">Player's Handbook</span>` : `<span class="vault-muted">Pending PHB Audit</span>`}</td></tr>`).join("") : `<tr><td colspan="6">No equipment matches these filters.</td></tr>`}</tbody></table></section>`;
   document.querySelector("[name='dm_equipment_search']")?.addEventListener("input", (event) => { state.equipmentFilters.q = event.target.value; renderDmEquipment(); });
   document.querySelector("[name='dm_equipment_type']")?.addEventListener("change", (event) => { state.equipmentFilters.type = event.target.value; renderDmEquipment(); });
   document.querySelector("[data-cancel-equipment-edit]")?.addEventListener("click", () => { state.editEquipmentId = null; renderDmEquipment(); });
@@ -3553,7 +3553,9 @@ function ammunitionLabel(item = {}) {
 }
 
 function ammunitionBundleSize(item = {}) {
-  return Number(item.bundle_size || item.equipment?.bundle_size || (String(item.name || item.equipment?.name || "").toLowerCase().includes("dozen") ? 12 : 1));
+  const equipment = item.equipment || item;
+  const name = String(equipment.name || "").toLowerCase();
+  return Number(item.bundle_size || equipment.bundle_size || equipment.properties?.bundle_size || (name.includes("score") ? 20 : name.includes("dozen") ? 12 : 1));
 }
 
 function inventoryItemName(item = {}) {

@@ -12,7 +12,7 @@
 - Clean server worktree verified: Pending
 - Database backup: Required before migration
 - Migration before: Pending
-- Migration after: Must be `0015_weapon_speed_factors (head)`
+- Migration after: Superseded by the paused PHB audit; pending new release SHA
 - Frontend build result: Local candidate passed; VPS pending
 - Private-reference exclusion result: Local candidate passed; VPS pending
 - Services restarted/reloaded: `russo-backend.service` pending
@@ -27,4 +27,5 @@
   `/var/www/classic.dragorussogames.com/`. Do not copy it to
   `/var/www/dm.dragorussogames.com/`.
 - Notes: This record is intentionally marked pending until the operator returns
-  the VPS output and public asset evidence.
+  the VPS output and public asset evidence. Deployment was subsequently paused
+  before execution so the equipment catalog could be reconciled with the PHB.

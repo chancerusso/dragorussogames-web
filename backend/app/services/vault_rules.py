@@ -36,14 +36,14 @@ AMMUNITION_RULES = (
     },
     {
         "kind": "light_bolt",
-        "name_terms": ("light crossbow bolt", "bolt, light crossbow", "bolts, light crossbow"),
+        "name_terms": ("light crossbow bolt", "bolt, light crossbow", "bolts, light crossbow", "quarrel (or bolt), light"),
         "display_name": "Light Crossbow Bolts",
         "compatible_weapon_terms": ("crossbow, light", "light crossbow"),
         "bundle_size": 12,
     },
     {
         "kind": "heavy_bolt",
-        "name_terms": ("heavy crossbow bolt", "bolt, heavy crossbow", "bolts, heavy crossbow"),
+        "name_terms": ("heavy crossbow bolt", "bolt, heavy crossbow", "bolts, heavy crossbow", "quarrel (or bolt), heavy"),
         "display_name": "Heavy Crossbow Bolts",
         "compatible_weapon_terms": ("crossbow, heavy", "heavy crossbow"),
         "bundle_size": 12,
@@ -652,7 +652,7 @@ def ammunition_profile(equipment: dict) -> dict | None:
     if "ammunition" in subtype:
         for profile in AMMUNITION_RULES:
             if any(term in name for term in profile["name_terms"]):
-                return profile
+                return {**profile, "bundle_size": int((equipment.get("properties") or {}).get("bundle_size") or profile["bundle_size"])}
         return {
             "kind": "ammunition",
             "name_terms": (),
@@ -660,7 +660,10 @@ def ammunition_profile(equipment: dict) -> dict | None:
             "compatible_weapon_terms": (),
             "bundle_size": 1,
         }
-    return next((profile for profile in AMMUNITION_RULES if any(term in name for term in profile["name_terms"])), None)
+    profile = next((profile for profile in AMMUNITION_RULES if any(term in name for term in profile["name_terms"])), None)
+    if not profile:
+        return None
+    return {**profile, "bundle_size": int((equipment.get("properties") or {}).get("bundle_size") or profile["bundle_size"])}
 
 
 def is_ammunition(equipment: dict) -> bool:
@@ -888,6 +891,17 @@ def parse_weight(value: str) -> float:
     return float(match.group(1)) if match else 0
 
 
+def parse_gp_weight(value: str) -> tuple[float, str | None]:
+    """Return usable pounds plus the PHB's exact printed gold-piece weight."""
+    value = value.strip()
+    values = re.findall(r"\d+(?:\.\d+)?", value)
+    if not values:
+        return 0, None
+    # Where the PHB prints a range (the spear), use its upper bound for carried
+    # encumbrance while preserving the exact printed range in properties.
+    return float(values[-1]) / 10, value
+
+
 def parse_cost(value: str) -> tuple[float | None, str | None]:
     value = value.strip()
     match = re.search(r"(\d+(?:\.\d+)?)\+?\s*(pp|gp|ep|sp|cp)", value, re.I)
@@ -920,11 +934,57 @@ def equipment_seed() -> list[dict]:
         cost_amount, cost_coin = parse_cost(row[2])
         seeds.append({"name": row[0], "type": "mount" if any(word in row[0].lower() for word in ("horse", "mule", "ox", "pony")) else "transport", "subtype": "animal_transport", "weight": parse_weight(row[1]), "cost_amount": cost_amount, "cost_coin": cost_coin})
     for row in table_rows(markdown, "Master Weapon Table"):
-        cost_amount, cost_coin = parse_cost(row[5])
-        seeds.append({"name": row[0], "type": "weapon", "subtype": "melee", "damage_small_medium": row[1], "damage_large": row[2], "weight": parse_weight(row[4]), "cost_amount": cost_amount, "cost_coin": cost_coin, "properties": {"speed": row[3]}})
-    for row in table_rows(markdown, "Missile Weapon Table"):
         cost_amount, cost_coin = parse_cost(row[7])
-        seeds.append({"name": row[0], "type": "weapon", "subtype": "missile", "damage_small_medium": row[1], "damage_large": row[2], "rate_of_fire": row[4], "range": row[5], "weight": parse_weight(row[6]), "cost_amount": cost_amount, "cost_coin": cost_coin, "properties": {"speed": row[3]}})
+        weight, printed_weight = parse_gp_weight(row[6])
+        lower_name = row[0].lower()
+        bundle_size = 20 if "score" in lower_name else 12 if "dozen" in lower_name else 1
+        is_ammunition_row = any(term in lower_name for term in ("arrow", "quarrel", "bolt)", "sling bullet", "sling stone"))
+        seeds.append({
+            "name": row[0],
+            "type": "weapon",
+            "subtype": "ammunition" if is_ammunition_row else "melee",
+            "damage_small_medium": row[1],
+            "damage_large": row[2],
+            "weight": weight,
+            "cost_amount": cost_amount,
+            "cost_coin": cost_coin,
+            "properties": {
+                "length": row[3],
+                "space_required": row[4],
+                "speed": row[5],
+                "weight_gp": printed_weight,
+                "source": "Player's Handbook",
+                "source_page": 38,
+                "verification": "verified",
+                "bundle_size": bundle_size if is_ammunition_row else None,
+            },
+        })
+    for row in table_rows(markdown, "Missile Weapon Table"):
+        cost_amount, cost_coin = parse_cost(row[9])
+        weight, printed_weight = parse_gp_weight(row[8])
+        seeds.append({
+            "name": row[0],
+            "type": "weapon",
+            "subtype": "missile",
+            "damage_small_medium": row[1],
+            "damage_large": row[2],
+            "rate_of_fire": row[4],
+            "range": f"S {row[5]} / M {row[6]} / L {row[7]}",
+            "weight": weight,
+            "cost_amount": cost_amount,
+            "cost_coin": cost_coin,
+            "properties": {
+                "speed": row[3],
+                "range_short": row[5],
+                "range_medium": row[6],
+                "range_long": row[7],
+                "range_unit": "inches",
+                "weight_gp": printed_weight,
+                "source": "Player's Handbook",
+                "source_page": 38,
+                "verification": "verified",
+            },
+        })
     armor_ac = {"Banded": 4, "Mail hauberk or byrnie": 5, "Mail, elfin": 5, "Leather": 8, "Padded gambeson": 8, "Plate": 3, "Ring": 7, "Scale or lamellar": 6, "Splint": 4, "Studded": 7}
     for row in table_rows(markdown, "Armour"):
         cost_amount, cost_coin = parse_cost(row[4])
@@ -944,8 +1004,11 @@ def equipment_seed() -> list[dict]:
     deduped = {}
     for seed in seeds:
         seed["rules_reference"] = "/1e/equipment/"
-        seed["is_core_osric"] = True
+        seed["is_core_osric"] = (seed.get("properties") or {}).get("source") != "Player's Handbook"
         seed["is_dm_created"] = False
+        existing = deduped.get(seed["name"])
+        if existing:
+            seed["properties"] = {**(existing.get("properties") or {}), **(seed.get("properties") or {})}
         deduped[seed["name"]] = seed
     return list(deduped.values())
 

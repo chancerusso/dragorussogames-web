@@ -219,7 +219,7 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertEqual(10, dropped["combat"]["armor_class"])
 
     def test_drop_deletes_equipped_weapon_and_removes_runtime_card(self) -> None:
-        hammer = self.equipment("Hammer, war, heavy")
+        hammer = self.equipment("Hammer")
         payload = add_inventory_record(self.character_model, {"equipment_id": hammer.id, "status": "equipped"}, self.db)
         row = next(item for item in payload["inventory"] if item["equipment_id"] == hammer.id)
         self.assertEqual(1, len(payload["combat"]["runtime"]["weapons"]))
@@ -239,7 +239,7 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
 
     def test_ammunition_is_inventory_not_runtime_weapon(self) -> None:
         crossbow = self.equipment("Crossbow, heavy")
-        bolts = self.equipment("Bolt, heavy crossbow, dozen")
+        bolts = self.equipment("Quarrel (or Bolt), heavy, score")
 
         payload = add_inventory_record(self.character_model, {"equipment_id": crossbow.id, "status": "equipped"}, self.db)
         payload = add_inventory_record(self.character_model, {"equipment_id": bolts.id, "status": "equipped"}, self.db)
@@ -247,15 +247,15 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         ammo_row = next(item for item in payload["inventory"] if item["equipment_id"] == bolts.id)
         self.assertTrue(ammo_row["is_ammunition"])
         self.assertEqual("heavy_bolt", ammo_row["ammunition_kind"])
-        self.assertEqual(12, ammo_row["quantity"])
+        self.assertEqual(20, ammo_row["quantity"])
         self.assertEqual(4.0, ammo_row["total_weight"])
         self.assertEqual("Heavy Crossbow Bolts", ammo_row["ammunition_display_name"])
-        self.assertEqual(4.0, ammo_row["stack_value"])
+        self.assertEqual(2.0, ammo_row["stack_value"])
         self.assertEqual(["Crossbow, heavy"], [weapon["weapon"] for weapon in payload["combat"]["runtime"]["weapons"]])
 
     def test_ammunition_addition_merges_bundles_and_non_bundled_gear_stays_one(self) -> None:
-        bolts = self.equipment("Bolt, heavy crossbow, dozen")
-        arrows = self.equipment("Arrows, dozen")
+        bolts = self.equipment("Quarrel (or Bolt), heavy, score")
+        arrows = self.equipment("Arrow, normal, dozen")
         backpack = self.equipment("Backpack")
 
         payload = add_inventory_record(self.character_model, {"equipment_id": bolts.id, "status": "carried"}, self.db)
@@ -267,12 +267,12 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         arrow_row = next(item for item in payload["inventory"] if item["equipment_id"] == arrows.id)
         backpack_row = next(item for item in payload["inventory"] if item["equipment_id"] == backpack.id)
         self.assertEqual(1, len(bolt_rows))
-        self.assertEqual(24, bolt_rows[0]["quantity"])
+        self.assertEqual(40, bolt_rows[0]["quantity"])
         self.assertEqual(12, arrow_row["quantity"])
         self.assertEqual(1, backpack_row["quantity"])
 
     def test_ammunition_quantity_updates_weight_value_and_zero_removes_stack(self) -> None:
-        bolts = self.equipment("Bolt, heavy crossbow, dozen")
+        bolts = self.equipment("Quarrel (or Bolt), heavy, score")
         payload = add_inventory_record(self.character_model, {"equipment_id": bolts.id, "status": "carried"}, self.db)
         ammo_row = next(item for item in payload["inventory"] if item["equipment_id"] == bolts.id)
 
@@ -280,45 +280,45 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
 
         updated_row = next(item for item in updated["inventory"] if item["id"] == ammo_row["id"])
         self.assertEqual(6, updated_row["quantity"])
-        self.assertEqual(2.0, updated_row["total_weight"])
-        self.assertEqual(2.0, updated_row["stack_value"])
-        self.assertEqual(2.0, updated["combat"]["encumbrance"]["equipment_weight"])
+        self.assertEqual(1.2, updated_row["total_weight"])
+        self.assertEqual(0.6, updated_row["stack_value"])
+        self.assertEqual(1.2, updated["combat"]["encumbrance"]["equipment_weight"])
 
         updated = update_inventory_record(self.character_model, ammo_row["id"], {"quantity": 3}, self.db)
         updated_row = next(item for item in updated["inventory"] if item["id"] == ammo_row["id"])
-        self.assertEqual(1.0, updated_row["total_weight"])
-        self.assertEqual(1.0, updated_row["stack_value"])
+        self.assertEqual(0.6, updated_row["total_weight"])
+        self.assertEqual(0.3, updated_row["stack_value"])
 
         updated = update_inventory_record(self.character_model, ammo_row["id"], {"quantity": 1}, self.db)
         updated_row = next(item for item in updated["inventory"] if item["id"] == ammo_row["id"])
-        self.assertAlmostEqual(1 / 3, updated_row["unit_weight"], places=4)
-        self.assertAlmostEqual(1 / 3, updated_row["total_weight"], places=4)
+        self.assertAlmostEqual(0.2, updated_row["unit_weight"], places=4)
+        self.assertAlmostEqual(0.2, updated_row["total_weight"], places=4)
 
         removed = update_inventory_record(self.character_model, ammo_row["id"], {"quantity": 0}, self.db)
         self.assertFalse(any(item["id"] == ammo_row["id"] for item in removed["inventory"]))
 
     def test_legacy_ammunition_quantity_remains_physical_count_with_normalized_totals(self) -> None:
-        bolts = self.equipment("Bolt, heavy crossbow, dozen")
+        bolts = self.equipment("Quarrel (or Bolt), heavy, score")
         payload = add_inventory_record(self.character_model, {"equipment_id": bolts.id, "quantity": 3, "status": "carried"}, self.db)
         ammo_row = next(item for item in payload["inventory"] if item["equipment_id"] == bolts.id)
 
         self.assertEqual(3, ammo_row["quantity"])
         self.assertEqual("Heavy Crossbow Bolts", ammo_row["ammunition_display_name"])
-        self.assertEqual(1.0, ammo_row["total_weight"])
-        self.assertEqual(1.0, ammo_row["stack_value"])
+        self.assertEqual(0.6, ammo_row["total_weight"])
+        self.assertEqual(0.3, ammo_row["stack_value"])
 
     def test_ammunition_drop_removes_active_ammo_and_carried_weight(self) -> None:
         crossbow = self.equipment("Crossbow, heavy")
-        bolts = self.equipment("Bolt, heavy crossbow, dozen")
+        bolts = self.equipment("Quarrel (or Bolt), heavy, score")
         payload = add_inventory_record(self.character_model, {"equipment_id": crossbow.id, "status": "equipped"}, self.db)
         payload = add_inventory_record(self.character_model, {"equipment_id": bolts.id, "status": "equipped"}, self.db)
         ammo_row = next(item for item in payload["inventory"] if item["equipment_id"] == bolts.id)
-        self.assertEqual(16.0, payload["combat"]["encumbrance"]["equipment_weight"])
+        self.assertEqual(4.0, payload["combat"]["encumbrance"]["equipment_weight"])
 
         dropped = delete_inventory_record(self.character_model, ammo_row["id"], self.db)
 
         self.assertFalse(any(item["equipment_id"] == bolts.id for item in dropped["inventory"]))
-        self.assertEqual(12.0, dropped["combat"]["encumbrance"]["equipment_weight"])
+        self.assertEqual(0.0, dropped["combat"]["encumbrance"]["equipment_weight"])
 
     def test_player_inventory_delete_rejects_wrong_owner(self) -> None:
         sword = self.equipment("Sword, long")
@@ -531,7 +531,7 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertIn("Combat runtime generation failed for character", "\n".join(logs.output))
 
     def test_weapon_proficiency_upserts_and_unmarks_by_equipment_id(self) -> None:
-        hammer = self.equipment("Hammer, war, heavy")
+        hammer = self.equipment("Hammer")
         marked = upsert_weapon_proficiency(self.character_model, {"equipment_id": hammer.id, "proficient": True}, self.db)
         self.assertEqual(1, len(marked["weapon_proficiencies"]))
         self.assertTrue(marked["weapon_proficiencies"][0]["proficient"])
@@ -695,7 +695,18 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertEqual(1, result["attack_modifiers"]["racial"])
         self.assertEqual(0, result["damage"]["strength"])
         self.assertEqual("2", result["rate_of_fire"])
-        self.assertEqual({"short": 70, "medium": 140, "long": 210, "raw": "70 ft"}, result["range"])
+        self.assertEqual(
+            {
+                "short": "7",
+                "medium": "14",
+                "long": "21",
+                "unit": "inches",
+                "raw": "S 7 / M 14 / L 21",
+            },
+            result["range"],
+        )
+        self.assertEqual("Player's Handbook", bow.properties["source"])
+        self.assertEqual(38, bow.properties["source_page"])
 
     def test_exceptional_strength_and_nonproficiency_modify_melee_attack(self) -> None:
         sword = self.equipment("Sword, long")
@@ -827,7 +838,7 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         self.assertEqual("1d8+2", runtime["damage"]["final_small_medium"])
 
     def test_hammer_of_thunderbolts_equips_as_special_warhammer(self) -> None:
-        heavy_hammer = self.equipment("Hammer, war, heavy")
+        heavy_hammer = self.equipment("Hammer")
         self.db.add(WeaponProficiency(character_id=self.character_model.id, equipment_id=heavy_hammer.id, proficient=True))
         self.character_model.abilities.strength = 17
         self.character_model.abilities.racial_adjusted_strength = 17

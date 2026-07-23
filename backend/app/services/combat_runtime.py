@@ -211,6 +211,18 @@ def weapon_mode(equipment: dict[str, Any]) -> str:
 
 def range_bands(equipment: dict[str, Any]) -> dict[str, Any]:
     raw = equipment.get("range")
+    properties = equipment.get("properties") or {}
+    short = properties.get("range_short")
+    medium = properties.get("range_medium")
+    long = properties.get("range_long")
+    if any(value not in (None, "") for value in (short, medium, long)):
+        return {
+            "short": short,
+            "medium": medium,
+            "long": long,
+            "unit": properties.get("range_unit") or "inches",
+            "raw": raw or f"S {short} / M {medium} / L {long}",
+        }
     if not raw:
         return {"short": None, "medium": None, "long": None, "raw": None}
     number = None
