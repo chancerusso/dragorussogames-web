@@ -96,7 +96,11 @@ function isDmHost() {
 }
 
 function isLocalDragoHost() {
-  return ["127.0.0.1", "localhost"].includes(window.location.hostname);
+  return ["127.0.0.1", "localhost", "table.dragorussogames.com"].includes(window.location.hostname);
+}
+
+function isRemoteDragoHost() {
+  return window.location.hostname === "table.dragorussogames.com";
 }
 
 function isPlayerHostname() {
@@ -376,8 +380,13 @@ function PlayerLoginPage() {
           <img src="/assets/LogoDrago_Mesa_de_trabajo_1.png" alt="Drago Table" />
         </div>
         <p className="eyebrow">Drago Table</p>
-        <h1>Player</h1>
-        <p className="login-subtitle">Your campaigns, characters, and classic rules in one place.</p>
+        <h1>Player Sign In</h1>
+        {isRemoteDragoHost() ? <p className="session-badge">Remote table session</p> : null}
+        <p className="login-subtitle">
+          {isRemoteDragoHost()
+            ? "Sign in with the player account your Dungeon Master created for you."
+            : "Your campaigns, characters, and classic rules in one place."}
+        </p>
         <label>
           Username
           <input autoFocus value={username} onChange={(event) => setUsername(event.target.value)} />
@@ -387,7 +396,7 @@ function PlayerLoginPage() {
           <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
         </label>
         {error ? <p className="error">{error}</p> : null}
-        <button disabled={busy}>{busy ? "Opening..." : "Begin Your Journey"}</button>
+        <button disabled={busy}>{busy ? "Joining..." : "Join the Table"}</button>
       </form>
     </div>
   );

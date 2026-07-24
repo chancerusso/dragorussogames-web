@@ -31,6 +31,8 @@ print -r -- "$REPOSITORY_PATH" > "$RESOURCES_PATH/repository-path"
 chmod 600 "$RESOURCES_PATH/repository-path"
 
 cp "$TEMPLATE_PATH/DragoTable.icns" "$RESOURCES_PATH/DragoTable.icns" || exit 1
+cp "$TEMPLATE_PATH/RemoteSession.json" "$RESOURCES_PATH/RemoteSession.json" || exit 1
+chmod 644 "$RESOURCES_PATH/RemoteSession.json"
 
 xattr -cr "$INSTALL_PATH" || exit 1
 codesign --force --deep --sign - "$INSTALL_PATH" || exit 1

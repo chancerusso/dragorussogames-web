@@ -1046,7 +1046,7 @@ tbody tr:hover {
 .login-page {
   display: grid;
   min-height: 100vh;
-  padding: 24px;
+  padding: 32px 24px;
   place-items: center;
 }
 
@@ -1055,7 +1055,7 @@ tbody tr:hover {
   border: 1px solid var(--line-bright);
   border-radius: 8px;
   display: grid;
-  gap: 18px;
+  gap: 16px;
   max-width: 440px;
   padding: 32px;
   width: 100%;
@@ -1094,7 +1094,34 @@ tbody tr:hover {
   font-family: Georgia, "Times New Roman", serif;
   font-size: 1.18rem;
   font-weight: 800;
-  margin: -6px 0 10px;
+  line-height: 1.45;
+  margin: -4px 0 8px;
+}
+
+.session-badge {
+  align-items: center;
+  background: rgba(46, 125, 87, 0.18);
+  border: 1px solid rgba(78, 190, 132, 0.52);
+  border-radius: 999px;
+  color: #b8f5d5;
+  display: inline-flex;
+  font-size: 0.72rem;
+  font-weight: 850;
+  gap: 7px;
+  justify-self: start;
+  letter-spacing: 0.08em;
+  margin: -6px 0 0;
+  padding: 6px 10px;
+  text-transform: uppercase;
+}
+
+.session-badge::before {
+  background: #58d895;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(88, 216, 149, 0.12);
+  content: "";
+  height: 7px;
+  width: 7px;
 }
 
 .login-copy {
@@ -2455,7 +2482,10 @@ tbody tr:hover {
 }
 
 .player-map-page {
-  background: #17130e;
+  background:
+    radial-gradient(circle at 94% 2%, rgba(40, 110, 203, 0.16), transparent 32%),
+    radial-gradient(circle at 6% 0%, rgba(112, 22, 48, 0.24), transparent 36%),
+    var(--bg);
   min-height: 100vh;
   padding: 16px;
 }
@@ -2506,10 +2536,12 @@ tbody tr:hover {
 
 .mapping-toolrail,
 .mapping-notes-panel {
-  background: linear-gradient(180deg, #2a2117, #17120d);
-  border: 1px solid rgba(182, 141, 72, 0.42);
-  border-radius: 8px;
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.26);
+  background:
+    radial-gradient(circle at 92% 0%, rgba(40, 110, 203, 0.12), transparent 38%),
+    linear-gradient(180deg, rgba(30, 35, 49, 0.98), rgba(16, 19, 27, 0.98));
+  border: 1px solid rgba(124, 41, 66, 0.72);
+  border-radius: 12px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.3);
   min-width: 0;
   padding: 10px;
 }
@@ -2522,19 +2554,20 @@ tbody tr:hover {
 
 .mapping-toolrail > button,
 .mapping-history-actions button {
-  background: rgba(255, 248, 229, 0.04);
-  border: 1px solid rgba(210, 173, 103, 0.24);
-  border-radius: 5px;
-  color: #eadfc8;
+  background: rgba(255, 250, 243, 0.04);
+  border: 1px solid #414a60;
+  border-radius: 7px;
+  color: #e8ebf2;
   font-size: 0.75rem;
   padding: 8px;
   text-align: left;
 }
 
 .mapping-toolrail > button.is-active {
-  background: rgba(201, 157, 74, 0.2);
-  border-color: #d0a250;
-  color: #fff4dc;
+  background: linear-gradient(135deg, rgba(223, 0, 27, 0.38), rgba(40, 110, 203, 0.22));
+  border-color: #d64a63;
+  color: var(--ivory);
+  box-shadow: inset 3px 0 0 var(--dragon);
 }
 
 .mapping-colors {
@@ -2556,8 +2589,8 @@ tbody tr:hover {
 }
 
 .mapping-colors button.is-active {
-  border-color: #fff6df;
-  box-shadow: 0 0 0 2px #9f7432;
+  border-color: var(--ivory);
+  box-shadow: 0 0 0 2px var(--focus);
 }
 
 .mapping-history-actions {
@@ -2567,10 +2600,10 @@ tbody tr:hover {
 }
 
 .mapping-paper-frame {
-  background: #382c1d;
-  border: 1px solid #79603d;
-  border-radius: 8px;
-  box-shadow: inset 0 0 0 5px #241c13, 0 18px 40px rgba(0, 0, 0, 0.4);
+  background: #252b39;
+  border: 1px solid #5b2940;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 5px #11151e, 0 18px 40px rgba(0, 0, 0, 0.42);
   min-width: 0;
   padding: 8px;
   position: relative;
@@ -2578,7 +2611,7 @@ tbody tr:hover {
 
 .mapping-view-controls {
   align-items: center;
-  background: #211910;
+  background: #151922;
   display: flex;
   flex-wrap: wrap;
   gap: 7px;
@@ -2593,7 +2626,7 @@ tbody tr:hover {
 }
 
 .mapping-view-controls label > span {
-  color: #d9bd7e;
+  color: #f18a98;
   font-size: 0.68rem;
   font-weight: 900;
   text-transform: uppercase;
@@ -2604,10 +2637,10 @@ tbody tr:hover {
 .mapping-view-controls select,
 .map-history-panel button,
 .map-conflict-notice button {
-  background: rgba(255, 248, 229, 0.06);
-  border: 1px solid rgba(210, 173, 103, 0.35);
-  border-radius: 5px;
-  color: #eadfc8;
+  background: rgba(255, 250, 243, 0.055);
+  border: 1px solid #465068;
+  border-radius: 7px;
+  color: #eef1f7;
   font: inherit;
   font-size: 0.72rem;
   min-height: 30px;
@@ -2627,7 +2660,7 @@ tbody tr:hover {
 }
 
 .mapping-zoom-controls span {
-  color: #eadfc8;
+  color: #eef1f7;
   font-size: 0.72rem;
   min-width: 42px;
   text-align: center;
@@ -2638,7 +2671,7 @@ tbody tr:hover {
   height: min(74vh, 860px);
   overflow: auto;
   overscroll-behavior: contain;
-  scrollbar-color: #8c7655 #241d15;
+  scrollbar-color: #6f7890 #171b25;
 }
 
 .is-viewer .mapping-paper-scroll {
@@ -2660,9 +2693,11 @@ tbody tr:hover {
 }
 
 .mapping-hint {
-  background: rgba(31, 24, 15, 0.92);
+  background: rgba(17, 21, 30, 0.94);
+  border: 1px solid rgba(124, 41, 66, 0.72);
+  border-radius: 7px;
   bottom: 14px;
-  color: #eadfc8;
+  color: #eef1f7;
   font-size: 0.76rem;
   left: 50%;
   margin: 0;
@@ -2730,7 +2765,7 @@ tbody tr:hover {
   background: transparent;
   border: 0;
   border-bottom: 1px solid transparent;
-  color: #f3ead7;
+  color: var(--ivory);
   font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(2rem, 4vw, 3.4rem);
   font-weight: 700;
@@ -2741,7 +2776,7 @@ tbody tr:hover {
 }
 
 .player-map-name-input:focus {
-  border-bottom-color: #d0a250;
+  border-bottom-color: var(--focus);
   outline: none;
 }
 
@@ -3519,7 +3554,18 @@ tbody tr:hover {
     linear-gradient(160deg, rgba(30, 35, 49, 0.98), rgba(17, 20, 29, 0.98));
   border-color: rgba(223, 0, 27, 0.55);
   border-radius: 18px;
-  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.48);
+}
+
+.login-panel h1 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2rem, 6vw, 2.6rem);
+  line-height: 1;
+  margin: 0;
+}
+
+.login-panel .eyebrow {
+  margin-bottom: -8px;
 }
 
 .login-panel input,

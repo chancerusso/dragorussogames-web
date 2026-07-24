@@ -56,6 +56,10 @@ test("local Drago Table links DM and player interfaces on one origin", () => {
     "http://127.0.0.1:8010/portal",
   );
   assert.equal(
+    playerPortalUrl({ hostname: "table.dragorussogames.com", origin: "https://table.dragorussogames.com" }),
+    "https://table.dragorussogames.com/portal",
+  );
+  assert.equal(
     playerPortalUrl({ hostname: "dm.dragorussogames.com", origin: "https://dm.dragorussogames.com" }),
     CLASSIC_PORTAL_URL,
   );
@@ -80,6 +84,12 @@ test("local Player mapper uses and registers the portal map route", () => {
   assert.match(appSource, /function playerMapPath\(campaignId, mapId\)/);
   assert.equal(appSource.includes('<Route path="/portal/campaigns/:id/maps/:mapId" element={<PlayerMapPage />} />'), true);
   assert.match(appSource, /to=\{playerMapPath\(campaign\.id, activeMap\.id\)\}/);
+});
+
+test("remote Drago Table uses the unified player portal without a DM return link", () => {
+  const appSource = readFileSync(new URL("./App.jsx", import.meta.url), "utf8");
+  assert.match(appSource, /"table\.dragorussogames\.com"/);
+  assert.match(appSource, /isClassicHost\(\) \|\| isLocalDragoHost\(\)/);
 });
 
 test("Rules route is wrapped in an error boundary inside the DM shell", () => {

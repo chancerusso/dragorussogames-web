@@ -1,6 +1,6 @@
 # Project Progress
 
-Last updated: 2026-07-23
+Last updated: 2026-07-24
 
 ## Current focus
 
@@ -8,9 +8,12 @@ Drago Table is moving from a VPS-first topology to a locally operated browser
 application. Phase 1 now provides a loopback-only Mac runtime with its own
 PostgreSQL lifecycle, one-origin DM and player interfaces, a double-click
 launcher, clean shutdown, local cookie configuration, and responsive
-horizontal role-based menus. The existing VPS remains intact while the local
-edition is qualified. Next: test the default Application Support installation,
-then add explicit LAN mode and player-address/QR presentation.
+horizontal role-based menus. The native launcher now starts and stops a
+dedicated Cloudflare Tunnel at `table.dragorussogames.com`, verifies the public
+endpoint, copies the player invite, and keeps the Foundry tunnel independent.
+Authenticated remote DM, Mapper, and viewer synchronization is proven. The
+existing VPS remains intact. Next: group acceptance, player-address/QR
+presentation, and reconnect/error refinement.
 
 ## Confirmed product direction
 

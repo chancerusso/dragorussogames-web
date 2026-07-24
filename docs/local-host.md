@@ -1,7 +1,8 @@
 # Run Drago Table on This Mac
 
-This is the first local-host runtime. It runs the Dungeon Master and player
-interfaces from one address and binds only to this Mac.
+Drago Table runs the Dungeon Master and player interfaces from one local
+application. It remains private to this Mac until the owner deliberately starts
+a remote session.
 
 ## Start
 
@@ -39,14 +40,43 @@ The addresses are:
 - Dungeon Master: `http://127.0.0.1:8010/`
 - Player interface on the host Mac: `http://127.0.0.1:8010/portal`
 
-This loopback profile is intentionally not reachable by other devices. LAN
-addresses and the optional Cloudflare Tunnel belong to later phases.
+The local application is intentionally bound only to loopback. It does not
+open a router port and is not directly reachable by another device.
+
+## Start a Remote Session
+
+Open `Drago Table.app`, wait for **Ready — available on this Mac**, and click
+**Start Remote Session**. The application starts the dedicated Drago Table
+Cloudflare Tunnel and verifies the public health endpoint before it reports:
+
+```text
+Live at table.dragorussogames.com
+```
+
+Click **Copy Player Invite** and send the copied player address:
+
+```text
+https://table.dragorussogames.com/portal
+```
+
+Players use an ordinary browser and their Drago Table player username and
+password. They do not install Cloudflare, Tailscale, WARP, a VPN, or another
+networking client.
+
+The Drago Table tunnel is separate from the existing Foundry tunnel. Starting
+or stopping one does not interrupt the other.
+
+Click **Stop Remote Session** to remove public access while leaving the local
+application and database running. The public hostname is available only while
+the launcher reports that the remote session is live.
 
 ## Stop
 
-Click **Stop Drago Table** in its control window, or quit it from its Dock
-icon. The application and its private PostgreSQL process stop cleanly.
-Campaign data remains in the application directory for the next start.
+Click **Stop Remote Session** when remote play is finished. Click
+**Stop Drago Table** in the control window, or quit it from its Dock icon, when
+the local application should also stop. Quitting Drago Table always stops both
+the tunnel and its private PostgreSQL process. Campaign data remains in the
+application directory for the next start.
 
 ## Test a New Interface Build
 
@@ -67,11 +97,14 @@ live outside both the repository and frontend build:
 ├── config.json
 ├── logs/
 ├── postgres/
-└── postgres-socket/
+├── postgres-socket/
+└── remote-tunnel.yml
 ```
 
 `config.json` contains a local authentication secret and is created with
-owner-only permissions. Do not copy it into the repository.
+owner-only permissions. `remote-tunnel.yml` references the private Cloudflare
+tunnel credential stored in the Mac user's `.cloudflared` directory. Both stay
+outside the repository and must not be shared.
 
 Private rulebook source PDFs remain governed by the repository's existing
 private-reference restrictions and are never copied into the frontend build.

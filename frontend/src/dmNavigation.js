@@ -11,9 +11,10 @@ export const DM_NAV_ITEMS = [
 ];
 
 export const CLASSIC_PORTAL_URL = "https://classic.dragorussogames.com/";
+export const DRAGO_TABLE_HOSTS = ["127.0.0.1", "localhost", "table.dragorussogames.com"];
 
 export function playerPortalUrl(location = window.location) {
-  if (["127.0.0.1", "localhost"].includes(location.hostname)) {
+  if (DRAGO_TABLE_HOSTS.includes(location.hostname)) {
     return `${location.origin}/portal`;
   }
   return CLASSIC_PORTAL_URL;
