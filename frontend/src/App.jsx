@@ -857,6 +857,7 @@ function DragoTablePage() {
   const [rewardMessage, setRewardMessage] = useState("");
   const [tokenPositions, setTokenPositions] = useState(savedTable.tokenPositions);
   const [playerColors, setPlayerColors] = useState(savedTable.playerColors);
+  const [rollHistory, setRollHistory] = useState(savedTable.rollHistory || []);
   const [isSessionLive, setIsSessionLive] = useState(savedTable.isSessionLive);
   const [draggedToken, setDraggedToken] = useState(null);
   const tableHydrated = useRef(false);
@@ -878,7 +879,7 @@ function DragoTablePage() {
     [encounterMonsters, pendingGridMonsterId],
   );
   const { data: campaignMaps, reload: reloadMaps } = useLoad(() => api(`/1e/campaigns/${id}/maps`), [id]);
-  const activeGrid = mode === "combat" ? combatGrid : DRAGO_OUTDOORS_GRID;
+  const activeGrid = mode === "combat" ? combatGrid : mode === "hex_crawl" ? DRAGO_OUTDOORS_GRID : DRAGO_MARCHING_GRID;
   const playerTokens = useMemo(() => applyTokenPositions(basePlayerTokens, tokenPositions), [basePlayerTokens, tokenPositions]);
   const monsterTokens = useMemo(
     () => applyTokenPositions(buildMonsterTokens(encounterMonsters), tokenPositions),
@@ -908,6 +909,7 @@ function DragoTablePage() {
       setBonusXp(shared.bonusXp);
       setTokenPositions(shared.tokenPositions);
       setPlayerColors(shared.playerColors);
+      setRollHistory(shared.rollHistory || []);
       setIsSessionLive(shared.isSessionLive);
     }
     tableHydrated.current = true;
@@ -928,6 +930,7 @@ function DragoTablePage() {
       pendingGridMonsterId,
       bonusXp,
       playerColors,
+      rollHistory,
       isSessionLive,
       tracker,
       trackerMode,
@@ -940,7 +943,7 @@ function DragoTablePage() {
       api(`/1e/campaigns/${id}/table-state`, { method: "PUT", body: JSON.stringify(nextState) }).catch(() => {});
     }, 350);
     return () => window.clearTimeout(timer);
-  }, [bonusXp, combatGrid, combatTracker, encounterMonsters, expandedMonsterTypes, id, isSessionLive, mode, pendingGridMonsterId, playerColors, tokenPositions, tracker, trackerMode, treasureXp]);
+  }, [bonusXp, combatGrid, combatTracker, encounterMonsters, expandedMonsterTypes, id, isSessionLive, mode, pendingGridMonsterId, playerColors, rollHistory, tokenPositions, tracker, trackerMode, treasureXp]);
 
   useEffect(() => {
     if (campaign?.table_mode) setMode(campaign.table_mode);
@@ -1124,7 +1127,11 @@ function DragoTablePage() {
         <aside className="panel drago-side-panel">
           <TrackerPanel mode={trackerMode} tracker={tracker} onModeChange={setTrackerModeAndState} onUpdate={updateTracker} />
           <CombatTrackerPanel tracker={combatTracker} onUpdate={setCombatTracker} onEndCombat={endCombat} />
-          <DiceRollerPanel />
+          <DiceRollerPanel
+            history={rollHistory}
+            rollerName="DM"
+            onRoll={(roll) => setRollHistory((current) => [roll, ...current].slice(0, 30))}
+          />
           <MonsterLibrarySidebar
             error={monsterError}
             loading={monsterLoading}
@@ -1143,6 +1150,23 @@ function DragoTablePage() {
         {mode === "mapping" ? (
           <main className="panel drago-map-panel dm-mapping-control-panel">
             <DmMappingControls campaign={campaign} maps={campaignMaps || []} onReload={reloadMaps} />
+            <section className="dm-marching-order">
+              <div className="drago-map-toolbar">
+                <div><p className="eyebrow">Exploration</p><h2>Marching Order</h2></div>
+                <span className="status-pill">2 Across</span>
+              </div>
+              <div
+                className="drago-grid marching-grid"
+                style={{ "--grid-columns": DRAGO_MARCHING_GRID.columns, "--grid-rows": DRAGO_MARCHING_GRID.rows, aspectRatio: `${DRAGO_MARCHING_GRID.columns} / ${DRAGO_MARCHING_GRID.rows}` }}
+                onPointerMove={(event) => { if (draggedToken) moveToken(draggedToken, event); }}
+                onPointerUp={() => setDraggedToken(null)}
+                onPointerLeave={() => setDraggedToken(null)}
+              >
+                {playerTokens.map((token) => (
+                  <TableToken key={token.id} grid={DRAGO_MARCHING_GRID} token={token} onDragStart={(event) => { setDraggedToken(token); moveToken(token, event); }} />
+                ))}
+              </div>
+            </section>
           </main>
         ) : (
         <main className="panel drago-map-panel">
@@ -1359,6 +1383,7 @@ function defaultDragoTableState() {
     mode: "mapping",
     pendingGridMonsterId: null,
     playerColors: {},
+    rollHistory: [],
     tracker: createTrackerState("greyhawk"),
     trackerMode: "greyhawk",
     treasureXp: 0,
@@ -1749,21 +1774,27 @@ function CombatTrackerPanel({ tracker, onUpdate, onEndCombat }) {
   );
 }
 
-function DiceRollerPanel() {
+function DiceRollerPanel({ disabled = false, history = [], onRoll, rollerName = "DM" }) {
   const dice = [20, 12, 10, 8, 6, 4, 100];
   const [count, setCount] = useState(1);
   const [modifier, setModifier] = useState(0);
   const [lastRoll, setLastRoll] = useState(null);
 
   function rollDie(sides) {
+    if (disabled) return;
     const quantity = Math.max(1, count);
     const rolls = Array.from({ length: quantity }, () => Math.floor(Math.random() * sides) + 1);
     const subtotal = rolls.reduce((sum, value) => sum + value, 0);
-    setLastRoll({
+    const result = {
+      id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
       formula: `${quantity}d${sides}${modifier ? `${modifier > 0 ? "+" : ""}${modifier}` : ""}`,
       rolls,
+      roller: rollerName,
+      timestamp: new Date().toISOString(),
       total: subtotal + modifier,
-    });
+    };
+    setLastRoll(result);
+    onRoll?.(result);
   }
 
   return (
@@ -1793,7 +1824,7 @@ function DiceRollerPanel() {
       </div>
       <div className="dice-button-grid">
         {dice.map((sides) => (
-          <button key={sides} type="button" className="table-button" onClick={() => rollDie(sides)}>D{sides}</button>
+          <button key={sides} type="button" className="table-button" disabled={disabled} onClick={() => rollDie(sides)}>D{sides}</button>
         ))}
       </div>
       {lastRoll ? (
@@ -1802,7 +1833,23 @@ function DiceRollerPanel() {
           <span>{lastRoll.rolls.join(" + ")}{modifier ? ` ${modifier > 0 ? "+" : "-"} ${Math.abs(modifier)}` : ""}</span>
         </div>
       ) : <p className="compact-help">Set dice and modifier, then tap a die.</p>}
+      <RollHistory history={history} />
     </section>
+  );
+}
+
+function RollHistory({ history = [] }) {
+  return (
+    <div className="roll-history">
+      <div className="section-heading compact-heading"><div><p className="eyebrow">Shared Log</p><h3>Recent Rolls</h3></div></div>
+      {history.length ? history.slice(0, 12).map((roll) => (
+        <div className="roll-history-entry" key={roll.id}>
+          <strong>{roll.roller || "Player"}</strong>
+          <span>{roll.formula}: {roll.total}</span>
+          <small>{Array.isArray(roll.rolls) ? `[${roll.rolls.join(", ")}]` : ""}</small>
+        </div>
+      )) : <p className="compact-help">DM and player rolls will appear here.</p>}
+    </div>
   );
 }
 
@@ -3133,7 +3180,7 @@ function PlayerTableTab({ campaign, character }) {
   const tableSaveCountRef = useRef(0);
   const tableSaveVersionRef = useRef(0);
   const tokenId = currentCharacter ? `pc-${currentCharacter.id}` : null;
-  const activeGrid = tableState.mode === "combat" ? tableState.combatGrid : tableState.mode === "outdoors" ? DRAGO_OUTDOORS_GRID : DRAGO_MARCHING_GRID;
+  const activeGrid = tableState.mode === "combat" ? tableState.combatGrid : tableState.mode === "hex_crawl" ? DRAGO_OUTDOORS_GRID : DRAGO_MARCHING_GRID;
   const tableCharacters = currentCharacter && !(campaign.characters || []).some((entry) => entry.id === currentCharacter.id)
     ? [...(campaign.characters || []), currentCharacter]
     : (campaign.characters || []).map((entry) => entry.id === currentCharacter?.id ? currentCharacter : entry);
@@ -3270,7 +3317,6 @@ function PlayerTableTab({ campaign, character }) {
     <div className="player-table-layout">
       <aside className="panel player-table-status">
         <ReadOnlyTrackerStatus tracker={tableState.tracker} mode={tableState.trackerMode || (isDragonlanceCampaign(campaign) ? "dragonlance" : "greyhawk")} />
-        <ReadOnlyCombatStatus tracker={tableState.combatTracker} />
         <PlayerCharacterCombatPanel
           character={currentCharacter}
           colorChoices={colorChoices}
@@ -3291,13 +3337,13 @@ function PlayerTableTab({ campaign, character }) {
         <div className="drago-map-toolbar">
           <div>
             <p className="eyebrow">Player View</p>
-            <h2>{tableState.mode === "combat" ? `${activeGrid.columns} x ${activeGrid.rows} Combat Grid` : tableState.mode === "outdoors" ? "Outdoor View" : "Marching Order"}</h2>
+            <h2>{tableState.mode === "combat" ? `${activeGrid.columns} x ${activeGrid.rows} Combat Grid` : tableState.mode === "hex_crawl" ? "Outdoor View" : "Marching Order"}</h2>
           </div>
           <span className={`status-pill ${sessionLive ? "live-pill" : ""}`}>{sessionLive ? "Live Session" : "Saved View"}</span>
         </div>
         {!sessionLive ? <p className="table-lock-note">The DM has not started the session yet. You can view the saved table, but movement and HP controls are locked.</p> : null}
         <div
-          className={`drago-grid ${tableState.mode === "combat" ? "combat-grid" : tableState.mode === "outdoors" ? "outdoors-grid" : "marching-grid"}`}
+          className={`drago-grid ${tableState.mode === "combat" ? "combat-grid" : tableState.mode === "hex_crawl" ? "outdoors-grid" : "marching-grid"}`}
           style={{ "--grid-columns": activeGrid.columns, "--grid-rows": activeGrid.rows, aspectRatio: `${activeGrid.columns} / ${activeGrid.rows}` }}
           onPointerMove={(event) => { if (draggedToken) moveOwnToken(draggedToken, event); }}
           onPointerUp={() => setDraggedToken(null)}
@@ -3317,6 +3363,13 @@ function PlayerTableTab({ campaign, character }) {
       </main>
       <aside className="panel player-table-rules">
         <PlayerCombatRules mode={tableState.mode} />
+        <ReadOnlyCombatStatus tracker={tableState.combatTracker} />
+        <DiceRollerPanel
+          disabled={!sessionLive}
+          history={tableState.rollHistory || []}
+          rollerName={currentCharacter?.name || "Player"}
+          onRoll={(roll) => publish({ ...tableState, rollHistory: [roll, ...(tableState.rollHistory || [])].slice(0, 30) })}
+        />
       </aside>
     </div>
   );

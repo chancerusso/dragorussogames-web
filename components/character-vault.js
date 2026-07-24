@@ -521,6 +521,8 @@ function renderShell() {
   const sheetPage = pageKind() === "show";
   const heroCopy = dmPage
     ? "Campaigns, characters, storage, and equipment for DRG 1e play."
+    : pageKind() === "new"
+      ? ""
     : playerCharacterPage
       ? "Build and maintain your classic First Edition character through the unified DRG 1e rules engine."
       : builderContext.setting === "dragolance"
@@ -534,7 +536,7 @@ function renderShell() {
       <div>
         ${sheetPage ? "" : `<div class="vault-eyebrow">${dmPage ? "DM Tools" : playerCharacterPage ? "My Characters" : builderContext.setting === "dragolance" ? "Dragolance Character Builder" : "Character Vault"}</div>`}
         <h1>${pageTitle()}</h1>
-        ${sheetPage ? "" : `<p>${heroCopy}</p>`}
+        ${sheetPage || !heroCopy ? "" : `<p>${heroCopy}</p>`}
         ${dmPage ? `<p class="vault-warning-text">DM tools are currently unprotected until login is enabled.</p>` : ""}
         <div class="vault-toast" data-vault-toast></div>
       </div>
@@ -717,7 +719,7 @@ function abilityAssignmentHtml(d) {
   const assigned = d.assigned_rolls || {};
   const used = new Set(Object.values(assigned).filter((value) => value !== "" && value != null).map(String));
   return `<div class="vault-full">
-    <div class="vault-roll-bank">${rolls.length ? rolls.map((roll, index) => `<span class="vault-roll-chip ${used.has(String(index)) ? "used" : ""}">${h(roll)}</span>`).join("") : `<span class="vault-muted">No rolls yet.</span>`}</div>
+    <div class="vault-roll-bank">${rolls.length ? rolls.map((roll, index) => `<button type="button" class="vault-roll-chip ${used.has(String(index)) ? "used" : ""}" data-unassign-roll="${index}" ${used.has(String(index)) ? "" : "disabled"} title="${used.has(String(index)) ? "Return this score to the available roll bank" : "Available score"}">${h(roll)}</button>`).join("") : `<span class="vault-muted">No rolls yet.</span>`}</div>
     <div class="vault-ability-assignments">${abilities.map((ability) => {
       const selected = assigned[ability] ?? "";
       return `<label class="vault-assign"><span>${abilityLabels[ability]}</span><select name="assigned_rolls.${ability}"><option value="">Manual</option>${rolls.map((roll, index) => `<option value="${index}" ${String(selected) === String(index) ? "selected" : ""} ${used.has(String(index)) && String(selected) !== String(index) ? "disabled" : ""}>${h(roll)}</option>`).join("")}</select><input name="abilities.${ability}" type="number" min="3" max="18" value="${h(d.abilities[ability])}"></label>`;
@@ -728,15 +730,17 @@ function abilityAssignmentHtml(d) {
 }
 
 function exceptionalStrengthEligible(d) {
-  return Number(d?.abilities?.strength || 0) === 18 && ["Fighter", "Paladin", "Ranger"].includes(rulesClassName(d?.class_name || ""));
+  const className = rulesClassName(d?.class_name || "");
+  return Number(d?.abilities?.strength || 0) === 18 && (!className || ["Fighter", "Paladin", "Ranger"].includes(className));
 }
 
 function exceptionalStrengthBuilderHtml(d) {
   if (!exceptionalStrengthEligible(d)) return "";
   const value = d.exceptional_strength ?? "";
   return `<div class="vault-actions">
-    <label class="vault-field">Exceptional STR d100<input name="exceptional_strength" type="number" min="1" max="100" value="${h(value)}"></label>
+    <label class="vault-field">Exceptional STR d100<input name="exceptional_strength" type="number" min="1" max="100" value="${h(value)}" required></label>
     <button class="vault-button secondary" type="button" data-roll-exceptional-strength>Roll d100</button>
+    <span class="vault-muted">Required for an unmodified STR 18 Fighter, Paladin, or Ranger.</span>
   </div>`;
 }
 
@@ -748,8 +752,6 @@ function builderStep() {
     ${field("Character Name", "name", d.name)}
     ${playerIdentityHtml()}
     ${campaignSelectHtml(d)}
-    ${field("Campaign Day", "campaign_day", d.campaign_day, "number")}
-    ${field("Current Location", "current_location", d.current_location)}
     <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/">Character Creation</a></p>
     ${navButtons()}`;
   if (state.step === 0) return `
@@ -834,7 +836,7 @@ function campaignSelectHtml(d) {
     return `<input type="hidden" name="campaign_id" value="${h(state.campaign.id)}"><div class="vault-card vault-full"><div class="vault-kicker">Campaign</div><h3>${h(state.campaign.name)}</h3><p>${h(title(state.campaign.setting || "classic"))} / Session #${h(state.campaign.session_number || 1)} / ${h(state.campaign.next_session_date || "Next session TBD")}</p></div>`;
   }
   if (isPlayerCharacterMode()) {
-    return `<input type="hidden" name="campaign_id" value="${h(d.campaign_id || "")}"><div class="vault-card vault-full"><div class="vault-kicker">Campaign</div><h3>${h(playerCampaignLabel(d))}</h3><p>Campaign context will be attached when launched from a campaign.</p></div>`;
+    return `<input type="hidden" name="campaign_id" value="${h(d.campaign_id || "")}"><div class="vault-card vault-full"><div class="vault-kicker">Campaign</div><h3>${h(playerCampaignLabel(d))}</h3><p>The campaign will be attached when your DM sends or accepts an invitation.</p></div>`;
   }
   if (!state.campaigns.length) return `<div class="vault-full vault-muted">No campaigns available. Your DM can assign this character later.</div>`;
   return selectField("Campaign", "campaign_id", d.campaign_id || "", ["", ...state.campaigns.map((c) => String(c.id))]);
@@ -845,7 +847,8 @@ function sourcebookNoticeHtml() {
 }
 
 function playerIdentityHtml() {
-  return `<div class="vault-card vault-full"><div class="vault-kicker">Player</div><h3>${h(playerDisplayName())}</h3><p>Ownership is taken from your player login.</p></div>`;
+  const discord = state.currentPlayer?.discord_user_id;
+  return `<div class="vault-card vault-full"><div class="vault-kicker">Player Name</div><h3>${h(playerDisplayName())}</h3>${discord ? `<p>Discord: ${h(discord)}</p>` : ""}</div>`;
 }
 
 function playerDisplayName() {
@@ -855,7 +858,7 @@ function playerDisplayName() {
 function playerCampaignLabel(d) {
   if (state.campaign?.name) return state.campaign.name;
   if (d.campaign_id) return `Campaign #${d.campaign_id}`;
-  return "DRG";
+  return "Pending";
 }
 
 function hitPointsStepHtml(d) {
@@ -1408,6 +1411,21 @@ function bindBuilderActions() {
     state.draft.original_rolls = Array.from({ length: 6 }, roll4d6DropLowest);
     state.draft.assigned_rolls = {};
     renderBuilder();
+  });
+  document.querySelectorAll("[name^='assigned_rolls.']").forEach((select) => {
+    select.addEventListener("change", () => {
+      syncDraft();
+      renderBuilder();
+    });
+  });
+  document.querySelectorAll("[data-unassign-roll]").forEach((button) => {
+    button.addEventListener("click", () => {
+      syncDraft();
+      const rollIndex = String(button.dataset.unassignRoll);
+      const ability = abilities.find((key) => String(state.draft.assigned_rolls?.[key]) === rollIndex);
+      if (ability) state.draft.assigned_rolls[ability] = "";
+      renderBuilder();
+    });
   });
   document.querySelector("[data-roll-hp]")?.addEventListener("click", () => {
     syncDraft();
