@@ -311,7 +311,8 @@ async function loadMagicItemCatalog() {
 }
 
 function playerAuthHeaders() {
-  const token = localStorage.getItem(PLAYER_TOKEN_KEY);
+  localStorage.removeItem(PLAYER_TOKEN_KEY);
+  const token = sessionStorage.getItem(PLAYER_TOKEN_KEY);
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 

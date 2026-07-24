@@ -105,13 +105,25 @@ test("expired API sessions immediately update the authenticated route state", ()
 
 test("local authentication never survives a fresh Drago Table startup", () => {
   const apiSource = readFileSync(new URL("./api.js", import.meta.url), "utf8");
+  const vaultSource = readFileSync(new URL("../../components/character-vault.js", import.meta.url), "utf8");
   const launcherSource = readFileSync(new URL("../../scripts/drago-table", import.meta.url), "utf8");
 
   assert.match(apiSource, /sessionStorage\.getItem\(TOKEN_KEY\)/);
   assert.match(apiSource, /sessionStorage\.getItem\(PLAYER_TOKEN_KEY\)/);
   assert.match(apiSource, /localStorage\.removeItem\(TOKEN_KEY\)/);
   assert.match(apiSource, /localStorage\.removeItem\(PLAYER_TOKEN_KEY\)/);
+  assert.match(vaultSource, /sessionStorage\.getItem\(PLAYER_TOKEN_KEY\)/);
+  assert.doesNotMatch(vaultSource, /const token = localStorage\.getItem\(PLAYER_TOKEN_KEY\)/);
   assert.match(launcherSource, /"SECRET_KEY": secrets\.token_urlsafe\(48\)/);
+});
+
+test("Create Character remains in player-owned navigation", () => {
+  const appSource = readFileSync(new URL("./App.jsx", import.meta.url), "utf8");
+  const backendSource = readFileSync(new URL("../../backend/app/main.py", import.meta.url), "utf8");
+
+  assert.match(appSource, /\{ label: "Create Character", to: classic \? "\/characters\/new" : "\/portal\/characters\/new" \}/);
+  assert.match(backendSource, /login_redirect\(request, player=True\)/);
+  assert.match(backendSource, /login_path = "\/portal\/login" if player and not classic_player_host else "\/login"/);
 });
 
 test("Rules route is wrapped in an error boundary inside the DM shell", () => {

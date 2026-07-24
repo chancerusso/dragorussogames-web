@@ -69,12 +69,13 @@ def authenticated_role(request: Request) -> str | None:
     return None
 
 
-def login_redirect(request: Request) -> RedirectResponse:
-
+def login_redirect(request: Request, *, player: bool = False) -> RedirectResponse:
     destination = request.url.path
     if request.url.query:
         destination = f"{destination}?{request.url.query}"
-    return RedirectResponse(url=f"/login?next={quote(destination, safe='')}", status_code=303)
+    classic_player_host = request.url.hostname == "classic.dragorussogames.com"
+    login_path = "/portal/login" if player and not classic_player_host else "/login"
+    return RedirectResponse(url=f"{login_path}?next={quote(destination, safe='')}", status_code=303)
 
 
 @app.middleware("http")
@@ -83,7 +84,7 @@ async def protect_one_e_static_routes(request: Request, call_next):
     if path == "/1e" or path.startswith("/1e/"):
         role = authenticated_role(request)
         if role is None:
-            return login_redirect(request)
+            return login_redirect(request, player=not path.startswith("/1e/dm"))
         if path.startswith("/1e/dm") and role != "admin":
             return JSONResponse(status_code=401, content={"detail": "Authentication required."})
     return await call_next(request)
@@ -92,28 +93,28 @@ async def protect_one_e_static_routes(request: Request, call_next):
 @app.get("/1e/characters/")
 def characters_index_route(request: Request) -> Response:
     if authenticated_role(request) is None:
-        return login_redirect(request)
+        return login_redirect(request, player=True)
     return FileResponse(SITE_ROOT / "1e" / "characters" / "index.html")
 
 
 @app.get("/1e/characters/new/")
 def character_new_route(request: Request) -> Response:
     if authenticated_role(request) is None:
-        return login_redirect(request)
+        return login_redirect(request, player=True)
     return FileResponse(SITE_ROOT / "1e" / "characters" / "new" / "index.html")
 
 
 @app.get("/1e/characters/{character_id}/")
 def character_sheet_route(character_id: int, request: Request) -> Response:
     if authenticated_role(request) is None:
-        return login_redirect(request)
+        return login_redirect(request, player=True)
     return FileResponse(SITE_ROOT / "1e" / "characters" / "1" / "index.html")
 
 
 @app.get("/1e/characters/{character_id}/edit/")
 def character_edit_route(character_id: int, request: Request) -> Response:
     if authenticated_role(request) is None:
-        return login_redirect(request)
+        return login_redirect(request, player=True)
     return FileResponse(SITE_ROOT / "1e" / "characters" / "1" / "edit" / "index.html")
 
 

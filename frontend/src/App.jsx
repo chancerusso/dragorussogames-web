@@ -294,7 +294,7 @@ function PlayerShell({ children }) {
             { label: "Home", to: classic ? "/" : "/portal", end: true },
             { label: "Campaigns", to: classic ? "/campaigns" : "/portal/campaigns", end: true },
             { label: "Characters", to: classic ? "/characters" : "/portal/characters" },
-            { label: "Create Character", href: "/1e/characters/new/" },
+            { label: "Create Character", to: classic ? "/characters/new" : "/portal/characters/new" },
             { label: "Player's Guide", href: "/1e/" },
             { label: "Dragonlance", href: classic ? "/dragonlance" : "/portal/dragonlance" },
           ]}
