@@ -332,7 +332,8 @@ function campaignIdParam() {
 function isPlayerCharacterMode() {
   const params = new URLSearchParams(window.location.search);
   const localPlayerRoute = location.pathname.startsWith("/characters/");
-  return !isDmMode() && (localPlayerRoute || isClassicHost() || isDragolanceHost() || params.has("campaign_id") || params.get("setting") === "dragolance");
+  const playerSession = Boolean(sessionStorage.getItem(PLAYER_TOKEN_KEY));
+  return !isDmMode() && (playerSession || localPlayerRoute || isClassicHost() || isDragolanceHost() || params.get("player") === "1" || params.has("campaign_id") || params.get("setting") === "dragolance");
 }
 
 function isPlayerBuilderMode() {
@@ -426,11 +427,11 @@ function characterId() {
 }
 
 function characterViewHref(id) {
-  return isPlayerCharacterMode() ? `/characters/${id}` : `/1e/characters/${id}/`;
+  return isPlayerCharacterMode() ? `/1e/characters/${id}/?player=1` : `/1e/characters/${id}/`;
 }
 
 function characterEditHref(id) {
-  return isPlayerCharacterMode() ? `/characters/${id}/edit` : `/1e/characters/${id}/edit/`;
+  return isPlayerCharacterMode() ? `/1e/characters/${id}/edit/?player=1` : `/1e/characters/${id}/edit/`;
 }
 
 function campaignId() {
@@ -562,12 +563,13 @@ function playerNavHtml(sheetId) {
     ? `<a class="vault-button" href="${h(returnTo)}">Back to Campaign</a>`
     : "";
   if (isPlayerCharacterMode()) {
-    const campaignHref = state.campaign?.id ? `/campaigns/${state.campaign.id}` : "";
-    const dragonlanceReference = isDragonlanceCampaignContext() ? `<a class="vault-button secondary" href="/dragonlance">Dragolance Reference</a>` : "";
+    const playerRoot = isClassicHost() ? "" : "/portal";
+    const campaignHref = state.campaign?.id ? `${playerRoot}/campaigns/${state.campaign.id}` : "";
+    const dragonlanceReference = isDragonlanceCampaignContext() ? `<a class="vault-button secondary" href="${playerRoot}/dragonlance">Dragolance Reference</a>` : "";
     return `
-      ${returnLink || `<a class="vault-button" href="/">Back to Player Home</a>`}
+      ${returnLink || `<a class="vault-button" href="${playerRoot || "/"}">Back to Player Home</a>`}
       ${campaignHref ? `<a class="vault-button secondary" href="${campaignHref}">Back to Campaign</a>` : ""}
-      <a class="vault-button secondary" href="/characters">My Characters</a>
+      <a class="vault-button secondary" href="${playerRoot}/characters">My Characters</a>
       ${sheetId ? `<a class="vault-button secondary" href="${characterViewHref(sheetId)}">Character Sheet</a>` : ""}
       ${dragonlanceReference}
       <a class="vault-button secondary" href="/1e/">Rules</a>`;

@@ -120,6 +120,10 @@ function playerCharacterBuilderPath(campaignId) {
   return `/1e/characters/new/${query}`;
 }
 
+function playerCharacterChooserPath() {
+  return isClassicHost() ? "/characters/new" : "/portal/characters/new";
+}
+
 function isDragonlanceCampaign(campaign) {
   const setting = String(campaign?.setting || "").toLowerCase();
   return setting === "dragonlance" || setting === "dragolance";
@@ -2599,7 +2603,7 @@ function CreateCharacterLink({ campaigns }) {
   if (campaigns.length === 1) {
     return <a className="secondary-button" href={playerCharacterBuilderPath(campaigns[0].id)}>Create Character</a>;
   }
-  if (campaigns.length > 1) return <Link className="secondary-button" to="/characters/new">Create Character</Link>;
+  if (campaigns.length > 1) return <Link className="secondary-button" to={playerCharacterChooserPath()}>Create Character</Link>;
   return <a className="secondary-button" href="/1e/characters/new/">Create Character</a>;
 }
 
@@ -2628,8 +2632,8 @@ function PlayerCharacterCard({ character, onDeleted }) {
         <div><dt>Campaign</dt><dd>{character.campaign_name || "-"}</dd></div>
       </dl>
       <div className="form-actions">
-        <a className="secondary-button" href={`/characters/${character.id}`}>View</a>
-        <a className="table-link" href={`/characters/${character.id}/edit`}>Edit</a>
+        <a className="secondary-button" href={`/1e/characters/${character.id}/?player=1`}>View</a>
+        <a className="table-link" href={`/1e/characters/${character.id}/edit/?player=1`}>Edit</a>
         <button className="table-button" type="button" disabled={busy} onClick={deleteCharacter}>{busy ? "Deleting..." : "Delete"}</button>
       </div>
     </article>
@@ -3105,7 +3109,7 @@ function PlayerOverviewTab({ campaign, character }) {
             <h2>Your legend begins here.</h2>
             <p className="portal-copy">No character has been assigned to you for this campaign yet.</p>
             <div className="form-actions">
-              <Link className="secondary-button" to={playerCharacterBuilderPath(campaign.id)}>Create Character</Link>
+              <a className="secondary-button" href={playerCharacterBuilderPath(campaign.id)}>Create Character</a>
             </div>
           </>
         )}

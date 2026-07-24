@@ -130,9 +130,18 @@ test("Finder startup discovers Homebrew PostgreSQL outside the GUI PATH", () => 
 
 test("Create Character remains in player-owned navigation", () => {
   const appSource = readFileSync(new URL("./App.jsx", import.meta.url), "utf8");
+  const vaultSource = readFileSync(new URL("../../components/character-vault.js", import.meta.url), "utf8");
   const backendSource = readFileSync(new URL("../../backend/app/main.py", import.meta.url), "utf8");
 
   assert.match(appSource, /\{ label: "Create Character", to: classic \? "\/characters\/new" : "\/portal\/characters\/new" \}/);
+  assert.match(appSource, /function playerCharacterChooserPath\(\)/);
+  assert.match(appSource, /to=\{playerCharacterChooserPath\(\)\}/);
+  assert.match(appSource, /<a className="secondary-button" href=\{playerCharacterBuilderPath\(campaign\.id\)\}>Create Character<\/a>/);
+  assert.doesNotMatch(appSource, /<Link className="secondary-button" to=\{playerCharacterBuilderPath\(campaign\.id\)\}>Create Character<\/Link>/);
+  assert.match(appSource, /href=\{`\/1e\/characters\/\$\{character\.id\}\/\?player=1`\}>View/);
+  assert.match(appSource, /href=\{`\/1e\/characters\/\$\{character\.id\}\/edit\/\?player=1`\}>Edit/);
+  assert.match(vaultSource, /Boolean\(sessionStorage\.getItem\(PLAYER_TOKEN_KEY\)\)/);
+  assert.match(vaultSource, /const playerRoot = isClassicHost\(\) \? "" : "\/portal"/);
   assert.match(backendSource, /login_redirect\(request, player=True\)/);
   assert.match(backendSource, /login_path = "\/portal\/login" if player and not classic_player_host else "\/login"/);
 });
