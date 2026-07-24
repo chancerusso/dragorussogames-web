@@ -930,6 +930,56 @@ textarea {
   color: #f0c0b7;
 }
 
+.campaign-invite-fieldset {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.campaign-invite-fieldset legend {
+  color: var(--cream);
+  font-weight: 800;
+  padding: 0 6px;
+}
+
+.campaign-invite-options {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin-top: 10px;
+}
+
+.campaign-invite-options label {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.campaign-invite-options input {
+  width: auto;
+}
+
+.character-campaign-picker {
+  align-items: end;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin-top: 14px;
+  padding-top: 14px;
+}
+
+.character-campaign-picker label {
+  display: grid;
+  gap: 6px;
+}
+
+@media (max-width: 640px) {
+  .character-campaign-picker {
+    grid-template-columns: 1fr;
+  }
+}
+
 .two-column {
   display: grid;
   gap: 16px;

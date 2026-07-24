@@ -2364,12 +2364,12 @@ function CampaignPlayersTab({ campaign, players, onError, onReload }) {
       <form className="panel form-grid compact workspace-form" onSubmit={assignPlayer}>
         <div className="form-heading wide">
           <p className="eyebrow">Roster</p>
-          <h2>Assign Existing Player</h2>
+          <h2>Invite Existing Player</h2>
         </div>
           <label>Player
             <select value={assignForm.user_id} onChange={(event) => setAssignForm({ ...assignForm, user_id: event.target.value })}>
               <option value="">Choose a player...</option>
-              {availablePlayers.map((player) => <option key={player.id} value={player.id}>{player.display_name || player.player_name}</option>)}
+              {availablePlayers.map((player) => <option key={player.id} value={player.id}>{player.display_name || player.player_name} ({player.username || `player ${player.id}`})</option>)}
             </select>
           </label>
           <label>Campaign Role
@@ -2379,7 +2379,7 @@ function CampaignPlayersTab({ campaign, players, onError, onReload }) {
               <option>observer</option>
             </select>
           </label>
-          <button>Assign Player</button>
+          <button>Invite Player</button>
       </form>
 
       <h2 className="section-title">Campaign Members</h2>
@@ -2630,7 +2630,7 @@ function ClassicPlayerHomepage() {
             <PageState loading={charactersLoading} error={characterError} />
             {characters.length ? (
               <div className="character-card-grid">
-                {characters.map((character) => <PlayerCharacterCard key={character.id} character={character} onDeleted={reloadCharacters} />)}
+                {characters.map((character) => <PlayerCharacterCard key={character.id} character={character} campaigns={campaigns} characters={characters} onChanged={reloadCharacters} />)}
               </div>
             ) : (
               <div className="empty-character-callout">
@@ -2654,19 +2654,51 @@ function CreateCharacterLink({ campaigns }) {
   return <a className="secondary-button" href="/1e/characters/new/">Create Character</a>;
 }
 
-function PlayerCharacterCard({ character, onDeleted }) {
+function PlayerCharacterCard({ character, campaigns = [], characters = [], onChanged }) {
   const [busy, setBusy] = useState(false);
+  const [campaignId, setCampaignId] = useState(String(character.campaign_id || ""));
+  const [actionError, setActionError] = useState("");
+
+  useEffect(() => {
+    setCampaignId(String(character.campaign_id || ""));
+  }, [character.campaign_id]);
 
   async function deleteCharacter() {
-    if (!window.confirm(`Delete ${character.name}?`)) return;
+    if (!window.confirm(`Permanently delete ${character.name}? This cannot be undone.`)) return;
     setBusy(true);
+    setActionError("");
     try {
       await api(`/player/characters/${character.id}`, { auth: "player", method: "DELETE" });
-      if (onDeleted) await onDeleted();
+      if (onChanged) await onChanged();
+    } catch (err) {
+      setActionError(err.message);
     } finally {
       setBusy(false);
     }
   }
+
+  async function saveCampaign() {
+    setBusy(true);
+    setActionError("");
+    try {
+      await api(`/player/characters/${character.id}`, {
+        auth: "player",
+        method: "PATCH",
+        body: JSON.stringify({ campaign_id: campaignId ? Number(campaignId) : null }),
+      });
+      if (onChanged) await onChanged();
+    } catch (err) {
+      setActionError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const occupiedCampaignIds = new Set(
+    characters
+      .filter((entry) => entry.id !== character.id && entry.campaign_id)
+      .map((entry) => String(entry.campaign_id)),
+  );
 
   return (
     <article className="character-card">
@@ -2683,6 +2715,22 @@ function PlayerCharacterCard({ character, onDeleted }) {
         <a className="table-link" href={`/1e/characters/${character.id}/edit/?player=1`}>Edit</a>
         <button className="table-button" type="button" disabled={busy} onClick={deleteCharacter}>{busy ? "Deleting..." : "Delete"}</button>
       </div>
+      <div className="character-campaign-picker">
+        <label>Campaign
+          <select value={campaignId} disabled={busy} onChange={(event) => setCampaignId(event.target.value)}>
+            <option value="">Pending / No campaign</option>
+            {campaigns.map((campaign) => (
+              <option key={campaign.id} value={campaign.id} disabled={occupiedCampaignIds.has(String(campaign.id))}>
+                {campaign.name}{occupiedCampaignIds.has(String(campaign.id)) ? " — another character is assigned" : ""}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button className="table-button" type="button" disabled={busy || campaignId === String(character.campaign_id || "")} onClick={saveCampaign}>
+          {busy ? "Saving..." : "Save Campaign"}
+        </button>
+      </div>
+      {actionError ? <p className="error">{actionError}</p> : null}
     </article>
   );
 }
@@ -3105,7 +3153,7 @@ function PlayerCharactersPage() {
       <PageState loading={loading} error={error} />
       {!loading && !error && enriched.length ? (
         <div className="character-card-grid">
-          {enriched.map((character) => <PlayerCharacterCard key={character.id} character={character} onDeleted={reload} />)}
+          {enriched.map((character) => <PlayerCharacterCard key={character.id} character={character} campaigns={campaignList} characters={enriched} onChanged={reload} />)}
         </div>
       ) : null}
       {!loading && !error && !enriched.length ? (
@@ -4462,13 +4510,14 @@ function nextSessionCampaign(campaigns) {
 
 function PlayersPage() {
   const { data: players, error, loading, reload } = useLoad(() => api("/1e/players"), []);
+  const { data: campaigns } = useLoad(() => api("/1e/campaigns"), []);
   const [modal, setModal] = useState(null);
   const [formError, setFormError] = useState("");
   const [saving, setSaving] = useState(false);
 
   function openNew() {
     setFormError("");
-    setModal({ type: "new", player: { display_name: "", username: "", password: "", active: true } });
+    setModal({ type: "new", player: { display_name: "", username: "", password: "", active: true, campaign_ids: [] } });
   }
 
   function openEdit(player) {
@@ -4508,6 +4557,19 @@ function PlayersPage() {
     await reload();
   }
 
+  async function deletePlayer(player) {
+    const campaignCount = player.campaign_count || 0;
+    const characterCount = player.character_count || 0;
+    const warning = `Permanently delete ${player.display_name || player.player_name}? This will also delete ${characterCount} character${characterCount === 1 ? "" : "s"} and remove ${campaignCount} campaign invitation${campaignCount === 1 ? "" : "s"}. This cannot be undone.`;
+    if (!window.confirm(warning)) return;
+    try {
+      await api(`/1e/players/${player.id}`, { method: "DELETE" });
+      await reload();
+    } catch (err) {
+      setFormError(err.message);
+    }
+  }
+
   async function resetPassword(event) {
     event.preventDefault();
     setSaving(true);
@@ -4534,6 +4596,7 @@ function PlayersPage() {
         action={<button onClick={openNew}>New Player</button>}
       />
       <PageState loading={loading} error={error} />
+      {formError && !modal ? <p className="error">{formError}</p> : null}
       <DataTable
         columns={["Display Name", "Username", "Campaigns", "Characters", "Status", "Actions"]}
         rows={(players || []).map((player) => [
@@ -4546,6 +4609,7 @@ function PlayersPage() {
             <button className="table-button" onClick={() => openEdit(player)}>Edit</button>
             <button className="table-button" disabled={!player.active} onClick={() => deactivate(player)}>Deactivate</button>
             <button className="table-button" onClick={() => openReset(player)}>Reset Password</button>
+            <button className="table-button danger-button" onClick={() => deletePlayer(player)}>Delete</button>
           </div>,
         ])}
       />
@@ -4555,6 +4619,33 @@ function PlayersPage() {
             <label>Display Name<input value={modal.player.display_name || ""} onChange={(event) => setModal({ ...modal, player: { ...modal.player, display_name: event.target.value, player_name: event.target.value } })} required /></label>
             <label>Username<input value={modal.player.username || ""} onChange={(event) => setModal({ ...modal, player: { ...modal.player, username: event.target.value } })} required /></label>
             {modal.type === "new" ? <label>Password<input type="password" value={modal.player.password || ""} onChange={(event) => setModal({ ...modal, player: { ...modal.player, password: event.target.value } })} required /></label> : null}
+            {modal.type === "new" ? (
+              <fieldset className="wide campaign-invite-fieldset">
+                <legend>Campaign Invitations</legend>
+                <p className="muted">The player will be able to attach one of their characters to each invited campaign.</p>
+                <div className="campaign-invite-options">
+                  {(campaigns || []).map((campaign) => {
+                    const checked = (modal.player.campaign_ids || []).includes(campaign.id);
+                    return (
+                      <label key={campaign.id}>
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={(event) => {
+                            const current = modal.player.campaign_ids || [];
+                            const campaign_ids = event.target.checked
+                              ? [...current, campaign.id]
+                              : current.filter((id) => id !== campaign.id);
+                            setModal({ ...modal, player: { ...modal.player, campaign_ids } });
+                          }}
+                        />
+                        {campaign.name}
+                      </label>
+                    );
+                  })}
+                </div>
+              </fieldset>
+            ) : null}
             <label>Active
               <select value={modal.player.active ? "true" : "false"} onChange={(event) => setModal({ ...modal, player: { ...modal.player, active: event.target.value === "true" } })}>
                 <option value="true">Active</option>
@@ -4587,7 +4678,13 @@ function PlayersPage() {
 }
 
 function CharactersPage() {
-  const { data: characters, error, loading } = useLoad(() => api("/1e/characters?include_archived=true"), []);
+  const { data: characters, error, loading, reload } = useLoad(() => api("/1e/characters?include_archived=true"), []);
+
+  async function deleteCharacter(character) {
+    if (!window.confirm(`Permanently delete ${character.name}? This cannot be undone.`)) return;
+    await api(`/1e/characters/${character.id}`, { method: "DELETE" });
+    await reload();
+  }
   return (
     <section>
       <PlainHeader eyebrow="Vault" title="Characters" copy="Review campaign characters and jump into the existing character tools." />
@@ -4604,6 +4701,7 @@ function CharactersPage() {
           <div className="row-actions">
             <a className="table-link" href={`/1e/characters/${character.id}/?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`} target="_blank" rel="noreferrer">Open Sheet</a>
             <a className="table-link" href={`/1e/characters/${character.id}/edit/?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`}>Edit</a>
+            <button className="table-button danger-button" onClick={() => deleteCharacter(character)}>Delete</button>
           </div>,
         ])}
       />

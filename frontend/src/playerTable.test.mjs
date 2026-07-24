@@ -50,3 +50,15 @@ test("player character start and ability rolls use one authenticated identity", 
   assert.match(vault, /Required for an unmodified STR 18 Fighter, Paladin, or Ranger/);
   assert.doesNotMatch(vault, /field\("Campaign Day", "campaign_day"[\s\S]{0,250}isPlayerCharacterMode/);
 });
+
+test("campaign invitations control player character assignment and rosters can delete", () => {
+  assert.match(app, /Campaign Invitations/);
+  assert.match(app, /campaign_ids/);
+  assert.match(app, /Only campaigns your DM invited you to are available|another character is assigned/);
+  assert.match(app, /Save Campaign/);
+  assert.match(app, /Permanently delete \$\{player\.display_name \|\| player\.player_name\}/);
+  assert.match(app, /api\(`\/1e\/players\/\$\{player\.id\}`,\s*\{ method: "DELETE" \}\)/);
+  assert.match(app, /api\(`\/1e\/characters\/\$\{character\.id\}`,\s*\{ method: "DELETE" \}\)/);
+  assert.match(vault, /Pending \/ No campaign/);
+  assert.match(vault, /Only campaigns your DM invited you to are available/);
+});

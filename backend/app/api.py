@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Response
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.orm import Session
 
 from app.auth import (
@@ -935,6 +935,26 @@ def ensure_player_campaign_member(db: Session, campaign_id: int, player_id: int)
     return membership
 
 
+def ensure_player_character_slot(
+    db: Session,
+    campaign_id: int,
+    player_id: int,
+    character_id: int | None = None,
+) -> None:
+    statement = select(VaultCharacter).where(
+        VaultCharacter.campaign_id == campaign_id,
+        VaultCharacter.user_id == player_id,
+        VaultCharacter.status != "archived",
+    )
+    if character_id is not None:
+        statement = statement.where(VaultCharacter.id != character_id)
+    if db.scalar(statement):
+        raise HTTPException(
+            status_code=409,
+            detail="This player already has a character assigned to that campaign.",
+        )
+
+
 def stored_items_for_campaign(db: Session, campaign_id: int) -> list[dict]:
     rows = db.scalars(
         select(CharacterInventory)
@@ -1691,9 +1711,17 @@ def create_vault_player(data: dict, _: dict = Depends(require_jwt_admin), db: Se
         active=active and status == "active",
     )
     db.add(player)
+    db.flush()
+    campaign_ids = {int(value) for value in (data.get("campaign_ids") or []) if value not in (None, "")}
+    for campaign_id in campaign_ids:
+        get_campaign_or_404(db, campaign_id)
+        db.add(CampaignPlayer(campaign_id=campaign_id, user_id=player.id, role="player"))
     db.commit()
     db.refresh(player)
-    return player_payload(player)
+    payload = player_payload(player)
+    payload["campaign_count"] = len(campaign_ids)
+    payload["character_count"] = 0
+    return payload
 
 
 @router.get("/1e/players/{user_id}")
@@ -1724,6 +1752,35 @@ def update_vault_player(user_id: int, data: dict, _: dict = Depends(require_jwt_
     db.commit()
     db.refresh(player)
     return player_payload(player)
+
+
+@router.delete("/1e/players/{user_id}")
+def delete_vault_player(user_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    player = get_player_or_404(db, user_id)
+    character_count = db.scalar(
+        select(func.count()).select_from(VaultCharacter).where(VaultCharacter.user_id == player.id)
+    ) or 0
+    campaign_count = db.scalar(
+        select(func.count()).select_from(CampaignPlayer).where(CampaignPlayer.user_id == player.id)
+    ) or 0
+    for character in db.scalars(select(VaultCharacter).where(VaultCharacter.user_id == player.id)).all():
+        db.delete(character)
+    for character in db.scalars(select(Character).where(Character.player_id == player.id)).all():
+        db.delete(character)
+    db.execute(delete(CampaignPlayer).where(CampaignPlayer.user_id == player.id))
+    db.execute(update(CampaignMap).where(CampaignMap.mapper_user_id == player.id).values(mapper_user_id=None))
+    db.execute(update(CampaignMap).where(CampaignMap.updated_by_user_id == player.id).values(updated_by_user_id=None))
+    db.execute(update(CampaignMapRevision).where(CampaignMapRevision.created_by_user_id == player.id).values(created_by_user_id=None))
+    db.execute(update(EquipmentCatalog).where(EquipmentCatalog.created_by_user_id == player.id).values(created_by_user_id=None))
+    db.flush()
+    db.delete(player)
+    db.commit()
+    return {
+        "ok": True,
+        "deleted": True,
+        "character_count": character_count,
+        "campaign_count": campaign_count,
+    }
 
 
 @router.post("/1e/players/{user_id}/reset-password")
@@ -2273,6 +2330,7 @@ def create_player_vault_character(data: dict, claims: dict = Depends(require_pla
     campaign_id = data.get("campaign_id")
     if campaign_id:
         ensure_player_campaign_member(db, int(campaign_id), player.id)
+        ensure_player_character_slot(db, int(campaign_id), player.id)
     data = {**data, "user_id": player.id}
     return create_vault_character_for_player(data, player, db)
 
@@ -2349,6 +2407,7 @@ def update_player_vault_character(character_id: int, data: dict, claims: dict = 
     campaign_id = data.get("campaign_id")
     if campaign_id:
         ensure_player_campaign_member(db, int(campaign_id), player.id)
+        ensure_player_character_slot(db, int(campaign_id), player.id, character.id)
     return update_vault_character_record(character, data, db)
 
 
@@ -2373,17 +2432,17 @@ def patch_vault_character(character_id: int, data: dict, _: dict = Depends(requi
 def delete_player_vault_character(character_id: int, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> dict:
     player = player_from_claims(db, claims)
     character = player_character_or_404(db, character_id, player.id)
-    character.status = "archived"
+    db.delete(character)
     db.commit()
-    return {"ok": True, "archived": True}
+    return {"ok": True, "deleted": True}
 
 
 @router.delete("/1e/characters/{character_id}")
 def delete_vault_character(character_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     character = get_vault_character_or_404(db, character_id)
-    character.status = "archived"
+    db.delete(character)
     db.commit()
-    return {"ok": True, "archived": True}
+    return {"ok": True, "deleted": True}
 
 
 def add_inventory_record(character: VaultCharacter, data: dict, db: Session) -> dict:

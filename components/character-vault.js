@@ -478,7 +478,10 @@ async function boot() {
       state.character = isPlayerCharacterMode()
         ? await rootApi(`/player/characters/${characterId()}`, { headers: playerAuthHeaders() })
         : await cachedApi(`/characters/${characterId()}`);
-      if (state.character?.campaign_id) applyCampaignSourceContext(state.campaigns.find((campaign) => campaign.id === state.character.campaign_id));
+      if (state.character?.campaign_id) {
+        state.campaign = state.campaigns.find((campaign) => campaign.id === state.character.campaign_id) || null;
+        applyCampaignSourceContext(state.campaign);
+      }
       renderShell();
     }
     if (kind === "campaign" && campaignId()) {
@@ -832,11 +835,16 @@ function navButtons(save = false) {
 }
 
 function campaignSelectHtml(d) {
-  if (isPlayerCharacterMode() && state.campaign) {
-    return `<input type="hidden" name="campaign_id" value="${h(state.campaign.id)}"><div class="vault-card vault-full"><div class="vault-kicker">Campaign</div><h3>${h(state.campaign.name)}</h3><p>${h(title(state.campaign.setting || "classic"))} / Session #${h(state.campaign.session_number || 1)} / ${h(state.campaign.next_session_date || "Next session TBD")}</p></div>`;
-  }
   if (isPlayerCharacterMode()) {
-    return `<input type="hidden" name="campaign_id" value="${h(d.campaign_id || "")}"><div class="vault-card vault-full"><div class="vault-kicker">Campaign</div><h3>${h(playerCampaignLabel(d))}</h3><p>The campaign will be attached when your DM sends or accepts an invitation.</p></div>`;
+    if (!state.campaigns.length) {
+      return `<input type="hidden" name="campaign_id" value=""><div class="vault-card vault-full"><div class="vault-kicker">Campaign</div><h3>Pending</h3><p>Your DM has not invited this player to a campaign yet.</p></div>`;
+    }
+    const selected = d.campaign_id || state.campaign?.id || "";
+    const options = [
+      { value: "", label: "Pending / No campaign" },
+      ...state.campaigns.map((campaign) => ({ value: String(campaign.id), label: campaign.name })),
+    ];
+    return `<div class="vault-full">${selectField("Campaign", "campaign_id", String(selected), options)}<p class="vault-muted">Only campaigns your DM invited you to are available.</p></div>`;
   }
   if (!state.campaigns.length) return `<div class="vault-full vault-muted">No campaigns available. Your DM can assign this character later.</div>`;
   return selectField("Campaign", "campaign_id", d.campaign_id || "", ["", ...state.campaigns.map((c) => String(c.id))]);
@@ -1386,6 +1394,12 @@ function bindBuilderActions() {
   });
   document.querySelector("[name='race']")?.addEventListener("change", () => { syncDraft(); renderBuilder(); });
   document.querySelector("[name='class_name']")?.addEventListener("change", () => { syncDraft(); renderBuilder(); });
+  document.querySelector("[name='campaign_id']")?.addEventListener("change", () => {
+    syncDraft();
+    state.campaign = state.campaigns.find((campaign) => String(campaign.id) === String(state.draft.campaign_id)) || null;
+    if (state.campaign) applyCampaignSourceContext(state.campaign);
+    renderBuilder();
+  });
   document.querySelectorAll("[data-select-race]").forEach((button) => button.addEventListener("click", (event) => {
     event.stopPropagation();
     if (button.closest(".vault-choice-card.disabled")) return;
