@@ -1287,8 +1287,8 @@ def admin_login(data: dict, response: Response) -> dict:
         key="drg_admin_session",
         value=token,
         httponly=True,
-        secure=True,
-        samesite="lax",
+        secure=settings.cookie_secure,
+        samesite=settings.cookie_samesite,
         max_age=60 * 60 * 12,
         path="/",
     )
@@ -1317,8 +1317,8 @@ def player_login(data: dict, response: Response, db: Session = Depends(get_db)) 
         key="drg_player_session",
         value=token,
         httponly=True,
-        secure=True,
-        samesite="lax",
+        secure=settings.cookie_secure,
+        samesite=settings.cookie_samesite,
         max_age=60 * 60 * 12,
         path="/",
     )

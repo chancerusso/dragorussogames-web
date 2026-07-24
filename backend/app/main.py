@@ -5,14 +5,33 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from urllib.parse import quote
 
 from app.api import router
 from app.auth import require_admin, verify_admin_token, verify_player_token
-from app.config import cors_origin_list, settings
+from app.config import cors_origin_list, settings, static_site_root
 from app.services.canonical_content import get_canonical_content
 
-app = FastAPI(title="RUSSO Backend", version="0.1.0")
+
+class SpaStaticFiles(StaticFiles):
+    async def get_response(self, path: str, scope) -> Response:
+        try:
+            response = await super().get_response(path, scope)
+        except StarletteHTTPException as error:
+            if error.status_code != 404 or Path(path).suffix:
+                raise
+            response = None
+        if (response is None or response.status_code == 404) and not Path(path).suffix:
+            index = Path(self.directory) / "index.html"
+            if index.is_file():
+                return FileResponse(index)
+        if response is None:
+            raise StarletteHTTPException(status_code=404)
+        return response
+
+
+app = FastAPI(title=f"{settings.app_name} API", version="0.1.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origin_list(),
@@ -22,7 +41,7 @@ app.add_middleware(
 )
 app.include_router(router)
 
-SITE_ROOT = Path(__file__).resolve().parents[2]
+SITE_ROOT = static_site_root()
 
 
 @app.on_event("startup")
@@ -144,4 +163,4 @@ def deny_private_reference(source_path: str) -> None:
 
 
 if SITE_ROOT.exists():
-    app.mount("/", StaticFiles(directory=SITE_ROOT, html=True), name="site")
+    app.mount("/", SpaStaticFiles(directory=SITE_ROOT, html=True), name="site")

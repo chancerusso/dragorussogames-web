@@ -4,12 +4,13 @@ Last updated: 2026-07-23
 
 ## Current focus
 
-Mapping Mode group readiness was deployed on 2026-07-23 UTC at
-`1761590b539caa758394ff77373b79d1ba0307a4`. Right-click/Escape wall-chain
-termination, independent named floors, centered saved zoom, revision restore,
-stale-window conflict protection, and read-only viewer following are ready for
-group testing. The Greyhawk Darlene image is stored as a Classic-only player
-asset for the later Hex Crawl phase.
+Drago Table is moving from a VPS-first topology to a locally operated browser
+application. Phase 1 now provides a loopback-only Mac runtime with its own
+PostgreSQL lifecycle, one-origin DM and player interfaces, a double-click
+launcher, clean shutdown, local cookie configuration, and responsive
+horizontal role-based menus. The existing VPS remains intact while the local
+edition is qualified. Next: test the default Application Support installation,
+then add explicit LAN mode and player-address/QR presentation.
 
 ## Confirmed product direction
 

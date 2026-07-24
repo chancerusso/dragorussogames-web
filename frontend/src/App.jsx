@@ -29,7 +29,7 @@ import {
   relatedTopics,
   sourceBadges,
 } from "./dragonlanceReference.js";
-import { CLASSIC_PORTAL_URL, DM_NAV_ITEMS } from "./dmNavigation.js";
+import { DM_NAV_ITEMS, playerPortalUrl } from "./dmNavigation.js";
 import { filterReferenceItems, isCanonicalId, makeTypeOptions, recordSummary, recordTitle, reviewStatus, safeDisplayText, sourceLabel, titleize, typeLabel } from "./rulesReference.js";
 import { MappingCanvas } from "./MappingCanvas.jsx";
 import { emptyDrawingState } from "./mapping.js";
@@ -93,6 +93,10 @@ function isClassicHost() {
 
 function isDmHost() {
   return ["dm.dragorussogames.com", "dm.localhost"].includes(window.location.hostname);
+}
+
+function isLocalDragoHost() {
+  return ["127.0.0.1", "localhost"].includes(window.location.hostname);
 }
 
 function isPlayerHostname() {
@@ -176,18 +180,12 @@ function ClassicRoot() {
   return auth.playerAuthed ? <PlayerShell><ClassicPlayerHomepage /></PlayerShell> : <PlayerLoginPage />;
 }
 
-function AppSidebar({ mode, title, subtitle, brandTo, navItems, account, onSignOut }) {
+function AppHeader({ mode, title, subtitle, brandTo, navItems, account, onSignOut }) {
   const location = useLocation();
   return (
-    <aside className={`sidebar ${mode === "player" ? "player-sidebar" : ""}`}>
+    <header className={`app-header ${mode === "player" ? "player-header" : ""}`}>
       <Link className="brand" to={brandTo}>
-        {mode === "player" ? (
-          <span className="brand-wordmark" aria-label="Dragolance">
-            <img src="/assets/drago-classic-logo.png" alt="" />
-          </span>
-        ) : (
-          <span className="brand-mark">DRG</span>
-        )}
+        <span className="brand-mark">DRG</span>
         <span>
           <strong>{title}</strong>
           <small>{subtitle}</small>
@@ -209,37 +207,16 @@ function AppSidebar({ mode, title, subtitle, brandTo, navItems, account, onSignO
           )
         ))}
       </nav>
-      <div className="sidebar-footer">
-        <PortalSwitcher mode={mode} />
+      <div className="app-header-actions">
+        {mode === "dm" ? (
+          <a className="header-player-link" href={playerPortalUrl()} target="_blank" rel="noreferrer">
+            Player View
+          </a>
+        ) : null}
         {account}
         <button className="ghost-button" onClick={onSignOut}>Sign Out</button>
       </div>
-    </aside>
-  );
-}
-
-function PortalSwitcher({ mode }) {
-  if (mode === "player" && isClassicHost()) {
-    return (
-      <div className="portal-switcher">
-        <span>Portal</span>
-        <strong>Drago Classic</strong>
-      </div>
-    );
-  }
-  if (mode === "dm") {
-    return (
-      <div className="portal-switcher">
-        <span>Portal</span>
-        <a href={CLASSIC_PORTAL_URL}>View Classic Portal</a>
-      </div>
-    );
-  }
-  return (
-    <div className="portal-switcher">
-      <span>Portal</span>
-      <strong>Drago Classic</strong>
-    </div>
+    </header>
   );
 }
 
@@ -254,13 +231,12 @@ function Shell() {
 
   return (
     <div className="app-shell">
-      <AppSidebar
+      <AppHeader
         mode="dm"
-        title="DM Portal"
-        subtitle="Campaign Command"
+        title="Drago Table"
+        subtitle="Dungeon Master"
         brandTo="/campaigns"
         navItems={DM_NAV_ITEMS}
-        account={<small>DM Account</small>}
         onSignOut={signOut}
       />
       <main className="content">
@@ -289,25 +265,23 @@ function PlayerShell({ children }) {
   return (
     <PlayerPortalContext.Provider value={context}>
       <div className="app-shell player-shell">
-        <AppSidebar
+        <AppHeader
           mode="player"
-          title="Drago Classic"
-          subtitle="Classic AD&D Player Portal"
+          title="Drago Table"
+          subtitle="Player"
           brandTo={classic ? "/" : "/portal"}
         navItems={[
             { label: "Home", to: classic ? "/" : "/portal", end: true },
-            { label: "My Campaigns", to: classic ? "/campaigns" : "/portal/campaigns", end: true },
-            { label: "My Characters", to: classic ? "/characters" : "/portal/characters" },
+            { label: "Campaigns", to: classic ? "/campaigns" : "/portal/campaigns", end: true },
+            { label: "Characters", to: classic ? "/characters" : "/portal/characters" },
             { label: "Create Character", href: "/1e/characters/new/", target: "_blank" },
             { label: "Player's Guide", href: "/1e/", target: "_blank" },
-            { label: "Dragolance Reference", href: classic ? "/dragonlance" : "/portal/dragonlance", target: "_blank" },
+            { label: "Dragonlance", href: classic ? "/dragonlance" : "/portal/dragonlance", target: "_blank" },
           ]}
           account={
             <div className="account-card">
-              <span>Logged in as:</span>
+              <span>Player</span>
               <strong>{error ? "Unavailable" : activePlayer?.display_name || activePlayer?.player_name || "Player Name"}</strong>
-              <span>Role:</span>
-              <strong>Player</strong>
               {error ? <small className="error">{error}</small> : null}
             </div>
           }
@@ -347,14 +321,14 @@ function LoginPage() {
   return (
     <div className="login-page">
       <form className="login-panel" onSubmit={submit}>
-        <p className="eyebrow">Drago Russo Games</p>
-        <h1>DM Portal</h1>
+        <p className="eyebrow">Drago Table</p>
+        <h1>Dungeon Master</h1>
         <label>
           Admin Password
           <input autoFocus type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
         </label>
         {error ? <p className="error">{error}</p> : null}
-        <button disabled={busy}>{busy ? "Opening..." : "Enter Portal"}</button>
+        <button disabled={busy}>{busy ? "Opening..." : "Open Drago Table"}</button>
       </form>
     </div>
   );
@@ -389,12 +363,9 @@ function PlayerLoginPage() {
   return (
     <div className="login-page dragonlance-login">
       <form className="login-panel" onSubmit={submit}>
-        <div className="classic-login-brands">
-          <img src="/assets/dragolance-logo.png" alt="Dragolance" />
-          <img src="/assets/drago-classic-logo.png" alt="Drago Classic" />
-        </div>
-        <p className="eyebrow">Drago Classic</p>
-        <h1>Player Login</h1>
+        <div className="login-brand-mark">DRG</div>
+        <p className="eyebrow">Drago Table</p>
+        <h1>Player</h1>
         <p className="login-subtitle">Your campaigns, characters, and classic rules in one place.</p>
         <label>
           Username
@@ -525,7 +496,7 @@ function CampaignsPage() {
           <h2>Your adventure begins here.</h2>
           <p className="lede">Manage campaigns, players, and characters from one quiet command center.</p>
           <div className="hero-actions">
-            <a className="secondary-button" href="https://classic.dragorussogames.com/" target="_blank" rel="noreferrer">Player View</a>
+            <a className="secondary-button" href={playerPortalUrl()} target="_blank" rel="noreferrer">Player View</a>
           </div>
         </div>
         <div className="summary-strip hero-stats">
@@ -1107,7 +1078,7 @@ function DragoTablePage() {
       <div className="drago-modebar">
         <Tabs tabs={DRAGO_TABLE_MODES} activeTab={mode} onChange={changeTableMode} className="drago-mode-tabs" />
         <div className="drago-live-actions">
-          <button type="button" className="ghost-button" onClick={() => openExternalWindow(CLASSIC_PORTAL_URL, "drago-player-view")}>Player View</button>
+          <button type="button" className="ghost-button" onClick={() => openExternalWindow(playerPortalUrl(), "drago-player-view")}>Player View</button>
           <button type="button" className="ghost-button" onClick={() => openExternalWindow("/1e/", "drago-rules")}>Rules</button>
           <button type="button" className={isSessionLive ? "danger-button" : ""} onClick={toggleSessionLive}>
             {isSessionLive ? "Stop Session" : "Start Session"}
@@ -1308,7 +1279,7 @@ function DmMappingControls({ campaign, maps, onReload }) {
       <div>
         <p className="eyebrow">Player Mapping</p>
         <h2>{activeMap?.name || "No active player map"}</h2>
-        <p className="muted">You choose the active map here. Drawing and player viewing remain on Drago Classic.</p>
+        <p className="muted">You choose the active map here. Drawing and player viewing remain in the Drago Table player interface.</p>
       </div>
       <label>Active Player Map
         <select value={campaign.active_map_id || ""} onChange={(event) => selectActiveMap(event.target.value)}>
@@ -2509,7 +2480,7 @@ function ClassicPlayerHomepage() {
   return (
     <section className="player-portal-page player-homepage">
       <PlayerHero
-        eyebrow="Drago Classic"
+        eyebrow="Drago Table"
         title={`Welcome, ${activePlayer?.display_name || activePlayer?.player_name || "Player"}`}
         copy="Your campaigns, characters, and classic First Edition rules are ready."
       />
@@ -2691,7 +2662,7 @@ function PlayerCampaignsPage() {
   return (
     <section className="player-portal-page">
       <PlayerHero
-        eyebrow="Drago Classic"
+        eyebrow="Drago Table"
         title="My Campaigns"
         copy={activePlayer ? `Welcome, ${activePlayer.display_name || activePlayer.player_name}.` : "Sign in to see your campaigns."}
       />
@@ -4371,7 +4342,7 @@ function slugify(value) {
 }
 
 function PlayerHero({ eyebrow, title, copy }) {
-  if (isClassicHost()) return <Header eyebrow={eyebrow} title={title} copy={copy} className="player-hero" />;
+  if (isClassicHost() || isLocalDragoHost()) return <Header eyebrow={eyebrow} title={title} copy={copy} className="player-hero" />;
   return <Header eyebrow={eyebrow} title={title} copy={copy} className="player-hero" action={<Link className="secondary-button" to="/">Return to DM Portal</Link>} />;
 }
 
@@ -4924,9 +4895,15 @@ function InlineSelect({ value, options, onSave }) {
 }
 
 export default function App() {
+  const location = useLocation();
+
   useEffect(() => {
-    document.title = isClassicHost() ? "Drago Classic | Player Portal" : "DM Portal | Drago Russo Games";
-  }, []);
+    document.title = isClassicHost()
+      ? "Drago Table — Player"
+      : location.pathname.startsWith("/portal")
+        ? "Drago Table — Player"
+        : "Drago Table — Dungeon Master";
+  }, [location.pathname]);
 
   if (isDragolanceHost()) {
     window.location.replace("https://classic.dragorussogames.com/");

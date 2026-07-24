@@ -2,16 +2,16 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-import { CLASSIC_PORTAL_URL, DM_NAV_ITEMS } from "./dmNavigation.js";
+import { CLASSIC_PORTAL_URL, DM_NAV_ITEMS, playerPortalUrl } from "./dmNavigation.js";
 
 test("DM sidebar contains Rules & Settings in the actual navigation model", () => {
   const labels = DM_NAV_ITEMS.map((item) => item.label);
 
   assert.deepEqual(labels, [
-    "Command Center",
-    "Drago Table",
+    "Home",
+    "Table",
     "Campaigns",
-    "Rules & Settings",
+    "Rules",
     "Monsters",
     "Players",
     "Characters",
@@ -21,7 +21,7 @@ test("DM sidebar contains Rules & Settings in the actual navigation model", () =
 });
 
 test("Drago Table has a sidebar entry and authenticated routes", () => {
-  const item = DM_NAV_ITEMS.find((navItem) => navItem.label === "Drago Table");
+  const item = DM_NAV_ITEMS.find((navItem) => navItem.label === "Table");
   const appSource = readFileSync(new URL("./App.jsx", import.meta.url), "utf8");
 
   assert.equal(item?.to, "/table");
@@ -30,7 +30,7 @@ test("Drago Table has a sidebar entry and authenticated routes", () => {
 });
 
 test("Rules & Settings routes inside the authenticated DM app", () => {
-  const item = DM_NAV_ITEMS.find((navItem) => navItem.label === "Rules & Settings");
+  const item = DM_NAV_ITEMS.find((navItem) => navItem.label === "Rules");
 
   assert.equal(item?.to, "/rules");
   assert.equal(item?.href, undefined);
@@ -48,6 +48,17 @@ test("Monsters opens the DM monster glossary in a separate window", () => {
 test("Classic portal link remains separate from the DM rules browser", () => {
   assert.equal(CLASSIC_PORTAL_URL, "https://classic.dragorussogames.com/");
   assert.equal(DM_NAV_ITEMS.some((item) => item.href === CLASSIC_PORTAL_URL), false);
+});
+
+test("local Drago Table links DM and player interfaces on one origin", () => {
+  assert.equal(
+    playerPortalUrl({ hostname: "127.0.0.1", origin: "http://127.0.0.1:8010" }),
+    "http://127.0.0.1:8010/portal",
+  );
+  assert.equal(
+    playerPortalUrl({ hostname: "dm.dragorussogames.com", origin: "https://dm.dragorussogames.com" }),
+    CLASSIC_PORTAL_URL,
+  );
 });
 
 test("Rules route is wrapped in an error boundary inside the DM shell", () => {
