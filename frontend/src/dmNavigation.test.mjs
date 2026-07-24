@@ -123,6 +123,9 @@ test("Finder startup discovers Homebrew PostgreSQL outside the GUI PATH", () => 
   assert.match(launcherSource, /Path\("\/opt\/homebrew\/bin"\)/);
   assert.match(launcherSource, /Path\("\/usr\/local\/bin"\)/);
   assert.match(launcherSource, /glob\(f"postgresql@\*\/bin\/\{name\}"\)/);
+  assert.match(launcherSource, /os\.environ\["LC_ALL"\] = "C"/);
+  assert.match(launcherSource, /os\.environ\["LANG"\] = "C"/);
+  assert.match(launcherSource, /configure_process_environment\(\)\n    parser =/);
 });
 
 test("Create Character remains in player-owned navigation", () => {

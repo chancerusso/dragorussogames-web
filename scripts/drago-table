@@ -28,6 +28,13 @@ DEFAULT_APP_PORT = 8010
 DEFAULT_DB_PORT = 55432
 
 
+def configure_process_environment() -> None:
+    # Finder-launched apps may not receive a valid locale. PostgreSQL refuses
+    # to start if macOS initializes locale services on another thread first.
+    os.environ["LC_ALL"] = "C"
+    os.environ["LANG"] = "C"
+
+
 def app_home() -> Path:
     configured = os.environ.get("DRAGO_TABLE_HOME")
     return Path(configured).expanduser() if configured else Path.home() / "Library" / "Application Support" / "Drago Table"
@@ -287,6 +294,7 @@ def start(args: argparse.Namespace) -> int:
 
 
 def main() -> int:
+    configure_process_environment()
     parser = argparse.ArgumentParser(description="Start Drago Table on this Mac.")
     parser.add_argument("--port", type=int, default=DEFAULT_APP_PORT)
     parser.add_argument("--database-port", type=int, default=DEFAULT_DB_PORT)
