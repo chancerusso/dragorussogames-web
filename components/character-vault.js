@@ -330,7 +330,8 @@ function campaignIdParam() {
 
 function isPlayerCharacterMode() {
   const params = new URLSearchParams(window.location.search);
-  return !isDmMode() && (isClassicHost() || isDragolanceHost() || params.has("campaign_id") || params.get("setting") === "dragolance");
+  const localPlayerRoute = location.pathname.startsWith("/characters/");
+  return !isDmMode() && (localPlayerRoute || isClassicHost() || isDragolanceHost() || params.has("campaign_id") || params.get("setting") === "dragolance");
 }
 
 function isPlayerBuilderMode() {
@@ -515,6 +516,7 @@ function renderShell() {
   const dmPage = isDmMode();
   const playerCharacterPage = isPlayerCharacterMode();
   const sheetId = characterId();
+  const sheetPage = pageKind() === "show";
   const heroCopy = dmPage
     ? "Campaigns, characters, storage, and equipment for DRG 1e play."
     : playerCharacterPage
@@ -522,12 +524,15 @@ function renderShell() {
       : builderContext.setting === "dragolance"
         ? "Build one Dragolance character through the unified DRG 1e rules engine. Dragonlance sourcebook options are active for this campaign."
         : "Persistent OSRIC character building with DRG 1e table-rule ability rolls, catalog-only equipment, coins, spells, and campaign state.";
+  if (sheetPage) {
+    document.title = `${state.character?.name || "Character"} — Character Sheet | Drago Table`;
+  }
   document.querySelector("[data-vault-app]").innerHTML = `
-    <section class="vault-hero ${dmPage || playerCharacterPage ? "vault-hero-compact" : ""}">
+    <section class="vault-hero ${dmPage || playerCharacterPage || sheetPage ? "vault-hero-compact" : ""} ${sheetPage ? "vault-sheet-hero" : ""}">
       <div>
-        <div class="vault-eyebrow">${dmPage ? "DM Tools" : playerCharacterPage ? "My Characters" : builderContext.setting === "dragolance" ? "Dragolance Character Builder" : "DRG 1e Character Vault"}</div>
+        ${sheetPage ? "" : `<div class="vault-eyebrow">${dmPage ? "DM Tools" : playerCharacterPage ? "My Characters" : builderContext.setting === "dragolance" ? "Dragolance Character Builder" : "Character Vault"}</div>`}
         <h1>${pageTitle()}</h1>
-        <p>${heroCopy}</p>
+        ${sheetPage ? "" : `<p>${heroCopy}</p>`}
         ${dmPage ? `<p class="vault-warning-text">DM tools are currently unprotected until login is enabled.</p>` : ""}
         <div class="vault-toast" data-vault-toast></div>
       </div>
@@ -551,11 +556,15 @@ function pageTitle() {
 }
 
 function playerNavHtml(sheetId) {
+  const returnTo = new URLSearchParams(window.location.search).get("return_to");
+  const returnLink = returnTo
+    ? `<a class="vault-button" href="${h(returnTo)}">Back to Campaign</a>`
+    : "";
   if (isPlayerCharacterMode()) {
     const campaignHref = state.campaign?.id ? `/campaigns/${state.campaign.id}` : "";
     const dragonlanceReference = isDragonlanceCampaignContext() ? `<a class="vault-button secondary" href="/dragonlance">Dragolance Reference</a>` : "";
     return `
-      <a class="vault-button" href="/">Back to Player Home</a>
+      ${returnLink || `<a class="vault-button" href="/">Back to Player Home</a>`}
       ${campaignHref ? `<a class="vault-button secondary" href="${campaignHref}">Back to Campaign</a>` : ""}
       <a class="vault-button secondary" href="/characters">My Characters</a>
       ${sheetId ? `<a class="vault-button secondary" href="${characterViewHref(sheetId)}">Character Sheet</a>` : ""}
@@ -563,6 +572,7 @@ function playerNavHtml(sheetId) {
       <a class="vault-button secondary" href="/1e/">Rules</a>`;
   }
   return `
+    ${returnLink}
     <a class="vault-button secondary" href="/1e/characters/">Characters</a>
     <a class="vault-button" href="${newCharacterHref()}">New Character</a>
     ${sheetId ? `<a class="vault-button secondary" href="/1e/characters/${sheetId}/">Character Sheet</a>` : ""}

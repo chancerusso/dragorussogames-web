@@ -11,9 +11,11 @@ The normal way to start Drago Table is to double-click:
 Desktop/Drago Table.app
 ```
 
-The app opens a Terminal host window during Phase 1. Leave that window open
-while Drago Table is running. The browser opens automatically when the local
-application is ready.
+Drago Table starts its local services quietly and opens the browser when it is
+ready. No Terminal window is required. Its small control window provides
+**Open Dungeon Master**, **Open Player View**, and **Stop Drago Table**. The
+first launch asks for the Dungeon Master password in a normal application
+dialog.
 
 The repository command remains available as a developer fallback:
 
@@ -42,15 +44,15 @@ addresses and the optional Cloudflare Tunnel belong to later phases.
 
 ## Stop
 
-Return to the Terminal window running Drago Table and press **Control-C**.
-The application and its private PostgreSQL process stop cleanly. Campaign data
-remains in the application directory for the next start.
+Click **Stop Drago Table** in its control window, or quit it from its Dock
+icon. The application and its private PostgreSQL process stop cleanly.
+Campaign data remains in the application directory for the next start.
 
 ## Test a New Interface Build
 
-Stop Drago Table, then double-click `Drago Table.app` again. The launcher
-rebuilds the frontend before starting, so no VPS deployment or internet
-connection is required when dependencies are already installed.
+Code changes are built locally before testing. Stop Drago Table, then
+double-click `Drago Table.app` again to open the newest local build. No VPS
+deployment or internet connection is required.
 
 Use `./scripts/drago-table --skip-build` only when intentionally reusing the
 most recent local frontend build.

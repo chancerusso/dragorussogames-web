@@ -7,8 +7,6 @@ CONTENTS_PATH="$INSTALL_PATH/Contents"
 RESOURCES_PATH="$CONTENTS_PATH/Resources"
 MACOS_PATH="$CONTENTS_PATH/MacOS"
 TEMPORARY_PATH="$(mktemp -d "${TMPDIR:-/tmp}/drago-table-app.XXXXXX")" || exit 1
-ICONSET_PATH="$TEMPORARY_PATH/DragoTable.iconset"
-SOURCE_ICON="$REPOSITORY_PATH/assets/LogoDrago_Mesa_de_trabajo_1.png"
 
 cleanup() {
   rm -rf "$TEMPORARY_PATH"
@@ -20,20 +18,21 @@ if [[ -e "$INSTALL_PATH" ]]; then
   exit 1
 fi
 
-mkdir -p "$MACOS_PATH" "$RESOURCES_PATH" "$ICONSET_PATH" || exit 1
+mkdir -p "$MACOS_PATH" "$RESOURCES_PATH" || exit 1
 cp "$TEMPLATE_PATH/Info.plist" "$CONTENTS_PATH/Info.plist" || exit 1
-cp "$TEMPLATE_PATH/Drago Table" "$MACOS_PATH/Drago Table" || exit 1
-chmod 755 "$MACOS_PATH/Drago Table"
+xcrun clang \
+  -fobjc-arc \
+  -framework Cocoa \
+  -fmodules-cache-path="$TEMPORARY_PATH/clang-cache" \
+  "$TEMPLATE_PATH/DragoTableApp.m" \
+  -o "$MACOS_PATH/DragoTable" || exit 1
+chmod 755 "$MACOS_PATH/DragoTable"
 print -r -- "$REPOSITORY_PATH" > "$RESOURCES_PATH/repository-path"
 chmod 600 "$RESOURCES_PATH/repository-path"
 
-sips --cropToHeightWidth 1024 1024 "$SOURCE_ICON" --out "$TEMPORARY_PATH/source.png" >/dev/null || exit 1
-for size in 16 32 128 256 512; do
-  sips -z "$size" "$size" "$TEMPORARY_PATH/source.png" --out "$ICONSET_PATH/icon_${size}x${size}.png" >/dev/null || exit 1
-  double=$((size * 2))
-  sips -z "$double" "$double" "$TEMPORARY_PATH/source.png" --out "$ICONSET_PATH/icon_${size}x${size}@2x.png" >/dev/null || exit 1
-done
-iconutil -c icns "$ICONSET_PATH" -o "$RESOURCES_PATH/DragoTable.icns" || exit 1
+cp "$TEMPLATE_PATH/DragoTable.icns" "$RESOURCES_PATH/DragoTable.icns" || exit 1
 
+xattr -cr "$INSTALL_PATH" || exit 1
+codesign --force --deep --sign - "$INSTALL_PATH" || exit 1
 touch "$INSTALL_PATH"
 echo "Installed Drago Table at: $INSTALL_PATH"

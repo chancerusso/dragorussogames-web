@@ -61,6 +61,27 @@ test("local Drago Table links DM and player interfaces on one origin", () => {
   );
 });
 
+test("Drago Table uses the real logo and keeps ordinary player navigation in one tab", () => {
+  const appSource = readFileSync(new URL("./App.jsx", import.meta.url), "utf8");
+  assert.match(appSource, /LogoDrago_Mesa_de_trabajo_1\.png/);
+  assert.doesNotMatch(appSource, /className="brand-mark">DRG/);
+  assert.doesNotMatch(appSource, /\{ label: "Create Character", href: "\/1e\/characters\/new\/", target: "_blank" \}/);
+  assert.doesNotMatch(appSource, /\{ label: "Player's Guide", href: "\/1e\/", target: "_blank" \}/);
+});
+
+test("local DM character view and edit routes load the character vault", () => {
+  const appSource = readFileSync(new URL("./App.jsx", import.meta.url), "utf8");
+  assert.equal(appSource.includes('<Route path="/1e/characters/:id" element={<PlayerVaultToolPage />} />'), true);
+  assert.equal(appSource.includes('<Route path="/1e/characters/:id/edit" element={<PlayerVaultToolPage />} />'), true);
+});
+
+test("local Player mapper uses and registers the portal map route", () => {
+  const appSource = readFileSync(new URL("./App.jsx", import.meta.url), "utf8");
+  assert.match(appSource, /function playerMapPath\(campaignId, mapId\)/);
+  assert.equal(appSource.includes('<Route path="/portal/campaigns/:id/maps/:mapId" element={<PlayerMapPage />} />'), true);
+  assert.match(appSource, /to=\{playerMapPath\(campaign\.id, activeMap\.id\)\}/);
+});
+
 test("Rules route is wrapped in an error boundary inside the DM shell", () => {
   const appSource = readFileSync(new URL("./App.jsx", import.meta.url), "utf8");
   assert.match(appSource, /class RulesBrowserBoundary extends Component/);

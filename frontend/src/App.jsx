@@ -107,6 +107,10 @@ function playerCampaignPath(id) {
   return isClassicHost() ? `/campaigns/${id}` : `/portal/campaigns/${id}`;
 }
 
+function playerMapPath(campaignId, mapId) {
+  return `${playerCampaignPath(campaignId)}/maps/${mapId}`;
+}
+
 function playerCharacterBuilderPath(campaignId) {
   const query = campaignId ? `?campaign_id=${campaignId}` : "";
   return `/1e/characters/new/${query}`;
@@ -185,7 +189,9 @@ function AppHeader({ mode, title, subtitle, brandTo, navItems, account, onSignOu
   return (
     <header className={`app-header ${mode === "player" ? "player-header" : ""}`}>
       <Link className="brand" to={brandTo}>
-        <span className="brand-mark">DRG</span>
+        <span className="brand-mark">
+          <img src="/assets/LogoDrago_Mesa_de_trabajo_1.png" alt="" />
+        </span>
         <span>
           <strong>{title}</strong>
           <small>{subtitle}</small>
@@ -274,9 +280,9 @@ function PlayerShell({ children }) {
             { label: "Home", to: classic ? "/" : "/portal", end: true },
             { label: "Campaigns", to: classic ? "/campaigns" : "/portal/campaigns", end: true },
             { label: "Characters", to: classic ? "/characters" : "/portal/characters" },
-            { label: "Create Character", href: "/1e/characters/new/", target: "_blank" },
-            { label: "Player's Guide", href: "/1e/", target: "_blank" },
-            { label: "Dragonlance", href: classic ? "/dragonlance" : "/portal/dragonlance", target: "_blank" },
+            { label: "Create Character", href: "/1e/characters/new/" },
+            { label: "Player's Guide", href: "/1e/" },
+            { label: "Dragonlance", href: classic ? "/dragonlance" : "/portal/dragonlance" },
           ]}
           account={
             <div className="account-card">
@@ -321,6 +327,9 @@ function LoginPage() {
   return (
     <div className="login-page">
       <form className="login-panel" onSubmit={submit}>
+        <div className="login-brand-mark">
+          <img src="/assets/LogoDrago_Mesa_de_trabajo_1.png" alt="Drago Table" />
+        </div>
         <p className="eyebrow">Drago Table</p>
         <h1>Dungeon Master</h1>
         <label>
@@ -363,7 +372,9 @@ function PlayerLoginPage() {
   return (
     <div className="login-page dragonlance-login">
       <form className="login-panel" onSubmit={submit}>
-        <div className="login-brand-mark">DRG</div>
+        <div className="login-brand-mark">
+          <img src="/assets/LogoDrago_Mesa_de_trabajo_1.png" alt="Drago Table" />
+        </div>
         <p className="eyebrow">Drago Table</p>
         <h1>Player</h1>
         <p className="login-subtitle">Your campaigns, characters, and classic rules in one place.</p>
@@ -2377,8 +2388,8 @@ function CampaignCharactersTab({ campaign, allCharacters, onError, onReload }) {
           `${character.status} / ${character.life_status}`,
           character.current_location,
           <div className="row-actions">
-            <a className="table-link" href={`/1e/characters/${character.id}/`}>View</a>
-            <a className="table-link" href={`/1e/characters/${character.id}/edit/`}>Edit</a>
+            <a className="table-link" href={`/1e/characters/${character.id}/?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`} target="_blank" rel="noreferrer">Open Sheet</a>
+            <a className="table-link" href={`/1e/characters/${character.id}/edit/?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`}>Edit</a>
             <button className="table-button" onClick={() => remove(character.id)}>Unassign</button>
           </div>,
         ])}
@@ -2732,7 +2743,7 @@ function PlayerMapsTab({ campaign }) {
         <section className="panel player-active-map">
           <div className="section-heading">
             <div><p className="eyebrow">Active Player Map</p><h2>{activeMap.name}</h2><p className="muted">Mapper: {activeMap.mapper_name || "Not assigned"}</p></div>
-            <Link className="secondary-button" target="_blank" to={`/campaigns/${campaign.id}/maps/${activeMap.id}`}>{activeMap.can_edit ? "Open Mapper" : "Open Map"}</Link>
+            <Link className="secondary-button" target="_blank" to={playerMapPath(campaign.id, activeMap.id)}>{activeMap.can_edit ? "Open Mapper" : "Open Map"}</Link>
           </div>
           <MappingCanvas campaignMap={activeMap} followViewport />
         </section>
@@ -2744,7 +2755,7 @@ function PlayerMapsTab({ campaign }) {
         <h2>Saved Player Maps</h2>
         <div className="map-library-grid">
           {maps.map((map) => (
-            <Link key={map.id} className="map-library-card" target="_blank" to={`/campaigns/${campaign.id}/maps/${map.id}`}>
+            <Link key={map.id} className="map-library-card" target="_blank" to={playerMapPath(campaign.id, map.id)}>
               <strong>{map.name}</strong><span>{map.active_level}</span><small>{map.mapper_name ? `Mapper: ${map.mapper_name}` : "No Mapper assigned"} · Revision {map.revision}</small>
             </Link>
           ))}
@@ -2930,7 +2941,7 @@ function PlayerMapPage() {
         <div className="player-map-header-actions">
           <span className={`map-save-state ${saveState !== "Saved" ? "is-saving" : ""}`}>{saveState}</span>
           {campaignMap.can_edit ? <button type="button" className="secondary-button" onClick={toggleHistory}>History</button> : null}
-          <Link className="secondary-button" to={`/campaigns/${id}`}>Campaign Home</Link>
+          <Link className="secondary-button" to={playerCampaignPath(id)}>Campaign Home</Link>
         </div>
       </header>
       {conflict ? <div className="map-conflict-notice"><strong>This map changed in another window.</strong><span>Your unsaved view has not overwritten it.</span><button type="button" onClick={reloadAfterConflict}>Reload Latest Map</button></div> : null}
@@ -3371,7 +3382,7 @@ function PlayerCharacterCombatPanel({
       </div>
       <div className="player-character-actions">
         <button className="table-button" type="button" disabled={!sessionLive} onClick={onAddToken}>Add To Grid</button>
-        <a className="table-button" href={`/1e/characters/${character.id}/`} target="_blank" rel="noreferrer">Open Sheet</a>
+        <a className="table-button" href={`/1e/characters/${character.id}/?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`} target="_blank" rel="noreferrer">Open Sheet</a>
       </div>
       {colorRequestOpen ? (
         <div className="player-token-color-request">
@@ -3486,8 +3497,8 @@ function PlayerCharacterTab({ character }) {
         <div><dt>XP</dt><dd>{character.xp || 0}</dd></div>
       </dl>
       <div className="form-actions">
-        <a className="secondary-button" href={`/characters/${character.id}`} target="_blank" rel="noreferrer">View Character</a>
-        <a className="table-link" href={`/characters/${character.id}/edit`} target="_blank" rel="noreferrer">Edit Character</a>
+        <a className="secondary-button" href={`/characters/${character.id}?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`} target="_blank" rel="noreferrer">Open Character Sheet</a>
+        <a className="table-link" href={`/characters/${character.id}/edit?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`}>Edit Character</a>
       </div>
     </section>
   );
@@ -4515,8 +4526,8 @@ function CharactersPage() {
           character.level,
           `${character.status} / ${character.life_status}`,
           <div className="row-actions">
-            <a className="table-link" href={`/1e/characters/${character.id}/`}>View</a>
-            <a className="table-link" href={`/1e/characters/${character.id}/edit/`}>Edit</a>
+            <a className="table-link" href={`/1e/characters/${character.id}/?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`} target="_blank" rel="noreferrer">Open Sheet</a>
+            <a className="table-link" href={`/1e/characters/${character.id}/edit/?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`}>Edit</a>
           </div>,
         ])}
       />
@@ -4945,6 +4956,7 @@ export default function App() {
           <Route path="/portal" element={<PlayerCampaignsPage />} />
           <Route path="/portal/campaigns" element={<PlayerCampaignsPage />} />
           <Route path="/portal/campaigns/:id" element={<PlayerCampaignHome />} />
+          <Route path="/portal/campaigns/:id/maps/:mapId" element={<PlayerMapPage />} />
           <Route path="/portal/characters" element={<PlayerCharactersPage />} />
           <Route path="/portal/characters/new" element={<PlayerCreateCharacterPage />} />
           <Route path="/portal/campaigns/:id/characters/new" element={<PlayerCreateCharacterPage />} />
@@ -4962,6 +4974,10 @@ export default function App() {
           <Route path="/monsters" element={<MonstersPage />} />
           <Route path="/players" element={<PlayersPage />} />
           <Route path="/characters" element={<CharactersPage />} />
+          <Route path="/1e/characters" element={<PlayerVaultToolPage />} />
+          <Route path="/1e/characters/new" element={<PlayerVaultToolPage />} />
+          <Route path="/1e/characters/:id" element={<PlayerVaultToolPage />} />
+          <Route path="/1e/characters/:id/edit" element={<PlayerVaultToolPage />} />
           <Route path="/sessions" element={<Navigate to="/campaigns" replace />} />
           <Route path="/archive" element={<ArchivePage />} />
           <Route path="/settings" element={<PlaceholderPage eyebrow="Portal" title="Settings" copy="Portal preferences and account controls will live here." />} />

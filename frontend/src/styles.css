@@ -1,18 +1,22 @@
 :root {
   color-scheme: dark;
-  --bg: #070604;
-  --panel: rgba(18, 15, 11, 0.9);
-  --panel-2: rgba(28, 23, 17, 0.94);
-  --line: #3a3022;
-  --line-bright: #765a2a;
-  --text: #f2eadc;
-  --muted: #b7aa98;
-  --gold: #c99a3f;
-  --gold-2: #f0c86b;
-  --red: #6f261f;
-  --green: #334d2d;
-  --blue: #173449;
-  --violet: #2b2147;
+  --bg: #0b0d13;
+  --panel: rgba(22, 26, 36, 0.94);
+  --panel-2: rgba(31, 36, 49, 0.96);
+  --line: #343b4d;
+  --line-bright: #7c2942;
+  --text: #fffaf3;
+  --muted: #b9c0cf;
+  --gold: #ff4d5f;
+  --gold-2: #ff8590;
+  --red: #7b1737;
+  --green: #2e7d57;
+  --blue: #286ecb;
+  --violet: #6650a4;
+  --cabernet: #701630;
+  --dragon: #df001b;
+  --ivory: #fffaf3;
+  --focus: #4ba3ff;
 }
 
 * {
@@ -24,9 +28,9 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background:
-    linear-gradient(180deg, rgba(18, 14, 9, 0.5), rgba(7, 6, 4, 0.98)),
-    linear-gradient(120deg, rgba(82, 51, 22, 0.22), transparent 34%),
-    #070604;
+    radial-gradient(circle at 88% 5%, rgba(40, 110, 203, 0.18), transparent 31%),
+    radial-gradient(circle at 9% 0%, rgba(123, 23, 55, 0.3), transparent 34%),
+    linear-gradient(180deg, #121621, var(--bg));
   color: var(--text);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
@@ -47,10 +51,10 @@ button,
 .secondary-button,
 .wide-command,
 .action-button {
-  border: 1px solid #d5ad58;
-  background: linear-gradient(180deg, #e2bd66, #a97625);
-  color: #140d08;
-  border-radius: 6px;
+  border: 1px solid #ff6675;
+  background: linear-gradient(135deg, var(--dragon), var(--cabernet));
+  color: #fff;
+  border-radius: 9px;
   cursor: pointer;
   font-size: 0.88rem;
   font-weight: 800;
@@ -84,7 +88,7 @@ button:disabled {
 
 .app-header {
   align-items: center;
-  background: linear-gradient(180deg, rgba(8, 7, 5, 0.98), rgba(4, 3, 2, 0.98));
+  background: linear-gradient(105deg, rgba(11, 13, 19, 0.98), rgba(29, 18, 29, 0.98));
   border-bottom: 1px solid var(--line-bright);
   display: flex;
   gap: 22px;
@@ -104,30 +108,37 @@ button:disabled {
 
 .brand-mark {
   align-items: center;
-  border: 1px solid var(--gold);
-  border-radius: 50%;
-  color: var(--gold-2);
+  border: 0;
+  border-radius: 12px;
   display: grid;
   font-family: Georgia, "Times New Roman", serif;
   font-size: 1rem;
   font-weight: 900;
-  height: 50px;
+  height: 52px;
+  overflow: hidden;
   place-items: center;
-  width: 50px;
+  width: 52px;
 }
 
 .login-brand-mark {
   align-items: center;
-  border: 1px solid var(--gold);
-  border-radius: 50%;
-  color: var(--gold-2);
+  border: 0;
+  border-radius: 18px;
   display: flex;
   font-family: Georgia, "Times New Roman", serif;
   font-weight: 900;
-  height: 58px;
+  height: 84px;
   justify-content: center;
   margin: 0 auto 10px;
-  width: 58px;
+  width: 84px;
+}
+
+.brand-mark img,
+.login-brand-mark img {
+  display: block;
+  height: 100%;
+  object-fit: contain;
+  width: 100%;
 }
 
 .brand-wordmark {
@@ -175,8 +186,8 @@ button:disabled {
 
 .app-header nav a.active,
 .app-header nav a:hover {
-  background: linear-gradient(90deg, rgba(168, 119, 43, 0.48), rgba(77, 51, 18, 0.36));
-  border-color: #7c5b27;
+  background: linear-gradient(105deg, rgba(223, 0, 27, 0.3), rgba(40, 110, 203, 0.22));
+  border-color: #a43655;
   color: var(--text);
 }
 
@@ -373,9 +384,9 @@ dt {
 .panel,
 .table-wrap,
 .campaign-card {
-  background: linear-gradient(180deg, rgba(20, 17, 13, 0.94), rgba(12, 10, 8, 0.94));
-  border: 1px solid rgba(114, 86, 43, 0.52);
-  border-radius: 8px;
+  background: linear-gradient(160deg, rgba(28, 33, 45, 0.97), rgba(16, 19, 28, 0.97));
+  border: 1px solid rgba(105, 117, 145, 0.4);
+  border-radius: 12px;
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
 }
 
@@ -3499,6 +3510,95 @@ tbody tr:hover {
   max-width: 100%;
   overflow-wrap: anywhere;
   white-space: normal;
+}
+
+/* Drago Table identity refresh */
+.login-panel {
+  background:
+    radial-gradient(circle at 85% 0%, rgba(40, 110, 203, 0.17), transparent 38%),
+    linear-gradient(160deg, rgba(30, 35, 49, 0.98), rgba(17, 20, 29, 0.98));
+  border-color: rgba(223, 0, 27, 0.55);
+  border-radius: 18px;
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.45);
+}
+
+.login-panel input,
+.login-panel select,
+.login-panel textarea {
+  background: rgba(9, 12, 19, 0.76);
+  border-color: #465068;
+  color: var(--text);
+}
+
+.login-panel input:focus,
+.login-panel select:focus,
+.login-panel textarea:focus,
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.login-subtitle {
+  color: #d7e8ff;
+}
+
+.player-shell {
+  background:
+    radial-gradient(circle at 95% 4%, rgba(40, 110, 203, 0.16), transparent 32%),
+    radial-gradient(circle at 6% 0%, rgba(112, 22, 48, 0.26), transparent 38%),
+    var(--bg);
+}
+
+.player-header {
+  border-bottom-color: rgba(223, 0, 27, 0.5);
+}
+
+.command-hero,
+.workspace-header,
+.player-hero {
+  background:
+    radial-gradient(circle at 86% 10%, rgba(40, 110, 203, 0.22), transparent 34%),
+    linear-gradient(125deg, rgba(112, 22, 48, 0.82), rgba(22, 27, 38, 0.97) 56%);
+  border-color: rgba(157, 75, 101, 0.58);
+  border-radius: 14px;
+}
+
+.workspace-meta span,
+.stat,
+.account-card,
+.tracker-status-box {
+  background: rgba(18, 22, 32, 0.82);
+  border-color: rgba(91, 105, 137, 0.58);
+  color: var(--text);
+}
+
+.tabs a.active,
+.tabs button.active {
+  background: linear-gradient(180deg, rgba(112, 22, 48, 0.88), rgba(73, 19, 40, 0.94));
+  border-color: #a23a5a;
+  border-bottom-color: #a23a5a;
+  color: #fff;
+}
+
+.action-card.red {
+  background: linear-gradient(135deg, rgba(151, 0, 35, 0.9), rgba(31, 25, 37, 0.96));
+}
+
+.action-card.gold {
+  background: linear-gradient(135deg, rgba(112, 22, 48, 0.88), rgba(27, 31, 43, 0.96));
+}
+
+.action-card.green {
+  background: linear-gradient(135deg, rgba(36, 112, 79, 0.82), rgba(22, 28, 36, 0.96));
+}
+
+.action-card.violet {
+  background: linear-gradient(135deg, rgba(102, 80, 164, 0.82), rgba(22, 28, 39, 0.96));
+}
+
+.action-card.blue {
+  background: linear-gradient(135deg, rgba(40, 110, 203, 0.84), rgba(21, 28, 41, 0.96));
 }
 
 .table-campaign-card .action-button {

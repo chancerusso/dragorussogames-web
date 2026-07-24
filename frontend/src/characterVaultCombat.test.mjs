@@ -171,7 +171,8 @@ test("armor class tile exposes standard flank and rear values", () => {
 
 test("player sheet hero is compact and no longer says level up is coming soon", () => {
   assert.match(vaultSource, /playerCharacterPage = isPlayerCharacterMode\(\)/);
-  assert.match(vaultSource, /dmPage \|\| playerCharacterPage \? "vault-hero-compact"/);
+  assert.match(vaultSource, /dmPage \|\| playerCharacterPage \|\| sheetPage \? "vault-hero-compact"/);
+  assert.match(vaultSource, /sheetPage \? "vault-sheet-hero"/);
   assert.match(vaultCss, /\.vault-hero\.vault-hero-compact p\{/);
   assert.match(vaultCss, /white-space:nowrap/);
   assert.doesNotMatch(vaultSource, /Level Up tools coming soon/);

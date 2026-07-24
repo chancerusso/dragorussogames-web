@@ -102,7 +102,7 @@ def start_database(home: Path, data: Path, sockets: Path, port: int) -> bool:
     if port_is_open(DEFAULT_HOST, port):
         raise RuntimeError(f"Database port {port} is already in use.")
     logfile = home / "logs" / "postgres.log"
-    options = f"-h {DEFAULT_HOST} -p {port} -k {sockets}"
+    options = f"-h {DEFAULT_HOST} -p {port} -k '{sockets}'"
     run([pg_ctl, "-D", str(data), "-l", str(logfile), "-o", options, "-w", "start"])
     return True
 
