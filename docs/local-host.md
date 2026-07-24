@@ -5,16 +5,17 @@ interfaces from one address and binds only to this Mac.
 
 ## Start
 
-Double-click:
+The normal way to start Drago Table is to double-click:
 
 ```text
-Start Drago Table.command
+Desktop/Drago Table.app
 ```
 
-The Terminal window is the temporary Phase 1 host control surface. It remains
-open while Drago Table is running.
+The app opens a Terminal host window during Phase 1. Leave that window open
+while Drago Table is running. The browser opens automatically when the local
+application is ready.
 
-The equivalent command from the repository is:
+The repository command remains available as a developer fallback:
 
 ```bash
 ./scripts/drago-table
@@ -47,9 +48,9 @@ remains in the application directory for the next start.
 
 ## Test a New Interface Build
 
-Stop Drago Table, then double-click `Start Drago Table.command` again. The
-launcher rebuilds the frontend before starting, so no VPS deployment or
-internet connection is required when dependencies are already installed.
+Stop Drago Table, then double-click `Drago Table.app` again. The launcher
+rebuilds the frontend before starting, so no VPS deployment or internet
+connection is required when dependencies are already installed.
 
 Use `./scripts/drago-table --skip-build` only when intentionally reusing the
 most recent local frontend build.
@@ -72,3 +73,16 @@ owner-only permissions. Do not copy it into the repository.
 
 Private rulebook source PDFs remain governed by the repository's existing
 private-reference restrictions and are never copied into the frontend build.
+
+## Reinstall the Desktop Application
+
+The desktop bundle is generated from committed packaging files. If it must be
+reinstalled, move the existing Desktop app to the Trash and run:
+
+```bash
+./scripts/install-drago-table-app
+```
+
+The application contains only the launcher and icon. Campaign data remains in
+Application Support, so reinstalling the Desktop icon does not remove a
+campaign database.

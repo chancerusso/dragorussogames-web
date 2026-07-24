@@ -1,0 +1,12 @@
+#!/bin/zsh
+
+APP_ROOT="${0:A:h:h}"
+REPOSITORY_PATH="$(<"$APP_ROOT/Resources/repository-path")"
+LAUNCHER="$REPOSITORY_PATH/Start Drago Table.command"
+
+if [[ ! -x "$LAUNCHER" ]]; then
+  osascript -e 'display alert "Drago Table could not start" message "The local Drago Table files could not be found. Reinstall the desktop launcher from the repository." as critical'
+  exit 1
+fi
+
+open -a Terminal "$LAUNCHER"
