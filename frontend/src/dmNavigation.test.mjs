@@ -117,6 +117,14 @@ test("local authentication never survives a fresh Drago Table startup", () => {
   assert.match(launcherSource, /"SECRET_KEY": secrets\.token_urlsafe\(48\)/);
 });
 
+test("Finder startup discovers Homebrew PostgreSQL outside the GUI PATH", () => {
+  const launcherSource = readFileSync(new URL("../../scripts/drago-table", import.meta.url), "utf8");
+
+  assert.match(launcherSource, /Path\("\/opt\/homebrew\/bin"\)/);
+  assert.match(launcherSource, /Path\("\/usr\/local\/bin"\)/);
+  assert.match(launcherSource, /glob\(f"postgresql@\*\/bin\/\{name\}"\)/);
+});
+
 test("Create Character remains in player-owned navigation", () => {
   const appSource = readFileSync(new URL("./App.jsx", import.meta.url), "utf8");
   const backendSource = readFileSync(new URL("../../backend/app/main.py", import.meta.url), "utf8");

@@ -39,9 +39,26 @@ def run(command: list[str], *, cwd: Path | None = None, env: dict[str, str] | No
 
 def require_command(name: str) -> str:
     path = shutil.which(name)
-    if path is None:
-        raise RuntimeError(f"Required command not found: {name}")
-    return path
+    if path is not None:
+        return path
+
+    # Finder-launched macOS apps receive a minimal PATH that normally omits
+    # Homebrew. Resolve its stable command links directly so desktop startup
+    # does not depend on a Terminal shell having run first.
+    for directory in (Path("/opt/homebrew/bin"), Path("/usr/local/bin")):
+        candidate = directory / name
+        if candidate.is_file() and os.access(candidate, os.X_OK):
+            return str(candidate)
+
+    versioned_candidates = [
+        *Path("/opt/homebrew/opt").glob(f"postgresql@*/bin/{name}"),
+        *Path("/usr/local/opt").glob(f"postgresql@*/bin/{name}"),
+    ]
+    for candidate in sorted(versioned_candidates, reverse=True):
+        if candidate.is_file() and os.access(candidate, os.X_OK):
+            return str(candidate)
+
+    raise RuntimeError(f"Required command not found: {name}")
 
 
 def port_is_open(host: str, port: int) -> bool:
