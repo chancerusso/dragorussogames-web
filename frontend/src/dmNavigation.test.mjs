@@ -146,6 +146,16 @@ test("Create Character remains in player-owned navigation", () => {
   assert.match(backendSource, /login_path = "\/portal\/login" if player and not classic_player_host else "\/login"/);
 });
 
+test("administrative character ownership selectors disambiguate duplicate player names", () => {
+  const vaultSource = readFileSync(new URL("../../components/character-vault.js", import.meta.url), "utf8");
+
+  assert.match(vaultSource, /function playerSelectOptions\(\)/);
+  assert.match(vaultSource, /@\$\{player\.username \|\| "no-username"\} · ID \$\{player\.id\}/);
+  assert.match(vaultSource, /selectField\("Owner \/ Player"[\s\S]*playerSelectOptions\(\)\)/);
+  assert.match(vaultSource, /selectField\("Current Player"[\s\S]*playerSelectOptions\(\)\)/);
+  assert.match(vaultSource, /selectField\("Player", "dm_filter_player"[\s\S]*playerSelectOptions\(\)\)/);
+});
+
 test("Rules route is wrapped in an error boundary inside the DM shell", () => {
   const appSource = readFileSync(new URL("./App.jsx", import.meta.url), "utf8");
   assert.match(appSource, /class RulesBrowserBoundary extends Component/);

@@ -691,7 +691,7 @@ function field(label, name, value, type = "text", extra = "") {
 }
 
 function selectField(label, name, value, options, extra = "") {
-  return `<label class="vault-field ${extra}">${label}<select name="${name}">${options.map((option) => `<option ${option === value ? "selected" : ""}>${h(option)}</option>`).join("")}</select></label>`;
+  return `<label class="vault-field ${extra}">${label}<select name="${name}">${selectOptionsHtml(options, value)}</select></label>`;
 }
 
 function selectOptionsHtml(options = [], value = "") {
@@ -700,6 +700,16 @@ function selectOptionsHtml(options = [], value = "") {
     const label = String(option.label ?? option);
     return `<option value="${h(optionValue)}" ${optionValue === String(value) ? "selected" : ""}>${h(label)}</option>`;
   }).join("");
+}
+
+function playerSelectOptions() {
+  return [
+    { value: "", label: "Choose a player..." },
+    ...state.players.map((player) => ({
+      value: String(player.id),
+      label: `${player.display_name || player.player_name || "Unnamed Player"} · @${player.username || "no-username"} · ID ${player.id}`,
+    })),
+  ];
 }
 
 function abilityAssignmentHtml(d) {
@@ -744,7 +754,7 @@ function builderStep() {
     ${navButtons()}`;
   if (state.step === 0) return `
     ${field("Character Name", "name", d.name)}
-    ${selectField("Owner / Player", "user_id", String(d.user_id || state.currentPlayer?.id || ""), ["", ...state.players.map((player) => String(player.id))])}
+    ${selectField("Owner / Player", "user_id", String(d.user_id || state.currentPlayer?.id || ""), playerSelectOptions())}
     ${field("Player Name", "owner_name", d.owner_name || state.currentPlayer?.display_name || "Website Player")}
     ${field("Email", "email", d.email || state.currentPlayer?.email || "", "email")}
     ${field("Discord User ID", "discord_user_id", d.discord_user_id || state.currentPlayer?.discord_user_id || "")}
@@ -1764,7 +1774,7 @@ function renderIndex() {
 
 function playerPanelHtml() {
   return `<section class="vault-panel"><div class="vault-kicker">Player Identity</div><form class="vault-form" data-player-form>
-    ${selectField("Current Player", "current_player_id", String(state.currentPlayer?.id || ""), ["", ...state.players.map((player) => String(player.id))])}
+    ${selectField("Current Player", "current_player_id", String(state.currentPlayer?.id || ""), playerSelectOptions())}
     ${field("Player Name", "display_name", state.currentPlayer?.display_name || "Website Player")}
     ${field("Email", "email", state.currentPlayer?.email || "", "email")}
     ${field("Discord User ID", "discord_user_id", state.currentPlayer?.discord_user_id || "")}
@@ -3289,7 +3299,7 @@ function renderDmPlayers() {
 
 function renderDmCharacters() {
   const characters = filteredDmCharacters();
-  document.querySelector("[data-vault-view]").innerHTML = `<section class="vault-panel"><h2>DM Characters</h2><div class="vault-actions">${selectField("Campaign", "dm_filter_campaign", state.dmCharacterFilters.campaign_id, ["", ...state.campaigns.map((campaign) => String(campaign.id))])}${selectField("Player", "dm_filter_player", state.dmCharacterFilters.user_id, ["", ...state.players.map((player) => String(player.id))])}${selectField("Status", "dm_filter_status", state.dmCharacterFilters.status, ["", "active", "inactive", "dead", "retired", "archived"])}</div><table class="vault-table"><thead><tr><th>Character</th><th>Player</th><th>Campaign</th><th>Status</th><th>Location</th><th>Assign</th><th>Actions</th></tr></thead><tbody>${characters.length ? characters.map((character) => `<tr><td><a href="/1e/characters/${character.id}/">${h(character.name)}</a><br><span class="vault-mini">${h(character.race)} ${h(character.class_name)} ${h(character.level)}</span></td><td>${h(character.player?.display_name || character.user_id)}</td><td>${h(campaignName(character.campaign_id))}</td><td>${h(labelize(character.status))} / ${h(labelize(character.life_status))}</td><td>${h(character.current_location)}</td><td>${selectField("", `character_campaign_${character.id}`, character.campaign_id ? String(character.campaign_id) : "", ["", ...state.campaigns.map((campaign) => String(campaign.id))])}<button class="vault-button secondary" type="button" data-assign-character-dm="${character.id}">Save</button></td><td><a class="vault-button secondary" href="/1e/characters/${character.id}/edit/">Edit</a></td></tr>`).join("") : `<tr><td colspan="7">No characters match these filters.</td></tr>`}</tbody></table></section>`;
+  document.querySelector("[data-vault-view]").innerHTML = `<section class="vault-panel"><h2>DM Characters</h2><div class="vault-actions">${selectField("Campaign", "dm_filter_campaign", state.dmCharacterFilters.campaign_id, ["", ...state.campaigns.map((campaign) => String(campaign.id))])}${selectField("Player", "dm_filter_player", state.dmCharacterFilters.user_id, playerSelectOptions())}${selectField("Status", "dm_filter_status", state.dmCharacterFilters.status, ["", "active", "inactive", "dead", "retired", "archived"])}</div><table class="vault-table"><thead><tr><th>Character</th><th>Player</th><th>Campaign</th><th>Status</th><th>Location</th><th>Assign</th><th>Actions</th></tr></thead><tbody>${characters.length ? characters.map((character) => `<tr><td><a href="/1e/characters/${character.id}/">${h(character.name)}</a><br><span class="vault-mini">${h(character.race)} ${h(character.class_name)} ${h(character.level)}</span></td><td>${h(character.player?.display_name || character.user_id)}</td><td>${h(campaignName(character.campaign_id))}</td><td>${h(labelize(character.status))} / ${h(labelize(character.life_status))}</td><td>${h(character.current_location)}</td><td>${selectField("", `character_campaign_${character.id}`, character.campaign_id ? String(character.campaign_id) : "", ["", ...state.campaigns.map((campaign) => String(campaign.id))])}<button class="vault-button secondary" type="button" data-assign-character-dm="${character.id}">Save</button></td><td><a class="vault-button secondary" href="/1e/characters/${character.id}/edit/">Edit</a></td></tr>`).join("") : `<tr><td colspan="7">No characters match these filters.</td></tr>`}</tbody></table></section>`;
   ["campaign", "player", "status"].forEach((name) => {
     document.querySelector(`[name='dm_filter_${name}']`)?.addEventListener("change", (event) => {
       const key = name === "player" ? "user_id" : name === "campaign" ? "campaign_id" : "status";
