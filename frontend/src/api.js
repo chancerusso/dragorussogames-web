@@ -1,23 +1,34 @@
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "/api";
 const TOKEN_KEY = "drg_dm_admin_token";
 const PLAYER_TOKEN_KEY = "drg_player_token";
+export const AUTH_CHANGED_EVENT = "drago-table-auth-changed";
+
+function notifyAuthChanged(role) {
+  window.dispatchEvent(new CustomEvent(AUTH_CHANGED_EVENT, { detail: { role } }));
+}
 
 export function getToken() {
-  return localStorage.getItem(TOKEN_KEY);
+  localStorage.removeItem(TOKEN_KEY);
+  return sessionStorage.getItem(TOKEN_KEY);
 }
 
 export function setToken(token) {
-  if (token) localStorage.setItem(TOKEN_KEY, token);
-  else localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(TOKEN_KEY);
+  if (token) sessionStorage.setItem(TOKEN_KEY, token);
+  else sessionStorage.removeItem(TOKEN_KEY);
+  notifyAuthChanged("admin");
 }
 
 export function getPlayerToken() {
-  return localStorage.getItem(PLAYER_TOKEN_KEY);
+  localStorage.removeItem(PLAYER_TOKEN_KEY);
+  return sessionStorage.getItem(PLAYER_TOKEN_KEY);
 }
 
 export function setPlayerToken(token) {
-  if (token) localStorage.setItem(PLAYER_TOKEN_KEY, token);
-  else localStorage.removeItem(PLAYER_TOKEN_KEY);
+  localStorage.removeItem(PLAYER_TOKEN_KEY);
+  if (token) sessionStorage.setItem(PLAYER_TOKEN_KEY, token);
+  else sessionStorage.removeItem(PLAYER_TOKEN_KEY);
+  notifyAuthChanged("player");
 }
 
 export async function api(path, options = {}) {

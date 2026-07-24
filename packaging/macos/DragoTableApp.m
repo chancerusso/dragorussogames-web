@@ -4,6 +4,7 @@
 @property NSWindow *window;
 @property NSTextField *statusLabel;
 @property NSTextField *remoteStatusLabel;
+@property NSView *remoteIndicator;
 @property NSButton *dmButton;
 @property NSButton *playerButton;
 @property NSButton *remoteButton;
@@ -82,6 +83,7 @@
     indicator.layer.backgroundColor = color.CGColor;
     indicator.layer.cornerRadius = 5;
     indicator.translatesAutoresizingMaskIntoConstraints = NO;
+    if ([title isEqualToString:@"Remote players"]) self.remoteIndicator = indicator;
 
     NSTextField *heading = [NSTextField labelWithString:title];
     heading.font = [NSFont systemFontOfSize:13 weight:NSFontWeightSemibold];
@@ -373,6 +375,7 @@
     if (self.tunnelTask.running) {
         [self stopTunnel];
         self.remoteStatusLabel.stringValue = @"Remote access is off";
+        self.remoteIndicator.layer.backgroundColor = NSColor.systemGrayColor.CGColor;
         self.remoteButton.title = @"Start Remote Session";
         self.inviteButton.enabled = NO;
         return;
@@ -443,6 +446,8 @@
             [strongSelf.remoteHealthTimer invalidate];
             if ([strongSelf.remoteButton.title isEqualToString:@"Stop Remote Session"]) {
                 strongSelf.remoteStatusLabel.stringValue = @"Remote connection stopped";
+                strongSelf.remoteIndicator.layer.backgroundColor =
+                    NSColor.systemRedColor.CGColor;
                 strongSelf.remoteButton.title = @"Start Remote Session";
                 strongSelf.inviteButton.enabled = NO;
             }
@@ -454,6 +459,7 @@
         return;
     }
     self.remoteStatusLabel.stringValue = @"Connecting securely…";
+    self.remoteIndicator.layer.backgroundColor = NSColor.systemOrangeColor.CGColor;
     self.remoteButton.enabled = NO;
     self.remoteHealthTimer = [NSTimer scheduledTimerWithTimeInterval:1
                                                              target:self
@@ -478,6 +484,8 @@
             [strongSelf.remoteHealthTimer invalidate];
             strongSelf.remoteStatusLabel.stringValue =
                 [NSString stringWithFormat:@"Live at %@", strongSelf.remoteHostname];
+            strongSelf.remoteIndicator.layer.backgroundColor =
+                NSColor.systemGreenColor.CGColor;
             strongSelf.remoteButton.title = @"Stop Remote Session";
             strongSelf.remoteButton.enabled = YES;
             strongSelf.inviteButton.enabled = YES;
@@ -503,6 +511,7 @@
 
 - (void)showRemoteError:(NSString *)message {
     self.remoteStatusLabel.stringValue = @"Unable to start remote access";
+    self.remoteIndicator.layer.backgroundColor = NSColor.systemRedColor.CGColor;
     self.remoteButton.enabled = YES;
     NSAlert *alert = [NSAlert new];
     alert.messageText = @"Remote session could not start";

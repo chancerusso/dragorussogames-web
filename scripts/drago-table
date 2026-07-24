@@ -177,7 +177,9 @@ def runtime_environment(
             "APP_NAME": "Drago Table",
             "RUNTIME_PROFILE": "local",
             "DATABASE_URL": database_url,
-            "SECRET_KEY": config["secret_key"],
+            # Every application launch starts a new authenticated session.
+            # Persistent campaign data and account passwords remain unchanged.
+            "SECRET_KEY": secrets.token_urlsafe(48),
             "ADMIN_PASSWORD": config["admin_password"],
             "SITE_ROOT": str(site_root),
             "COOKIE_SECURE": "false",

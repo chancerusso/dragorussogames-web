@@ -12,7 +12,7 @@ import mountainDwarfRace from "../../content/settings/dragonlance/races/mountain
 import qualinestiElfRace from "../../content/settings/dragonlance/races/qualinesti-elf.json";
 import silvanestiElfRace from "../../content/settings/dragonlance/races/silvanesti-elf.json";
 import tinkerGnomeRace from "../../content/settings/dragonlance/races/tinker-gnome.json";
-import { api, getPlayerToken, getToken, login, logout, playerLogin, playerLogout } from "./api.js";
+import { AUTH_CHANGED_EVENT, api, getPlayerToken, getToken, login, logout, playerLogin, playerLogout } from "./api.js";
 import {
   classReference,
   deityGroups,
@@ -150,6 +150,16 @@ function formatAbilityAdjustments(adjustments = {}) {
 function AuthProvider({ children }) {
   const [token, setTokenState] = useState(getToken());
   const [playerToken, setPlayerTokenState] = useState(getPlayerToken());
+
+  useEffect(() => {
+    function refreshAuthentication(event) {
+      if (!event.detail?.role || event.detail.role === "admin") setTokenState(getToken());
+      if (!event.detail?.role || event.detail.role === "player") setPlayerTokenState(getPlayerToken());
+    }
+    window.addEventListener(AUTH_CHANGED_EVENT, refreshAuthentication);
+    return () => window.removeEventListener(AUTH_CHANGED_EVENT, refreshAuthentication);
+  }, []);
+
   const value = useMemo(
     () => ({
       authed: Boolean(token),

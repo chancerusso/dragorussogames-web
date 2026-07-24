@@ -92,6 +92,28 @@ test("remote Drago Table uses the unified player portal without a DM return link
   assert.match(appSource, /isClassicHost\(\) \|\| isLocalDragoHost\(\)/);
 });
 
+test("expired API sessions immediately update the authenticated route state", () => {
+  const apiSource = readFileSync(new URL("./api.js", import.meta.url), "utf8");
+  const appSource = readFileSync(new URL("./App.jsx", import.meta.url), "utf8");
+
+  assert.match(apiSource, /AUTH_CHANGED_EVENT/);
+  assert.match(apiSource, /notifyAuthChanged\("admin"\)/);
+  assert.match(apiSource, /notifyAuthChanged\("player"\)/);
+  assert.match(appSource, /window\.addEventListener\(AUTH_CHANGED_EVENT, refreshAuthentication\)/);
+  assert.match(appSource, /window\.removeEventListener\(AUTH_CHANGED_EVENT, refreshAuthentication\)/);
+});
+
+test("local authentication never survives a fresh Drago Table startup", () => {
+  const apiSource = readFileSync(new URL("./api.js", import.meta.url), "utf8");
+  const launcherSource = readFileSync(new URL("../../scripts/drago-table", import.meta.url), "utf8");
+
+  assert.match(apiSource, /sessionStorage\.getItem\(TOKEN_KEY\)/);
+  assert.match(apiSource, /sessionStorage\.getItem\(PLAYER_TOKEN_KEY\)/);
+  assert.match(apiSource, /localStorage\.removeItem\(TOKEN_KEY\)/);
+  assert.match(apiSource, /localStorage\.removeItem\(PLAYER_TOKEN_KEY\)/);
+  assert.match(launcherSource, /"SECRET_KEY": secrets\.token_urlsafe\(48\)/);
+});
+
 test("Rules route is wrapped in an error boundary inside the DM shell", () => {
   const appSource = readFileSync(new URL("./App.jsx", import.meta.url), "utf8");
   assert.match(appSource, /class RulesBrowserBoundary extends Component/);
