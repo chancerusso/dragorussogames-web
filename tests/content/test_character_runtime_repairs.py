@@ -468,12 +468,12 @@ class CharacterRuntimeRepairTests(unittest.TestCase):
         updated = update_vault_character_record(model, {"combat": {"temporary_hp": 5}}, self.db)
         self.assertEqual(5, updated["combat"]["temporary_hp"])
 
-    def test_apply_advancement_rejects_multiclass_and_dual_class_writes(self) -> None:
+    def test_apply_advancement_rejects_dual_class_writes(self) -> None:
         with self.assertRaises(Exception) as raised:
-            apply_advancement_to_character(self.character_model, {"target_level": 8, "mode": "multiclass", "hp_gain": 5}, self.db)
+            apply_advancement_to_character(self.character_model, {"target_level": 8, "mode": "dual_class", "hp_gain": 5}, self.db)
 
         self.assertEqual(422, raised.exception.status_code)
-        self.assertIn("Multiclass and dual-class advancement require strict class-track state", raised.exception.detail)
+        self.assertIn("Dual-class advancement is not available yet", raised.exception.detail)
 
     def test_saving_throw_breakdown_reports_knight_fighter_source_and_dwarf_adjustment(self) -> None:
         payload = character_payload(self.character_model)

@@ -10,6 +10,7 @@ from app.db.models import VaultCharacter
 from app.services.canonical_content import CanonicalContentService
 from app.services.combat_runtime import thac0
 from app.services.vault_rules import constitution_hp_adjustment
+from app.services.multiclass import normalize_class_tracks
 
 
 CLASS_NAME_TO_ID = {
@@ -96,7 +97,7 @@ CHARACTER_RUNTIME_AUDIT: list[RuntimeAuditField] = [
     RuntimeAuditField("class restrictions", "legacy-only", "vault_rules.CLASSES / canonical restrictions", "Validation still uses legacy choices; canonical restrictions are not runtime-enforced."),
     RuntimeAuditField("race restrictions", "legacy-only", "vault_rules.RACES / canonical restrictions", "Validation still uses legacy choices; canonical restrictions are not runtime-enforced."),
     RuntimeAuditField("level limits", "missing", "canonical records prose/status", "No structured runtime gate in character schema."),
-    RuntimeAuditField("multiclass records", "missing", "none", "No class-track storage exists."),
+    RuntimeAuditField("multiclass records", "persistent", "vault_characters.class_tracks", "Independent class level and XP tracks are stored and used at runtime."),
     RuntimeAuditField("dual-class records", "missing", "none", "No original/new class state exists."),
     RuntimeAuditField("deity", "missing", "none", "No character deity field exists."),
     RuntimeAuditField("organization", "missing", "subclass_or_specialty partial", "Specialty can hold order-like text, but no canonical organization field exists."),
@@ -123,12 +124,23 @@ class AdvancementPreviewService:
         class_track: str | None = None,
         proposed_xp: int | None = None,
     ) -> dict[str, Any]:
-        class_id = self._class_id(class_track or character.class_name)
+        tracks = normalize_class_tracks(
+            getattr(character, "class_tracks", None),
+            fallback_class=character.class_name,
+            fallback_level=character.level,
+            total_xp=character.xp,
+        )
+        selected = next(
+            (track for track in tracks if track["class_name"].lower() == str(class_track or character.class_name).lower()),
+            tracks[0],
+        )
+        selected_class = selected["class_name"]
+        class_id = self._class_id(selected_class)
         class_record = self._record(class_id)
         progression = self._progression_record(character, class_record)
-        current_level = max(1, int(character.level or 1))
+        current_level = max(1, int(selected["level"] or 1))
         next_level = int(target_level or current_level + 1)
-        current_xp = int(proposed_xp if proposed_xp is not None else character.xp or 0)
+        current_xp = int(proposed_xp if proposed_xp is not None else selected["xp"] or 0)
         current_row = self._level_row(progression, current_level)
         next_row = self._level_row(progression, next_level)
         blockers: list[str] = []
@@ -140,11 +152,12 @@ class AdvancementPreviewService:
             blockers.append(f"{xp_required - current_xp} XP required for level {next_level}.")
         review_flags.extend(self._review_flags([class_record, progression]))
 
-        attack = self._attack_change_for_levels(class_track or character.class_name, class_record.get("attack_progression_ref"), current_level, next_level)
+        attack = self._attack_change_for_levels(selected_class, class_record.get("attack_progression_ref"), current_level, next_level)
         saves = self._change_for_levels(class_record.get("saving_throw_ref"), current_level, next_level)
         spell_slots = self._spell_slot_change(character, class_record, progression, current_level, next_level)
         abilities = self._new_abilities(current_row, next_row)
         hp = self._hit_point_advancement(character, current_row, next_row, class_record)
+        hp["division"] = len(tracks) if len(tracks) > 1 else None
         source_ids = self._source_ids(class_record, progression, attack, saves, spell_slots, abilities)
 
         return {
@@ -178,15 +191,23 @@ class AdvancementPreviewService:
         }
 
     def multiclass_foundation(self, character: VaultCharacter) -> dict[str, Any]:
+        tracks = normalize_class_tracks(
+            getattr(character, "class_tracks", None),
+            fallback_class=character.class_name,
+            fallback_level=character.level,
+            total_xp=character.xp,
+        )
         return {
-            "supported_by_current_schema": False,
+            "supported_by_current_schema": True,
             "class_tracks": [
                 {
-                    "class_id": self._class_id(character.class_name),
-                    "current_level": int(character.level or 1),
-                    "xp": int(character.xp or 0),
-                    "state": "single_class_legacy_track",
+                    "class_id": self._class_id(track["class_name"]),
+                    "class_name": track["class_name"],
+                    "current_level": int(track["level"]),
+                    "xp": int(track["xp"]),
+                    "state": track["state"],
                 }
+                for track in tracks
             ],
             "modeled_requirements": [
                 "race eligibility",
@@ -199,8 +220,8 @@ class AdvancementPreviewService:
                 "spellcasting per class",
                 "race level limits",
             ],
-            "missing_persistent_fields": ["class_tracks", "class_level_per_track", "xp_per_track", "multiclass_combination_id"],
-            "review_flags": ["No multiclass character state exists yet; preview can only return the shape."],
+            "missing_persistent_fields": [],
+            "review_flags": [],
         }
 
     def dual_class_foundation(self, character: VaultCharacter) -> dict[str, Any]:

@@ -1,6 +1,6 @@
 # Project Progress
 
-Last updated: 2026-07-24
+Last updated: 2026-07-27
 
 ## Current focus
 
@@ -14,6 +14,15 @@ endpoint, copies the player invite, and keeps the Foundry tunnel independent.
 Authenticated remote DM, Mapper, and viewer synchronization is proven. The
 existing VPS remains intact. Next: group acceptance, player-address/QR
 presentation, and reconnect/error refinement.
+
+First-session character readiness now includes persistent OSRIC multi-class
+characters. Legal combinations are race-gated, existing characters migrate as
+single-class tracks, XP is divided equally, classes advance independently, HP
+gains are divided, combat and saving throws use the best applicable class, and
+spell/equipment handling follows the complete class combination. Dual-class is
+deliberately deferred. The next milestone is Wednesday feature rehearsal,
+Thursday defect repair/regression, then the deployment runbook only after
+practice acceptance.
 
 ## Confirmed product direction
 

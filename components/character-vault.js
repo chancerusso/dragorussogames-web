@@ -626,6 +626,7 @@ function initialDraft() {
     name: "",
     race: "Human",
     class_name: "Fighter",
+    class_tracks: [{ class_name: "Fighter", level: 1, xp: 0, state: "active" }],
     alignment: "True Neutral",
     level: 1,
     xp: 0,
@@ -733,8 +734,39 @@ function abilityAssignmentHtml(d) {
 }
 
 function exceptionalStrengthEligible(d) {
-  const className = rulesClassName(d?.class_name || "");
-  return Number(d?.abilities?.strength || 0) === 18 && (!className || ["Fighter", "Paladin", "Ranger"].includes(className));
+  const classNames = draftClassNames(d).map(rulesClassName);
+  return Number(d?.abilities?.strength || 0) === 18 && classNames.some((name) => ["Fighter", "Paladin", "Ranger"].includes(name));
+}
+
+function draftClassTracks(d = state.draft) {
+  const tracks = Array.isArray(d?.class_tracks) && d.class_tracks.length
+    ? d.class_tracks
+    : [{ class_name: d?.class_name || "Fighter", level: Number(d?.level || 1), xp: Number(d?.xp || 0), state: "active" }];
+  return tracks.map((track) => ({
+    class_name: track.class_name,
+    level: Number(track.level || 1),
+    xp: Number(track.xp || 0),
+    state: track.state || "active",
+  }));
+}
+
+function draftClassNames(d = state.draft) {
+  return draftClassTracks(d).map((track) => track.class_name);
+}
+
+function draftClassDisplay(d = state.draft) {
+  return draftClassNames(d).join("/");
+}
+
+function multiclassOptionsHtml(d) {
+  const combinations = state.rules?.multiclass_combinations?.[d.race] || [];
+  const current = draftClassNames(d).join("|");
+  const options = [
+    { value: d.class_name, label: `Single class: ${d.class_name}` },
+    ...combinations.map((classes) => ({ value: classes.join("|"), label: classes.join(" / ") })),
+  ];
+  return `<label class="vault-field vault-full">Class Path<select name="class_combination">${selectOptionsHtml(options, current || d.class_name)}</select></label>
+    <p class="vault-muted vault-full">${combinations.length ? h(state.rules?.multiclass_restrictions?.[d.race] || "") : "This race does not multi-class at character creation."}</p>`;
 }
 
 function exceptionalStrengthBuilderHtml(d) {
@@ -795,11 +827,11 @@ function builderStep() {
   if (state.step === 3) return `
     <input type="hidden" name="class_name" value="${h(d.class_name)}">
     <section class="vault-full vault-choice-step">
-      ${choiceStepHeader("Class", "What class do you want to play?", d.class_name || "None", "Choose the role, hit die, restrictions, and core adventuring shape for this character.")}
+      ${choiceStepHeader("Class", "What class do you want to play?", draftClassDisplay(d) || "None", "Choose a single class or one of the OSRIC combinations permitted for this race.")}
       <div class="vault-choice-summary">
         <div>
           <span>Selected Class</span>
-          <strong>${h(d.class_name || "None")}</strong>
+          <strong>${h(draftClassDisplay(d) || "None")}</strong>
           <p>${h(classCardData(d.class_name)?.description || "Choose a class to see rules notes and equipment permissions.")}</p>
         </div>
         <div class="vault-compact-list">
@@ -809,11 +841,12 @@ function builderStep() {
         </div>
       </div>
       ${sourcebookNoticeHtml()}
+      ${multiclassOptionsHtml(d)}
       ${classSourceSection("OSRIC", osricClassCards(), d.class_name)}
       ${classSourceSection("DRAGOLANCE STARTING CLASSES", dragonlanceStartingClassCards(), d.class_name)}
       ${classSourceSection("DRAGOLANCE PROGRESSION PATHS", dragonlanceProgressionClassCards(), d.class_name)}
     </section>
-    <div class="vault-card vault-full"><h3>Class Notes</h3>${raceClassWarnings(d)}${exceptionalStrengthBuilderHtml(d)}<p>${h((state.rules.classes[d.class_name] || {}).armor)}</p><p><strong>Weapons:</strong> ${h((state.rules.classes[d.class_name] || {}).weapons)}</p><p>Hit Dice: ${h(hitDiceText(d))}. Starting wealth: ${h((state.rules.classes[d.class_name] || {}).wealth)}.</p><p>Proficiencies: ${h(proficiencyCount(d.class_name, d.level) ?? "Manual DM Review")} at this level. Non-proficiency penalty: ${h((state.rules.classes[d.class_name] || {}).non_proficiency_penalty ?? "Manual DM Review")}.</p></div>
+    <div class="vault-card vault-full"><h3>Class Notes</h3>${raceClassWarnings(d)}${exceptionalStrengthBuilderHtml(d)}<p><strong>${h(draftClassDisplay(d))}</strong></p><p>Each class keeps its own level and receives an equal share of XP. Hit-point gains are divided by ${draftClassTracks(d).length}.</p></div>
     <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/003-class/">Class</a></p>
     ${navButtons()}`;
   if (state.step === 4) return `${selectField("Alignment", "alignment", d.alignment, state.rules.alignments)}<div class="vault-card vault-wide">${raceClassWarnings(d)}<p><strong>${h(d.class_name)}:</strong> ${h((state.rules.classes[d.class_name] || {}).alignment || "Any alignment")}</p></div><p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/004-alignment/">Alignment</a>.</p>${navButtons()}`;
@@ -985,18 +1018,19 @@ function proficiencyManager() {
 }
 
 function spellManager() {
-  const className = state.draft.class_name;
-  const classKeys = spellListKeysForClass(className);
-  const classInfo = spellClassInfo(className);
-  const starts = classInfo.spellcasting_starts_level || 1;
+  const casterTracks = draftClassTracks(state.draft).filter((track) => {
+    const info = spellClassInfo(track.class_name);
+    return info.spellcaster && Number(track.level) >= Number(info.spellcasting_starts_level || 1);
+  });
+  const classKeys = draftSpellListKeys(state.draft);
   const spells = spellsForCurrentClass().slice(0, 90);
-  if (!classInfo.spellcaster || !classKeys.length || Number(state.draft.level || 1) < starts) return `<div class="vault-full"><p>This class has no spells at this level.</p><p class="vault-rules">Rules: <a href="/1e/how-to-play/magic/">Magic</a></p></div>`;
-  const savedSlots = state.character?.class_name === state.draft.class_name && Number(state.character?.level) === Number(state.draft.level) ? spellSlotsHtml(state.character) : "";
+  if (!casterTracks.length || !classKeys.length) return `<div class="vault-full"><p>This class path has no spells at its current levels.</p><p class="vault-rules">Rules: <a href="/1e/how-to-play/magic/">Magic</a></p></div>`;
+  const savedSlots = state.character ? spellSlotsHtml(state.character) : "";
   const known = knownSpells();
   const prepared = preparedSpells();
   return `<div class="vault-full">
-    <div class="vault-actions"><input name="spell_search" placeholder="Search spells"><select name="spell_class"><option value="">${h(state.draft.class_name)} list</option><option value="cleric">Cleric</option><option value="druid">Druid</option><option value="magic-user">Magic-User</option><option value="illusionist">Illusionist</option></select><select name="spell_level"><option value="">All levels</option>${[1,2,3,4,5,6,7,8,9].map((n) => `<option value="${n}">${n}</option>`).join("")}</select></div>
-    <p class="vault-muted">${h(state.draft.class_name)} spellcasting starts at level ${starts}. Add known spells first, then prepare from that known list.</p>
+    <div class="vault-actions"><input name="spell_search" placeholder="Search spells"><select name="spell_class"><option value="">${h(draftClassDisplay(state.draft))} lists</option><option value="cleric">Cleric</option><option value="druid">Druid</option><option value="magic-user">Magic-User</option><option value="illusionist">Illusionist</option></select><select name="spell_level"><option value="">All levels</option>${[1,2,3,4,5,6,7,8,9].map((n) => `<option value="${n}">${n}</option>`).join("")}</select></div>
+    <p class="vault-muted">${h(casterTracks.map((track) => `${track.class_name} ${track.level}`).join(", "))}. Add known spells first, then prepare from that known list.</p>
     ${savedSlots}
     <h3>Prepared Spells</h3>
     ${prepared.length ? spellBookTable(prepared, true) : `<p class="vault-muted">None prepared.</p>`}
@@ -1083,12 +1117,16 @@ function spellListKeysForClass(className) {
   return classInfo.spell_lists || [];
 }
 
+function draftSpellListKeys(d = state.draft) {
+  return [...new Set(draftClassNames(d).flatMap((className) => spellListKeysForClass(className)))];
+}
+
 function arcaneSpellbookClass(className) {
   return ["Magic-User", "Illusionist"].includes(spellRulesClassName(className));
 }
 
 function spellsForCurrentClass() {
-  const classKeys = spellListKeysForClass(state.draft.class_name);
+  const classKeys = draftSpellListKeys(state.draft);
   return state.spells.filter((spell) => spellMatchesClass(spell, classKeys) && spellAllowedAtCurrentLevel(spell));
 }
 
@@ -1097,6 +1135,16 @@ function spellMatchesClass(spell, classKeys = spellListKeysForClass(state.draft.
 }
 
 function spellAllowedAtCurrentLevel(spell) {
+  if (draftClassTracks(state.draft).length > 1) {
+    return draftClassTracks(state.draft).some((track) => {
+      const info = spellClassInfo(track.class_name);
+      const matching = (info.spell_lists || []).some((list) => (spell.class_list || []).includes(list));
+      if (!matching || Number(track.level) < Number(info.spellcasting_starts_level || 1)) return false;
+      const saved = (state.character?.spellcasting_tracks || []).find((entry) => entry.class_name === track.class_name);
+      if (!saved?.spell_slots?.slots) return Number(spell.spell_level) === 1;
+      return Number(saved.spell_slots.slots?.[String(spell.spell_level)] || 0) > 0;
+    });
+  }
   const level = Number(state.draft.level || 1);
   const starts = Number(spellClassInfo(state.draft.class_name).spellcasting_starts_level || 1);
   if (level < starts) return false;
@@ -1394,6 +1442,18 @@ function bindBuilderActions() {
   });
   document.querySelector("[name='race']")?.addEventListener("change", () => { syncDraft(); renderBuilder(); });
   document.querySelector("[name='class_name']")?.addEventListener("change", () => { syncDraft(); renderBuilder(); });
+  document.querySelector("[name='class_combination']")?.addEventListener("change", (event) => {
+    const classes = event.target.value.split("|").filter(Boolean);
+    const xpShare = Math.floor(Number(state.draft.xp || 0) / Math.max(1, classes.length));
+    state.draft.class_name = classes[0] || state.draft.class_name;
+    state.draft.class_tracks = classes.map((className) => ({
+      class_name: className,
+      level: 1,
+      xp: xpShare,
+      state: "active",
+    }));
+    renderBuilder();
+  });
   document.querySelector("[name='campaign_id']")?.addEventListener("change", () => {
     syncDraft();
     state.campaign = state.campaigns.find((campaign) => String(campaign.id) === String(state.draft.campaign_id)) || null;
@@ -1405,6 +1465,12 @@ function bindBuilderActions() {
     if (button.closest(".vault-choice-card.disabled")) return;
     syncDraft();
     state.draft.race = button.dataset.selectRace;
+    state.draft.class_tracks = [{
+      class_name: state.draft.class_name,
+      level: Number(state.draft.level || 1),
+      xp: Number(state.draft.xp || 0),
+      state: "active",
+    }];
     renderBuilder();
   }));
   document.querySelectorAll("[data-select-class]").forEach((button) => button.addEventListener("click", (event) => {
@@ -1412,6 +1478,12 @@ function bindBuilderActions() {
     if (button.closest(".vault-choice-card.disabled")) return;
     syncDraft();
     state.draft.class_name = button.dataset.selectClass;
+    state.draft.class_tracks = [{
+      class_name: state.draft.class_name,
+      level: Number(state.draft.level || 1),
+      xp: Number(state.draft.xp || 0),
+      state: "active",
+    }];
     renderBuilder();
   }));
   document.querySelectorAll(".vault-choice-card[data-select-race], .vault-choice-card[data-select-class]").forEach((card) => {
@@ -1443,12 +1515,18 @@ function bindBuilderActions() {
   });
   document.querySelector("[data-roll-hp]")?.addEventListener("click", () => {
     syncDraft();
-    const roll = rollHitDice(hitDiceText(state.draft));
-    const conMod = constitutionHpAdjustment(Number(state.draft.abilities?.constitution || 10), state.draft.class_name);
-    const hp = Math.max(1, roll.total + conMod);
+    const tracks = draftClassTracks(state.draft);
+    const rolls = tracks.map((track) => {
+      const info = state.rules?.classes?.[rulesClassName(track.class_name)] || {};
+      const expression = track.class_name === "Ranger" ? "2d8" : `d${Number(info.hit_die || 6)}`;
+      const roll = rollHitDice(expression);
+      const conMod = constitutionHpAdjustment(Number(state.draft.abilities?.constitution || 10), rulesClassName(track.class_name));
+      return { ...roll, className: track.class_name, conMod };
+    });
+    const hp = Math.max(1, Math.floor(rolls.reduce((sum, roll) => sum + roll.total + roll.conMod, 0) / tracks.length));
     state.draft.combat.max_hp = hp;
     state.draft.combat.current_hp = hp;
-    state.hpRollMessage = `Rolled ${roll.detail} ${formatConEquation(conMod)} CON = ${hp} HP`;
+    state.hpRollMessage = `${rolls.map((roll) => `${roll.className} ${roll.detail} ${formatConEquation(roll.conMod)} CON`).join("; ")} ÷ ${tracks.length} = ${hp} HP`;
     renderBuilder();
   });
   document.querySelector("[data-roll-exceptional-strength]")?.addEventListener("click", () => {
@@ -1662,6 +1740,9 @@ async function saveDraft(navigate = true) {
 }
 
 function characterSavePayload(d) {
+  const tracks = draftClassTracks(d);
+  const xp = Number(d.xp || 0);
+  const xpShare = Math.floor(xp / tracks.length);
   const payload = {
     name: d.name,
     race: d.race,
@@ -1669,7 +1750,8 @@ function characterSavePayload(d) {
     subclass_or_specialty: d.subclass_or_specialty,
     alignment: d.alignment,
     level: Number(d.level || 1),
-    xp: Number(d.xp || 0),
+    xp,
+    class_tracks: tracks.map((track) => ({ ...track, xp: xpShare })),
     status: d.status || "active",
     life_status: d.life_status || "alive",
     campaign_day: Number(d.campaign_day || 1),
@@ -1717,7 +1799,7 @@ function filterSpells() {
   const q = document.querySelector("[name='spell_search']")?.value || "";
   const level = document.querySelector("[name='spell_level']")?.value || "";
   const list = document.querySelector("[name='spell_class']")?.value || "";
-  const classKeys = list ? [list] : spellListKeysForClass(state.draft.class_name);
+  const classKeys = list ? [list] : draftSpellListKeys(state.draft);
   const rows = state.spells.filter((spell) => spellMatchesClass(spell, classKeys) && spellAllowedAtCurrentLevel(spell) && (!q || spell.name.toLowerCase().includes(q.toLowerCase())) && (!level || String(spell.spell_level) === level)).slice(0, 90);
   document.querySelector("[data-spell-results]").innerHTML = spellRows(rows);
   bindBuilderActions();
@@ -1728,6 +1810,23 @@ function classAwareEquipment() {
 }
 
 function classAllowsEquipment(className, item) {
+  const tracks = draftClassNames(state.draft);
+  if (tracks.length > 1) {
+    const results = tracks.map((track) => classAllowsSingleClassEquipment(track, item));
+    const race = state.draft?.race;
+    const restrictive = ["Dwarf", "Gnome"].includes(race) || (race === "Half-Orc" && ["armor", "shield"].includes(item.type));
+    if (race === "Gnome" && item.type === "armor") {
+      return { allowed: (item.name || "").toLowerCase().includes("leather"), reason: state.rules?.multiclass_restrictions?.[race] || "" };
+    }
+    return {
+      allowed: restrictive ? results.every((result) => result.allowed) : results.some((result) => result.allowed),
+      reason: state.rules?.multiclass_restrictions?.[race] || "Race-specific multi-class restriction applies.",
+    };
+  }
+  return classAllowsSingleClassEquipment(className, item);
+}
+
+function classAllowsSingleClassEquipment(className, item) {
   const info = state.rules?.classes?.[rulesClassName(className)] || {};
   const name = (item.name || "").toLowerCase();
   if (item.type === "armor") {
@@ -1780,7 +1879,7 @@ function previewCharacter() {
 }
 
 function renderIndex() {
-  document.querySelector("[data-vault-view]").innerHTML = `${playerPanelHtml()}<div class="vault-grid">${state.characters.length ? state.characters.map((character) => `<article class="vault-card"><div class="vault-kicker">${h(labelize(character.status))} / ${h(labelize(character.life_status))}</div><h2>${h(character.name)}</h2><p>${h(character.race)} ${h(character.class_name)} ${h(character.level)}</p><p class="vault-muted">Owner: ${h(character.player?.display_name || character.user_id)}${character.campaign_id ? ` / ${h(campaignName(character.campaign_id))}` : ""}</p><div class="vault-statline"><div class="vault-stat"><strong>${character.combat.armor_class}</strong><span>AC</span></div><div class="vault-stat"><strong>${character.combat.current_hp}/${character.combat.max_hp}</strong><span>HP</span></div><div class="vault-stat"><strong>${character.combat.movement_rate}</strong><span>Move</span></div></div><div class="vault-actions"><a class="vault-button secondary" href="/1e/characters/${character.id}/">View</a><a class="vault-button secondary" href="/1e/characters/${character.id}/edit/">Edit</a><button class="vault-button secondary" type="button" data-delete="${character.id}">Archive</button></div></article>`).join("") : `<article class="vault-panel"><h2>No characters yet</h2><p>Create your first vault character, then assign them to a campaign when the DM is ready.</p><div class="vault-actions"><a class="vault-button" href="${newCharacterHref()}">Create Character</a></div></article>`}</div>`;
+  document.querySelector("[data-vault-view]").innerHTML = `${playerPanelHtml()}<div class="vault-grid">${state.characters.length ? state.characters.map((character) => `<article class="vault-card"><div class="vault-kicker">${h(labelize(character.status))} / ${h(labelize(character.life_status))}</div><h2>${h(character.name)}</h2><p>${h(character.race)} ${h(character.class_display || character.class_name)} ${h(character.level_display || character.level)}</p><p class="vault-muted">Owner: ${h(character.player?.display_name || character.user_id)}${character.campaign_id ? ` / ${h(campaignName(character.campaign_id))}` : ""}</p><div class="vault-statline"><div class="vault-stat"><strong>${character.combat.armor_class}</strong><span>AC</span></div><div class="vault-stat"><strong>${character.combat.current_hp}/${character.combat.max_hp}</strong><span>HP</span></div><div class="vault-stat"><strong>${character.combat.movement_rate}</strong><span>Move</span></div></div><div class="vault-actions"><a class="vault-button secondary" href="/1e/characters/${character.id}/">View</a><a class="vault-button secondary" href="/1e/characters/${character.id}/edit/">Edit</a><button class="vault-button secondary" type="button" data-delete="${character.id}">Archive</button></div></article>`).join("") : `<article class="vault-panel"><h2>No characters yet</h2><p>Create your first vault character, then assign them to a campaign when the DM is ready.</p><div class="vault-actions"><a class="vault-button" href="${newCharacterHref()}">Create Character</a></div></article>`}</div>`;
   document.querySelector("[data-player-form]")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.target));
@@ -2237,11 +2336,13 @@ function openQuickEditModal(c) {
   document.body.appendChild(modal);
 }
 
-async function openLevelUpModal(c) {
+async function openLevelUpModal(c, selectedClass = null) {
   if (!c?.id) return;
   document.querySelector(".vault-level-modal")?.remove();
   try {
-    const preview = await characterApi(`/${c.id}/advancement-preview`);
+    const tracks = Array.isArray(c.class_tracks) && c.class_tracks.length ? c.class_tracks : [{ class_name: c.class_name, level: c.level, xp: c.xp }];
+    const activeClass = selectedClass || tracks[0].class_name;
+    const preview = await characterApi(`/${c.id}/advancement-preview?class_track=${encodeURIComponent(activeClass)}`);
     const hp = preview.hit_point_advancement || {};
     const modal = document.createElement("div");
     modal.className = "vault-rules-modal vault-level-modal";
@@ -2249,6 +2350,7 @@ async function openLevelUpModal(c) {
     const spellLevels = preview.spellcasting?.new_spell_levels_unlocked || [];
     modal.innerHTML = `<div class="vault-rules-popout vault-quick-popout"><button class="vault-modal-close" type="button" aria-label="Close">x</button><div class="vault-kicker">Level Up Preview</div>
       <h2>Level ${h(preview.current_class_level)} &rarr; ${h(preview.next_level)}</h2>
+      ${tracks.length > 1 ? `<div class="vault-actions">${tracks.map((track) => `<button class="vault-button ${track.class_name === activeClass ? "" : "secondary"}" type="button" data-level-track="${h(track.class_name)}">${h(track.class_name)} ${h(track.level)}</button>`).join("")}</div>` : ""}
       <div class="vault-mini-stat-grid">
         ${miniStat("XP Needed", preview.xp_required ?? 0)}
         ${miniStat("HP Roll", hp.roll || (hp.fixed_hp_gain ? `+${hp.fixed_hp_gain}` : "None"))}
@@ -2266,7 +2368,7 @@ async function openLevelUpModal(c) {
       <form class="vault-form" data-level-up-form>
         ${field("Current XP", "current_xp", Number(c.xp || 0), "number")}
         ${hp.roll ? field(`HP Roll Result (${hp.roll})`, "hp_gain", "", "number") : ""}
-        ${field("XP After Level Up", "xp_after", Math.max(Number(c.xp || 0), Number(preview.xp_required || 0)), "number")}
+        ${field("Total XP After Level Up", "xp_after", Math.max(Number(c.xp || 0), Number(preview.xp_required || 0) * tracks.length), "number")}
         <label class="vault-field full">Player Notes<textarea name="notes"></textarea></label>
         <div class="vault-panel-toast vault-full" data-panel-toast></div>
         <div class="vault-actions vault-full"><button class="vault-button secondary" type="button" data-level-up-save-xp>Save XP / Refresh Preview</button><button class="vault-button" type="submit" ${blockers.length ? "disabled" : ""}>Apply Level Up</button></div>
@@ -2275,6 +2377,10 @@ async function openLevelUpModal(c) {
     </div>`;
     modal.querySelector(".vault-modal-close").addEventListener("click", () => modal.remove());
     modal.addEventListener("click", (event) => { if (event.target === modal) modal.remove(); });
+    modal.querySelectorAll("[data-level-track]").forEach((button) => button.addEventListener("click", () => {
+      modal.remove();
+      openLevelUpModal(c, button.dataset.levelTrack);
+    }));
     modal.querySelector("[data-level-up-save-xp]")?.addEventListener("click", async () => {
       const form = modal.querySelector("[data-level-up-form]");
       const data = Object.fromEntries(new FormData(form));
@@ -2299,6 +2405,7 @@ async function openLevelUpModal(c) {
           method: "POST",
           body: JSON.stringify({
             target_level: preview.next_level,
+            class_track: activeClass,
             xp: Number(data.xp_after || preview.xp_required || c.xp || 0),
             hp_gain: hp.roll ? Number(data.hp_gain || 0) : null,
             notes: data.notes,
@@ -2354,7 +2461,7 @@ function sheetHeaderHtml(c) {
         <div class="vault-sheet-title">
           <h2>${h(c.name || "Unnamed")}</h2>
           <div class="vault-identity-pills">
-            ${["race", "class_name", "alignment", "status", "life_status"].map((key) => `<span>${h(labelize(c[key] || ""))}</span>`).join("")}
+            <span>${h(labelize(c.race || ""))}</span><span>${h(c.class_display || c.class_name)}</span><span>Level ${h(c.level_display || c.level)}</span><span>${h(labelize(c.alignment || ""))}</span><span>${h(labelize(c.status || ""))}</span><span>${h(labelize(c.life_status || ""))}</span>
             <span>Level ${h(c.level ?? 1)}</span>
           </div>
         </div>
@@ -3073,6 +3180,20 @@ function spellBadges(s) {
 }
 
 function spellSlotsHtml(c) {
+  if (Array.isArray(c.spellcasting_tracks) && c.spellcasting_tracks.length > 1) {
+    return `<div class="vault-slot-grid">${c.spellcasting_tracks.map((track) => {
+      const summary = track.spell_slots || {};
+      const nested = Object.values(summary.slots || {}).some((value) => value && typeof value === "object" && !Array.isArray(value));
+      const tables = nested
+        ? Object.entries(summary.slots || {}).map(([bucket, levels]) => spellSlotTable(levels, summary.used?.[bucket] || {}, summary.remaining?.[bucket] || {})).join("")
+        : spellSlotTable(summary.slots || {}, summary.used || {}, summary.remaining || {});
+      return `<div class="vault-slot-card"><h3>${h(track.class_name)} ${h(track.level)} Slots</h3>${tables}</div>`;
+    }).join("")}</div>`;
+  }
+  if (Array.isArray(c.spellcasting_tracks) && c.spellcasting_tracks.length === 1) {
+    const track = c.spellcasting_tracks[0];
+    c = { ...c, spell_slots: track.spell_slots };
+  }
   const summary = c.spell_slots;
   if (!summary?.slots || !Object.keys(summary.slots).length) return `<p class="vault-muted">No spell slot table applies at this class/level.</p>`;
   const isNested = Object.values(summary.slots).some((value) => value && typeof value === "object" && !Array.isArray(value));
@@ -3331,7 +3452,7 @@ function renderDmPlayers() {
 
 function renderDmCharacters() {
   const characters = filteredDmCharacters();
-  document.querySelector("[data-vault-view]").innerHTML = `<section class="vault-panel"><h2>DM Characters</h2><div class="vault-actions">${selectField("Campaign", "dm_filter_campaign", state.dmCharacterFilters.campaign_id, ["", ...state.campaigns.map((campaign) => String(campaign.id))])}${selectField("Player", "dm_filter_player", state.dmCharacterFilters.user_id, playerSelectOptions())}${selectField("Status", "dm_filter_status", state.dmCharacterFilters.status, ["", "active", "inactive", "dead", "retired", "archived"])}</div><table class="vault-table"><thead><tr><th>Character</th><th>Player</th><th>Campaign</th><th>Status</th><th>Location</th><th>Assign</th><th>Actions</th></tr></thead><tbody>${characters.length ? characters.map((character) => `<tr><td><a href="/1e/characters/${character.id}/">${h(character.name)}</a><br><span class="vault-mini">${h(character.race)} ${h(character.class_name)} ${h(character.level)}</span></td><td>${h(character.player?.display_name || character.user_id)}</td><td>${h(campaignName(character.campaign_id))}</td><td>${h(labelize(character.status))} / ${h(labelize(character.life_status))}</td><td>${h(character.current_location)}</td><td>${selectField("", `character_campaign_${character.id}`, character.campaign_id ? String(character.campaign_id) : "", ["", ...state.campaigns.map((campaign) => String(campaign.id))])}<button class="vault-button secondary" type="button" data-assign-character-dm="${character.id}">Save</button></td><td><a class="vault-button secondary" href="/1e/characters/${character.id}/edit/">Edit</a></td></tr>`).join("") : `<tr><td colspan="7">No characters match these filters.</td></tr>`}</tbody></table></section>`;
+  document.querySelector("[data-vault-view]").innerHTML = `<section class="vault-panel"><h2>DM Characters</h2><div class="vault-actions">${selectField("Campaign", "dm_filter_campaign", state.dmCharacterFilters.campaign_id, ["", ...state.campaigns.map((campaign) => String(campaign.id))])}${selectField("Player", "dm_filter_player", state.dmCharacterFilters.user_id, playerSelectOptions())}${selectField("Status", "dm_filter_status", state.dmCharacterFilters.status, ["", "active", "inactive", "dead", "retired", "archived"])}</div><table class="vault-table"><thead><tr><th>Character</th><th>Player</th><th>Campaign</th><th>Status</th><th>Location</th><th>Assign</th><th>Actions</th></tr></thead><tbody>${characters.length ? characters.map((character) => `<tr><td><a href="/1e/characters/${character.id}/">${h(character.name)}</a><br><span class="vault-mini">${h(character.race)} ${h(character.class_display || character.class_name)} ${h(character.level_display || character.level)}</span></td><td>${h(character.player?.display_name || character.user_id)}</td><td>${h(campaignName(character.campaign_id))}</td><td>${h(labelize(character.status))} / ${h(labelize(character.life_status))}</td><td>${h(character.current_location)}</td><td>${selectField("", `character_campaign_${character.id}`, character.campaign_id ? String(character.campaign_id) : "", ["", ...state.campaigns.map((campaign) => String(campaign.id))])}<button class="vault-button secondary" type="button" data-assign-character-dm="${character.id}">Save</button></td><td><a class="vault-button secondary" href="/1e/characters/${character.id}/edit/">Edit</a></td></tr>`).join("") : `<tr><td colspan="7">No characters match these filters.</td></tr>`}</tbody></table></section>`;
   ["campaign", "player", "status"].forEach((name) => {
     document.querySelector(`[name='dm_filter_${name}']`)?.addEventListener("change", (event) => {
       const key = name === "player" ? "user_id" : name === "campaign" ? "campaign_id" : "status";
@@ -3461,7 +3582,7 @@ function campaignPlayersTable(players) {
 }
 
 function campaignCharactersTable(characters) {
-  return `<table class="vault-table"><thead><tr><th>Character</th><th>Player/Owner</th><th>Race</th><th>Class</th><th>Level</th><th>Status</th><th>Location</th><th>Actions</th></tr></thead><tbody>${characters.length ? characters.map((character) => `<tr><td><a href="/1e/characters/${character.id}/">${h(character.name)}</a></td><td>${h(character.player?.display_name || "Unknown Player")}</td><td>${h(character.race)}</td><td>${h(character.class_name)}</td><td>${h(character.level)}</td><td>${h(labelize(character.status))}</td><td>${h(character.current_location)}</td><td><a class="vault-button secondary" href="/1e/characters/${character.id}/">View</a> <a class="vault-button secondary" href="/1e/characters/${character.id}/edit/">Edit</a> <button class="vault-button secondary" type="button" data-char-status="${character.id}:unassign">Remove</button></td></tr>`).join("") : `<tr><td colspan="8">No characters assigned yet.</td></tr>`}</tbody></table>`;
+  return `<table class="vault-table"><thead><tr><th>Character</th><th>Player/Owner</th><th>Race</th><th>Class</th><th>Level</th><th>Status</th><th>Location</th><th>Actions</th></tr></thead><tbody>${characters.length ? characters.map((character) => `<tr><td><a href="/1e/characters/${character.id}/">${h(character.name)}</a></td><td>${h(character.player?.display_name || "Unknown Player")}</td><td>${h(character.race)}</td><td>${h(character.class_display || character.class_name)}</td><td>${h(character.level_display || character.level)}</td><td>${h(labelize(character.status))}</td><td>${h(character.current_location)}</td><td><a class="vault-button secondary" href="/1e/characters/${character.id}/">View</a> <a class="vault-button secondary" href="/1e/characters/${character.id}/edit/">Edit</a> <button class="vault-button secondary" type="button" data-char-status="${character.id}:unassign">Remove</button></td></tr>`).join("") : `<tr><td colspan="8">No characters assigned yet.</td></tr>`}</tbody></table>`;
 }
 
 function safeStorageHtml(c) {

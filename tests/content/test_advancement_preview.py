@@ -93,9 +93,9 @@ class AdvancementPreviewTests(unittest.TestCase):
 
     def test_multiclass_and_dual_class_foundation_shapes(self) -> None:
         preview = self.service.preview_advancement(self.character("Fighter", 3, 4250), target_level=4)
-        self.assertFalse(preview["multiclass"]["supported_by_current_schema"])
+        self.assertTrue(preview["multiclass"]["supported_by_current_schema"])
         self.assertFalse(preview["dual_class"]["supported_by_current_schema"])
-        self.assertIn("class_tracks", preview["multiclass"]["missing_persistent_fields"])
+        self.assertEqual([], preview["multiclass"]["missing_persistent_fields"])
         self.assertIn("original_class_id", preview["dual_class"]["missing_persistent_fields"])
 
     def test_missing_canonical_mapping_fails(self) -> None:
@@ -106,7 +106,7 @@ class AdvancementPreviewTests(unittest.TestCase):
         audit = {entry["field"]: entry["classification"] for entry in runtime_audit_payload()}
         self.assertEqual("manually editable", audit["level"])
         self.assertEqual("canonical-derived", audit["THAC0"])
-        self.assertEqual("missing", audit["multiclass records"])
+        self.assertEqual("persistent", audit["multiclass records"])
         self.assertEqual("legacy-only", audit["High Sorcery order"])
 
 

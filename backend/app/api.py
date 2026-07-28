@@ -66,6 +66,7 @@ from app.services.vault_rules import (
     RACES,
     adjusted_abilities,
     character_warnings,
+    constitution_save_bonus,
     derived_stats,
     ammunition_profile,
     ammunition_unit_cost,
@@ -74,11 +75,21 @@ from app.services.vault_rules import (
     is_allowed_equipment,
     is_ammunition,
     proficiency_count,
+    saving_throws,
     seed_vault_catalogs,
     spell_slot_summary,
     strength_display,
 )
-from app.services.combat_runtime import combat_payload, weapon_combat
+from app.services.combat_runtime import combat_payload, thac0, weapon_combat
+from app.services.multiclass import (
+    MULTICLASS_RESTRICTIONS,
+    allowed_combinations,
+    class_display,
+    distribute_xp,
+    level_display,
+    normalize_class_tracks,
+    validate_combination,
+)
 from app.services.characters import (
     activate_character,
     add_equipment,
@@ -623,7 +634,91 @@ def character_combat_runtime(character_id: int, adjusted_scores: dict, inventory
         return combat_runtime_error_payload()
 
 
+def character_class_tracks(character: VaultCharacter) -> list[dict]:
+    return normalize_class_tracks(
+        character.class_tracks,
+        fallback_class=character.class_name,
+        fallback_level=character.level,
+        total_xp=character.xp,
+    )
+
+
+def effective_combat_track(tracks: list[dict]) -> dict:
+    return min(
+        tracks,
+        key=lambda track: (
+            thac0(
+                rules_class_name(track["class_name"]), int(track["level"])
+            ).get("final_thac0") or 99,
+            0 if rules_class_name(track["class_name"]) in {"Fighter", "Paladin", "Ranger"} else 1,
+        ),
+    )
+
+
+def multiclass_saving_throws(tracks: list[dict], race: str, constitution: int) -> dict:
+    if len(tracks) == 1:
+        return saving_throws(
+            rules_class_name(tracks[0]["class_name"]),
+            int(tracks[0]["level"]),
+            race,
+            constitution,
+        )
+    track_saves = [
+        saving_throws(rules_class_name(track["class_name"]), int(track["level"]), "Human", constitution)
+        for track in tracks
+    ]
+    usable = [entry for entry in track_saves if entry.get("categories")]
+    if not usable:
+        return {"status": "Manual DM Review", "reason": "No verified class saving throw table is available."}
+    categories = {
+        category: min(int(entry["categories"][category]) for entry in usable)
+        for category in usable[0]["categories"]
+    }
+    notes = ["Best applicable saving throw selected separately for each category."]
+    if race in {"Dwarf", "Halfling"}:
+        bonus = constitution_save_bonus(constitution)
+        for category in ("aimed_magic_items", "death_paralysis_poison", "spells"):
+            categories[category] = max(2, categories[category] - bonus)
+        notes.append(f"{race} Constitution save adjustment applied: +{bonus} against magic and poison.")
+    return {
+        "categories": categories,
+        "labels": usable[0].get("labels", {}),
+        "class_tracks": [
+            {"class_name": track["class_name"], "level": track["level"], "saving_throws": entry}
+            for track, entry in zip(tracks, track_saves)
+        ],
+        "race_source": race,
+        "notes": notes,
+        "automation_status": "derived_multiclass_best_applicable",
+    }
+
+
+def multiclass_equipment_allowed(race: str, tracks: list[dict], equipment: dict) -> tuple[bool, str]:
+    results = [
+        is_allowed_equipment(rules_class_name(track["class_name"]), equipment)
+        for track in tracks
+    ]
+    if len(results) == 1:
+        return results[0]
+    item_type = equipment.get("type")
+    restrictive = race in {"Dwarf", "Gnome"} or (
+        race == "Half-Orc" and item_type in {"armor", "shield"}
+    )
+    if race == "Gnome" and item_type == "armor":
+        allowed = "leather" in str(equipment.get("name") or "").lower()
+        return allowed, MULTICLASS_RESTRICTIONS[race]
+    allowed = all(result[0] for result in results) if restrictive else any(result[0] for result in results)
+    return allowed, MULTICLASS_RESTRICTIONS.get(race, "Apply the race-specific multi-class restriction.")
+
+
 def character_payload(character: VaultCharacter) -> dict:
+    tracks = character_class_tracks(character)
+    combat_track = effective_combat_track(tracks)
+    spell_lists = {
+        spell_list
+        for track in tracks
+        for spell_list in spell_filter_lists(track["class_name"])
+    }
     abilities = character.abilities
     coins = character.coins
     combat = character.combat
@@ -641,7 +736,7 @@ def character_payload(character: VaultCharacter) -> dict:
         {
             "id": spell.id,
             "spell_id": spell.spell_id,
-            "spell": spell_payload(spell.spell, spell_filter_lists(character.class_name)),
+            "spell": spell_payload(spell.spell, spell_lists),
             "known": spell.known,
             "in_spellbook": spell.in_spellbook,
             "prepared": spell.prepared,
@@ -675,18 +770,18 @@ def character_payload(character: VaultCharacter) -> dict:
         adjusted_scores,
         runtime_inventory,
         coins_payload,
-        rules_class_name(character.class_name),
+        rules_class_name(combat_track["class_name"]),
         rules_race_name(character.race),
-        character.level,
+        int(combat_track["level"]),
         abilities.exceptional_strength if abilities else None,
     ) if abilities else {}
     combat_runtime = character_combat_runtime(
         character.id,
         adjusted_scores,
         runtime_inventory,
-        rules_class_name(character.class_name),
+        rules_class_name(combat_track["class_name"]),
         rules_race_name(character.race),
-        character.level,
+        int(combat_track["level"]),
         weapon_proficiencies,
         abilities.exceptional_strength if abilities else None,
     ) if abilities else combat_runtime_error_payload()
@@ -698,6 +793,10 @@ def character_payload(character: VaultCharacter) -> dict:
         "name": character.name,
         "race": character.race,
         "class_name": character.class_name,
+        "class_tracks": tracks,
+        "class_display": class_display(tracks),
+        "level_display": level_display(tracks),
+        "is_multiclass": len(tracks) > 1,
         "subclass_or_specialty": character.subclass_or_specialty,
         "alignment": character.alignment,
         "level": character.level,
@@ -716,7 +815,7 @@ def character_payload(character: VaultCharacter) -> dict:
         "strength_display": strength_display(
             abilities.racial_adjusted_strength if abilities else 10,
             abilities.exceptional_strength if abilities else None,
-            rules_class_name(character.class_name),
+            rules_class_name(combat_track["class_name"]),
         ),
         "coins": coins_payload,
         "combat": {
@@ -735,7 +834,11 @@ def character_payload(character: VaultCharacter) -> dict:
             "encumbrance": derived.get("encumbrance", {}),
             "surprise_adjustment": derived.get("surprise_adjustment", combat.surprise_adjustment if combat else "Manual DM Review"),
             "initiative_adjustment": derived.get("initiative_adjustment", combat.initiative_adjustment if combat else "Manual DM Review"),
-            "saving_throws": derived.get("saving_throws", combat.saving_throws if combat else {"status": "Manual DM Review"}),
+            "saving_throws": multiclass_saving_throws(
+                tracks,
+                rules_race_name(character.race),
+                int(adjusted_scores.get("constitution", 10)),
+            ),
             "ability_modifiers": derived.get("ability_modifiers", {}),
             "ability_breakdown": derived.get("ability_breakdown", {}),
             "armor_class_breakdown": derived.get("armor_class_breakdown", {}),
@@ -743,17 +846,56 @@ def character_payload(character: VaultCharacter) -> dict:
             "coin_count": derived.get("coin_count", 0),
             "runtime": combat_runtime,
         },
-        "warnings": character_warnings(character.race, character.class_name, character.alignment),
+        "warnings": [
+            warning
+            for track in tracks
+            for warning in character_warnings(character.race, track["class_name"], character.alignment)
+        ] + ([MULTICLASS_RESTRICTIONS.get(rules_race_name(character.race), "")] if len(tracks) > 1 else []),
         "class_details": {
             **(CLASSES.get(rules_class_name(character.class_name), CLASSES.get(character.class_name, {}))),
-            "proficiency_count": proficiency_count(rules_class_name(character.class_name), character.level),
+            "proficiency_count": max(
+                (
+                    proficiency_count(rules_class_name(track["class_name"]), int(track["level"])) or 0
+                    for track in tracks
+                ),
+                default=0,
+            ),
             "rules_class_name": rules_class_name(character.class_name),
         },
+        "class_details_tracks": [
+            {
+                **track,
+                **CLASSES.get(rules_class_name(track["class_name"]), {}),
+                "rules_class_name": rules_class_name(track["class_name"]),
+                "proficiency_count": proficiency_count(
+                    rules_class_name(track["class_name"]), int(track["level"])
+                ),
+            }
+            for track in tracks
+        ],
         "race_details": RACES.get(rules_race_name(character.race), {}),
         "inventory": runtime_inventory,
         "weapon_proficiencies": weapon_proficiencies,
         "spells": spell_entries,
         "spell_slots": spell_slot_summary(spell_rules_class_name(character.class_name), character.level, spell_entries),
+        "spellcasting_tracks": [
+            {
+                **track,
+                "spell_slots": spell_slot_summary(
+                    spell_rules_class_name(track["class_name"]),
+                    int(track["level"]),
+                    spell_entries,
+                ),
+            }
+            for track in tracks
+            if CLASSES.get(rules_class_name(track["class_name"]), {}).get("spellcaster")
+        ],
+        "multiclass": {
+            "allowed_combinations": allowed_combinations(rules_race_name(character.race)),
+            "restriction": MULTICLASS_RESTRICTIONS.get(rules_race_name(character.race)),
+            "xp_policy": "Experience is divided equally among all class tracks.",
+            "hp_policy": "Each class HP gain, including Constitution adjustment, is divided by the number of classes.",
+        },
         "rules": {
             "ability_scores": "/1e/character-creation/001-ability-scores/",
             "race": f"/1e/races/{character.race.lower().replace(' ', '-').replace('half-', 'half-')}/",
@@ -976,6 +1118,8 @@ def stored_items_for_campaign(db: Session, campaign_id: int) -> list[dict]:
 
 
 def recalculate_character(db: Session, character: VaultCharacter) -> None:
+    tracks = character_class_tracks(character)
+    combat_track = effective_combat_track(tracks)
     scores = {ability: getattr(character.abilities, ability) for ability in ABILITIES}
     adjusted = adjusted_abilities(scores, character.race)
     for ability, value in adjusted.items():
@@ -995,9 +1139,9 @@ def recalculate_character(db: Session, character: VaultCharacter) -> None:
         adjusted,
         inventory,
         coins,
-        rules_class_name(character.class_name),
+        rules_class_name(combat_track["class_name"]),
         rules_race_name(character.race),
-        character.level,
+        int(combat_track["level"]),
         character.abilities.exceptional_strength,
     )
     for field, value in stats.items():
@@ -1060,11 +1204,23 @@ def normalize_magic_items(items: list[dict] | None) -> list[dict]:
 def validate_character_choice(data: dict) -> None:
     race = data.get("race")
     class_name = data.get("class_name")
+    tracks = normalize_class_tracks(
+        data.get("class_tracks"),
+        fallback_class=class_name or "Fighter",
+        fallback_level=int(data.get("level") or 1),
+        total_xp=int(data.get("xp") or 0),
+    )
     alignment = data.get("alignment")
     if race and race not in RACES and race not in DRAGONLANCE_RACE_NAMES:
         raise HTTPException(status_code=422, detail=f"Unsupported race: {race}.")
     if class_name and class_name not in CLASSES and class_name not in DRAGONLANCE_CLASS_NAMES and not is_sword_knight_class(class_name):
         raise HTTPException(status_code=422, detail=f"Unsupported class: {class_name}.")
+    for track in tracks:
+        track_class = track["class_name"]
+        if track_class not in CLASSES and track_class not in DRAGONLANCE_CLASS_NAMES and not is_sword_knight_class(track_class):
+            raise HTTPException(status_code=422, detail=f"Unsupported class: {track_class}.")
+    if len(tracks) > 1 and not validate_combination(rules_race_name(race or "Human"), [track["class_name"] for track in tracks]):
+        raise HTTPException(status_code=422, detail=f"{race or 'Human'} cannot use that multi-class combination.")
     if alignment and alignment not in ALIGNMENTS:
         raise HTTPException(status_code=422, detail=f"Unsupported alignment: {alignment}.")
 
@@ -1087,12 +1243,21 @@ def validate_equipped_inventory(character: VaultCharacter, item: CharacterInvent
         ]
         if equipped_shields:
             raise HTTPException(status_code=422, detail="Only one shield can be equipped.")
-    allowed, reason = is_allowed_equipment(rules_class_name(character.class_name), equipment_payload(equipment))
+    allowed, reason = multiclass_equipment_allowed(
+        rules_race_name(character.race),
+        character_class_tracks(character),
+        equipment_payload(equipment),
+    )
     if not allowed:
         raise HTTPException(status_code=422, detail=f"{character.class_name} cannot equip {equipment.name}. {reason}")
 
 
 def character_spell_entries(character: VaultCharacter, exclude_id: int | None = None, candidate: dict | None = None) -> list[dict]:
+    class_lists = {
+        spell_list
+        for track in character_class_tracks(character)
+        for spell_list in spell_filter_lists(track["class_name"])
+    }
     entries = []
     for spell in character.spells:
         if exclude_id is not None and spell.id == exclude_id:
@@ -1100,7 +1265,7 @@ def character_spell_entries(character: VaultCharacter, exclude_id: int | None = 
         entries.append(
             {
                 "id": spell.id,
-                "spell": spell_payload(spell.spell, spell_filter_lists(character.class_name)),
+                "spell": spell_payload(spell.spell, class_lists),
                 "prepared": spell.prepared,
                 "memorized_count": spell.memorized_count,
             }
@@ -1194,34 +1359,51 @@ def spell_has_available_slot(class_name: str, level: int, spell: SpellsCatalog) 
     return int(slots.get(level_key) or 0) > 0
 
 
+def spellcasting_track_for_spell(character: VaultCharacter, spell: SpellsCatalog) -> dict | None:
+    for track in character_class_tracks(character):
+        class_info = spell_class_info(track["class_name"])
+        matching_lists = set(class_info.get("spell_lists") or []).intersection(set(spell.class_list or []))
+        starts_level = int(class_info.get("spellcasting_starts_level") or 1)
+        if matching_lists and int(track["level"]) >= starts_level and spell_has_available_slot(
+            track["class_name"], int(track["level"]), spell
+        ):
+            return track
+    return None
+
+
 def validate_spell_preparation(character: VaultCharacter, spell: SpellsCatalog, data: dict, exclude_id: int | None = None) -> None:
-    rules_class = spell_rules_class_name(character.class_name)
-    class_info = spell_class_info(character.class_name)
+    track = spellcasting_track_for_spell(character, spell)
+    if track is None:
+        raise HTTPException(status_code=422, detail=f"No active class track can use {spell.name} at its current level.")
+    class_name = track["class_name"]
+    class_level = int(track["level"])
+    rules_class = spell_rules_class_name(class_name)
+    class_info = spell_class_info(class_name)
     class_lists = class_info.get("spell_lists") or []
     if not class_lists:
-        raise HTTPException(status_code=422, detail=f"{character.class_name} does not have normal spell preparation.")
+        raise HTTPException(status_code=422, detail=f"{class_name} does not have normal spell preparation.")
     starts_level = int(class_info.get("spellcasting_starts_level") or 1)
-    if character.level < starts_level:
-        raise HTTPException(status_code=422, detail=f"{character.class_name} spellcasting begins at level {starts_level}.")
+    if class_level < starts_level:
+        raise HTTPException(status_code=422, detail=f"{class_name} spellcasting begins at level {starts_level}.")
     matching_lists = set(class_lists).intersection(set(spell.class_list or []))
     if not matching_lists:
-        raise HTTPException(status_code=422, detail=f"{spell.name} is not on the {character.class_name} spell list.")
+        raise HTTPException(status_code=422, detail=f"{spell.name} is not on the {class_name} spell list.")
     effective_level = min((int((spell.levels_by_class or {}).get(name, spell.spell_level)) for name in matching_lists), default=spell.spell_level)
-    if data.get("known", True) and not spell_has_available_slot(character.class_name, character.level, spell):
-        raise HTTPException(status_code=422, detail=f"{character.class_name} cannot use level {effective_level} spells at level {character.level}.")
+    if data.get("known", True) and not spell_has_available_slot(class_name, class_level, spell):
+        raise HTTPException(status_code=422, detail=f"{class_name} cannot use level {effective_level} spells at level {class_level}.")
     prepared = bool(data.get("prepared", False))
     memorized_count = int(data.get("memorized_count") or (1 if prepared else 0))
     if memorized_count < 0:
         raise HTTPException(status_code=422, detail="Memorized count cannot be negative.")
     if prepared or memorized_count > 0:
         if not (data.get("known") or data.get("in_spellbook")):
-            raise HTTPException(status_code=422, detail=f"{character.class_name} can only prepare known spells.")
+            raise HTTPException(status_code=422, detail=f"{class_name} can only prepare known spells.")
         candidate = {
             "spell": {**spell_payload(spell), "spell_level": effective_level},
             "prepared": prepared,
             "memorized_count": memorized_count,
         }
-        summary = spell_slot_summary(rules_class, character.level, character_spell_entries(character, exclude_id, candidate))
+        summary = spell_slot_summary(rules_class, class_level, character_spell_entries(character, exclude_id, candidate))
         remaining = summary["remaining"]
         if rules_class == "Ranger":
             buckets = [name for name in ("druid", "magic-user") if name in matching_lists]
@@ -1509,7 +1691,15 @@ def update_player_campaign_map(campaign_id: int, map_id: int, data: dict, claims
 
 @router.get("/1e/rules-data")
 def vault_rules_data(_: dict = Depends(require_player_or_admin)) -> dict:
-    return {"races": RACES, "classes": CLASSES, "alignments": ALIGNMENTS}
+    return {
+        "races": RACES,
+        "classes": CLASSES,
+        "alignments": ALIGNMENTS,
+        "multiclass_combinations": {
+            race: allowed_combinations(race) for race in RACES
+        },
+        "multiclass_restrictions": MULTICLASS_RESTRICTIONS,
+    }
 
 
 def reference_service() -> CanonicalContentService:
@@ -1578,13 +1768,23 @@ def advancement_service() -> AdvancementPreviewService:
 
 
 def apply_advancement_to_character(character: VaultCharacter, data: dict, db: Session) -> dict:
-    target_level = int(data.get("target_level") or (int(character.level or 1) + 1))
-    if target_level <= int(character.level or 1):
+    tracks = character_class_tracks(character)
+    selected_name = str(data.get("class_track") or tracks[0]["class_name"])
+    selected = next((track for track in tracks if track["class_name"].lower() == selected_name.lower()), None)
+    if selected is None:
+        raise HTTPException(status_code=422, detail="Class track not found.")
+    target_level = int(data.get("target_level") or (int(selected["level"]) + 1))
+    if target_level <= int(selected["level"]):
         raise HTTPException(status_code=422, detail="Target level must be higher than current level.")
-    if data.get("class_track") or data.get("mode") in {"multiclass", "dual_class"}:
-        raise HTTPException(status_code=422, detail="Multiclass and dual-class advancement require strict class-track state and are not writable yet.")
+    if data.get("mode") == "dual_class":
+        raise HTTPException(status_code=422, detail="Dual-class advancement is not available yet.")
     service = advancement_service()
-    preview = service.preview_advancement(character, target_level=target_level, proposed_xp=data.get("proposed_xp"))
+    preview = service.preview_advancement(
+        character,
+        target_level=target_level,
+        class_track=selected["class_name"],
+        proposed_xp=data.get("proposed_xp"),
+    )
     blockers = list(preview.get("advancement_blockers") or [])
     if blockers and not data.get("dm_override"):
         raise HTTPException(status_code=422, detail={"message": "Advancement is blocked.", "blockers": blockers})
@@ -1597,13 +1797,19 @@ def apply_advancement_to_character(character: VaultCharacter, data: dict, db: Se
     total_hp_gain = fixed_gain
     if hp_gain is not None:
         total_hp_gain += int(hp_gain) + con_gain
+    if hp_preview.get("division"):
+        total_hp_gain //= int(hp_preview["division"])
     if hp_preview.get("roll"):
         total_hp_gain = max(int(hp_preview.get("minimum_gain") or 1), total_hp_gain)
-    character.level = target_level
+    selected["level"] = target_level
     if data.get("xp") is not None:
         character.xp = int(data["xp"])
+        tracks = distribute_xp(tracks, character.xp)
     elif preview.get("xp_required"):
-        character.xp = max(int(character.xp or 0), int(preview["xp_required"]))
+        selected["xp"] = max(int(selected["xp"] or 0), int(preview["xp_required"]))
+    character.class_tracks = tracks
+    character.class_name = tracks[0]["class_name"]
+    character.level = int(tracks[0]["level"])
     if total_hp_gain:
         character.combat.max_hp = int(character.combat.max_hp or 0) + total_hp_gain
         character.combat.current_hp = int(character.combat.current_hp or 0) + total_hp_gain
@@ -2264,6 +2470,15 @@ def create_vault_character_for_player(data: dict, player: Player, db: Session) -
     scores = {ability: int((data.get("abilities") or {}).get(ability) or 10) for ability in ABILITIES}
     race = data.get("race") or "Human"
     class_name = data.get("class_name") or "Fighter"
+    class_tracks = distribute_xp(
+        normalize_class_tracks(
+            data.get("class_tracks"),
+            fallback_class=class_name,
+            fallback_level=int(data.get("level") or 1),
+            total_xp=int(data.get("xp") or 0),
+        ),
+        int(data.get("xp") or 0),
+    )
     adjusted = adjusted_abilities(scores, race)
     coins = data.get("coins") or {}
     validate_non_negative_coins(coins)
@@ -2278,6 +2493,7 @@ def create_vault_character_for_player(data: dict, player: Player, db: Session) -
         alignment=data.get("alignment") or "True Neutral",
         level=int(data.get("level") or 1),
         xp=int(data.get("xp") or 0),
+        class_tracks=class_tracks,
         status=data.get("status") or "active",
         life_status=data.get("life_status") or "alive",
         campaign_day=int(data.get("campaign_day") or 1),
@@ -2375,6 +2591,16 @@ def update_vault_character_record(character: VaultCharacter, data: dict, db: Ses
     ):
         if field in data:
             setattr(character, field, normalize_magic_items(data[field]) if field == "magic_items" else data[field])
+    if "class_tracks" in data or "class_name" in data or "level" in data or "xp" in data:
+        tracks = normalize_class_tracks(
+            data.get("class_tracks", character.class_tracks),
+            fallback_class=character.class_name,
+            fallback_level=int(character.level or 1),
+            total_xp=int(character.xp or 0),
+        )
+        character.class_tracks = distribute_xp(tracks, int(character.xp or 0))
+        character.class_name = character.class_tracks[0]["class_name"]
+        character.level = int(character.class_tracks[0]["level"])
     if "abilities" in data:
         for ability in ABILITIES:
             if ability in data["abilities"]:
@@ -2575,7 +2801,11 @@ def upsert_weapon_proficiency(character: VaultCharacter, data: dict, db: Session
     equipment = db.get(EquipmentCatalog, int(data["equipment_id"]))
     if equipment is None or equipment.type != "weapon":
         raise HTTPException(status_code=422, detail="Weapon proficiency requires a catalog weapon.")
-    allowed, reason = is_allowed_equipment(rules_class_name(character.class_name), equipment_payload(equipment))
+    allowed, reason = multiclass_equipment_allowed(
+        rules_race_name(character.race),
+        character_class_tracks(character),
+        equipment_payload(equipment),
+    )
     if not allowed and not data.get("dm_override"):
         raise HTTPException(status_code=422, detail=f"Weapon proficiency requires DM review for {equipment.name}. {reason}")
     existing = db.scalar(
