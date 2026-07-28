@@ -274,7 +274,9 @@ function PlayerShell({ children }) {
   const auth = useAuth();
   const navigate = useNavigate();
   const { data: activePlayer, error } = useLoad(() => api("/player/me", { auth: "player" }), []);
+  const { data: playerCampaigns } = useLoad(() => api("/player/campaigns", { auth: "player" }), []);
   const classic = isClassicHost();
+  const hasDragonlanceCampaign = (playerCampaigns || []).some(isDragonlanceCampaign);
 
   async function signOut() {
     await auth.signOutPlayer();
@@ -300,7 +302,7 @@ function PlayerShell({ children }) {
             { label: "Characters", to: classic ? "/characters" : "/portal/characters" },
             { label: "Create Character", to: classic ? "/characters/new" : "/portal/characters/new" },
             { label: "Player's Guide", href: "/1e/" },
-            { label: "Dragonlance", href: classic ? "/dragonlance" : "/portal/dragonlance" },
+            ...(hasDragonlanceCampaign ? [{ label: "Dragonlance", href: classic ? "/dragonlance" : "/portal/dragonlance" }] : []),
           ]}
           account={
             <div className="account-card">
@@ -3811,6 +3813,18 @@ function DragonlanceGuidePage() {
   );
 }
 
+function PlayerDragonlanceRoute() {
+  const { data: campaigns, error, loading } = useLoad(
+    () => api("/player/campaigns", { auth: "player" }),
+    [],
+  );
+  if (loading) return <p className="muted">Checking campaign access...</p>;
+  if (error || !(campaigns || []).some(isDragonlanceCampaign)) {
+    return <Navigate to={isClassicHost() ? "/campaigns" : "/portal/campaigns"} replace />;
+  }
+  return <DragonlanceGuidePage />;
+}
+
 function dragonlanceBasePath() {
   return isClassicHost() ? "/dragonlance" : "/portal/dragonlance";
 }
@@ -5107,7 +5121,7 @@ export default function App() {
             <Route path="/campaigns/:id/maps/:mapId" element={<PlayerMapPage />} />
             <Route path="/characters" element={<PlayerCharactersPage />} />
             <Route path="/characters/new" element={<PlayerCreateCharacterPage />} />
-            <Route path="/dragonlance/*" element={<DragonlanceGuidePage />} />
+            <Route path="/dragonlance/*" element={<PlayerDragonlanceRoute />} />
             <Route path="/characters/:id" element={<PlayerVaultToolPage />} />
             <Route path="/characters/:id/edit" element={<PlayerVaultToolPage />} />
             <Route path="/1e/characters/new" element={<PlayerVaultToolPage />} />
@@ -5134,7 +5148,7 @@ export default function App() {
           <Route path="/portal/characters" element={<PlayerCharactersPage />} />
           <Route path="/portal/characters/new" element={<PlayerCreateCharacterPage />} />
           <Route path="/portal/campaigns/:id/characters/new" element={<PlayerCreateCharacterPage />} />
-          <Route path="/portal/dragonlance/*" element={<DragonlanceGuidePage />} />
+          <Route path="/portal/dragonlance/*" element={<PlayerDragonlanceRoute />} />
         </Route>
         <Route element={<Protected><Shell /></Protected>}>
           <Route path="/campaigns" element={<CampaignsPage />} />

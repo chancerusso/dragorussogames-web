@@ -24,6 +24,13 @@ deliberately deferred. The next milestone is Wednesday feature rehearsal,
 Thursday defect repair/regression, then the deployment runbook only after
 practice acceptance.
 
+Campaign setting is now authoritative for player content. Greyhawk invitations
+expose only the shared First Edition/OSRIC foundation. Dragonlance invitations
+expose that foundation plus permitted Dragonlance races, classes, and
+reference material. The player builder removes incompatible sections, the
+Dragonlance reference is invitation-gated, and backend validation rejects
+setting-incompatible character saves.
+
 ## Confirmed product direction
 
 Drago Table will eventually have three DM-selected, separately persistent

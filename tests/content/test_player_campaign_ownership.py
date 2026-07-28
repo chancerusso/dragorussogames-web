@@ -15,6 +15,7 @@ sys.path.insert(0, str(REPO_ROOT / "backend"))
 os.environ.setdefault("DATABASE_URL", "sqlite:////private/tmp/drg1e-player-campaign-import.db")
 
 from app.api import (  # noqa: E402
+    campaign_payload,
     create_player_vault_character,
     create_vault_player,
     delete_player_vault_character,
@@ -34,7 +35,8 @@ class PlayerCampaignOwnershipTests(unittest.TestCase):
         self.db = self.Session()
         self.invited = Campaign(name="Invited Campaign", setting="greyhawk")
         self.closed = Campaign(name="Closed Campaign", setting="greyhawk")
-        self.db.add_all([self.invited, self.closed])
+        self.dragonlance = Campaign(name="Krynn Campaign", setting="dragonlance")
+        self.db.add_all([self.invited, self.closed, self.dragonlance])
         self.db.commit()
 
     def tearDown(self) -> None:
@@ -116,6 +118,59 @@ class PlayerCampaignOwnershipTests(unittest.TestCase):
             0,
         )
         self.assertIsNone(self.db.get(CampaignPlayer, (self.invited.id, player_id)))
+
+    def test_campaign_setting_controls_dragonlance_character_options(self) -> None:
+        player_payload = create_vault_player(
+            {
+                "display_name": "Setting Player",
+                "username": "setting-player",
+                "password": "temporary-password",
+                "campaign_ids": [self.invited.id, self.dragonlance.id],
+            },
+            {},
+            self.db,
+        )
+        player_id = player_payload["id"]
+        dragonlance_character = {
+            **self.character_data("Krynn Hero"),
+            "campaign_id": self.dragonlance.id,
+            "race": "Kender",
+            "class_name": "Thief / Handler",
+            "class_tracks": [
+                {"class_name": "Thief / Handler", "level": 1, "xp": 0, "state": "active"}
+            ],
+        }
+        created = create_player_vault_character(
+            dragonlance_character,
+            {"sub": str(player_id)},
+            self.db,
+        )
+        self.assertEqual("Kender", created["race"])
+        self.assertEqual("Thief / Handler", created["class_name"])
+
+        greyhawk_character = {
+            **dragonlance_character,
+            "name": "Wrong World Hero",
+            "campaign_id": self.invited.id,
+        }
+        with self.assertRaises(HTTPException) as rejected:
+            create_player_vault_character(
+                greyhawk_character,
+                {"sub": str(player_id)},
+                self.db,
+            )
+        self.assertEqual(422, rejected.exception.status_code)
+        self.assertIn("Greyhawk does not allow Dragonlance", rejected.exception.detail)
+
+    def test_campaign_payload_includes_foundation_for_dragonlance_only(self) -> None:
+        self.assertEqual(
+            ["OSRIC", "GREYHAWK"],
+            campaign_payload(self.invited)["allowed_sourcebooks"],
+        )
+        self.assertEqual(
+            ["OSRIC", "DRAGOLANCE"],
+            campaign_payload(self.dragonlance)["allowed_sourcebooks"],
+        )
 
 
 if __name__ == "__main__":

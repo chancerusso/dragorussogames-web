@@ -404,3 +404,11 @@ test("ammunition is separated from weapons and shown on compatible missile cards
   assert.match(vaultSource, /runtime\.mode === "missile" \? compatibleAmmunitionForWeapon/);
   assert.match(vaultSource, /statRow\("AMMO"/);
 });
+
+test("campaign setting exclusively controls Dragonlance builder options", () => {
+  assert.match(vaultSource, /isDragonlanceMode\(\) \? raceSourceSection\("DRAGOLANCE"/);
+  assert.match(vaultSource, /isDragonlanceMode\(\) \? classSourceSection\("DRAGOLANCE STARTING CLASSES"/);
+  assert.match(vaultSource, /Campaign Setting: \$\{setting\}/);
+  assert.match(vaultSource, /enforceDraftCampaignSetting\(\)/);
+  assert.match(vaultSource, /Dragonlance options were cleared because this is a Greyhawk campaign/);
+});

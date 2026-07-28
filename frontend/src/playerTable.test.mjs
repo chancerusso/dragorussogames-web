@@ -62,3 +62,11 @@ test("campaign invitations control player character assignment and rosters can d
   assert.match(vault, /Pending \/ No campaign/);
   assert.match(vault, /Only campaigns your DM invited you to are available/);
 });
+
+test("Dragonlance reference is limited to invited Dragonlance campaigns", () => {
+  assert.match(app, /const hasDragonlanceCampaign = \(playerCampaigns \|\| \[\]\)\.some\(isDragonlanceCampaign\)/);
+  assert.match(app, /\.\.\.\(hasDragonlanceCampaign \? \[\{ label: "Dragonlance"/);
+  assert.match(app, /function PlayerDragonlanceRoute/);
+  assert.match(app, /!\(campaigns \|\| \[\]\)\.some\(isDragonlanceCampaign\)/);
+  assert.match(app, /<Route path="\/dragonlance\/\*" element=\{<PlayerDragonlanceRoute \/>/);
+});

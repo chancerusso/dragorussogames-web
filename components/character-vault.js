@@ -174,12 +174,12 @@ function detectBuilderContext() {
   const hostSetting = window.location.hostname.toLowerCase().includes("dragolance") ? "dragolance" : "osric";
   const setting = (params.get("setting") || params.get("source") || hostSetting).toLowerCase();
   if (setting === "dragolance" || setting === "dragonlance") {
-    return { setting: "dragolance", label: "Dragolance", selectableSources: new Set(["DRAGOLANCE"]) };
+    return { setting: "dragolance", label: "Dragonlance", selectableSources: new Set(["OSRIC", "DRAGOLANCE"]) };
   }
   if (setting === "greyhawk") {
     return { setting: "greyhawk", label: "Greyhawk", selectableSources: new Set(["OSRIC", "GREYHAWK"]) };
   }
-  return { setting: "osric", label: "OSRIC", selectableSources: new Set(["OSRIC", "DRAGOLANCE"]) };
+  return { setting: "osric", label: "First Edition", selectableSources: new Set(["OSRIC"]) };
 }
 
 function sourceSelectable(source) {
@@ -346,7 +346,7 @@ function applyCampaignSourceContext(campaign) {
   const sourcebooks = Array.isArray(campaign.allowed_sourcebooks) && campaign.allowed_sourcebooks.length
     ? campaign.allowed_sourcebooks
     : setting === "dragonlance" || setting === "dragolance"
-      ? ["DRAGOLANCE"]
+      ? ["OSRIC", "DRAGOLANCE"]
       : ["OSRIC", "GREYHAWK"];
   builderContext.setting = setting === "dragonlance" ? "dragolance" : setting || builderContext.setting;
   builderContext.label = title(builderContext.setting);
@@ -506,8 +506,10 @@ async function hydratePlayerBuilderContext() {
   state.currentPlayer = player;
   state.players = player ? [player] : [];
   state.campaigns = campaigns;
-  state.campaign = selectedCampaignId ? campaigns.find((campaign) => Number(campaign.id) === selectedCampaignId) || null : null;
-  applyCampaignSourceContext(state.campaign || campaigns[0]);
+  state.campaign = selectedCampaignId
+    ? campaigns.find((campaign) => Number(campaign.id) === selectedCampaignId) || null
+    : campaigns[0] || null;
+  applyCampaignSourceContext(state.campaign);
   if (player?.id) localStorage.setItem("drg1e_player_id", String(player.id));
 }
 
@@ -669,11 +671,11 @@ function builderStepDataGate() {
     labels.push("rules");
     loads.push(loadRulesData());
   }
-  if (state.step === 2 && !state.dragonlanceRaces.length) {
+  if (state.step === 2 && isDragonlanceMode() && !state.dragonlanceRaces.length) {
     labels.push("race options");
     loads.push(fetchDragonlanceRaces().then((records) => { state.dragonlanceRaces = records; }));
   }
-  if (state.step === 3 && !state.dragonlanceClasses.length) {
+  if (state.step === 3 && isDragonlanceMode() && !state.dragonlanceClasses.length) {
     labels.push("class options");
     loads.push(fetchDragonlanceClasses().then((records) => { state.dragonlanceClasses = records; }));
   }
@@ -808,7 +810,7 @@ function builderStep() {
   if (state.step === 2) return `
     <input type="hidden" name="race" value="${h(d.race)}">
     <section class="vault-full vault-choice-step">
-      ${choiceStepHeader("Race", "What race do you want to play?", d.race || "None", "Choose your ancestry from the OSRIC foundation or Dragonlance sourcebook options.")}
+      ${choiceStepHeader("Race", "What race do you want to play?", d.race || "None", isDragonlanceMode() ? "Choose from the First Edition foundation or Dragonlance options permitted by this campaign." : "Choose from the First Edition options permitted by this Greyhawk campaign.")}
       <div class="vault-choice-summary">
         <div>
           <span>Selected Race</span>
@@ -819,10 +821,10 @@ function builderStep() {
       </div>
       ${sourcebookNoticeHtml()}
       ${raceSourceSection("OSRIC", osricRaceCards(), d.race)}
-      ${raceSourceSection("DRAGOLANCE", settingDragonlanceRaces(), d.race)}
+      ${isDragonlanceMode() ? raceSourceSection("DRAGOLANCE", settingDragonlanceRaces(), d.race) : ""}
     </section>
     <div class="vault-card vault-full"><h3>Race Notes</h3>${raceClassWarnings(d)}<p><strong>Alignment notes:</strong> ${h(compactList(dragonlanceRaceProfile(d.race)?.allowed_alignments || ["See details later"], 6))}</p></div>
-    <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/002-race/">Race</a>. Dragonlance-specific Knights and Wizards restrictions will be added in a later pass.</p>
+    <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/002-race/">Race</a>.</p>
     ${navButtons()}`;
   if (state.step === 3) return `
     <input type="hidden" name="class_name" value="${h(d.class_name)}">
@@ -843,8 +845,8 @@ function builderStep() {
       ${sourcebookNoticeHtml()}
       ${multiclassOptionsHtml(d)}
       ${classSourceSection("OSRIC", osricClassCards(), d.class_name)}
-      ${classSourceSection("DRAGOLANCE STARTING CLASSES", dragonlanceStartingClassCards(), d.class_name)}
-      ${classSourceSection("DRAGOLANCE PROGRESSION PATHS", dragonlanceProgressionClassCards(), d.class_name)}
+      ${isDragonlanceMode() ? classSourceSection("DRAGOLANCE STARTING CLASSES", dragonlanceStartingClassCards(), d.class_name) : ""}
+      ${isDragonlanceMode() ? classSourceSection("DRAGOLANCE PROGRESSION PATHS", dragonlanceProgressionClassCards(), d.class_name) : ""}
     </section>
     <div class="vault-card vault-full"><h3>Class Notes</h3>${raceClassWarnings(d)}${exceptionalStrengthBuilderHtml(d)}<p><strong>${h(draftClassDisplay(d))}</strong></p><p>Each class keeps its own level and receives an equal share of XP. Hit-point gains are divided by ${draftClassTracks(d).length}.</p></div>
     <p class="vault-rules vault-full">Rules: <a href="/1e/character-creation/003-class/">Class</a></p>
@@ -884,7 +886,8 @@ function campaignSelectHtml(d) {
 }
 
 function sourcebookNoticeHtml() {
-  return `<div class="vault-source-notice"><strong>Campaign Sourcebooks</strong><span>This campaign determines which sourcebooks, races, classes, and options are available.</span></div>`;
+  const setting = isDragonlanceMode() ? "Dragonlance" : "Greyhawk";
+  return `<div class="vault-source-notice"><strong>Campaign Setting: ${setting}</strong><span>Your DM selected which character options are available.</span></div>`;
 }
 
 function playerIdentityHtml() {
@@ -1273,6 +1276,27 @@ function dragonlanceClassProfile(name) {
   return state.dragonlanceClasses.find((classInfo) => classInfo.name === name) || null;
 }
 
+function enforceDraftCampaignSetting() {
+  if (!state.draft || isDragonlanceMode()) return;
+  const dragonlanceRace = Boolean(dragonlanceRaceProfile(state.draft.race));
+  const dragonlanceClass = draftClassNames(state.draft).some(
+    (className) => Boolean(dragonlanceClassProfile(className)),
+  );
+  if (dragonlanceRace) state.draft.race = "Human";
+  if (dragonlanceClass) {
+    state.draft.class_name = "Fighter";
+    state.draft.class_tracks = [{
+      class_name: "Fighter",
+      level: Number(state.draft.level || 1),
+      xp: Number(state.draft.xp || 0),
+      state: "active",
+    }];
+  }
+  if (dragonlanceRace || dragonlanceClass) {
+    toast("Dragonlance options were cleared because this is a Greyhawk campaign.");
+  }
+}
+
 function dragonlanceStartingClassCards() {
   return dragonlanceClassCards().filter((card) => card.category !== "progression");
 }
@@ -1458,6 +1482,7 @@ function bindBuilderActions() {
     syncDraft();
     state.campaign = state.campaigns.find((campaign) => String(campaign.id) === String(state.draft.campaign_id)) || null;
     if (state.campaign) applyCampaignSourceContext(state.campaign);
+    enforceDraftCampaignSetting();
     renderBuilder();
   });
   document.querySelectorAll("[data-select-race]").forEach((button) => button.addEventListener("click", (event) => {

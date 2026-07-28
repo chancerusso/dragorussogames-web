@@ -427,7 +427,11 @@ def monster_payload(monster: MonsterCatalog, include_source_text: bool = False) 
 
 
 def campaign_payload(campaign: Campaign) -> dict:
-    allowed_sourcebooks = ["DRAGOLANCE"] if campaign.setting in {"dragonlance", "dragolance"} else ["OSRIC", "GREYHAWK"]
+    allowed_sourcebooks = (
+        ["OSRIC", "DRAGOLANCE"]
+        if campaign.setting in {"dragonlance", "dragolance"}
+        else ["OSRIC", "GREYHAWK"]
+    )
     return {
         "id": campaign.id,
         "name": campaign.name,
@@ -1346,6 +1350,47 @@ def rules_race_name(race: str) -> str:
     if "kender" in lowered:
         return "Halfling"
     return race
+
+
+def validate_character_campaign_setting(
+    db: Session,
+    data: dict,
+    campaign_id: int | None,
+    reject_unassigned_dragonlance: bool = False,
+) -> None:
+    campaign = db.get(Campaign, int(campaign_id)) if campaign_id else None
+    dragonlance_allowed = bool(
+        campaign and campaign.setting in {"dragonlance", "dragolance"}
+    )
+    race = str(data.get("race") or "Human")
+    tracks = normalize_class_tracks(
+        data.get("class_tracks"),
+        fallback_class=str(data.get("class_name") or "Fighter"),
+        fallback_level=int(data.get("level") or 1),
+        total_xp=int(data.get("xp") or 0),
+    )
+    dragonlance_choices = []
+    if race in DRAGONLANCE_RACE_NAMES and race not in RACES:
+        dragonlance_choices.append(f"race {race}")
+    for track in tracks:
+        class_name = track["class_name"]
+        if class_name in DRAGONLANCE_CLASS_NAMES and class_name not in CLASSES:
+            dragonlance_choices.append(f"class {class_name}")
+    if (
+        dragonlance_choices
+        and campaign is None
+        and not reject_unassigned_dragonlance
+    ):
+        return
+    if dragonlance_choices and not dragonlance_allowed:
+        setting = campaign.setting.title() if campaign else "No campaign"
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                f"{setting} does not allow Dragonlance character options: "
+                f"{', '.join(dragonlance_choices)}."
+            ),
+        )
 
 
 def spell_has_available_slot(class_name: str, level: int, spell: SpellsCatalog) -> bool:
@@ -2318,6 +2363,23 @@ def update_vault_campaign(campaign_id: int, data: dict, _: dict = Depends(requir
             setattr(campaign, field, data[field])
     if "setting" in data:
         campaign.setting = validate_campaign_setting(data["setting"] or "greyhawk")
+        for character in db.scalars(
+            select(VaultCharacter).where(
+                VaultCharacter.campaign_id == campaign.id,
+                VaultCharacter.status != "archived",
+            )
+        ).all():
+            validate_character_campaign_setting(
+                db,
+                {
+                    "race": character.race,
+                    "class_name": character.class_name,
+                    "class_tracks": character.class_tracks,
+                    "level": character.level,
+                    "xp": character.xp,
+                },
+                campaign.id,
+            )
     if "current_campaign_day" in data:
         campaign.current_campaign_day = int(data["current_campaign_day"] or 1)
     if "session_number" in data:
@@ -2467,6 +2529,7 @@ def player_character_or_404(db: Session, character_id: int, player_id: int) -> V
 def create_vault_character_for_player(data: dict, player: Player, db: Session) -> dict:
     ensure_vault_seeded(db)
     validate_character_choice(data)
+    validate_character_campaign_setting(db, data, data.get("campaign_id"))
     scores = {ability: int((data.get("abilities") or {}).get(ability) or 10) for ability in ABILITIES}
     race = data.get("race") or "Human"
     class_name = data.get("class_name") or "Fighter"
@@ -2547,6 +2610,12 @@ def create_player_vault_character(data: dict, claims: dict = Depends(require_pla
     if campaign_id:
         ensure_player_campaign_member(db, int(campaign_id), player.id)
         ensure_player_character_slot(db, int(campaign_id), player.id)
+    validate_character_campaign_setting(
+        db,
+        data,
+        int(campaign_id) if campaign_id else None,
+        reject_unassigned_dragonlance=True,
+    )
     data = {**data, "user_id": player.id}
     return create_vault_character_for_player(data, player, db)
 
@@ -2570,6 +2639,19 @@ def get_vault_character(character_id: int, _: dict = Depends(require_jwt_admin),
 
 def update_vault_character_record(character: VaultCharacter, data: dict, db: Session) -> dict:
     validate_character_choice(data)
+    setting_fields = {"campaign_id", "race", "class_name", "class_tracks"}
+    if setting_fields.intersection(data):
+        validate_character_campaign_setting(
+            db,
+            {
+                "race": data.get("race", character.race),
+                "class_name": data.get("class_name", character.class_name),
+                "class_tracks": data.get("class_tracks", character.class_tracks),
+                "level": data.get("level", character.level),
+                "xp": data.get("xp", character.xp),
+            },
+            data.get("campaign_id", character.campaign_id),
+        )
     old_level = character.level
     for field in (
         "campaign_id",
@@ -2634,6 +2716,19 @@ def update_player_vault_character(character_id: int, data: dict, claims: dict = 
     if campaign_id:
         ensure_player_campaign_member(db, int(campaign_id), player.id)
         ensure_player_character_slot(db, int(campaign_id), player.id, character.id)
+    if {"campaign_id", "race", "class_name", "class_tracks"}.intersection(data):
+        validate_character_campaign_setting(
+            db,
+            {
+                "race": data.get("race", character.race),
+                "class_name": data.get("class_name", character.class_name),
+                "class_tracks": data.get("class_tracks", character.class_tracks),
+                "level": data.get("level", character.level),
+                "xp": data.get("xp", character.xp),
+            },
+            int(campaign_id) if campaign_id else character.campaign_id,
+            reject_unassigned_dragonlance=True,
+        )
     return update_vault_character_record(character, data, db)
 
 
