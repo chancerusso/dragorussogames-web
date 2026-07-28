@@ -12,7 +12,7 @@ import mountainDwarfRace from "../../content/settings/dragonlance/races/mountain
 import qualinestiElfRace from "../../content/settings/dragonlance/races/qualinesti-elf.json";
 import silvanestiElfRace from "../../content/settings/dragonlance/races/silvanesti-elf.json";
 import tinkerGnomeRace from "../../content/settings/dragonlance/races/tinker-gnome.json";
-import { AUTH_CHANGED_EVENT, api, getPlayerToken, getToken, login, logout, playerLogin, playerLogout } from "./api.js";
+import { AUTH_CHANGED_EVENT, api, getPlayerToken, getToken, login, logout, openAuthorizedFile, playerLogin, playerLogout } from "./api.js";
 import {
   classReference,
   deityGroups,
@@ -707,9 +707,7 @@ const WORKSPACE_TABS = [
   ["players", "Players"],
   ["characters", "Characters"],
   ["session-notes", "Session Notes"],
-  ["journal", "Journal"],
   ["npcs", "NPCs"],
-  ["treasure", "Treasure"],
   ["handouts", "Handouts"],
   ["settings", "Settings"],
 ];
@@ -758,11 +756,9 @@ function CampaignWorkspace({ initialTab = "overview" }) {
           onReload={reload}
         />
       ) : null}
-      {activeTab === "session-notes" ? <PlaceholderPanel title="Session Notes" copy="Session prep, recap, and table notes will live here in the next pass." /> : null}
-      {activeTab === "journal" ? <PlaceholderPanel title="Journal" copy="Campaign chronology and adventure logs will live here." /> : null}
-      {activeTab === "npcs" ? <PlaceholderPanel title="NPCs" copy="Important contacts, rivals, factions, and hirelings will live here." /> : null}
-      {activeTab === "treasure" ? <PlaceholderPanel title="Treasure" copy="Party treasure, claims, and discovered hoards will live here." /> : null}
-      {activeTab === "handouts" ? <PlaceholderPanel title="Handouts" copy="Maps, letters, clues, and player-facing files will live here." /> : null}
+      {activeTab === "session-notes" ? <CampaignSessionsTab campaign={campaign} onError={setWorkspaceError} /> : null}
+      {activeTab === "npcs" ? <CampaignNpcsTab campaign={campaign} onError={setWorkspaceError} /> : null}
+      {activeTab === "handouts" ? <CampaignHandoutsTab campaign={campaign} onError={setWorkspaceError} /> : null}
       {activeTab === "settings" ? <CampaignSettingsTab campaign={campaign} onError={setWorkspaceError} onReload={reload} /> : null}
     </section>
   );
@@ -966,8 +962,8 @@ function DragoTablePage() {
     const relativeY = Math.max(0, Math.min(rect.height - 1, event.clientY - rect.top));
     const x = Math.max(1, Math.min(activeGrid.columns - footprint.columns + 1, Math.floor(relativeX / cellWidth) + 1));
     const y = Math.max(1, Math.min(activeGrid.rows - footprint.rows + 1, Math.floor(relativeY / cellHeight) + 1));
-    const slotX = token.monster ? 0 : (relativeX % cellWidth) >= cellWidth / 2 ? 1 : 0;
-    const slotY = token.monster ? 0 : (relativeY % cellHeight) >= cellHeight / 2 ? 1 : 0;
+    const slotX = (relativeX % cellWidth) >= cellWidth / 2 ? 1 : 0;
+    const slotY = (relativeY % cellHeight) >= cellHeight / 2 ? 1 : 0;
     setTokenPositions((positions) => ({ ...positions, [token.id]: { x, y, slotX, slotY } }));
   }
 
@@ -1033,13 +1029,19 @@ function DragoTablePage() {
     setCombatGrid((current) => ({ ...current, [key]: nextValue }));
   }
 
-  function endCombat() {
+  async function startCombat() {
+    setCombatTracker(createCombatTrackerState());
+    await changeTableMode("combat");
+  }
+
+  async function endCombat() {
     setEncounterMonsters([]);
     setExpandedMonsterTypes({});
     setPendingGridMonsterId(null);
     setHpEditor(null);
     setCombatTracker(createCombatTrackerState());
     setTokenPositions((positions) => Object.fromEntries(Object.entries(positions).filter(([key]) => !key.startsWith("monster-token-"))));
+    await changeTableMode("mapping");
   }
 
   function toggleSessionLive() {
@@ -1092,7 +1094,7 @@ function DragoTablePage() {
 
   if (loading || error || !campaign) return <PageState loading={loading} error={error} />;
 
-  const modeLabel = mode === "combat" ? "Combat Mode" : mode === "hex_crawl" ? "Hex Crawl Mode" : "Mapping Mode";
+  const modeLabel = mode === "combat" ? "Combat Mode" : mode === "hex_crawl" ? "Hex Crawl Mode" : "Marching Order";
   const gridTitle = mode === "combat" ? `${combatGrid.columns} x ${combatGrid.rows} Ten-Foot Area` : "Hex Crawl Coming Next";
   const gridEyebrow = mode === "combat" ? "10-Foot Tactical Grid" : "Campaign Travel";
   const monsterAward = encounterMonsters.filter((monster) => monster.dead).reduce((sum, monster) => sum + monsterXp(monster.monster, monster.max_hp), 0);
@@ -1128,7 +1130,7 @@ function DragoTablePage() {
       <div className="drago-table-layout">
         <aside className="panel drago-side-panel">
           <TrackerPanel mode={trackerMode} tracker={tracker} onModeChange={setTrackerModeAndState} onUpdate={updateTracker} />
-          <CombatTrackerPanel tracker={combatTracker} onUpdate={setCombatTracker} onEndCombat={endCombat} />
+          <CombatTrackerPanel mode={mode} tracker={combatTracker} onUpdate={setCombatTracker} onStartCombat={startCombat} onEndCombat={endCombat} />
           <DiceRollerPanel
             history={rollHistory}
             rollerName="DM"
@@ -1287,7 +1289,7 @@ function DragoTablePage() {
 }
 
 const DRAGO_TABLE_MODES = [
-  ["mapping", "Mapping"],
+  ["mapping", "Marching Order"],
   ["combat", "Combat"],
   ["hex_crawl", "Hex Crawl"],
 ];
@@ -1753,24 +1755,28 @@ function EncounterList({ monsters, mode, pendingGridMonsterId, hpEditor, onApply
   );
 }
 
-function CombatTrackerPanel({ tracker, onUpdate, onEndCombat }) {
+function CombatTrackerPanel({ mode, tracker, onUpdate, onStartCombat, onEndCombat }) {
   const activeLabel = tracker.activeSide === "party" ? "Party Turn" : "Monster Turn";
+  const inCombat = mode === "combat";
   return (
     <section className="combat-tracker">
       <div className="section-heading compact-heading">
         <div>
           <p className="eyebrow">Combat</p>
-          <h2>Round {tracker.round}</h2>
+          <h2>{inCombat ? `Round ${tracker.round}` : "Ready"}</h2>
         </div>
-        <span className="status-pill">{activeLabel}</span>
+        {inCombat ? <span className="status-pill">{activeLabel}</span> : null}
       </div>
-      <div className="combat-turn-toggle">
+      {inCombat ? <div className="combat-turn-toggle">
         <button type="button" className={tracker.activeSide === "party" ? "active" : ""} onClick={() => onUpdate((current) => ({ ...current, activeSide: "party" }))}>Party</button>
         <button type="button" className={tracker.activeSide === "monsters" ? "active" : ""} onClick={() => onUpdate((current) => ({ ...current, activeSide: "monsters" }))}>Monsters</button>
-      </div>
-      <div className="tracker-button-group">
-        <button type="button" className="table-button" onClick={() => onUpdate((current) => ({ ...current, round: current.round + 1, activeSide: "party" }))}>Advance Round</button>
-        <button type="button" className="table-button" onClick={onEndCombat}>End Combat</button>
+      </div> : null}
+      <div className="tracker-button-group combat-round-controls">
+        <button type="button" className="table-button" disabled={inCombat} onClick={onStartCombat}>Start</button>
+        <button type="button" className="table-button round-step" disabled={!inCombat || tracker.round <= 1} onClick={() => onUpdate((current) => ({ ...current, round: Math.max(1, current.round - 1) }))}>−</button>
+        <span>Round {tracker.round}</span>
+        <button type="button" className="table-button round-step" disabled={!inCombat} onClick={() => onUpdate((current) => ({ ...current, round: current.round + 1, activeSide: "party" }))}>+</button>
+        <button type="button" className="table-button" disabled={!inCombat} onClick={onEndCombat}>End</button>
       </div>
     </section>
   );
@@ -2267,12 +2273,14 @@ function TableToken({ grid, token, monster = false, disabled = false, onDragStar
   const slotX = token.slotX || 0;
   const slotY = token.slotY || 0;
   const footprint = monster ? (token.footprint || footprintByKey("1x1")) : { columns: 0.38, rows: 0.38 };
-  const insetX = monster ? 4 / grid.columns : 6 / grid.columns;
-  const insetY = monster ? 4 / grid.rows : 6 / grid.rows;
-  const width = monster ? Math.max(0.1, (footprint.columns * 100) / grid.columns - insetX * 2) : 38 / grid.columns;
-  const height = monster ? Math.max(0.1, (footprint.rows * 100) / grid.rows - insetY * 2) : 38 / grid.rows;
-  const left = ((token.x - 1) * 100) / grid.columns + (monster ? insetX : (slotX * 50) / grid.columns + 6 / grid.columns);
-  const top = ((token.y - 1) * 100) / grid.rows + (monster ? insetY : (slotY * 50) / grid.rows + 6 / grid.rows);
+  const standardMonster = monster && footprint.columns === 1 && footprint.rows === 1;
+  const fullFootprintMonster = monster && !standardMonster;
+  const insetX = fullFootprintMonster ? 4 / grid.columns : 6 / grid.columns;
+  const insetY = fullFootprintMonster ? 4 / grid.rows : 6 / grid.rows;
+  const width = fullFootprintMonster ? Math.max(0.1, (footprint.columns * 100) / grid.columns - insetX * 2) : 38 / grid.columns;
+  const height = fullFootprintMonster ? Math.max(0.1, (footprint.rows * 100) / grid.rows - insetY * 2) : 38 / grid.rows;
+  const left = ((token.x - 1) * 100) / grid.columns + (fullFootprintMonster ? insetX : (slotX * 50) / grid.columns + insetX);
+  const top = ((token.y - 1) * 100) / grid.rows + (fullFootprintMonster ? insetY : (slotY * 50) / grid.rows + insetY);
   return (
     <button
       type="button"
@@ -2470,9 +2478,315 @@ function CampaignCharactersTab({ campaign, allCharacters, onError, onReload }) {
   );
 }
 
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || "").split(",", 2)[1] || "");
+    reader.onerror = () => reject(new Error("The selected file could not be read."));
+    reader.readAsDataURL(file);
+  });
+}
+
+function formatFileSize(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function CampaignHandoutsTab({ campaign, onError }) {
+  const { data, loading, error, reload } = useLoad(() => api(`/1e/campaigns/${campaign.id}/handouts`), [campaign.id]);
+  const [uploading, setUploading] = useState(false);
+
+  async function upload(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const file = form.get("file");
+    if (!(file instanceof File) || !file.size) return;
+    onError("");
+    setUploading(true);
+    try {
+      await api(`/1e/campaigns/${campaign.id}/handouts`, {
+        method: "POST",
+        body: JSON.stringify({
+          title: form.get("title") || file.name,
+          filename: file.name,
+          content_type: file.type || "text/plain",
+          data_base64: await fileToBase64(file),
+        }),
+      });
+      event.currentTarget.reset();
+      await reload();
+    } catch (saveError) {
+      onError(saveError.message);
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function setShared(handout, shared) {
+    onError("");
+    try {
+      await api(`/1e/campaigns/${campaign.id}/handouts/${handout.id}`, {
+        method: "PUT",
+        body: JSON.stringify({ shared_with_players: shared }),
+      });
+      await reload();
+    } catch (saveError) {
+      onError(saveError.message);
+    }
+  }
+
+  async function remove(handout) {
+    if (!window.confirm(`Delete "${handout.title}"? Players will no longer be able to open it.`)) return;
+    try {
+      await api(`/1e/campaigns/${campaign.id}/handouts/${handout.id}`, { method: "DELETE" });
+      await reload();
+    } catch (saveError) {
+      onError(saveError.message);
+    }
+  }
+
+  return (
+    <div className="workspace-stack">
+      <form className="panel handout-upload-form" onSubmit={upload}>
+        <div><p className="eyebrow">Campaign Handouts</p><h2>Upload A Handout</h2><p className="muted">PDF, image, or text file. It stays hidden until you choose Show to Players.</p></div>
+        <label>Title<input name="title" placeholder="The sealed letter" /></label>
+        <label>File<input name="file" type="file" accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.txt,application/pdf,image/*,text/plain" required /></label>
+        <button disabled={uploading}>{uploading ? "Uploading..." : "Upload"}</button>
+      </form>
+      <PageState loading={loading} error={error} />
+      <div className="record-card-grid">
+        {(data || []).map((handout) => (
+          <article className="panel record-card" key={handout.id}>
+            <div><p className="eyebrow">{handout.shared_with_players ? "Visible To Players" : "DM Only"}</p><h3>{handout.title}</h3><p className="muted">{handout.filename} · {formatFileSize(handout.file_size)}</p></div>
+            <div className="row-actions">
+              <button className="table-button" onClick={() => openAuthorizedFile(`/1e/campaigns/${campaign.id}/handouts/${handout.id}/file`)}>Open</button>
+              <button className={handout.shared_with_players ? "table-button" : ""} onClick={() => setShared(handout, !handout.shared_with_players)}>
+                {handout.shared_with_players ? "Hide From Players" : "Show To Players"}
+              </button>
+              <button className="danger-button" onClick={() => remove(handout)}>Delete</button>
+            </div>
+          </article>
+        ))}
+      </div>
+      {!loading && !(data || []).length ? <p className="empty-state">No handouts uploaded yet.</p> : null}
+    </div>
+  );
+}
+
+function CampaignNpcsTab({ campaign, onError }) {
+  const { data, loading, error, reload } = useLoad(() => api(`/1e/campaigns/${campaign.id}/npcs`), [campaign.id]);
+  const [editingId, setEditingId] = useState(null);
+
+  async function save(event, npc = null) {
+    event.preventDefault();
+    const payload = Object.fromEntries(new FormData(event.currentTarget).entries());
+    try {
+      await api(`/1e/campaigns/${campaign.id}/npcs${npc ? `/${npc.id}` : ""}`, {
+        method: npc ? "PUT" : "POST",
+        body: JSON.stringify(payload),
+      });
+      event.currentTarget.reset();
+      setEditingId(null);
+      await reload();
+    } catch (saveError) {
+      onError(saveError.message);
+    }
+  }
+
+  async function remove(npc) {
+    if (!window.confirm(`Delete ${npc.name}?`)) return;
+    try {
+      await api(`/1e/campaigns/${campaign.id}/npcs/${npc.id}`, { method: "DELETE" });
+      await reload();
+    } catch (saveError) {
+      onError(saveError.message);
+    }
+  }
+
+  return (
+    <div className="workspace-stack">
+      <form className="panel npc-form" onSubmit={(event) => save(event)}>
+        <div><p className="eyebrow">NPC Notes</p><h2>Add NPC</h2></div>
+        <label>Name<input name="name" required /></label>
+        <label className="wide">Notes<textarea name="notes" placeholder="What the party knows, what this NPC wants, and what has happened so far." /></label>
+        <button>Add NPC</button>
+      </form>
+      <PageState loading={loading} error={error} />
+      <div className="record-card-grid">
+        {(data || []).map((npc) => editingId === npc.id ? (
+          <form className="panel record-card npc-edit-card" key={npc.id} onSubmit={(event) => save(event, npc)}>
+            <label>Name<input name="name" defaultValue={npc.name} required /></label>
+            <label>Notes<textarea name="notes" defaultValue={npc.notes} /></label>
+            <div className="row-actions"><button>Save</button><button type="button" className="table-button" onClick={() => setEditingId(null)}>Cancel</button></div>
+          </form>
+        ) : (
+          <article className="panel record-card" key={npc.id}>
+            <div><p className="eyebrow">NPC</p><h3>{npc.name}</h3><p className="record-notes">{npc.notes || "No notes yet."}</p></div>
+            <div className="row-actions"><button onClick={() => setEditingId(npc.id)}>Edit</button><button className="danger-button" onClick={() => remove(npc)}>Delete</button></div>
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+const SESSION_PLANNING_SECTIONS = [
+  ["npcs", "NPCs"],
+  ["secrets", "Secrets"],
+  ["scenes", "Scenes"],
+  ["pc_notes", "PC Notes"],
+  ["notes", "Notes"],
+];
+
+function CampaignSessionsTab({ campaign, onError }) {
+  const { data, loading, error, reload } = useLoad(() => api(`/1e/campaigns/${campaign.id}/sessions`), [campaign.id]);
+  const sessions = data || [];
+  const [selectedId, setSelectedId] = useState(null);
+  const [editingItemId, setEditingItemId] = useState(null);
+  const selected = sessions.find((session) => session.id === selectedId) || sessions[0] || null;
+
+  useEffect(() => {
+    if (!selectedId && sessions[0]) setSelectedId(sessions[0].id);
+  }, [sessions.length, selectedId]);
+
+  async function createSession(event) {
+    event.preventDefault();
+    try {
+      const created = await api(`/1e/campaigns/${campaign.id}/sessions`, {
+        method: "POST",
+        body: JSON.stringify(Object.fromEntries(new FormData(event.currentTarget).entries())),
+      });
+      event.currentTarget.reset();
+      await reload();
+      setSelectedId(created.id);
+    } catch (saveError) {
+      onError(saveError.message);
+    }
+  }
+
+  async function saveSession(event) {
+    event.preventDefault();
+    try {
+      await api(`/1e/campaigns/${campaign.id}/sessions/${selected.id}`, {
+        method: "PUT",
+        body: JSON.stringify(Object.fromEntries(new FormData(event.currentTarget).entries())),
+      });
+      await reload();
+    } catch (saveError) {
+      onError(saveError.message);
+    }
+  }
+
+  async function deleteSession() {
+    if (!window.confirm(`Delete Session #${selected.session_number} and all of its planning?`)) return;
+    try {
+      await api(`/1e/campaigns/${campaign.id}/sessions/${selected.id}`, { method: "DELETE" });
+      setSelectedId(null);
+      await reload();
+    } catch (saveError) {
+      onError(saveError.message);
+    }
+  }
+
+  async function addItem(event, category) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    try {
+      await api(`/1e/campaigns/${campaign.id}/sessions/${selected.id}/items`, {
+        method: "POST",
+        body: JSON.stringify({ category, text: new FormData(form).get("text") }),
+      });
+      form.reset();
+      await reload();
+    } catch (saveError) {
+      onError(saveError.message);
+    }
+  }
+
+  async function updateItem(item, data) {
+    try {
+      await api(`/1e/campaigns/${campaign.id}/sessions/${selected.id}/items/${item.id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      });
+      setEditingItemId(null);
+      await reload();
+    } catch (saveError) {
+      onError(saveError.message);
+    }
+  }
+
+  async function deleteItem(item) {
+    if (!window.confirm("Delete this planning item?")) return;
+    await api(`/1e/campaigns/${campaign.id}/sessions/${selected.id}/items/${item.id}`, { method: "DELETE" });
+    await reload();
+  }
+
+  async function forwardItem(item) {
+    const next = await api(`/1e/campaigns/${campaign.id}/sessions/${selected.id}/items/${item.id}/forward`, { method: "POST" });
+    await reload();
+    window.alert(`Forwarded to Session #${next.session_number}.`);
+  }
+
+  return (
+    <div className="workspace-stack">
+      <section className="panel session-record-header">
+        <form onSubmit={createSession}>
+          <div><p className="eyebrow">Session Records</p><h2>Add Session</h2></div>
+          <label>Session #<input name="session_number" type="number" min="1" defaultValue={campaign.session_number || 1} required /></label>
+          <label>Date<input name="session_date" type="date" /></label>
+          <button>Add</button>
+        </form>
+        {sessions.length ? <label>Open Session<select value={selected?.id || ""} onChange={(event) => setSelectedId(Number(event.target.value))}>{sessions.map((session) => <option key={session.id} value={session.id}>Session #{session.session_number}{session.session_date ? ` — ${session.session_date}` : ""}</option>)}</select></label> : null}
+      </section>
+      <PageState loading={loading} error={error} />
+      {selected ? (
+        <div className="session-workspace">
+          <section className="panel session-planning-column">
+            <div className="section-heading"><div><p className="eyebrow">Planning</p><h2>Session #{selected.session_number}</h2></div><button type="button" className="danger-button" onClick={deleteSession}>Delete Session</button></div>
+            <form className="session-metadata" onSubmit={saveSession}><label>Session #<input name="session_number" type="number" min="1" defaultValue={selected.session_number} /></label><label>Date<input name="session_date" type="date" defaultValue={selected.session_date || ""} /></label><button>Save Details</button></form>
+            {SESSION_PLANNING_SECTIONS.map(([category, label]) => (
+              <section className="planning-section" key={category}>
+                <h3>{label}</h3>
+                {(selected.planning_items || []).filter((item) => item.category === category).map((item) => (
+                  <div className={`planning-item ${item.completed ? "is-complete" : ""}`} key={item.id}>
+                    <input aria-label={`Complete ${item.text}`} type="checkbox" checked={item.completed} onChange={(event) => updateItem(item, { completed: event.target.checked })} />
+                    {editingItemId === item.id ? (
+                      <input autoFocus defaultValue={item.text} onKeyDown={(event) => {
+                        if (event.key === "Enter") { event.preventDefault(); updateItem(item, { text: event.currentTarget.value }); }
+                        if (event.key === "Escape") setEditingItemId(null);
+                      }} />
+                    ) : <span>{item.text}</span>}
+                    <div className="planning-item-actions">
+                      <button type="button" onClick={() => setEditingItemId(item.id)}>Edit</button>
+                      <button type="button" onClick={() => forwardItem(item)}>Forward</button>
+                      <button type="button" className="danger-button" onClick={() => deleteItem(item)}>Delete</button>
+                    </div>
+                  </div>
+                ))}
+                <form className="planning-add" onSubmit={(event) => addItem(event, category)}><input name="text" placeholder={`Add ${label.toLowerCase()} item...`} required /><button>Add</button></form>
+              </section>
+            ))}
+          </section>
+          <form className="panel session-live-notes" onSubmit={saveSession}>
+            <p className="eyebrow">Running Notes</p>
+            <h2>Session Notes</h2>
+            <textarea name="live_notes" defaultValue={selected.live_notes} placeholder="Add and edit notes here while you run the session." />
+            <button>Save Notes & Planning</button>
+          </form>
+        </div>
+      ) : !loading ? <p className="empty-state">Add the first session record to begin planning.</p> : null}
+    </div>
+  );
+}
+
 function CampaignSettingsTab({ campaign, onError, onReload }) {
+  const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
   const [archiving, setArchiving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
 
   async function save(event) {
     event.preventDefault();
@@ -2502,6 +2816,23 @@ function CampaignSettingsTab({ campaign, onError, onReload }) {
       onError(err.message);
     } finally {
       setArchiving(false);
+    }
+  }
+
+  async function permanentlyDeleteCampaign() {
+    if (deleteConfirmation !== campaign.name) return;
+    if (!window.confirm(`Permanently delete "${campaign.name}"? This cannot be undone.`)) return;
+    onError("");
+    setDeleting(true);
+    try {
+      await api(`/1e/campaigns/${campaign.id}/permanent`, {
+        method: "DELETE",
+        body: JSON.stringify({ confirmation: deleteConfirmation }),
+      });
+      navigate("/campaigns", { replace: true });
+    } catch (err) {
+      onError(err.message);
+      setDeleting(false);
     }
   }
 
@@ -2535,6 +2866,11 @@ function CampaignSettingsTab({ campaign, onError, onReload }) {
           {campaign.status === "archived" ? "Archived" : archiving ? "Archiving..." : "Archive Campaign"}
         </button>
       </div>
+      <section className="danger-zone wide">
+        <div><p className="eyebrow">Danger Zone</p><h3>Delete Campaign</h3><p>This permanently removes the campaign, memberships, handouts, NPCs, session notes, and maps. Player characters return to their owners' vaults rather than being deleted.</p></div>
+        <label>Type <strong>{campaign.name}</strong> to confirm<input value={deleteConfirmation} onChange={(event) => setDeleteConfirmation(event.target.value)} /></label>
+        <button className="danger-button" type="button" disabled={deleting || deleteConfirmation !== campaign.name} onClick={permanentlyDeleteCampaign}>{deleting ? "Deleting..." : "Delete Campaign Permanently"}</button>
+      </section>
     </form>
   );
 }
@@ -2840,8 +3176,28 @@ function PlayerCampaignHome() {
       {activeTab === "character" ? <PlayerCharacterTab character={character} /> : null}
       {activeTab === "players" ? <PlayerRosterTab campaign={campaign} /> : null}
       {activeTab === "journal" ? <PlayerJournalTab campaign={campaign} /> : null}
-      {activeTab === "handouts" ? <ReadOnlyPlaceholder title="Handouts" copy="Read-only campaign handouts, maps, and clues will appear here once uploaded." /> : null}
+      {activeTab === "handouts" ? <PlayerHandoutsTab campaign={campaign} /> : null}
       {activeTab === "rules" ? <PlayerRulesTab campaign={campaign} /> : null}
+    </section>
+  );
+}
+
+function PlayerHandoutsTab({ campaign }) {
+  const { data, error, loading } = useLoad(() => api(`/player/campaigns/${campaign.id}/handouts`, { auth: "player" }), [campaign.id]);
+  const handouts = data || [];
+  return (
+    <section className="panel player-handouts-panel">
+      <div className="section-heading"><div><p className="eyebrow">Campaign Handouts</p><h2>Shared By Your DM</h2></div></div>
+      <PageState loading={loading} error={error} />
+      <div className="record-card-grid">
+        {handouts.map((handout) => (
+          <article className="record-card player-handout-card" key={handout.id}>
+            <div><h3>{handout.title}</h3><p className="muted">{handout.filename} · {formatFileSize(handout.file_size)}</p></div>
+            <button onClick={() => openAuthorizedFile(`/player/campaigns/${campaign.id}/handouts/${handout.id}/file`, "player")}>Open Handout</button>
+          </article>
+        ))}
+      </div>
+      {!loading && !handouts.length ? <p className="empty-state">Your DM has not shared any handouts yet.</p> : null}
     </section>
   );
 }

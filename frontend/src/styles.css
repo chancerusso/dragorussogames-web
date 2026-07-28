@@ -2478,9 +2478,199 @@ tbody tr:hover {
 
 .dm-mapping-control-panel {
   align-content: start;
+  display: flex;
+  flex-direction: column;
   justify-items: stretch;
   min-height: 520px;
   padding: 24px;
+}
+
+.dm-mapping-control-panel .dm-marching-order {
+  border-bottom: 1px solid var(--line);
+  border-top: 0;
+  margin: 0 0 24px;
+  order: -1;
+  padding: 0 0 24px;
+}
+
+.workspace-stack {
+  display: grid;
+  gap: 18px;
+}
+
+.handout-upload-form,
+.npc-form,
+.session-record-header form,
+.session-metadata {
+  align-items: end;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(220px, 1.4fr) minmax(180px, 1fr) minmax(180px, 1fr) auto;
+}
+
+.npc-form {
+  grid-template-columns: minmax(180px, 0.6fr) minmax(320px, 1.4fr) auto;
+}
+
+.handout-upload-form label,
+.npc-form label,
+.npc-edit-card label,
+.session-record-header label,
+.session-metadata label {
+  display: grid;
+  gap: 6px;
+}
+
+.record-card-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.record-card {
+  align-items: center;
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+.record-card h3,
+.planning-section h3,
+.danger-zone h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  margin: 0;
+}
+
+.record-notes {
+  white-space: pre-wrap;
+}
+
+.npc-edit-card {
+  align-items: stretch;
+  display: grid;
+}
+
+.session-record-header {
+  display: grid;
+  gap: 16px;
+}
+
+.session-workspace {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+}
+
+.session-planning-column,
+.session-live-notes {
+  display: grid;
+  gap: 16px;
+}
+
+.session-metadata {
+  grid-template-columns: 1fr 1fr auto;
+}
+
+.planning-section {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 8px;
+  padding-top: 14px;
+}
+
+.planning-item {
+  align-items: center;
+  background: rgba(7, 9, 14, 0.58);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  padding: 8px;
+}
+
+.planning-item.is-complete span {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.planning-item-actions,
+.planning-add {
+  display: flex;
+  gap: 6px;
+}
+
+.planning-item-actions button,
+.planning-add button,
+.combat-round-controls button {
+  font-size: 0.7rem;
+  min-height: 28px;
+  padding: 4px 8px;
+}
+
+.planning-add input {
+  flex: 1;
+}
+
+.session-live-notes {
+  align-content: start;
+  position: sticky;
+  top: 20px;
+}
+
+.session-live-notes textarea {
+  min-height: 520px;
+}
+
+.danger-zone {
+  background: rgba(104, 16, 25, 0.14);
+  border: 1px solid rgba(222, 67, 76, 0.55);
+  border-radius: 10px;
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+  padding: 18px;
+}
+
+.combat-round-controls {
+  align-items: center;
+  display: grid;
+  gap: 5px;
+  grid-template-columns: auto auto 1fr auto auto;
+}
+
+.combat-round-controls span {
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-align: center;
+}
+
+.combat-round-controls .round-step {
+  font-size: 1rem;
+  min-width: 28px;
+}
+
+@media (max-width: 980px) {
+  .handout-upload-form,
+  .npc-form,
+  .session-record-header form,
+  .session-metadata,
+  .session-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .record-card,
+  .planning-item {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+
+  .record-card {
+    flex-direction: column;
+  }
+
+  .session-live-notes {
+    position: static;
+  }
 }
 
 .dm-mapping-controls {

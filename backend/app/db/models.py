@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Optional
 
-from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, JSON, String, Text, UniqueConstraint, func
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, JSON, LargeBinary, String, Text, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -44,6 +44,9 @@ class Campaign(TimestampMixin, Base):
     characters: Mapped[list["Character"]] = relationship(back_populates="campaign")
     safe_locations: Mapped[list["SafeStorageLocation"]] = relationship(back_populates="campaign", cascade="all, delete-orphan")
     maps: Mapped[list["CampaignMap"]] = relationship(back_populates="campaign", cascade="all, delete-orphan")
+    handouts: Mapped[list["CampaignHandout"]] = relationship(back_populates="campaign", cascade="all, delete-orphan")
+    npcs: Mapped[list["CampaignNpc"]] = relationship(back_populates="campaign", cascade="all, delete-orphan")
+    sessions: Mapped[list["CampaignSession"]] = relationship(back_populates="campaign", cascade="all, delete-orphan")
 
 
 class CampaignMap(TimestampMixin, Base):
@@ -79,6 +82,63 @@ class CampaignMapRevision(Base):
     viewport: Mapped[dict[str, Any]] = mapped_column(JSONType, nullable=False)
     created_by_user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("players.id", ondelete="SET NULL"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+
+class CampaignHandout(TimestampMixin, Base):
+    __tablename__ = "campaign_handouts"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    campaign_id: Mapped[int] = mapped_column(ForeignKey("campaigns.id", ondelete="CASCADE"), nullable=False, index=True)
+    title: Mapped[str] = mapped_column(String(160), nullable=False)
+    filename: Mapped[str] = mapped_column(String(255), nullable=False)
+    content_type: Mapped[str] = mapped_column(String(120), nullable=False)
+    file_size: Mapped[int] = mapped_column(Integer, nullable=False)
+    file_data: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+    shared_with_players: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
+
+    campaign: Mapped[Campaign] = relationship(back_populates="handouts")
+
+
+class CampaignNpc(TimestampMixin, Base):
+    __tablename__ = "campaign_npcs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    campaign_id: Mapped[int] = mapped_column(ForeignKey("campaigns.id", ondelete="CASCADE"), nullable=False, index=True)
+    name: Mapped[str] = mapped_column(String(160), nullable=False)
+    notes: Mapped[str] = mapped_column(Text, default="", server_default="", nullable=False)
+
+    campaign: Mapped[Campaign] = relationship(back_populates="npcs")
+
+
+class CampaignSession(TimestampMixin, Base):
+    __tablename__ = "campaign_sessions"
+    __table_args__ = (UniqueConstraint("campaign_id", "session_number", name="uq_campaign_session_number"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    campaign_id: Mapped[int] = mapped_column(ForeignKey("campaigns.id", ondelete="CASCADE"), nullable=False, index=True)
+    session_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    session_date: Mapped[Optional[str]] = mapped_column(String(40), nullable=True)
+    live_notes: Mapped[str] = mapped_column(Text, default="", server_default="", nullable=False)
+
+    campaign: Mapped[Campaign] = relationship(back_populates="sessions")
+    planning_items: Mapped[list["SessionPlanningItem"]] = relationship(
+        back_populates="session",
+        cascade="all, delete-orphan",
+        order_by="SessionPlanningItem.id",
+    )
+
+
+class SessionPlanningItem(TimestampMixin, Base):
+    __tablename__ = "session_planning_items"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    session_id: Mapped[int] = mapped_column(ForeignKey("campaign_sessions.id", ondelete="CASCADE"), nullable=False, index=True)
+    category: Mapped[str] = mapped_column(String(40), nullable=False)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+    completed: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
+    forwarded_from_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+
+    session: Mapped[CampaignSession] = relationship(back_populates="planning_items")
 
 
 class Player(TimestampMixin, Base):

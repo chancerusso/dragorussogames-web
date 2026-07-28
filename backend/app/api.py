@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import base64
+import binascii
 import json
 import logging
 from pathlib import Path
@@ -23,8 +25,10 @@ from app.config import settings
 from app.db.models import (
     AuditLog,
     Campaign,
+    CampaignHandout,
     CampaignMap,
     CampaignMapRevision,
+    CampaignNpc,
     Character,
     CharacterAbilityScores,
     CharacterCoins,
@@ -32,10 +36,13 @@ from app.db.models import (
     CharacterInventory,
     CharacterSpell,
     CampaignPlayer,
+    CampaignSession,
     EquipmentCatalog,
     MonsterCatalog,
+    Party,
     Player,
     SafeStorageLocation,
+    SessionPlanningItem,
     SpellsCatalog,
     VaultCharacter,
     WeaponProficiency,
@@ -479,6 +486,56 @@ def campaign_player_payload(membership: CampaignPlayer, player: Player | None = 
     if player:
         payload["player"] = player_payload(player)
     return payload
+
+
+def handout_payload(handout: CampaignHandout) -> dict:
+    return {
+        "id": handout.id,
+        "campaign_id": handout.campaign_id,
+        "title": handout.title,
+        "filename": handout.filename,
+        "content_type": handout.content_type,
+        "file_size": handout.file_size,
+        "shared_with_players": handout.shared_with_players,
+        "created_at": handout.created_at,
+        "updated_at": handout.updated_at,
+    }
+
+
+def npc_payload(npc: CampaignNpc) -> dict:
+    return {
+        "id": npc.id,
+        "campaign_id": npc.campaign_id,
+        "name": npc.name,
+        "notes": npc.notes,
+        "created_at": npc.created_at,
+        "updated_at": npc.updated_at,
+    }
+
+
+def session_payload(session: CampaignSession) -> dict:
+    return {
+        "id": session.id,
+        "campaign_id": session.campaign_id,
+        "session_number": session.session_number,
+        "session_date": session.session_date,
+        "live_notes": session.live_notes,
+        "planning_items": [
+            {
+                "id": item.id,
+                "session_id": item.session_id,
+                "category": item.category,
+                "text": item.text,
+                "completed": item.completed,
+                "forwarded_from_id": item.forwarded_from_id,
+                "created_at": item.created_at,
+                "updated_at": item.updated_at,
+            }
+            for item in session.planning_items
+        ],
+        "created_at": session.created_at,
+        "updated_at": session.updated_at,
+    }
 
 
 def map_payload(campaign_map: CampaignMap, player_id: int | None = None) -> dict:
@@ -2259,6 +2316,257 @@ def get_vault_campaign(campaign_id: int, _: dict = Depends(require_jwt_admin), d
     return campaign_detail_payload(db, campaign)
 
 
+HANDOUT_CONTENT_TYPES = {"application/pdf", "image/gif", "image/jpeg", "image/png", "image/webp", "text/plain"}
+PLANNING_CATEGORIES = {"npcs", "secrets", "scenes", "pc_notes", "notes"}
+MAX_HANDOUT_BYTES = 15 * 1024 * 1024
+
+
+def get_handout_or_404(db: Session, campaign_id: int, handout_id: int) -> CampaignHandout:
+    handout = db.get(CampaignHandout, handout_id)
+    if handout is None or handout.campaign_id != campaign_id:
+        raise HTTPException(status_code=404, detail="Handout not found.")
+    return handout
+
+
+def get_session_or_404(db: Session, campaign_id: int, session_id: int) -> CampaignSession:
+    session = db.get(CampaignSession, session_id)
+    if session is None or session.campaign_id != campaign_id:
+        raise HTTPException(status_code=404, detail="Session not found.")
+    return session
+
+
+def clean_required_text(value: Any, label: str, limit: int) -> str:
+    cleaned = str(value or "").strip()
+    if not cleaned:
+        raise HTTPException(status_code=422, detail=f"{label} is required.")
+    return cleaned[:limit]
+
+
+@router.get("/1e/campaigns/{campaign_id}/handouts")
+def list_admin_handouts(campaign_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> list[dict]:
+    get_campaign_or_404(db, campaign_id)
+    records = db.scalars(select(CampaignHandout).where(CampaignHandout.campaign_id == campaign_id).order_by(CampaignHandout.created_at.desc())).all()
+    return [handout_payload(record) for record in records]
+
+
+@router.post("/1e/campaigns/{campaign_id}/handouts")
+def create_admin_handout(campaign_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    get_campaign_or_404(db, campaign_id)
+    content_type = str(data.get("content_type") or "").lower()
+    if content_type not in HANDOUT_CONTENT_TYPES:
+        raise HTTPException(status_code=422, detail="Handouts must be PDF, image, or plain-text files.")
+    try:
+        file_data = base64.b64decode(str(data.get("data_base64") or ""), validate=True)
+    except (binascii.Error, ValueError):
+        raise HTTPException(status_code=422, detail="Handout file data is invalid.") from None
+    if not file_data or len(file_data) > MAX_HANDOUT_BYTES:
+        raise HTTPException(status_code=422, detail="Handouts must be between 1 byte and 15 MB.")
+    filename = clean_required_text(data.get("filename"), "Filename", 255)
+    handout = CampaignHandout(
+        campaign_id=campaign_id,
+        title=clean_required_text(data.get("title") or filename, "Title", 160),
+        filename=filename,
+        content_type=content_type,
+        file_size=len(file_data),
+        file_data=file_data,
+        shared_with_players=bool(data.get("shared_with_players", False)),
+    )
+    db.add(handout)
+    db.commit()
+    db.refresh(handout)
+    return handout_payload(handout)
+
+
+@router.put("/1e/campaigns/{campaign_id}/handouts/{handout_id}")
+def update_admin_handout(campaign_id: int, handout_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    handout = get_handout_or_404(db, campaign_id, handout_id)
+    if "title" in data:
+        handout.title = clean_required_text(data["title"], "Title", 160)
+    if "shared_with_players" in data:
+        handout.shared_with_players = bool(data["shared_with_players"])
+    db.commit()
+    db.refresh(handout)
+    return handout_payload(handout)
+
+
+@router.delete("/1e/campaigns/{campaign_id}/handouts/{handout_id}")
+def delete_admin_handout(campaign_id: int, handout_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    db.delete(get_handout_or_404(db, campaign_id, handout_id))
+    db.commit()
+    return {"ok": True, "deleted": True}
+
+
+def handout_file_response(handout: CampaignHandout) -> Response:
+    filename = handout.filename.replace('"', "")
+    return Response(handout.file_data, media_type=handout.content_type, headers={"Content-Disposition": f'inline; filename="{filename}"'})
+
+
+@router.get("/1e/campaigns/{campaign_id}/handouts/{handout_id}/file")
+def get_admin_handout_file(campaign_id: int, handout_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> Response:
+    return handout_file_response(get_handout_or_404(db, campaign_id, handout_id))
+
+
+@router.get("/player/campaigns/{campaign_id}/handouts")
+def list_player_handouts(campaign_id: int, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> list[dict]:
+    player = player_from_claims(db, claims)
+    ensure_player_campaign_member(db, campaign_id, player.id)
+    records = db.scalars(select(CampaignHandout).where(
+        CampaignHandout.campaign_id == campaign_id,
+        CampaignHandout.shared_with_players.is_(True),
+    ).order_by(CampaignHandout.created_at.desc())).all()
+    return [handout_payload(record) for record in records]
+
+
+@router.get("/player/campaigns/{campaign_id}/handouts/{handout_id}/file")
+def get_player_handout_file(campaign_id: int, handout_id: int, claims: dict = Depends(require_player), db: Session = Depends(get_db)) -> Response:
+    player = player_from_claims(db, claims)
+    ensure_player_campaign_member(db, campaign_id, player.id)
+    handout = get_handout_or_404(db, campaign_id, handout_id)
+    if not handout.shared_with_players:
+        raise HTTPException(status_code=404, detail="Handout not found.")
+    return handout_file_response(handout)
+
+
+@router.get("/1e/campaigns/{campaign_id}/npcs")
+def list_admin_npcs(campaign_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> list[dict]:
+    get_campaign_or_404(db, campaign_id)
+    return [npc_payload(npc) for npc in db.scalars(select(CampaignNpc).where(CampaignNpc.campaign_id == campaign_id).order_by(CampaignNpc.name)).all()]
+
+
+@router.post("/1e/campaigns/{campaign_id}/npcs")
+def create_admin_npc(campaign_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    get_campaign_or_404(db, campaign_id)
+    npc = CampaignNpc(campaign_id=campaign_id, name=clean_required_text(data.get("name"), "NPC name", 160), notes=str(data.get("notes") or "")[:100_000])
+    db.add(npc)
+    db.commit()
+    db.refresh(npc)
+    return npc_payload(npc)
+
+
+@router.put("/1e/campaigns/{campaign_id}/npcs/{npc_id}")
+def update_admin_npc(campaign_id: int, npc_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    npc = db.get(CampaignNpc, npc_id)
+    if npc is None or npc.campaign_id != campaign_id:
+        raise HTTPException(status_code=404, detail="NPC not found.")
+    if "name" in data:
+        npc.name = clean_required_text(data["name"], "NPC name", 160)
+    if "notes" in data:
+        npc.notes = str(data["notes"] or "")[:100_000]
+    db.commit()
+    db.refresh(npc)
+    return npc_payload(npc)
+
+
+@router.delete("/1e/campaigns/{campaign_id}/npcs/{npc_id}")
+def delete_admin_npc(campaign_id: int, npc_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    npc = db.get(CampaignNpc, npc_id)
+    if npc is None or npc.campaign_id != campaign_id:
+        raise HTTPException(status_code=404, detail="NPC not found.")
+    db.delete(npc)
+    db.commit()
+    return {"ok": True, "deleted": True}
+
+
+@router.get("/1e/campaigns/{campaign_id}/sessions")
+def list_admin_sessions(campaign_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> list[dict]:
+    get_campaign_or_404(db, campaign_id)
+    records = db.scalars(select(CampaignSession).where(CampaignSession.campaign_id == campaign_id).order_by(CampaignSession.session_number.desc())).all()
+    return [session_payload(record) for record in records]
+
+
+@router.post("/1e/campaigns/{campaign_id}/sessions")
+def create_admin_session(campaign_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    campaign = get_campaign_or_404(db, campaign_id)
+    number = max(1, int(data.get("session_number") or campaign.session_number or 1))
+    if db.scalar(select(CampaignSession).where(CampaignSession.campaign_id == campaign_id, CampaignSession.session_number == number)):
+        raise HTTPException(status_code=409, detail=f"Session #{number} already exists.")
+    session = CampaignSession(campaign_id=campaign_id, session_number=number, session_date=str(data.get("session_date") or "")[:40] or None, live_notes=str(data.get("live_notes") or "")[:200_000])
+    db.add(session)
+    db.commit()
+    db.refresh(session)
+    return session_payload(session)
+
+
+@router.put("/1e/campaigns/{campaign_id}/sessions/{session_id}")
+def update_admin_session(campaign_id: int, session_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    session = get_session_or_404(db, campaign_id, session_id)
+    if "session_number" in data:
+        session.session_number = max(1, int(data["session_number"] or 1))
+    if "session_date" in data:
+        session.session_date = str(data["session_date"] or "")[:40] or None
+    if "live_notes" in data:
+        session.live_notes = str(data["live_notes"] or "")[:200_000]
+    db.commit()
+    db.refresh(session)
+    return session_payload(session)
+
+
+@router.delete("/1e/campaigns/{campaign_id}/sessions/{session_id}")
+def delete_admin_session(campaign_id: int, session_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    db.delete(get_session_or_404(db, campaign_id, session_id))
+    db.commit()
+    return {"ok": True, "deleted": True}
+
+
+@router.post("/1e/campaigns/{campaign_id}/sessions/{session_id}/items")
+def create_planning_item(campaign_id: int, session_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    session = get_session_or_404(db, campaign_id, session_id)
+    category = str(data.get("category") or "")
+    if category not in PLANNING_CATEGORIES:
+        raise HTTPException(status_code=422, detail="Invalid planning category.")
+    db.add(SessionPlanningItem(session_id=session.id, category=category, text=clean_required_text(data.get("text"), "Planning item", 20_000), completed=bool(data.get("completed", False))))
+    db.commit()
+    db.refresh(session)
+    return session_payload(session)
+
+
+@router.put("/1e/campaigns/{campaign_id}/sessions/{session_id}/items/{item_id}")
+def update_planning_item(campaign_id: int, session_id: int, item_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    session = get_session_or_404(db, campaign_id, session_id)
+    item = db.get(SessionPlanningItem, item_id)
+    if item is None or item.session_id != session.id:
+        raise HTTPException(status_code=404, detail="Planning item not found.")
+    if "text" in data:
+        item.text = clean_required_text(data["text"], "Planning item", 20_000)
+    if "completed" in data:
+        item.completed = bool(data["completed"])
+    db.commit()
+    db.refresh(session)
+    return session_payload(session)
+
+
+@router.delete("/1e/campaigns/{campaign_id}/sessions/{session_id}/items/{item_id}")
+def delete_planning_item(campaign_id: int, session_id: int, item_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    session = get_session_or_404(db, campaign_id, session_id)
+    item = db.get(SessionPlanningItem, item_id)
+    if item is None or item.session_id != session.id:
+        raise HTTPException(status_code=404, detail="Planning item not found.")
+    db.delete(item)
+    db.commit()
+    db.refresh(session)
+    return session_payload(session)
+
+
+@router.post("/1e/campaigns/{campaign_id}/sessions/{session_id}/items/{item_id}/forward")
+def forward_planning_item(campaign_id: int, session_id: int, item_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    session = get_session_or_404(db, campaign_id, session_id)
+    item = db.get(SessionPlanningItem, item_id)
+    if item is None or item.session_id != session.id:
+        raise HTTPException(status_code=404, detail="Planning item not found.")
+    next_number = session.session_number + 1
+    next_session = db.scalar(select(CampaignSession).where(CampaignSession.campaign_id == campaign_id, CampaignSession.session_number == next_number))
+    if next_session is None:
+        next_session = CampaignSession(campaign_id=campaign_id, session_number=next_number, live_notes="")
+        db.add(next_session)
+        db.flush()
+    existing = db.scalar(select(SessionPlanningItem).where(SessionPlanningItem.session_id == next_session.id, SessionPlanningItem.forwarded_from_id == item.id))
+    if existing is None:
+        db.add(SessionPlanningItem(session_id=next_session.id, category=item.category, text=item.text, completed=False, forwarded_from_id=item.id))
+    db.commit()
+    db.refresh(next_session)
+    return session_payload(next_session)
+
+
 @router.get("/1e/campaigns/{campaign_id}/maps")
 def list_admin_campaign_maps(campaign_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> list[dict]:
     get_campaign_or_404(db, campaign_id)
@@ -2397,6 +2705,30 @@ def delete_vault_campaign(campaign_id: int, _: dict = Depends(require_jwt_admin)
     campaign.status = "archived"
     db.commit()
     return {"ok": True, "archived": True}
+
+
+@router.delete("/1e/campaigns/{campaign_id}/permanent")
+def permanently_delete_vault_campaign(campaign_id: int, data: Optional[dict] = None, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    campaign = get_campaign_or_404(db, campaign_id)
+    confirmation = str((data or {}).get("confirmation") or "")
+    if confirmation != campaign.name:
+        raise HTTPException(status_code=422, detail="Enter the exact campaign name to permanently delete it.")
+    db.execute(update(VaultCharacter).where(VaultCharacter.campaign_id == campaign_id).values(campaign_id=None))
+    db.execute(update(Character).where(Character.campaign_id == campaign_id).values(campaign_id=None, party_id=None))
+    session_ids = select(CampaignSession.id).where(CampaignSession.campaign_id == campaign_id)
+    map_ids = select(CampaignMap.id).where(CampaignMap.campaign_id == campaign_id)
+    db.execute(delete(SessionPlanningItem).where(SessionPlanningItem.session_id.in_(session_ids)))
+    db.execute(delete(CampaignSession).where(CampaignSession.campaign_id == campaign_id))
+    db.execute(delete(CampaignHandout).where(CampaignHandout.campaign_id == campaign_id))
+    db.execute(delete(CampaignNpc).where(CampaignNpc.campaign_id == campaign_id))
+    db.execute(delete(CampaignMapRevision).where(CampaignMapRevision.map_id.in_(map_ids)))
+    db.execute(delete(CampaignMap).where(CampaignMap.campaign_id == campaign_id))
+    db.execute(delete(CampaignPlayer).where(CampaignPlayer.campaign_id == campaign_id))
+    db.execute(delete(SafeStorageLocation).where(SafeStorageLocation.campaign_id == campaign_id))
+    db.execute(delete(Party).where(Party.campaign_id == campaign_id))
+    db.execute(delete(Campaign).where(Campaign.id == campaign_id))
+    db.commit()
+    return {"ok": True, "deleted": True}
 
 
 @router.post("/1e/campaigns/{campaign_id}/players")

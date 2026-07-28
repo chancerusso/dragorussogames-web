@@ -31,6 +31,15 @@ reference material. The player builder removes incompatible sections, the
 Dragonlance reference is invitation-gated, and backend validation rejects
 setting-incompatible character saves.
 
+The DM campaign workspace is now usable for preparation and live play rather
+than placeholder navigation. It provides private-by-default shareable
+handouts, NPC records, structured session planning with forwardable checklist
+items, running session notes, permanent campaign deletion with character
+preservation, and a clear Marching Order-to-Combat lifecycle. The DM-only
+Journal and placeholder Treasure tabs were removed; the private player Journal
+remains. Standard monsters and players both support four token positions
+within a tactical square.
+
 ## Confirmed product direction
 
 Drago Table will eventually have three DM-selected, separately persistent

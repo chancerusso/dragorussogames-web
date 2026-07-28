@@ -56,6 +56,31 @@ export async function api(path, options = {}) {
   return response.status === 204 ? null : response.json();
 }
 
+export async function openAuthorizedFile(path, auth = "admin") {
+  const preview = window.open("", "_blank");
+  const token = auth === "player" ? getPlayerToken() : getToken();
+  try {
+    const response = await fetch(`${API_BASE}${path}`, {
+      credentials: "include",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!response.ok) throw new Error(await getErrorMessage(response));
+    const url = URL.createObjectURL(await response.blob());
+    if (preview) preview.location.replace(url);
+    else {
+      const link = document.createElement("a");
+      link.href = url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.click();
+    }
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  } catch (error) {
+    preview?.close();
+    window.alert(error.message || "The file could not be opened.");
+  }
+}
+
 async function getErrorMessage(response) {
   const fallback = `Request failed (${response.status}).`;
 
