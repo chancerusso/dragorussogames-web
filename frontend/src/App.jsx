@@ -3841,7 +3841,6 @@ function PlayerTableTab({ campaign, character }) {
         </div>
       </main>
       <aside className="panel player-table-rules">
-        <PlayerCombatRules mode={tableState.mode} />
         <ReadOnlyCombatStatus tracker={tableState.combatTracker} />
         <DiceRollerPanel
           disabled={!sessionLive}
@@ -3849,6 +3848,7 @@ function PlayerTableTab({ campaign, character }) {
           rollerName={currentCharacter?.name || "Player"}
           onRoll={(roll) => publish({ ...tableState, rollHistory: [roll, ...(tableState.rollHistory || [])].slice(0, 30) })}
         />
+        <PlayerCombatRules mode={tableState.mode} />
       </aside>
     </div>
   );
@@ -4005,21 +4005,46 @@ function PlayerCombatRules({ mode }) {
     );
   }
   const combatSteps = [
-    ["1. Surprise", "The DM checks whether either side is surprised before normal initiative. Surprise can grant one or more opening segments in which the surprised side cannot act, so resolve those actions first."],
-    ["2. Confirm position", "Put your token where your character is standing. Distance, blocked paths, marching order, cover, and who can reach whom all depend on the grid being honest."],
-    ["3. Declare actions", "Before initiative is resolved, state what your character will attempt: charge, attack, cast, fire, retreat, change weapons, protect someone, or interact with the room."],
-    ["4. Roll initiative", "The DM resolves initiative for the round and calls the acting order. Spell casting time, charging, reach, multiple attacks, and other circumstances can change when an action occurs."],
-    ["5. Movement", "Move your own token when the DM allows movement. If you leave melee, cross danger, or pass through crowded squares, pause so the DM can apply the right ruling."],
-    ["6. Attacks, spells, and weapon speed", "Use your snippet for THAC0, damage, and Speed Factor. Speed Factor is not a universal initiative bonus: the DM uses it when weapon timing matters, especially important individual melees and certain tied or close exchanges. Lower numbers indicate a quicker weapon. For spells, announce the target, range, casting time, and saving throw."],
-    ["7. Damage and status", "Apply Damage or Heal as soon as HP changes. If you reach 0 HP or a condition changes, call it out so the DM can update the shared table state."],
-    ["8. End of round", "After both sides act, the DM advances the round. Check HP, spell effects, morale, light, and whether your next position or declared action has changed."],
+    ["1. Surprise", "Check once at the encounter’s start. A 1 means 1 surprise segment; a 2 means 2. Compare both sides and resolve only the difference. Each uncontested segment permits one brief action; the surprised side cannot act."],
+    ["2. Confirm position", "Place every token honestly. Confirm distance, visibility, cover, blocked paths, and who is within 10 feet and therefore engaged in melee."],
+    ["3. Declare actions", "Before initiative, spellcasters name their spell and everyone states a general action. A declared spell may be abandoned, but it cannot be replaced with another action that round."],
+    ["4. Roll initiative", "Each side rolls 1d6; high roll acts first. A tie is simultaneous except armed melee ties: the lower weapon Speed Factor strikes first. Equal speeds remain simultaneous. Speed never grants extra attacks."],
+    ["5. Resolve special timing", "Before ordinary actions, resolve set weapons against charges, the longer weapon against a charge, fleeing attacks, held initiative, and spell completion or interruption."],
+    ["6. Winning side acts", "Resolve the winning side’s declared movement, attacks, spells, turning, items, and other actions. Damage and conditions apply immediately."],
+    ["7. Losing side acts", "Survivors resolve their declared actions. On truly simultaneous initiative, both sides complete their attacks even if one is killed by the exchange."],
+    ["8. Damage and status", "Apply HP, saves, poison, morale, spell interruption, and conditions. An unmodified natural 20 always hits and doubles the attack’s total damage."],
+    ["9. End the round", "Finish later spell segments and additional class-granted attack routines, advance durations and light, confirm engagement, then declare the next round."],
+  ];
+  const combatActions = [
+    ["Attack", "Attack an opponent already within melee reach. Roll against THAC0, then roll damage on a hit."],
+    ["Close", "Move up to normal speed into melee, but do not make a melee attack this round. Normal defenses remain."],
+    ["Charge", "Move up to double speed and attack at +2. Lose Dexterity AC against the defender; a longer or set weapon may strike first, and a set weapon deals double weapon damage."],
+    ["Fire a missile", "Fire or throw at range. Dexterity may modify the attack. Firing into melee can strike a random participant, including an ally."],
+    ["Cast a spell", "Declare the spell before initiative. Casting begins on your acting segment; damage before completion spoils it, and you receive no Dexterity AC bonus while casting."],
+    ["Set against charge", "Brace a spear, dismounted lance, pole arm, or trident. You attack only if charged; a hit occurs first and deals double weapon damage."],
+    ["Parry", "Make no attack. Subtract your Strength or specialization melee to-hit bonus from the opponent’s attack roll. You may parry while making a fighting retreat."],
+    ["Fighting retreat", "Move backward while defending. You cannot attack, but may parry; an unengaged enemy may follow."],
+    ["Flee", "Run out of melee. Each engaged opponent receives an immediate attack at +4 before you escape."],
+    ["Hold initiative", "Wait until the other side has acted, then take your declared action. This is a delay, not an unlimited reaction or interruption."],
+    ["Turn, use, or interact", "Turn undead, use a ready item, change weapons, open something, protect someone, or attempt another brief action approved by the DM."],
   ];
   return (
-    <section>
-      <p className="eyebrow">Combat Rules</p>
-      {combatSteps.map(([title, text]) => (
-        <details className="player-rule-step" key={title}><summary>{title}</summary><p>{text}</p></details>
-      ))}
+    <section className="combat-reference">
+      <p className="eyebrow">Combat Reference</p>
+      <div className="combat-reference-groups">
+        <details className="combat-reference-group">
+          <summary>Round Procedure <span>{combatSteps.length} phases</span></summary>
+          {combatSteps.map(([title, text]) => (
+            <details className="player-rule-step" key={title}><summary>{title}</summary><p>{text}</p></details>
+          ))}
+        </details>
+        <details className="combat-reference-group">
+          <summary>Combat Actions <span>{combatActions.length} choices</span></summary>
+          {combatActions.map(([title, text]) => (
+            <details className="player-rule-step" key={title}><summary>{title}</summary><p>{text}</p></details>
+          ))}
+        </details>
+      </div>
     </section>
   );
 }

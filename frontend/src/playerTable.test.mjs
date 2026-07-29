@@ -6,10 +6,28 @@ const app = readFileSync(new URL("./App.jsx", import.meta.url), "utf8");
 const styles = readFileSync(new URL("./styles.css", import.meta.url), "utf8");
 const vault = readFileSync(new URL("../../components/character-vault.js", import.meta.url), "utf8");
 
-test("player combat flow begins with surprise and explains weapon speed", () => {
+test("player combat reference codifies surprise, tied weapon speed, and critical hits", () => {
   assert.match(app, /\["1\. Surprise"/);
-  assert.match(app, /Lower numbers indicate a quicker weapon/);
+  assert.match(app, /lower weapon Speed Factor strikes first/);
+  assert.match(app, /Speed never grants extra attacks/);
+  assert.match(app, /natural 20 always hits and doubles the attack’s total damage/);
+  assert.match(app, /Round Procedure/);
+  assert.match(app, /Combat Actions/);
   assert.doesNotMatch(app, /<h2>Combat Flow<\/h2>/);
+});
+
+test("player dice controls appear before the collapsed combat reference", () => {
+  const sidebar = app.slice(app.indexOf('<aside className="panel player-table-rules">'));
+  assert.ok(sidebar.indexOf("<DiceRollerPanel") < sidebar.indexOf("<PlayerCombatRules"));
+  assert.match(styles, /\.combat-reference-group\s*>\s*summary/);
+  assert.match(styles, /\.player-rule-step summary\s*\{[^}]*font-size:\s*0\.72rem/s);
+});
+
+test("combat action reference includes closing, charging, parrying, retreat, fleeing, and holding", () => {
+  for (const action of ["Attack", "Close", "Charge", "Parry", "Fighting retreat", "Flee", "Hold initiative"]) {
+    assert.ok(app.includes(`["${action}"`), `${action} should appear in the combat action reference`);
+  }
+  assert.match(app, /This is a delay, not an unlimited reaction or interruption/);
 });
 
 test("player weapon summaries and character vault show speed factor", () => {

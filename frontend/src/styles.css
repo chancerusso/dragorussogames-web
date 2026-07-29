@@ -3677,7 +3677,7 @@ tbody tr:hover {
 .player-table-status,
 .player-table-rules {
   display: grid;
-  gap: 12px;
+  gap: 8px;
   min-width: 0;
 }
 
@@ -3849,26 +3849,64 @@ tbody tr:hover {
   max-width: 100%;
   min-width: 0;
   overflow: hidden;
-  padding: 9px 0;
+  padding: 5px 0;
   width: 100%;
 }
 
 .player-rule-step summary {
   color: var(--gold-2);
   cursor: pointer;
+  font-size: 0.72rem;
   font-weight: 900;
+  line-height: 1.2;
   overflow-wrap: anywhere;
   white-space: normal;
 }
 
 .player-rule-step p {
   color: var(--muted);
-  font-size: 0.82rem;
-  line-height: 1.45;
-  margin: 8px 0 0;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  margin: 5px 0 2px;
   max-width: 100%;
   overflow-wrap: anywhere;
   white-space: normal;
+}
+
+.combat-reference {
+  border-top: 1px solid var(--line);
+  padding-top: 7px;
+}
+
+.combat-reference-groups {
+  display: grid;
+  gap: 5px;
+  margin-top: 4px;
+}
+
+.combat-reference-group {
+  background: rgba(8, 7, 5, 0.38);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0 7px;
+}
+
+.combat-reference-group > summary {
+  align-items: center;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  font-size: 0.72rem;
+  font-weight: 900;
+  justify-content: space-between;
+  min-height: 28px;
+}
+
+.combat-reference-group > summary span {
+  color: var(--muted);
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 /* Drago Table identity refresh */
