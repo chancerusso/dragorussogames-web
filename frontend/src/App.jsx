@@ -2111,6 +2111,15 @@ function characterAcText(character) {
   return character?.combat?.armor_class ?? character?.armor_class ?? character?.ac ?? "-";
 }
 
+function characterAcFacingText(character) {
+  const combat = character?.combat || {};
+  const breakdown = combat.armor_class_breakdown || {};
+  const front = breakdown.final?.value ?? breakdown.final ?? combat.armor_class ?? character?.armor_class ?? character?.ac ?? "-";
+  const flank = breakdown.flank?.value ?? breakdown.flank ?? combat.flank_armor_class ?? front;
+  const rear = breakdown.rear?.value ?? breakdown.rear ?? combat.rear_armor_class ?? flank;
+  return `${front} / ${flank} / ${rear}`;
+}
+
 function characterMoveText(character) {
   return character?.combat?.movement_rate ?? character?.movement_rate ?? character?.move ?? "12";
 }
@@ -2122,7 +2131,15 @@ function characterThac0Text(character) {
 
 function characterAttackRateText(character) {
   const rate = character?.combat?.runtime?.attacks_per_round;
-  return rate?.attacks_per_round ?? rate?.value ?? rate ?? "1";
+  const value = String(rate?.attacks_per_round ?? rate?.value ?? rate ?? "1")
+    .replace(/\s*attacks?\s+per\s+round/i, "")
+    .trim();
+  return `${value || "1"} per round`;
+}
+
+function titleCaseStatus(value) {
+  const text = String(value || "Ready").replace(/_/g, " ");
+  return text.replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function characterWeaponRows(character) {
@@ -3887,15 +3904,20 @@ function PlayerCharacterCombatPanel({
           <p className="eyebrow">My Character</p>
           <h2>{character.name}</h2>
         </div>
-        <span className="status-pill">{!sessionLive ? "Locked" : myToken ? "On Grid" : selectedColor ? "Ready" : "Choose Color"}</span>
+        <span
+          className={`status-pill ${sessionLive && myToken ? "token-status-pill" : ""}`}
+          style={sessionLive && myToken && selectedColor ? { "--token-color": selectedColor } : undefined}
+        >
+          {!sessionLive ? "Locked" : myToken ? "On Grid" : selectedColor ? "Ready" : "Choose Color"}
+        </span>
       </div>
       <dl className="player-combat-facts">
         <div><dt>HP</dt><dd>{hp.current} / {hp.max || "-"}</dd></div>
-        <div><dt>AC</dt><dd>{characterAcText(character)}</dd></div>
+        <div><dt>AC Front / Flank / Rear</dt><dd>{characterAcFacingText(character)}</dd></div>
         <div><dt>THAC0</dt><dd>{characterThac0Text(character)}</dd></div>
         <div><dt>Move</dt><dd>{characterMoveText(character)}</dd></div>
         <div><dt>Attacks</dt><dd>{characterAttackRateText(character)}</dd></div>
-        <div><dt>Status</dt><dd>{character.life_status || character.status || "Ready"}</dd></div>
+        <div><dt>Status</dt><dd>{titleCaseStatus(character.life_status || character.status)}</dd></div>
       </dl>
       <div className="player-hp-actions">
         <button type="button" className="table-button" disabled={!sessionLive} onClick={() => onOpenHpEditor("damage")}>Damage</button>
@@ -3937,7 +3959,7 @@ function PlayerCharacterCombatPanel({
       </div>
       <div className="player-character-actions">
         <button className="table-button" type="button" disabled={!sessionLive} onClick={onAddToken}>Add To Grid</button>
-        <a className="table-button" href={`${playerCharacterSheetPath(character.id)}?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`} target="_blank" rel="noreferrer">Open Sheet</a>
+        <Link className="table-button" to={`${playerCharacterSheetPath(character.id)}?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`}>Open Sheet</Link>
       </div>
       {colorRequestOpen ? (
         <div className="player-token-color-request">
@@ -4012,11 +4034,10 @@ function PlayerCombatRules({ mode }) {
     ["5. Resolve special timing", "Before ordinary actions, resolve set weapons against charges, the longer weapon against a charge, fleeing attacks, held initiative, and spell completion or interruption."],
     ["6. Winning side acts", "Resolve the winning side’s declared movement, attacks, spells, turning, items, and other actions. Damage and conditions apply immediately."],
     ["7. Losing side acts", "Survivors resolve their declared actions. On truly simultaneous initiative, both sides complete their attacks even if one is killed by the exchange."],
-    ["8. Damage and status", "Apply HP, saves, poison, morale, spell interruption, and conditions. An unmodified natural 20 always hits and doubles the attack’s total damage."],
-    ["9. End the round", "Finish later spell segments and additional class-granted attack routines, advance durations and light, confirm engagement, then declare the next round."],
+    ["8. End the round", "Confirm HP, saves, poison, morale, and conditions; finish later spell segments and additional class-granted attack routines; advance durations and light; then declare the next round. Damage is never held for this step."],
   ];
   const combatActions = [
-    ["Attack", "Attack an opponent already within melee reach. Roll against THAC0, then roll damage on a hit."],
+    ["Attack", "Attack an opponent already within melee reach. Roll against THAC0, then roll damage on a hit. An unmodified natural 20 always hits and doubles the attack’s total damage."],
     ["Close", "Move up to normal speed into melee, but do not make a melee attack this round. Normal defenses remain."],
     ["Charge", "Move up to double speed and attack at +2. Lose Dexterity AC against the defender; a longer or set weapon may strike first, and a set weapon deals double weapon damage."],
     ["Fire a missile", "Fire or throw at range. Dexterity may modify the attack. Firing into melee can strike a random participant, including an ally."],
@@ -4077,7 +4098,7 @@ function PlayerCharacterTab({ character }) {
         <div><dt>XP</dt><dd>{character.xp || 0}</dd></div>
       </dl>
       <div className="form-actions">
-        <a className="secondary-button" href={`${playerCharacterSheetPath(character.id)}?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`} target="_blank" rel="noreferrer">Open Character Sheet</a>
+        <Link className="secondary-button" to={`${playerCharacterSheetPath(character.id)}?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`}>Open Character Sheet</Link>
         <a className="table-link" href={`${playerCharacterSheetPath(character.id, { edit: true })}?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`}>Edit Character</a>
       </div>
     </section>

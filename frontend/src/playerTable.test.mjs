@@ -13,6 +13,8 @@ test("player combat reference codifies surprise, tied weapon speed, and critical
   assert.match(app, /natural 20 always hits and doubles the attack’s total damage/);
   assert.match(app, /Round Procedure/);
   assert.match(app, /Combat Actions/);
+  assert.match(app, /Damage is never held for this step/);
+  assert.doesNotMatch(app, /\["8\. Damage and status"/);
   assert.doesNotMatch(app, /<h2>Combat Flow<\/h2>/);
 });
 
@@ -28,6 +30,19 @@ test("combat action reference includes closing, charging, parrying, retreat, fle
     assert.ok(app.includes(`["${action}"`), `${action} should appear in the combat action reference`);
   }
   assert.match(app, /This is a delay, not an unlimited reaction or interruption/);
+});
+
+test("player combat card shows facing AC, concise attacks, styled status, and same-session sheet navigation", () => {
+  assert.match(app, /AC Front \/ Flank \/ Rear/);
+  assert.match(app, /characterAcFacingText\(character\)/);
+  assert.match(app, /return `\$\{value \|\| "1"\} per round`/);
+  assert.match(app, /titleCaseStatus\(character\.life_status \|\| character\.status\)/);
+  assert.match(app, /className=\{`status-pill \$\{sessionLive && myToken \? "token-status-pill" : ""\}`\}/);
+  assert.match(app, /style=\{sessionLive && myToken && selectedColor \? \{ "--token-color": selectedColor \}/);
+  assert.match(app, /<Link className="table-button" to=\{`\$\{playerCharacterSheetPath\(character\.id\)\}/);
+  assert.doesNotMatch(app, /playerCharacterSheetPath\(character\.id\)[^>]*target="_blank"/);
+  assert.match(styles, /\.player-character-actions \.table-button\s*\{[^}]*display:\s*flex[^}]*min-height:\s*34px/s);
+  assert.match(styles, /\.token-status-pill\s*\{[^}]*background:\s*var\(--token-color\)/s);
 });
 
 test("player weapon summaries and character vault show speed factor", () => {

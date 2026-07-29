@@ -3722,6 +3722,10 @@ tbody tr:hover {
   text-transform: uppercase;
 }
 
+.player-combat-facts dt {
+  line-height: 1.15;
+}
+
 .player-combat-facts dd {
   font-size: 0.92rem;
   font-weight: 900;
@@ -3736,8 +3740,24 @@ tbody tr:hover {
 }
 
 .player-character-actions .table-button {
+  align-items: center;
+  display: flex;
+  font-size: 0.72rem;
+  font-weight: 900;
+  justify-content: center;
+  min-height: 34px;
+  padding: 6px 8px;
   text-align: center;
   text-decoration: none;
+}
+
+.token-status-pill {
+  background: var(--token-color);
+  border-color: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 0 0 1px var(--token-color);
+  color: #0c1119;
+  min-height: 30px;
+  padding: 5px 10px;
 }
 
 .player-inline-hp {
