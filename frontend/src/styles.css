@@ -2631,6 +2631,21 @@ tbody tr:hover {
   padding: 18px;
 }
 
+.invite-ready-panel,
+.invite-ready-panel label {
+  display: grid;
+  gap: 10px;
+}
+
+.invite-ready-panel textarea {
+  min-height: 110px;
+  overflow-wrap: anywhere;
+}
+
+.invite-claim-panel h1 {
+  font-size: clamp(2rem, 5vw, 3.25rem);
+}
+
 .combat-round-controls {
   align-items: center;
   display: grid;

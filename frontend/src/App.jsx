@@ -12,7 +12,7 @@ import mountainDwarfRace from "../../content/settings/dragonlance/races/mountain
 import qualinestiElfRace from "../../content/settings/dragonlance/races/qualinesti-elf.json";
 import silvanestiElfRace from "../../content/settings/dragonlance/races/silvanesti-elf.json";
 import tinkerGnomeRace from "../../content/settings/dragonlance/races/tinker-gnome.json";
-import { AUTH_CHANGED_EVENT, api, getPlayerToken, getToken, login, logout, openAuthorizedFile, playerLogin, playerLogout } from "./api.js";
+import { AUTH_CHANGED_EVENT, api, getPlayerToken, getToken, login, logout, openAuthorizedFile, playerClaimInvite, playerLogin, playerLogout } from "./api.js";
 import {
   classReference,
   deityGroups,
@@ -122,6 +122,12 @@ function playerCharacterBuilderPath(campaignId) {
 
 function playerCharacterChooserPath() {
   return isClassicHost() ? "/characters/new" : "/portal/characters/new";
+}
+
+function playerClaimUrl(token) {
+  const origin = isLocalDragoHost() ? "https://table.dragorussogames.com" : window.location.origin;
+  const path = isClassicHost() ? "/claim" : "/portal/claim";
+  return `${origin}${path}?token=${encodeURIComponent(token)}`;
 }
 
 function isDragonlanceCampaign(campaign) {
@@ -302,6 +308,7 @@ function PlayerShell({ children }) {
             { label: "Characters", to: classic ? "/characters" : "/portal/characters" },
             { label: "Create Character", to: classic ? "/characters/new" : "/portal/characters/new" },
             { label: "Player's Guide", href: "/1e/" },
+            { label: "OSRIC License", to: classic ? "/license" : "/portal/license" },
             ...(hasDragonlanceCampaign ? [{ label: "Dragonlance", href: classic ? "/dragonlance" : "/portal/dragonlance" }] : []),
           ]}
           account={
@@ -413,6 +420,67 @@ function PlayerLoginPage() {
         </label>
         {error ? <p className="error">{error}</p> : null}
         <button disabled={busy}>{busy ? "Joining..." : "Join the Table"}</button>
+      </form>
+    </div>
+  );
+}
+
+function PlayerClaimInvitePage() {
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token") || "";
+  const [invite, setInvite] = useState(null);
+  const [password, setPassword] = useState("");
+  const [confirmation, setConfirmation] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const auth = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!token) {
+      setError("This invitation link is incomplete.");
+      return;
+    }
+    api("/player/invite/inspect", {
+      auth: "none",
+      method: "POST",
+      body: JSON.stringify({ token }),
+    }).then(setInvite).catch((inviteError) => setError(inviteError.message));
+  }, [token]);
+
+  async function submit(event) {
+    event.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      await playerClaimInvite(token, password, confirmation);
+      auth.refreshPlayer();
+      navigate(isClassicHost() ? "/" : "/portal", { replace: true });
+    } catch (claimError) {
+      setError(claimError.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="login-page dragonlance-login">
+      <form className="login-panel invite-claim-panel" onSubmit={submit}>
+        <div className="login-brand-mark"><img src="/assets/LogoDrago_Mesa_de_trabajo_1.png" alt="Drago Table" /></div>
+        <p className="eyebrow">Player Invitation</p>
+        <h1>Create Your Password</h1>
+        {invite ? (
+          <>
+            <p className="login-subtitle">Welcome, {invite.display_name}. Your username is <strong>{invite.username}</strong>.</p>
+            {invite.campaigns?.length ? <p className="session-badge">Invited to {invite.campaigns.join(", ")}</p> : null}
+            <label>New Password<input autoFocus minLength="8" type="password" value={password} onChange={(event) => setPassword(event.target.value)} required /></label>
+            <label>Confirm Password<input minLength="8" type="password" value={confirmation} onChange={(event) => setConfirmation(event.target.value)} required /></label>
+            <p className="muted">Use at least 8 characters. This invitation works once.</p>
+            <button disabled={busy || password.length < 8 || password !== confirmation}>{busy ? "Creating..." : "Create Password & Continue"}</button>
+          </>
+        ) : null}
+        {error ? <p className="error">{error}</p> : null}
+        {error ? <Link className="secondary-button" to={isClassicHost() ? "/login" : "/portal/login"}>Return to Player Sign In</Link> : null}
       </form>
     </div>
   );
@@ -4122,6 +4190,26 @@ function PlayerRulesTab({ campaign }) {
   );
 }
 
+function OsricLicensePage() {
+  return (
+    <section className="player-portal-page">
+      <PlayerHero eyebrow="Rules Attribution" title="OSRIC License & Notices" copy="Source and licensing information for the classic rules foundation used by Drago Table." />
+      <section className="panel license-notice-panel">
+        <h2>OSRIC Attribution</h2>
+        <p>This product uses the OSRIC™ System (Oldschool System Reference and Index Compilation™). The OSRIC™ system text may be found at <a href="https://osricrpg.com/" target="_blank" rel="noreferrer">osricrpg.com</a>. The OSRIC™ text is copyright of Stuart Marshall. “OSRIC™” and “Oldschool System Reference and Index Compilation™” are trademarks of Stuart Marshall and Matthew Finch and may be used only in accordance with the OSRIC™ license.</p>
+        <h2>Open Game License</h2>
+        <p>Identified OSRIC-derived rules content is used under the OSRIC Open License and Open Game License Version 1.0a. Review the complete current terms at the official OSRIC sources before redistributing this application.</p>
+        <div className="form-actions">
+          <a className="secondary-button" href="https://osricrpg.com/license.php" target="_blank" rel="noreferrer">Official OSRIC License</a>
+          <a className="secondary-button" href="https://www.osricrpg.com/files/OSRIC.pdf" target="_blank" rel="noreferrer">Official OSRIC Rules PDF</a>
+        </div>
+        <h2>Drago Table Product Identity</h2>
+        <p>The Drago Table name, logo, original interface, original campaign material, and other elements not expressly identified as Open Game Content remain Drago Russo Games product identity. Third-party setting names, artwork, stories, characters, and other Product Identity are not made open content by this notice.</p>
+      </section>
+    </section>
+  );
+}
+
 function ReadOnlyPlaceholder({ title, copy }) {
   return (
     <Panel className="notes-placeholder read-only-panel">
@@ -4887,7 +4975,7 @@ function PlayersPage() {
 
   function openNew() {
     setFormError("");
-    setModal({ type: "new", player: { display_name: "", username: "", password: "", active: true, campaign_ids: [] } });
+    setModal({ type: "new", player: { display_name: "", username: "", active: true, campaign_ids: [] } });
   }
 
   function openEdit(player) {
@@ -4906,12 +4994,29 @@ function PlayersPage() {
     setFormError("");
     try {
       if (modal.type === "new") {
-        await api("/1e/players", { method: "POST", body: JSON.stringify(modal.player) });
+        const created = await api("/1e/players", { method: "POST", body: JSON.stringify(modal.player) });
+        const invite = await api(`/1e/players/${created.id}/invite`, { method: "POST" });
+        setModal({ type: "invite", player: created, invite, inviteUrl: playerClaimUrl(invite.token) });
+        await reload();
+        return;
       } else {
         await api(`/1e/players/${modal.player.id}`, { method: "PUT", body: JSON.stringify(modal.player) });
       }
       setModal(null);
       await reload();
+    } catch (err) {
+      setFormError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function createInvite(player) {
+    setSaving(true);
+    setFormError("");
+    try {
+      const invite = await api(`/1e/players/${player.id}/invite`, { method: "POST" });
+      setModal({ type: "invite", player, invite, inviteUrl: playerClaimUrl(invite.token) });
     } catch (err) {
       setFormError(err.message);
     } finally {
@@ -4968,17 +5073,19 @@ function PlayersPage() {
       <PageState loading={loading} error={error} />
       {formError && !modal ? <p className="error">{formError}</p> : null}
       <DataTable
-        columns={["Display Name", "Username", "Campaigns", "Characters", "Status", "Actions"]}
+        columns={["Display Name", "Username", "Campaigns", "Characters", "Login", "Status", "Actions"]}
         rows={(players || []).map((player) => [
           player.display_name || player.player_name,
           player.username || "-",
           player.campaign_count || 0,
           player.character_count || 0,
+          player.password_set ? "Ready" : "Invite Pending",
           player.active ? "Active" : "Inactive",
           <div className="row-actions">
             <button className="table-button" onClick={() => openEdit(player)}>Edit</button>
             <button className="table-button" disabled={!player.active} onClick={() => deactivate(player)}>Deactivate</button>
             <button className="table-button" onClick={() => openReset(player)}>Reset Password</button>
+            <button className="table-button" onClick={() => createInvite(player)}>{player.password_set ? "New Invite" : "Create Invite"}</button>
             <button className="table-button danger-button" onClick={() => deletePlayer(player)}>Delete</button>
           </div>,
         ])}
@@ -4988,7 +5095,6 @@ function PlayersPage() {
           <form className="form-grid modal-form" onSubmit={savePlayer}>
             <label>Display Name<input value={modal.player.display_name || ""} onChange={(event) => setModal({ ...modal, player: { ...modal.player, display_name: event.target.value, player_name: event.target.value } })} required /></label>
             <label>Username<input value={modal.player.username || ""} onChange={(event) => setModal({ ...modal, player: { ...modal.player, username: event.target.value } })} required /></label>
-            {modal.type === "new" ? <label>Password<input type="password" value={modal.player.password || ""} onChange={(event) => setModal({ ...modal, player: { ...modal.player, password: event.target.value } })} required /></label> : null}
             {modal.type === "new" ? (
               <fieldset className="wide campaign-invite-fieldset">
                 <legend>Campaign Invitations</legend>
@@ -5028,6 +5134,20 @@ function PlayersPage() {
               <button type="button" className="ghost-button" onClick={() => setModal(null)}>Cancel</button>
             </div>
           </form>
+        </Modal>
+      ) : null}
+      {modal?.type === "invite" ? (
+        <Modal title="Player Invitation Ready" onClose={() => setModal(null)}>
+          <div className="invite-ready-panel">
+            <p>Send this private link to <strong>{modal.player.display_name || modal.player.player_name}</strong>. They will create their own password.</p>
+            <label>Username<input readOnly value={modal.invite.username || modal.player.username || ""} /></label>
+            <label>Invitation Link<textarea readOnly value={modal.inviteUrl} /></label>
+            <p className="muted">The link expires in 7 days and can be used only once. Remote players can open it while your Remote Session is running.</p>
+            <div className="form-actions">
+              <button onClick={() => navigator.clipboard.writeText(modal.inviteUrl)}>Copy Invitation</button>
+              <button className="ghost-button" onClick={() => setModal(null)}>Done</button>
+            </div>
+          </div>
         </Modal>
       ) : null}
       {modal?.type === "reset" ? (
@@ -5470,6 +5590,7 @@ export default function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<PlayerLoginPage />} />
+          <Route path="/claim" element={<PlayerClaimInvitePage />} />
           <Route path="/" element={<ClassicRoot />} />
           <Route element={<Protected role="player"><PlayerShell /></Protected>}>
             <Route path="/campaigns" element={<PlayerCampaignsPage />} />
@@ -5477,6 +5598,7 @@ export default function App() {
             <Route path="/campaigns/:id/maps/:mapId" element={<PlayerMapPage />} />
             <Route path="/characters" element={<PlayerCharactersPage />} />
             <Route path="/characters/new" element={<PlayerCreateCharacterPage />} />
+            <Route path="/license" element={<OsricLicensePage />} />
             <Route path="/dragonlance/*" element={<PlayerDragonlanceRoute />} />
             <Route path="/characters/:id" element={<PlayerVaultToolPage />} />
             <Route path="/characters/:id/edit" element={<PlayerVaultToolPage />} />
@@ -5495,6 +5617,7 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/portal/login" element={<PlayerLoginPage />} />
+        <Route path="/portal/claim" element={<PlayerClaimInvitePage />} />
         <Route path="/" element={<HomeRedirect />} />
         <Route element={<Protected role="player"><PlayerShell /></Protected>}>
           <Route path="/portal" element={<PlayerCampaignsPage />} />
@@ -5503,6 +5626,7 @@ export default function App() {
           <Route path="/portal/campaigns/:id/maps/:mapId" element={<PlayerMapPage />} />
           <Route path="/portal/characters" element={<PlayerCharactersPage />} />
           <Route path="/portal/characters/new" element={<PlayerCreateCharacterPage />} />
+          <Route path="/portal/license" element={<OsricLicensePage />} />
           <Route path="/portal/campaigns/:id/characters/new" element={<PlayerCreateCharacterPage />} />
           <Route path="/portal/dragonlance/*" element={<PlayerDragonlanceRoute />} />
         </Route>

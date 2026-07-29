@@ -157,6 +157,17 @@ class Player(TimestampMixin, Base):
     active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true", nullable=False)
 
     characters: Mapped[list["Character"]] = relationship(back_populates="player")
+    invites: Mapped[list["PlayerInvite"]] = relationship(cascade="all, delete-orphan")
+
+
+class PlayerInvite(TimestampMixin, Base):
+    __tablename__ = "player_invites"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    player_id: Mapped[int] = mapped_column(ForeignKey("players.id", ondelete="CASCADE"), nullable=False, index=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False, index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    claimed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class Party(TimestampMixin, Base):

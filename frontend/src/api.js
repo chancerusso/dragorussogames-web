@@ -137,6 +137,20 @@ export async function playerLogin(username, password) {
   return payload.user;
 }
 
+export async function playerClaimInvite(token, password, passwordConfirmation) {
+  const payload = await api("/player/invite/claim", {
+    auth: "none",
+    method: "POST",
+    body: JSON.stringify({
+      token,
+      password,
+      password_confirmation: passwordConfirmation,
+    }),
+  });
+  setPlayerToken(payload.token);
+  return payload.user;
+}
+
 export async function logout() {
   try {
     await api("/auth/logout", { method: "POST" });

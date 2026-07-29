@@ -613,14 +613,45 @@ function render() {
   if (kind === "dmEquipment") renderDmEquipment();
 }
 
+function localDraftStorageKey() {
+  if (!isPlayerCharacterMode()) return null;
+  const playerId = state.currentPlayer?.id || localStorage.getItem("drg1e_player_id") || "unknown";
+  const characterKey = state.character?.id || `new-${campaignIdParam() || state.campaign?.id || "unassigned"}`;
+  return `drago_table_player_draft:${playerId}:${characterKey}`;
+}
+
+function readLocalDraft() {
+  const key = localDraftStorageKey();
+  if (!key) return null;
+  try {
+    const saved = JSON.parse(localStorage.getItem(key) || "null");
+    return saved && typeof saved === "object" ? saved : null;
+  } catch {
+    localStorage.removeItem(key);
+    return null;
+  }
+}
+
+function persistLocalDraft() {
+  const key = localDraftStorageKey();
+  if (!key || !state.draft) return;
+  localStorage.setItem(key, JSON.stringify({ ...state.draft, saved_on_device_at: new Date().toISOString() }));
+}
+
+function clearLocalDraft() {
+  const key = localDraftStorageKey();
+  if (key) localStorage.removeItem(key);
+}
+
 function initialDraft() {
   const character = state.character;
-  return character ? {
+  if (character) return {
     ...character,
     abilities: { ...character.abilities },
     coins: { ...character.coins },
     combat: { ...character.combat },
-  } : {
+  };
+  const blank = {
     owner_name: "Website Player",
     email: "",
     discord_user_id: "",
@@ -644,6 +675,15 @@ function initialDraft() {
     combat: { max_hp: 1, current_hp: 1 },
     notes: "",
   };
+  const saved = readLocalDraft();
+  return saved ? {
+    ...blank,
+    ...saved,
+    abilities: { ...blank.abilities, ...(saved.abilities || {}) },
+    coins: { ...blank.coins, ...(saved.coins || {}) },
+    combat: { ...blank.combat, ...(saved.combat || {}) },
+    class_tracks: Array.isArray(saved.class_tracks) && saved.class_tracks.length ? saved.class_tracks : blank.class_tracks,
+  } : blank;
 }
 
 function renderBuilder(options = {}) {
@@ -652,7 +692,7 @@ function renderBuilder(options = {}) {
   const dataGate = builderStepDataGate();
   document.querySelector("[data-vault-view]").innerHTML = `
     <div class="vault-builder-nav">${steps.map((label, index) => `<button class="vault-tab" aria-selected="${state.step === index}" data-step="${index}">${index + 1}. ${label}</button>`).join("")}</div>
-    <form class="vault-panel vault-form" data-builder-form><div class="vault-panel-toast vault-full" data-panel-toast></div>${dataGate ? builderLoadingHtml(dataGate.label) : builderStep()}</form>`;
+    <form class="vault-panel vault-form" data-builder-form><div class="vault-panel-toast vault-full" data-panel-toast></div>${isPlayerCharacterMode() ? `<p class="vault-muted vault-full">Your unfinished character is saved on this device. Connect to Drago Table to add it to your account and campaign.</p>` : ""}${dataGate ? builderLoadingHtml(dataGate.label) : builderStep()}</form>`;
   if (dataGate) dataGate.promise.then(() => renderBuilder()).catch((error) => {
     console.error("Builder step data failed to load.", error);
     toast("Unable to load this builder step. Try refreshing the page.");
@@ -661,6 +701,7 @@ function renderBuilder(options = {}) {
   document.querySelector("[data-builder-form]").addEventListener("input", syncDraft);
   document.querySelector("[data-builder-form]").addEventListener("change", syncDraft);
   bindBuilderActions();
+  persistLocalDraft();
   restoreBuilderPosition(options);
 }
 
@@ -1647,6 +1688,7 @@ function syncDraft() {
     setPath(state.draft, input.name, value);
   });
   applyAssignedRolls();
+  persistLocalDraft();
 }
 
 function applyAssignedRolls() {
@@ -1739,6 +1781,7 @@ async function addOrUpdateInventoryItem(equipmentId, status = "carried") {
 
 async function saveDraft(navigate = true) {
   syncDraft();
+  const draftStorageKeyBeforeSave = localDraftStorageKey();
   const method = state.character?.id ? "PUT" : "POST";
   const path = state.character?.id ? `/characters/${state.character.id}` : "/characters";
   const payload = characterSavePayload(state.draft);
@@ -1751,6 +1794,7 @@ async function saveDraft(navigate = true) {
     localStorage.setItem("drg1e_player_id", String(state.currentPlayer.id));
   }
   state.draft = { ...state.draft, id: state.character.id };
+  if (draftStorageKeyBeforeSave) localStorage.removeItem(draftStorageKeyBeforeSave);
   if (navigate && pageKind() === "new") {
     renderBuilder();
     toast("Character saved.", "success");

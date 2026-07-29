@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import base64
 import binascii
+from datetime import datetime, timedelta, timezone
+import hashlib
 import json
 import logging
 from pathlib import Path
+import secrets
 from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Response
@@ -41,6 +44,7 @@ from app.db.models import (
     MonsterCatalog,
     Party,
     Player,
+    PlayerInvite,
     SafeStorageLocation,
     SessionPlanningItem,
     SpellsCatalog,
@@ -470,6 +474,7 @@ def player_payload(player: Player) -> dict:
         "role": player.role,
         "status": player.status,
         "active": player.active,
+        "password_set": bool(player.password_hash),
         "created_at": player.created_at,
         "updated_at": player.updated_at,
     }
@@ -1061,6 +1066,39 @@ def validate_username(username: Optional[str]) -> str:
     return value
 
 
+def validate_player_password(password: Any) -> str:
+    value = str(password or "")
+    if len(value) < 8:
+        raise HTTPException(status_code=422, detail="Password must be at least 8 characters.")
+    if len(value) > 200:
+        raise HTTPException(status_code=422, detail="Password cannot exceed 200 characters.")
+    return value
+
+
+def player_invite_token_hash(token: str) -> str:
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def invite_is_expired(invite: PlayerInvite) -> bool:
+    expires_at = invite.expires_at
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    return expires_at <= datetime.now(timezone.utc)
+
+
+def get_active_player_invite(db: Session, token: Any) -> PlayerInvite:
+    raw_token = str(token or "")
+    if not raw_token:
+        raise HTTPException(status_code=404, detail="Invitation not found.")
+    invite = db.scalar(select(PlayerInvite).where(PlayerInvite.token_hash == player_invite_token_hash(raw_token)))
+    if invite is None or invite.claimed_at is not None or invite_is_expired(invite):
+        raise HTTPException(status_code=404, detail="This invitation is invalid, expired, or has already been used.")
+    player = db.get(Player, invite.player_id)
+    if player is None or not player.active:
+        raise HTTPException(status_code=404, detail="Invitation not found.")
+    return invite
+
+
 def ensure_unique_username(db: Session, username: str, player_id: int | None = None) -> None:
     existing = db.scalar(select(Player).where(Player.username == username))
     if existing and existing.id != player_id:
@@ -1614,9 +1652,51 @@ def admin_me(admin: dict = Depends(require_jwt_admin)) -> dict:
 def player_login(data: dict, response: Response, db: Session = Depends(get_db)) -> dict:
     username = validate_username(data.get("username"))
     player = db.scalar(select(Player).where(Player.username == username))
+    if player is not None and player.active and not player.password_hash:
+        raise HTTPException(status_code=403, detail="Use your invitation link to create your password first.")
     if player is None or not player.active or not verify_password(data.get("password"), player.password_hash):
         raise HTTPException(status_code=401, detail="Invalid username or password.")
     token = create_player_token(player.id, player.username or username, player.display_name or player.player_name)
+    response.set_cookie(
+        key="drg_player_session",
+        value=token,
+        httponly=True,
+        secure=settings.cookie_secure,
+        samesite=settings.cookie_samesite,
+        max_age=60 * 60 * 12,
+        path="/",
+    )
+    return {"token": token, "user": player_payload(player)}
+
+
+@router.post("/player/invite/inspect")
+def inspect_player_invite(data: dict, db: Session = Depends(get_db)) -> dict:
+    invite = get_active_player_invite(db, data.get("token"))
+    player = get_player_or_404(db, invite.player_id)
+    campaign_names = [
+        campaign.name
+        for membership in db.scalars(select(CampaignPlayer).where(CampaignPlayer.user_id == player.id)).all()
+        if (campaign := db.get(Campaign, membership.campaign_id)) is not None and campaign.status != "archived"
+    ]
+    return {
+        "display_name": player.display_name or player.player_name,
+        "username": player.username,
+        "campaigns": campaign_names,
+        "expires_at": invite.expires_at,
+    }
+
+
+@router.post("/player/invite/claim")
+def claim_player_invite(data: dict, response: Response, db: Session = Depends(get_db)) -> dict:
+    invite = get_active_player_invite(db, data.get("token"))
+    player = get_player_or_404(db, invite.player_id)
+    password = validate_player_password(data.get("password"))
+    if password != str(data.get("password_confirmation") or ""):
+        raise HTTPException(status_code=422, detail="Passwords do not match.")
+    player.password_hash = hash_password(password)
+    invite.claimed_at = datetime.now(timezone.utc)
+    db.commit()
+    token = create_player_token(player.id, player.username or "", player.display_name or player.player_name)
     response.set_cookie(
         key="drg_player_session",
         value=token,
@@ -2010,7 +2090,7 @@ def create_vault_player(data: dict, _: dict = Depends(require_jwt_admin), db: Se
     player = Player(
         player_name=data.get("player_name") or display_name,
         username=username,
-        password_hash=hash_password(data.get("password") or ""),
+        password_hash=hash_password(validate_player_password(data["password"])) if data.get("password") else None,
         display_name=display_name,
         email=data.get("email"),
         discord_user_id=data.get("discord_user_id"),
@@ -2030,6 +2110,31 @@ def create_vault_player(data: dict, _: dict = Depends(require_jwt_admin), db: Se
     payload["campaign_count"] = len(campaign_ids)
     payload["character_count"] = 0
     return payload
+
+
+@router.post("/1e/players/{user_id}/invite")
+def create_vault_player_invite(user_id: int, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
+    player = get_player_or_404(db, user_id)
+    now = datetime.now(timezone.utc)
+    for invite in db.scalars(select(PlayerInvite).where(
+        PlayerInvite.player_id == player.id,
+        PlayerInvite.claimed_at.is_(None),
+    )).all():
+        invite.claimed_at = now
+    token = secrets.token_urlsafe(32)
+    expires_at = now + timedelta(days=7)
+    db.add(PlayerInvite(
+        player_id=player.id,
+        token_hash=player_invite_token_hash(token),
+        expires_at=expires_at,
+    ))
+    db.commit()
+    return {
+        "token": token,
+        "username": player.username,
+        "display_name": player.display_name or player.player_name,
+        "expires_at": expires_at,
+    }
 
 
 @router.get("/1e/players/{user_id}")
@@ -2094,7 +2199,7 @@ def delete_vault_player(user_id: int, _: dict = Depends(require_jwt_admin), db: 
 @router.post("/1e/players/{user_id}/reset-password")
 def reset_vault_player_password(user_id: int, data: dict, _: dict = Depends(require_jwt_admin), db: Session = Depends(get_db)) -> dict:
     player = get_player_or_404(db, user_id)
-    player.password_hash = hash_password(data.get("password") or "")
+    player.password_hash = hash_password(validate_player_password(data.get("password")))
     db.commit()
     return {"ok": True}
 
