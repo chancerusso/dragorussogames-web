@@ -43,3 +43,11 @@ test("class selection leads with multi-class choice and compact class grid", () 
   assert.match(vaultSource, /vault-choice-grid vault-class-choice-grid/);
   assert.doesNotMatch(vaultSource.match(/if \(state\.step === 3\)[\s\S]*?if \(state\.step === 4\)/)?.[0] || "", /sourcebookNoticeHtml/);
 });
+
+test("local player character sheets stay inside matched player routes", () => {
+  assert.equal(appSource.includes('function playerCharacterSheetPath(id, { edit = false } = {})'), true);
+  assert.equal(appSource.includes('<Route path="/portal/characters/:id" element={<PlayerVaultToolPage />} />'), true);
+  assert.equal(appSource.includes('<Route path="/portal/characters/:id/edit" element={<PlayerVaultToolPage />} />'), true);
+  assert.equal(appSource.includes('href={`${playerCharacterSheetPath(character.id)}?return_to='), true);
+  assert.equal(vaultSource.includes('location.pathname.startsWith("/portal/characters")'), true);
+});

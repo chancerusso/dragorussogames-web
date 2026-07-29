@@ -427,10 +427,14 @@ function characterId() {
 }
 
 function characterViewHref(id) {
+  if (location.pathname.startsWith("/portal/characters")) return `/portal/characters/${id}`;
+  if (isClassicHost() && location.pathname.startsWith("/characters")) return `/characters/${id}`;
   return isPlayerCharacterMode() ? `/1e/characters/${id}/?player=1` : `/1e/characters/${id}/`;
 }
 
 function characterEditHref(id) {
+  if (location.pathname.startsWith("/portal/characters")) return `/portal/characters/${id}/edit`;
+  if (isClassicHost() && location.pathname.startsWith("/characters")) return `/characters/${id}/edit`;
   return isPlayerCharacterMode() ? `/1e/characters/${id}/edit/?player=1` : `/1e/characters/${id}/edit/`;
 }
 

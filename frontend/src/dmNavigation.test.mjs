@@ -138,8 +138,8 @@ test("Create Character remains in player-owned navigation", () => {
   assert.match(appSource, /to=\{playerCharacterChooserPath\(\)\}/);
   assert.match(appSource, /<a className="secondary-button" href=\{playerCharacterBuilderPath\(campaign\.id\)\}>Create Character<\/a>/);
   assert.doesNotMatch(appSource, /<Link className="secondary-button" to=\{playerCharacterBuilderPath\(campaign\.id\)\}>Create Character<\/Link>/);
-  assert.match(appSource, /href=\{`\/1e\/characters\/\$\{character\.id\}\/\?player=1`\}>View/);
-  assert.match(appSource, /href=\{`\/1e\/characters\/\$\{character\.id\}\/edit\/\?player=1`\}>Edit/);
+  assert.match(appSource, /href=\{playerCharacterSheetPath\(character\.id\)\}>View/);
+  assert.match(appSource, /href=\{playerCharacterSheetPath\(character\.id, \{ edit: true \}\)\}>Edit/);
   assert.match(vaultSource, /Boolean\(sessionStorage\.getItem\(PLAYER_TOKEN_KEY\)\)/);
   assert.match(vaultSource, /const playerRoot = isClassicHost\(\) \? "" : "\/portal"/);
   assert.match(backendSource, /login_redirect\(request, player=True\)/);

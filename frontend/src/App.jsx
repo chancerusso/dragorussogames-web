@@ -124,6 +124,11 @@ function playerCharacterChooserPath() {
   return isClassicHost() ? "/characters/new" : "/portal/characters/new";
 }
 
+function playerCharacterSheetPath(id, { edit = false } = {}) {
+  const base = isClassicHost() ? `/characters/${id}` : `/portal/characters/${id}`;
+  return edit ? `${base}/edit` : base;
+}
+
 function playerClaimUrl(token) {
   const origin = isLocalDragoHost() ? "https://table.dragorussogames.com" : window.location.origin;
   const path = isClassicHost() ? "/claim" : "/portal/claim";
@@ -3117,8 +3122,8 @@ function PlayerCharacterCard({ character, campaigns = [], characters = [], onCha
         <div><dt>Campaign</dt><dd>{character.campaign_name || "-"}</dd></div>
       </dl>
       <div className="form-actions">
-        <a className="secondary-button" href={`/1e/characters/${character.id}/?player=1`}>View</a>
-        <a className="table-link" href={`/1e/characters/${character.id}/edit/?player=1`}>Edit</a>
+        <a className="secondary-button" href={playerCharacterSheetPath(character.id)}>View</a>
+        <a className="table-link" href={playerCharacterSheetPath(character.id, { edit: true })}>Edit</a>
         <button className="table-button" type="button" disabled={busy} onClick={deleteCharacter}>{busy ? "Deleting..." : "Delete"}</button>
       </div>
       <div className="character-campaign-picker">
@@ -3932,7 +3937,7 @@ function PlayerCharacterCombatPanel({
       </div>
       <div className="player-character-actions">
         <button className="table-button" type="button" disabled={!sessionLive} onClick={onAddToken}>Add To Grid</button>
-        <a className="table-button" href={`/1e/characters/${character.id}/?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`} target="_blank" rel="noreferrer">Open Sheet</a>
+        <a className="table-button" href={`${playerCharacterSheetPath(character.id)}?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`} target="_blank" rel="noreferrer">Open Sheet</a>
       </div>
       {colorRequestOpen ? (
         <div className="player-token-color-request">
@@ -4047,8 +4052,8 @@ function PlayerCharacterTab({ character }) {
         <div><dt>XP</dt><dd>{character.xp || 0}</dd></div>
       </dl>
       <div className="form-actions">
-        <a className="secondary-button" href={`/characters/${character.id}?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`} target="_blank" rel="noreferrer">Open Character Sheet</a>
-        <a className="table-link" href={`/characters/${character.id}/edit?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`}>Edit Character</a>
+        <a className="secondary-button" href={`${playerCharacterSheetPath(character.id)}?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`} target="_blank" rel="noreferrer">Open Character Sheet</a>
+        <a className="table-link" href={`${playerCharacterSheetPath(character.id, { edit: true })}?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`}>Edit Character</a>
       </div>
     </section>
   );
@@ -5636,6 +5641,8 @@ export default function App() {
           <Route path="/portal/campaigns/:id/maps/:mapId" element={<PlayerMapPage />} />
           <Route path="/portal/characters" element={<PlayerCharactersPage />} />
           <Route path="/portal/characters/new" element={<PlayerCreateCharacterPage />} />
+          <Route path="/portal/characters/:id" element={<PlayerVaultToolPage />} />
+          <Route path="/portal/characters/:id/edit" element={<PlayerVaultToolPage />} />
           <Route path="/portal/license" element={<OsricLicensePage />} />
           <Route path="/portal/campaigns/:id/characters/new" element={<PlayerCreateCharacterPage />} />
           <Route path="/portal/dragonlance/*" element={<PlayerDragonlanceRoute />} />
