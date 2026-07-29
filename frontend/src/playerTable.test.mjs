@@ -71,6 +71,16 @@ test("table refresh cannot overwrite an in-flight player color save", () => {
   assert.match(app, /playerColors: \{ \.\.\.tableState\.playerColors, \[tokenId\]: color \}/);
 });
 
+test("player and monster token drags start without calculating against the token button", () => {
+  assert.match(app, /token=\{token\} onDragStart=\{\(\) => setDraggedToken\(token\)\}/);
+  assert.match(app, /token=\{token\} monster onDragStart=\{\(\) => setDraggedToken\(token\)\}/);
+  assert.match(app, /onDragStart=\{sessionLive && token\.id === tokenId \? \(\) => setDraggedToken\(token\) : undefined\}/);
+  assert.doesNotMatch(app, /setDraggedToken\(token\);\s*move(?:Own)?Token\(token, event\)/);
+  assert.match(app, /pendingTokenStateRef/);
+  assert.match(app, /window\.setTimeout\(flushOwnTokenPosition, 120\)/);
+  assert.match(app, /onPointerUp=\{\(\) => \{ flushOwnTokenPosition\(\); setDraggedToken\(null\); \}\}/);
+});
+
 test("exploration restores marching order and player combat tools share rolls", () => {
   assert.match(app, /mode === "hex_crawl" \? DRAGO_OUTDOORS_GRID : DRAGO_MARCHING_GRID/);
   assert.match(app, /<h2>Marching Order<\/h2>/);

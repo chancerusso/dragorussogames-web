@@ -1051,7 +1051,11 @@ function DragoTablePage() {
     const y = Math.max(1, Math.min(activeGrid.rows - footprint.rows + 1, Math.floor(relativeY / cellHeight) + 1));
     const slotX = (relativeX % cellWidth) >= cellWidth / 2 ? 1 : 0;
     const slotY = (relativeY % cellHeight) >= cellHeight / 2 ? 1 : 0;
-    setTokenPositions((positions) => ({ ...positions, [token.id]: { x, y, slotX, slotY } }));
+    setTokenPositions((positions) => {
+      const current = positions[token.id];
+      if (current?.x === x && current?.y === y && current?.slotX === slotX && current?.slotY === slotY) return positions;
+      return { ...positions, [token.id]: { x, y, slotX, slotY } };
+    });
   }
 
   function addMonsterToEncounter(monster = selectedMonster) {
@@ -1254,7 +1258,7 @@ function DragoTablePage() {
                 onPointerLeave={() => setDraggedToken(null)}
               >
                 {playerTokens.map((token) => (
-                  <TableToken key={token.id} grid={DRAGO_MARCHING_GRID} token={token} onDragStart={(event) => { setDraggedToken(token); moveToken(token, event); }} />
+                  <TableToken key={token.id} grid={DRAGO_MARCHING_GRID} token={token} onDragStart={() => setDraggedToken(token)} />
                 ))}
               </div>
             </section>
@@ -1284,10 +1288,10 @@ function DragoTablePage() {
             onPointerLeave={() => setDraggedToken(null)}
           >
             {mode === "combat" ? playerTokens.map((token) => (
-              <TableToken key={token.id} grid={activeGrid} token={token} onDragStart={(event) => { setDraggedToken(token); moveToken(token, event); }} />
+              <TableToken key={token.id} grid={activeGrid} token={token} onDragStart={() => setDraggedToken(token)} />
             )) : null}
             {mode === "combat" ? monsterTokens.map((token) => (
-              <TableToken key={token.id} grid={activeGrid} token={token} monster onDragStart={(event) => { setDraggedToken(token); moveToken(token, event); }} />
+              <TableToken key={token.id} grid={activeGrid} token={token} monster onDragStart={() => setDraggedToken(token)} />
             )) : null}
           </div>
         </main>
@@ -3689,6 +3693,9 @@ function PlayerTableTab({ campaign, character }) {
   const [hpEditor, setHpEditor] = useState(null);
   const tableSaveCountRef = useRef(0);
   const tableSaveVersionRef = useRef(0);
+  const tableStateRef = useRef(initialState);
+  const pendingTokenStateRef = useRef(null);
+  const tokenSaveTimerRef = useRef(null);
   const tokenId = currentCharacter ? `pc-${currentCharacter.id}` : null;
   const activeGrid = tableState.mode === "combat" ? tableState.combatGrid : tableState.mode === "hex_crawl" ? DRAGO_OUTDOORS_GRID : DRAGO_MARCHING_GRID;
   const tableCharacters = currentCharacter && !(campaign.characters || []).some((entry) => entry.id === currentCharacter.id)
@@ -3708,6 +3715,14 @@ function PlayerTableTab({ campaign, character }) {
   }, [character]);
 
   useEffect(() => {
+    tableStateRef.current = tableState;
+  }, [tableState]);
+
+  useEffect(() => () => {
+    if (tokenSaveTimerRef.current) window.clearTimeout(tokenSaveTimerRef.current);
+  }, []);
+
+  useEffect(() => {
     const timer = window.setInterval(() => {
       if (tableSaveCountRef.current) return;
       const version = tableSaveVersionRef.current;
@@ -3724,6 +3739,9 @@ function PlayerTableTab({ campaign, character }) {
 
   useEffect(() => {
     if (sessionLive) return;
+    if (tokenSaveTimerRef.current) window.clearTimeout(tokenSaveTimerRef.current);
+    tokenSaveTimerRef.current = null;
+    pendingTokenStateRef.current = null;
     setDraggedToken(null);
     setColorRequestOpen(false);
     setHpEditor(null);
@@ -3731,6 +3749,7 @@ function PlayerTableTab({ campaign, character }) {
 
   function publish(nextState) {
     if (!sessionLive) return;
+    tableStateRef.current = nextState;
     setTableState(nextState);
     const version = ++tableSaveVersionRef.current;
     tableSaveCountRef.current += 1;
@@ -3750,6 +3769,14 @@ function PlayerTableTab({ campaign, character }) {
       .finally(() => { tableSaveCountRef.current = Math.max(0, tableSaveCountRef.current - 1); });
   }
 
+  function flushOwnTokenPosition() {
+    if (tokenSaveTimerRef.current) window.clearTimeout(tokenSaveTimerRef.current);
+    tokenSaveTimerRef.current = null;
+    const nextState = pendingTokenStateRef.current;
+    pendingTokenStateRef.current = null;
+    if (nextState) publish(nextState);
+  }
+
   function moveOwnToken(token, event) {
     if (!sessionLive) return;
     if (!tokenId || token.id !== tokenId) return;
@@ -3763,7 +3790,15 @@ function PlayerTableTab({ campaign, character }) {
     const y = Math.max(1, Math.min(activeGrid.rows, Math.floor(relativeY / cellHeight) + 1));
     const slotX = (relativeX % cellWidth) >= cellWidth / 2 ? 1 : 0;
     const slotY = (relativeY % cellHeight) >= cellHeight / 2 ? 1 : 0;
-    publish({ ...tableState, tokenPositions: { ...tableState.tokenPositions, [tokenId]: { x, y, slotX, slotY } } });
+    const currentState = tableStateRef.current;
+    const currentPosition = currentState.tokenPositions?.[tokenId];
+    if (currentPosition?.x === x && currentPosition?.y === y && currentPosition?.slotX === slotX && currentPosition?.slotY === slotY) return;
+    const nextState = { ...currentState, tokenPositions: { ...currentState.tokenPositions, [tokenId]: { x, y, slotX, slotY } } };
+    tableStateRef.current = nextState;
+    pendingTokenStateRef.current = nextState;
+    setTableState(nextState);
+    if (tokenSaveTimerRef.current) window.clearTimeout(tokenSaveTimerRef.current);
+    tokenSaveTimerRef.current = window.setTimeout(flushOwnTokenPosition, 120);
   }
 
   function setOwnColor(color, nextPosition = null) {
@@ -3856,8 +3891,8 @@ function PlayerTableTab({ campaign, character }) {
           className={`drago-grid ${tableState.mode === "combat" ? "combat-grid" : tableState.mode === "hex_crawl" ? "outdoors-grid" : "marching-grid"}`}
           style={{ "--grid-columns": activeGrid.columns, "--grid-rows": activeGrid.rows, aspectRatio: `${activeGrid.columns} / ${activeGrid.rows}` }}
           onPointerMove={(event) => { if (draggedToken) moveOwnToken(draggedToken, event); }}
-          onPointerUp={() => setDraggedToken(null)}
-          onPointerLeave={() => setDraggedToken(null)}
+          onPointerUp={() => { flushOwnTokenPosition(); setDraggedToken(null); }}
+          onPointerLeave={() => { flushOwnTokenPosition(); setDraggedToken(null); }}
         >
           {visibleTokens.map((token) => (
             <TableToken
@@ -3866,7 +3901,7 @@ function PlayerTableTab({ campaign, character }) {
               token={token}
               monster={token.monster}
               disabled={!sessionLive || token.id !== tokenId}
-              onDragStart={sessionLive && token.id === tokenId ? (event) => { setDraggedToken(token); moveOwnToken(token, event); } : undefined}
+              onDragStart={sessionLive && token.id === tokenId ? () => setDraggedToken(token) : undefined}
             />
           ))}
         </div>
