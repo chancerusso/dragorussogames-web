@@ -388,6 +388,11 @@
         [self showRemoteError:@"The remote-session configuration is missing. Reinstall Drago Table."];
         return;
     }
+    [self stopMatchingDragoTunnelProcesses];
+    if ([self hasMatchingDragoTunnelProcess]) {
+        [self showRemoteError:@"A previous Drago Table connection could not be closed safely. Restart this Mac before enabling Player Access."];
+        return;
+    }
     NSString *cloudflared = [self cloudflaredPath];
     if (!cloudflared) {
         [self showRemoteError:@"Cloudflare Tunnel is not installed on this Mac."];
@@ -506,6 +511,44 @@
     if (self.tunnelTask.running) {
         [self.tunnelTask terminate];
         [self.tunnelTask waitUntilExit];
+    }
+    [self stopMatchingDragoTunnelProcesses];
+}
+
+- (NSString *)dragoTunnelProcessPattern {
+    if (!self.tunnelID.length) return nil;
+    return [NSString stringWithFormat:
+        @"[c]loudflared.*--config.*remote-tunnel\\.yml.*tunnel.*run.*%@",
+        self.tunnelID];
+}
+
+- (BOOL)runProcessMatcher:(NSString *)executable arguments:(NSArray<NSString *> *)arguments {
+    NSTask *task = [NSTask new];
+    task.executableURL = [NSURL fileURLWithPath:executable];
+    task.arguments = arguments;
+    task.standardOutput = [NSFileHandle fileHandleWithNullDevice];
+    task.standardError = [NSFileHandle fileHandleWithNullDevice];
+    NSError *error = nil;
+    if (![task launchAndReturnError:&error]) return NO;
+    [task waitUntilExit];
+    return task.terminationStatus == 0;
+}
+
+- (BOOL)hasMatchingDragoTunnelProcess {
+    NSString *pattern = [self dragoTunnelProcessPattern];
+    if (!pattern) return NO;
+    return [self runProcessMatcher:@"/usr/bin/pgrep" arguments:@[@"-f", pattern]];
+}
+
+- (void)stopMatchingDragoTunnelProcesses {
+    NSString *pattern = [self dragoTunnelProcessPattern];
+    if (!pattern || ![self hasMatchingDragoTunnelProcess]) return;
+    [self runProcessMatcher:@"/usr/bin/pkill" arguments:@[@"-TERM", @"-f", pattern]];
+    for (NSInteger attempt = 0; attempt < 20 && [self hasMatchingDragoTunnelProcess]; attempt++) {
+        [NSThread sleepForTimeInterval:0.1];
+    }
+    if ([self hasMatchingDragoTunnelProcess]) {
+        [self runProcessMatcher:@"/usr/bin/pkill" arguments:@[@"-KILL", @"-f", pattern]];
     }
 }
 
