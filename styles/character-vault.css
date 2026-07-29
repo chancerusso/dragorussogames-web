@@ -380,6 +380,43 @@
   gap:18px;
 }
 
+.vault-class-choice-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+}
+
+.vault-class-path{
+  align-items:end;
+  border:1px solid rgba(122,33,27,.22);
+  border-radius:10px;
+  background:rgba(122,33,27,.06);
+  display:grid;
+  gap:14px 20px;
+  grid-template-columns:minmax(0,1fr) minmax(300px,.8fr);
+  padding:16px;
+}
+
+.vault-class-path h3{
+  color:#21140f;
+  font-family:'Cinzel',serif;
+  font-size:1.25rem;
+  margin:3px 0 5px;
+}
+
+.vault-class-path p{
+  color:#4b392f;
+  margin:0;
+}
+
+.vault-class-choice-grid .vault-choice-card{
+  grid-template-rows:105px minmax(0,1fr);
+  min-height:440px;
+}
+
+.vault-class-choice-grid .vault-choice-art{
+  min-height:105px;
+}
+
 .vault-choice-card{
   border:1px solid rgba(214,167,86,.22);
   border-radius:8px;
@@ -1961,6 +1998,9 @@
   .vault-choice-grid{
     grid-template-columns:1fr;
   }
+  .vault-class-path{
+    grid-template-columns:1fr;
+  }
   .vault-choice-card{
     min-height:0;
   }
@@ -1969,6 +2009,12 @@
   }
   .vault-choice-title-row{
     display:grid;
+  }
+}
+
+@media (min-width:821px) and (max-width:1080px){
+  .vault-class-choice-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
   }
 }
 

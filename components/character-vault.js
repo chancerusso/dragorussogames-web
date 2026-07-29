@@ -692,7 +692,7 @@ function renderBuilder(options = {}) {
   const dataGate = builderStepDataGate();
   document.querySelector("[data-vault-view]").innerHTML = `
     <div class="vault-builder-nav">${steps.map((label, index) => `<button class="vault-tab" aria-selected="${state.step === index}" data-step="${index}">${index + 1}. ${label}</button>`).join("")}</div>
-    <form class="vault-panel vault-form" data-builder-form><div class="vault-panel-toast vault-full" data-panel-toast></div>${isPlayerCharacterMode() ? `<p class="vault-muted vault-full">Your unfinished character is saved on this device. Connect to Drago Table to add it to your account and campaign.</p>` : ""}${dataGate ? builderLoadingHtml(dataGate.label) : builderStep()}</form>`;
+    <form class="vault-panel vault-form" data-builder-form><div class="vault-panel-toast vault-full" data-panel-toast></div>${dataGate ? builderLoadingHtml(dataGate.label) : builderStep()}</form>`;
   if (dataGate) dataGate.promise.then(() => renderBuilder()).catch((error) => {
     console.error("Builder step data failed to load.", error);
     toast("Unable to load this builder step. Try refreshing the page.");
@@ -806,10 +806,19 @@ function multiclassOptionsHtml(d) {
   const current = draftClassNames(d).join("|");
   const options = [
     { value: d.class_name, label: `Single class: ${d.class_name}` },
-    ...combinations.map((classes) => ({ value: classes.join("|"), label: classes.join(" / ") })),
+    ...combinations.map((classes) => ({ value: classes.join("|"), label: `Multi-class: ${classes.join(" / ")}` })),
   ];
-  return `<label class="vault-field vault-full">Class Path<select name="class_combination">${selectOptionsHtml(options, current || d.class_name)}</select></label>
-    <p class="vault-muted vault-full">${combinations.length ? h(state.rules?.multiclass_restrictions?.[d.race] || "") : "This race does not multi-class at character creation."}</p>`;
+  return `<section class="vault-class-path">
+    <div>
+      <div class="vault-kicker">Single Class or Multi-Class</div>
+      <h3>Choose Your Class Path</h3>
+      <p>${combinations.length
+        ? `${h(d.race)} characters may choose one of the permitted multi-class combinations below.`
+        : `${h(d.race)} characters begin as a single class and cannot multi-class at character creation.`}</p>
+    </div>
+    <label class="vault-field">Class Path<select name="class_combination">${selectOptionsHtml(options, current || d.class_name)}</select></label>
+    ${combinations.length ? `<p class="vault-muted vault-full">${h(state.rules?.multiclass_restrictions?.[d.race] || "")}</p>` : ""}
+  </section>`;
 }
 
 function exceptionalStrengthBuilderHtml(d) {
@@ -870,7 +879,15 @@ function builderStep() {
   if (state.step === 3) return `
     <input type="hidden" name="class_name" value="${h(d.class_name)}">
     <section class="vault-full vault-choice-step">
-      ${choiceStepHeader("Class", "What class do you want to play?", draftClassDisplay(d) || "None", "Choose a single class or one of the OSRIC combinations permitted for this race.")}
+      <header class="vault-choice-header">
+        <div>
+          <div class="vault-kicker">Character Class</div>
+          <h2>Class Selection</h2>
+          <p>Choose a single class or a multi-class combination permitted for your ${h(d.race)} character.</p>
+        </div>
+        <div class="vault-selected-pill">Selected <strong>${h(draftClassDisplay(d) || "None")}</strong></div>
+      </header>
+      ${multiclassOptionsHtml(d)}
       <div class="vault-choice-summary">
         <div>
           <span>Selected Class</span>
@@ -883,8 +900,6 @@ function builderStep() {
           <span><strong>Wealth</strong>${h((state.rules.classes[d.class_name] || {}).wealth || "Review")}</span>
         </div>
       </div>
-      ${sourcebookNoticeHtml()}
-      ${multiclassOptionsHtml(d)}
       ${classSourceSection("OSRIC", osricClassCards(), d.class_name)}
       ${isDragonlanceMode() ? classSourceSection("DRAGOLANCE STARTING CLASSES", dragonlanceStartingClassCards(), d.class_name) : ""}
       ${isDragonlanceMode() ? classSourceSection("DRAGOLANCE PROGRESSION PATHS", dragonlanceProgressionClassCards(), d.class_name) : ""}
@@ -1260,7 +1275,7 @@ function classSourceSection(source, classes, selectedClass) {
       </div>
       <span>${h(classes.length)} options</span>
     </div>
-    ${empty || `<div class="vault-choice-grid">${classes.map((classInfo) => classChoiceCard(classInfo, selectedClass)).join("")}</div>`}
+    ${empty || `<div class="vault-choice-grid vault-class-choice-grid">${classes.map((classInfo) => classChoiceCard(classInfo, selectedClass)).join("")}</div>`}
   </section>`;
 }
 

@@ -32,6 +32,14 @@ test("player character builder preserves unfinished work on the device", () => {
   assert.match(vaultSource, /function localDraftStorageKey\(\)/);
   assert.match(vaultSource, /function persistLocalDraft\(\)/);
   assert.match(vaultSource, /drago_table_player_draft:/);
-  assert.match(vaultSource, /Your unfinished character is saved on this device/);
+  assert.doesNotMatch(vaultSource, /Your unfinished character is saved on this device/);
   assert.match(vaultSource, /localStorage\.removeItem\(draftStorageKeyBeforeSave\)/);
+});
+
+test("class selection leads with multi-class choice and compact class grid", () => {
+  assert.match(vaultSource, /<h2>Class Selection<\/h2>/);
+  assert.match(vaultSource, /Single Class or Multi-Class/);
+  assert.equal(vaultSource.includes('label: `Multi-class: ${classes.join(" / ")}`'), true);
+  assert.match(vaultSource, /vault-choice-grid vault-class-choice-grid/);
+  assert.doesNotMatch(vaultSource.match(/if \(state\.step === 3\)[\s\S]*?if \(state\.step === 4\)/)?.[0] || "", /sourcebookNoticeHtml/);
 });
