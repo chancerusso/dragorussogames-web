@@ -2642,6 +2642,13 @@ tbody tr:hover {
   overflow-wrap: anywhere;
 }
 
+.invite-copy-status {
+  min-height: 1.25rem;
+  margin: 0;
+  color: #57d27b;
+  font-weight: 700;
+}
+
 .invite-claim-panel h1 {
   font-size: clamp(2rem, 5vw, 3.25rem);
 }

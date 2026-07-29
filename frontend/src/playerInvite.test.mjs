@@ -17,6 +17,9 @@ test("DM creates a username invitation and player chooses the first password", (
   assert.equal(appSource.includes('<Route path="/claim" element={<PlayerClaimInvitePage />} />'), true);
   assert.equal(apiSource.includes("playerClaimInvite"), true);
   assert.equal(apiSource.includes('api("/player/invite/claim"'), true);
+  assert.equal(appSource.includes("Invitation copied to your clipboard."), true);
+  assert.equal(appSource.includes('modal.copied ? "Copied!" : "Copy Invitation"'), true);
+  assert.equal(appSource.includes("You do not need to start the campaign table session."), true);
 });
 
 test("player table is visibly and functionally locked outside live sessions", () => {

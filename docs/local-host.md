@@ -43,10 +43,10 @@ The addresses are:
 The local application is intentionally bound only to loopback. It does not
 open a router port and is not directly reachable by another device.
 
-## Start a Remote Session
+## Enable Player Access
 
 Open `Drago Table.app`, wait for **Ready — available on this Mac**, and click
-**Start Remote Session**. The application starts the dedicated Drago Table
+**Enable Player Access**. The application starts the dedicated Drago Table
 Cloudflare Tunnel and verifies the public health endpoint before it reports:
 
 ```text
@@ -63,16 +63,22 @@ Players use an ordinary browser and their Drago Table player username and
 password. They do not install Cloudflare, Tailscale, WARP, a VPN, or another
 networking client.
 
+Player Access is only the secure internet doorway to the app. It does not start
+a campaign table session. Players may accept invitations, sign in, use their
+characters, read rules, and write notes while Player Access is enabled. The
+table remains locked until the DM starts the campaign session from inside
+Drago Table.
+
 The Drago Table tunnel is separate from the existing Foundry tunnel. Starting
 or stopping one does not interrupt the other.
 
-Click **Stop Remote Session** to remove public access while leaving the local
+Click **Disable Player Access** to remove public access while leaving the local
 application and database running. The public hostname is available only while
-the launcher reports that the remote session is live.
+the launcher reports that player access is live.
 
 ## Stop
 
-Click **Stop Remote Session** when remote play is finished. Click
+Click **Disable Player Access** when remote access is no longer needed. Click
 **Stop Drago Table** in the control window, or quit it from its Dock icon, when
 the local application should also stop. Quitting Drago Table always stops both
 the tunnel and its private PostgreSQL process. Campaign data remains in the

@@ -5024,6 +5024,15 @@ function PlayersPage() {
     }
   }
 
+  async function copyInvitation() {
+    try {
+      await navigator.clipboard.writeText(modal.inviteUrl);
+      setModal((current) => current?.type === "invite" ? { ...current, copied: true } : current);
+    } catch {
+      setFormError("The invitation could not be copied automatically. Select the link above and copy it manually.");
+    }
+  }
+
   async function deactivate(player) {
     await api(`/1e/players/${player.id}`, {
       method: "PUT",
@@ -5142,9 +5151,10 @@ function PlayersPage() {
             <p>Send this private link to <strong>{modal.player.display_name || modal.player.player_name}</strong>. They will create their own password.</p>
             <label>Username<input readOnly value={modal.invite.username || modal.player.username || ""} /></label>
             <label>Invitation Link<textarea readOnly value={modal.inviteUrl} /></label>
-            <p className="muted">The link expires in 7 days and can be used only once. Remote players can open it while your Remote Session is running.</p>
+            <p className="muted">The link expires in 7 days and can be used only once. Enable Player Access in the Drago Table launcher so remote players can open it. You do not need to start the campaign table session.</p>
+            <p className="invite-copy-status" role="status" aria-live="polite">{modal.copied ? "Invitation copied to your clipboard." : ""}</p>
             <div className="form-actions">
-              <button onClick={() => navigator.clipboard.writeText(modal.inviteUrl)}>Copy Invitation</button>
+              <button onClick={copyInvitation}>{modal.copied ? "Copied!" : "Copy Invitation"}</button>
               <button className="ghost-button" onClick={() => setModal(null)}>Done</button>
             </div>
           </div>

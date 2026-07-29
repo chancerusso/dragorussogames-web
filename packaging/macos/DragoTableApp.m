@@ -141,7 +141,7 @@
     self.playerButton = [NSButton buttonWithTitle:@"Open Player View"
                                            target:self
                                            action:@selector(openPlayer:)];
-    self.remoteButton = [NSButton buttonWithTitle:@"Start Remote Session"
+    self.remoteButton = [NSButton buttonWithTitle:@"Enable Player Access"
                                            target:self
                                            action:@selector(toggleRemote:)];
     self.remoteButton.bezelStyle = NSBezelStyleRounded;
@@ -376,7 +376,7 @@
         [self stopTunnel];
         self.remoteStatusLabel.stringValue = @"Remote access is off";
         self.remoteIndicator.layer.backgroundColor = NSColor.systemGrayColor.CGColor;
-        self.remoteButton.title = @"Start Remote Session";
+        self.remoteButton.title = @"Enable Player Access";
         self.inviteButton.enabled = NO;
         return;
     }
@@ -444,11 +444,11 @@
             DragoTableApp *strongSelf = weakSelf;
             if (!strongSelf) return;
             [strongSelf.remoteHealthTimer invalidate];
-            if ([strongSelf.remoteButton.title isEqualToString:@"Stop Remote Session"]) {
+            if ([strongSelf.remoteButton.title isEqualToString:@"Disable Player Access"]) {
                 strongSelf.remoteStatusLabel.stringValue = @"Remote connection stopped";
                 strongSelf.remoteIndicator.layer.backgroundColor =
                     NSColor.systemRedColor.CGColor;
-                strongSelf.remoteButton.title = @"Start Remote Session";
+                strongSelf.remoteButton.title = @"Enable Player Access";
                 strongSelf.inviteButton.enabled = NO;
             }
         });
@@ -486,7 +486,7 @@
                 [NSString stringWithFormat:@"Live at %@", strongSelf.remoteHostname];
             strongSelf.remoteIndicator.layer.backgroundColor =
                 NSColor.systemGreenColor.CGColor;
-            strongSelf.remoteButton.title = @"Stop Remote Session";
+            strongSelf.remoteButton.title = @"Disable Player Access";
             strongSelf.remoteButton.enabled = YES;
             strongSelf.inviteButton.enabled = YES;
         });
