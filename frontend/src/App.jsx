@@ -129,6 +129,20 @@ function playerCharacterSheetPath(id, { edit = false } = {}) {
   return edit ? `${base}/edit` : base;
 }
 
+function openPlayerCharacterSheet(id, returnTo = "") {
+  const query = returnTo ? `?return_to=${encodeURIComponent(returnTo)}` : "";
+  const path = `${playerCharacterSheetPath(id)}${query}`;
+  const sheetTab = window.open("about:blank", "_blank");
+  if (!sheetTab) {
+    window.location.assign(path);
+    return;
+  }
+  const playerToken = getPlayerToken();
+  if (playerToken) sheetTab.sessionStorage.setItem("drg_player_token", playerToken);
+  sheetTab.opener = null;
+  sheetTab.location.replace(path);
+}
+
 function playerClaimUrl(token) {
   const origin = isLocalDragoHost() ? "https://table.dragorussogames.com" : window.location.origin;
   const path = isClassicHost() ? "/claim" : "/portal/claim";
@@ -3959,7 +3973,7 @@ function PlayerCharacterCombatPanel({
       </div>
       <div className="player-character-actions">
         <button className="table-button" type="button" disabled={!sessionLive} onClick={onAddToken}>Add To Grid</button>
-        <Link className="table-button" to={`${playerCharacterSheetPath(character.id)}?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`}>Open Sheet</Link>
+        <button className="table-button" type="button" onClick={() => openPlayerCharacterSheet(character.id, window.location.pathname + window.location.search)}>Open Sheet</button>
       </div>
       {colorRequestOpen ? (
         <div className="player-token-color-request">
@@ -4098,7 +4112,7 @@ function PlayerCharacterTab({ character }) {
         <div><dt>XP</dt><dd>{character.xp || 0}</dd></div>
       </dl>
       <div className="form-actions">
-        <Link className="secondary-button" to={`${playerCharacterSheetPath(character.id)}?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`}>Open Character Sheet</Link>
+        <button className="secondary-button" type="button" onClick={() => openPlayerCharacterSheet(character.id, window.location.pathname + window.location.search)}>Open Character Sheet</button>
         <a className="table-link" href={`${playerCharacterSheetPath(character.id, { edit: true })}?return_to=${encodeURIComponent(window.location.pathname + window.location.search)}`}>Edit Character</a>
       </div>
     </section>

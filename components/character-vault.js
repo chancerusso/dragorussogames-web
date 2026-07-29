@@ -540,6 +540,7 @@ function renderShell() {
   if (sheetPage) {
     document.title = `${state.character?.name || "Character"} — Character Sheet | Drago Table`;
   }
+  const shellActions = sheetPage && playerCharacterPage ? "" : dmPage ? dmNavHtml() : playerNavHtml(sheetId);
   document.querySelector("[data-vault-app]").innerHTML = `
     <section class="vault-hero ${dmPage || playerCharacterPage || sheetPage ? "vault-hero-compact" : ""} ${sheetPage ? "vault-sheet-hero" : ""}">
       <div>
@@ -549,9 +550,7 @@ function renderShell() {
         ${dmPage ? `<p class="vault-warning-text">DM tools are currently unprotected until login is enabled.</p>` : ""}
         <div class="vault-toast" data-vault-toast></div>
       </div>
-      <div class="vault-actions">
-        ${dmPage ? dmNavHtml() : playerNavHtml(sheetId)}
-      </div>
+      ${shellActions ? `<div class="vault-actions">${shellActions}</div>` : ""}
     </section>
     <section data-vault-view></section>`;
 }

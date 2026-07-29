@@ -39,10 +39,19 @@ test("player combat card shows facing AC, concise attacks, styled status, and sa
   assert.match(app, /titleCaseStatus\(character\.life_status \|\| character\.status\)/);
   assert.match(app, /className=\{`status-pill \$\{sessionLive && myToken \? "token-status-pill" : ""\}`\}/);
   assert.match(app, /style=\{sessionLive && myToken && selectedColor \? \{ "--token-color": selectedColor \}/);
-  assert.match(app, /<Link className="table-button" to=\{`\$\{playerCharacterSheetPath\(character\.id\)\}/);
-  assert.doesNotMatch(app, /playerCharacterSheetPath\(character\.id\)[^>]*target="_blank"/);
+  assert.match(app, /onClick=\{\(\) => openPlayerCharacterSheet\(character\.id, window\.location\.pathname \+ window\.location\.search\)\}>Open Sheet/);
+  assert.match(app, /window\.open\("about:blank", "_blank"\)/);
+  assert.match(app, /sheetTab\.opener = null/);
   assert.match(styles, /\.player-character-actions \.table-button\s*\{[^}]*display:\s*flex[^}]*min-height:\s*34px/s);
   assert.match(styles, /\.token-status-pill\s*\{[^}]*background:\s*var\(--token-color\)/s);
+});
+
+test("player character sheet relies on the main player menu instead of duplicate hero navigation", () => {
+  assert.match(vault, /const shellActions = sheetPage && playerCharacterPage \? ""/);
+  assert.match(vault, /\$\{shellActions \? `<div class="vault-actions">\$\{shellActions\}<\/div>` : ""\}/);
+  assert.match(vault, /data-quick-edit-open>Quick Edit/);
+  assert.match(vault, />Full Edit<\/a>/);
+  assert.match(vault, /data-level-up-open>Level Up/);
 });
 
 test("player weapon summaries and character vault show speed factor", () => {
