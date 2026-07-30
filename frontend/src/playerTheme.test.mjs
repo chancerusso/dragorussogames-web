@@ -53,6 +53,7 @@ test("theme contrast covers navigation, campaign cards, rules callouts, and shee
 
 test("final theme layer keeps VTT text readable and gives cards an inset", () => {
   assert.match(portalCss, /Final player theme contrast layer/);
+  assert.match(portalCss, /html\[data-player-theme="light"\] \.player-shell \.map-library-card/);
   assert.match(portalCss, /html\[data-player-theme="light"\] \.player-shell[\s\S]*?--text: #251b18/);
   assert.match(portalCss, /\.tracker-status-box/);
   assert.match(portalCss, /\.combat-reference-group/);
@@ -61,4 +62,6 @@ test("final theme layer keeps VTT text readable and gives cards an inset", () =>
   assert.match(vaultCss, /html\[data-player-theme="dark"\] \.vault-saving-row span/);
   assert.match(vaultCss, /html\[data-player-theme="dark"\] \.vault-saving-row strong/);
   assert.match(vaultCss, /html\[data-player-theme="dark"\] \.vault-abilities em/);
+  assert.match(vaultCss, /html\[data-player-theme="dark"\] \.vault-ability-mods small/);
+  assert.match(vaultCss, /html\[data-player-theme="dark"\] \.vault-sheet-race-class \.vault-kicker/);
 });

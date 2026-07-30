@@ -40,7 +40,7 @@ const PLAYER_THEME_KEY = "drago_player_theme";
 const PLAYER_THEME_OPTIONS = ["system", "light", "dark"];
 const SETTINGS = ["dragonlance", "greyhawk"];
 const DRAGONLANCE_RACE_PATH = "/content/settings/dragonlance/races/";
-const CLASSIC_STATIC_VERSION = "2026-07-29-builder-layout-v21";
+const CLASSIC_STATIC_VERSION = "2026-07-29-player-theme-v22";
 const BUNDLED_DRAGONLANCE_RACE_FILES = {
   "gully-dwarf.json": gullyDwarfRace,
   "half-elf.json": halfElfRace,

@@ -2183,9 +2183,14 @@
   html[data-player-theme="dark"] .vault-saving-row strong,
   html[data-player-theme="dark"] .vault-daily-magic h4,
   html[data-player-theme="dark"] .vault-abilities em,
+  html[data-player-theme="dark"] .vault-ability-mods small,
   html[data-player-theme="dark"] .vault-weapon-stat-block span,
   html[data-player-theme="dark"] .vault-breakdown summary{
     color:#f5ead8;
+  }
+
+  html[data-player-theme="dark"] .vault-sheet-race-class .vault-kicker{
+    color:#ff8993;
   }
 
   html[data-player-theme="dark"] .vault-saving-row summary::after{

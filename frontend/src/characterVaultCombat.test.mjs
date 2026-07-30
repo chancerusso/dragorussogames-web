@@ -77,6 +77,10 @@ test("combat presentation has responsive readable styles", () => {
 
 test("top summary uses separate identity pills and concise ability labels", () => {
   assert.match(vaultSource, /vault-identity-pills/);
+  assert.match(vaultSource, /const raceClass = \[/);
+  assert.match(vaultSource, /c\.class_display \|\| classDetails\.rules_class_name/);
+  assert.match(vaultSource, /\["Race \/ Class", raceClass\]/);
+  assert.doesNotMatch(vaultSource, /\["Base", classDetails\.rules_class_name/);
   assert.match(vaultSource, /\["Hit", runtime\.melee_to_hit/);
   assert.match(vaultSource, /\["Dmg", runtime\.melee_damage/);
   assert.doesNotMatch(vaultSource, /\["Carry", runtime\.carry_adjustment/);

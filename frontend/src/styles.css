@@ -4406,6 +4406,21 @@ html[data-player-theme="light"] .player-shell .live-pill {
   color: #efffe9;
 }
 
+html[data-player-theme="light"] .player-shell .map-library-card {
+  background: #f4e8d7;
+  border-color: #c9b9a4;
+  color: #251b18;
+}
+
+html[data-player-theme="light"] .player-shell .map-library-card :is(span,small) {
+  color: #5f544d;
+}
+
+html[data-player-theme="light"] .player-shell .map-library-card:hover {
+  background: #fffaf2;
+  border-color: #8e2032;
+}
+
 html[data-player-theme="light"] .player-shell .token-status-pill {
   background: var(--token-color);
   color: #15100d;

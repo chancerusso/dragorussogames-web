@@ -2593,8 +2593,12 @@ function encumbranceSummary(c) {
 function raceClassSummaryHtml(c) {
   const classDetails = c.class_details || {};
   const raceDetails = c.race_details || {};
+  const raceClass = [
+    labelize(c.race || ""),
+    c.class_display || classDetails.rules_class_name || rulesClassName(c.class_name),
+  ].filter(Boolean).join(" / ");
   const fields = [
-    ["Base", classDetails.rules_class_name || rulesClassName(c.class_name)],
+    ["Race / Class", raceClass],
     ["Hit Die", hitDiceText(c)],
     ["Armor", classDetails.armor],
     ["Weapons", classDetails.weapons],
