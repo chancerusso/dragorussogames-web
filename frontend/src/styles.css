@@ -4315,3 +4315,134 @@ a:focus-visible {
     grid-column: auto;
   }
 }
+
+/* Final player theme contrast layer: keep foregrounds to ivory or charcoal. */
+html[data-player-theme="light"] .player-shell {
+  --text: #251b18;
+  --muted: #5f544d;
+  --gold: #8e2032;
+  --gold-2: #6f1a29;
+}
+
+html[data-player-theme="light"] .player-shell :is(
+  .workspace-header,
+  .player-hero,
+  .campaign-card,
+  .character-card,
+  .panel,
+  .tracker-status-box,
+  .tracker-card,
+  .dice-controls span,
+  .dice-result,
+  .combat-reference-group,
+  .player-combat-facts div,
+  .player-weapon-list div,
+  .player-inline-hp,
+  .player-token-color-request,
+  .player-color-grid button
+) {
+  background: #fffaf2;
+  border-color: #c9b9a4;
+  color: #251b18;
+}
+
+html[data-player-theme="light"] .player-shell :is(
+  .workspace-header,
+  .player-hero
+) {
+  background: linear-gradient(120deg, #fffaf2, #eadcc8);
+}
+
+html[data-player-theme="light"] .player-shell :is(
+  h1,h2,h3,h4,p,li,dt,dd,label,summary,strong,span,small,em
+) {
+  color: #251b18;
+}
+
+html[data-player-theme="light"] .player-shell :is(
+  .eyebrow,
+  .tracker-console > .eyebrow,
+  .dice-roller > .eyebrow,
+  .roll-history > .eyebrow,
+  .combat-reference > .eyebrow,
+  .player-combat-facts dt,
+  .dice-controls label,
+  .card-topline
+) {
+  color: #8e2032;
+}
+
+html[data-player-theme="light"] .player-shell :is(
+  input,select,textarea,
+  .table-button,
+  .ghost-button,
+  .combat-turn-toggle button,
+  .dice-button-grid .table-button
+) {
+  background: #fffaf2;
+  border-color: #c9b9a4;
+  color: #251b18;
+}
+
+html[data-player-theme="light"] .player-shell .workspace-meta span {
+  background: #f0e3d0;
+  border-color: #c9b9a4;
+  color: #251b18;
+}
+
+html[data-player-theme="light"] .player-shell .tabs :is(a,button) {
+  color: #5f544d;
+}
+
+html[data-player-theme="light"] .player-shell .tabs :is(a.active,button.active) {
+  background: #8e2032;
+  border-color: #8e2032;
+  color: #fffaf2;
+}
+
+html[data-player-theme="light"] .player-shell .live-pill {
+  background: #2f6b3b;
+  border-color: #75b97f;
+  color: #efffe9;
+}
+
+html[data-player-theme="light"] .player-shell .token-status-pill {
+  background: var(--token-color);
+  color: #15100d;
+}
+
+.license-notice-panel {
+  padding: 24px;
+}
+
+.license-notice-panel h2 {
+  margin: 0 0 14px;
+}
+
+.license-notice-panel h2:not(:first-child) {
+  margin-top: 28px;
+}
+
+.license-notice-panel p {
+  line-height: 1.55;
+  margin: 0 0 16px;
+}
+
+.player-shell :is(.home-panel,.rule-card,.record-card,.notes-placeholder) {
+  padding: 18px;
+}
+
+.player-table-layout > :is(.panel,section,aside) {
+  padding: 12px;
+}
+
+.player-table-layout :is(
+  .tracker-status-box,
+  .tracker-card,
+  .player-combat-facts div,
+  .player-weapon-list div,
+  .combat-reference-group
+) {
+  padding-left: 10px;
+  padding-right: 10px;
+}

@@ -2178,4 +2178,22 @@
     background:#49322f;
     color:#fff4df;
   }
+
+  html[data-player-theme="dark"] .vault-saving-row span,
+  html[data-player-theme="dark"] .vault-saving-row strong,
+  html[data-player-theme="dark"] .vault-daily-magic h4,
+  html[data-player-theme="dark"] .vault-abilities em,
+  html[data-player-theme="dark"] .vault-weapon-stat-block span,
+  html[data-player-theme="dark"] .vault-breakdown summary{
+    color:#f5ead8;
+  }
+
+  html[data-player-theme="dark"] .vault-saving-row summary::after{
+    border-bottom-color:rgba(245,234,216,.42);
+  }
+
+  html[data-player-theme="dark"] .vault-saving-row,
+  html[data-player-theme="dark"] .vault-daily-magic{
+    border-color:rgba(245,234,216,.2);
+  }
 }
