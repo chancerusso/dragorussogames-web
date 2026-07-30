@@ -49,7 +49,14 @@ test("local player character sheets stay inside matched player routes", () => {
   assert.equal(appSource.includes('<Route path="/portal/characters/:id" element={<PlayerVaultToolPage />} />'), true);
   assert.equal(appSource.includes('<Route path="/portal/characters/:id/edit" element={<PlayerVaultToolPage />} />'), true);
   assert.equal(appSource.includes("function openPlayerCharacterSheet(id, returnTo = \"\")"), true);
-  assert.equal(appSource.includes("sheetTab.sessionStorage.setItem(\"drg_player_token\", playerToken)"), true);
-  assert.equal(appSource.includes("sheetTab.location.replace(path)"), true);
+  assert.equal(appSource.includes("playerTab.sessionStorage.setItem(\"drg_player_token\", playerToken)"), true);
+  assert.equal(appSource.includes("playerTab.location.replace(path)"), true);
   assert.equal(vaultSource.includes('location.pathname.startsWith("/portal/characters")'), true);
+});
+
+test("Player's Guide opens with the active player session so portal return stays signed in", () => {
+  assert.equal(appSource.includes("function openAuthenticatedPlayerTab(path)"), true);
+  assert.equal(appSource.includes('function openPlayerRules()'), true);
+  assert.equal(appSource.includes('openAuthenticatedPlayerTab("/1e/")'), true);
+  assert.match(appSource, /onClick=\{\(event\) => \{ event\.preventDefault\(\); openPlayerRules\(\); \}\}/);
 });

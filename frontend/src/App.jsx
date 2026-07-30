@@ -129,18 +129,25 @@ function playerCharacterSheetPath(id, { edit = false } = {}) {
   return edit ? `${base}/edit` : base;
 }
 
-function openPlayerCharacterSheet(id, returnTo = "") {
-  const query = returnTo ? `?return_to=${encodeURIComponent(returnTo)}` : "";
-  const path = `${playerCharacterSheetPath(id)}${query}`;
-  const sheetTab = window.open("about:blank", "_blank");
-  if (!sheetTab) {
+function openAuthenticatedPlayerTab(path) {
+  const playerTab = window.open("about:blank", "_blank");
+  if (!playerTab) {
     window.location.assign(path);
     return;
   }
   const playerToken = getPlayerToken();
-  if (playerToken) sheetTab.sessionStorage.setItem("drg_player_token", playerToken);
-  sheetTab.opener = null;
-  sheetTab.location.replace(path);
+  if (playerToken) playerTab.sessionStorage.setItem("drg_player_token", playerToken);
+  playerTab.opener = null;
+  playerTab.location.replace(path);
+}
+
+function openPlayerCharacterSheet(id, returnTo = "") {
+  const query = returnTo ? `?return_to=${encodeURIComponent(returnTo)}` : "";
+  openAuthenticatedPlayerTab(`${playerCharacterSheetPath(id)}${query}`);
+}
+
+function openPlayerRules() {
+  openAuthenticatedPlayerTab("/1e/");
 }
 
 function playerClaimUrl(token) {
@@ -4272,7 +4279,7 @@ function PlayerRulesTab({ campaign }) {
   const dragonlance = setting === "dragonlance" || setting === "dragolance";
   return (
     <div className="rule-link-grid">
-      <a className="panel rule-card" href="/1e/" target="_blank" rel="noreferrer">
+      <a className="panel rule-card" href="/1e/" target="_blank" rel="noreferrer" onClick={(event) => { event.preventDefault(); openPlayerRules(); }}>
         <p className="eyebrow">1e Rules</p>
         <h2>Rules Library</h2>
         <p>Open the shared classic First Edition rules reference.</p>

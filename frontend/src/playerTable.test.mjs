@@ -41,7 +41,7 @@ test("player combat card shows facing AC, concise attacks, styled status, and sa
   assert.match(app, /style=\{sessionLive && myToken && selectedColor \? \{ "--token-color": selectedColor \}/);
   assert.match(app, /onClick=\{\(\) => openPlayerCharacterSheet\(character\.id, window\.location\.pathname \+ window\.location\.search\)\}>Open Sheet/);
   assert.match(app, /window\.open\("about:blank", "_blank"\)/);
-  assert.match(app, /sheetTab\.opener = null/);
+  assert.match(app, /playerTab\.opener = null/);
   assert.match(styles, /\.player-character-actions \.table-button\s*\{[^}]*display:\s*flex[^}]*min-height:\s*34px/s);
   assert.match(styles, /\.token-status-pill\s*\{[^}]*background:\s*var\(--token-color\)/s);
 });
