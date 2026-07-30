@@ -27,6 +27,7 @@ test("First Edition pages use the same preference and react to device changes", 
   assert.match(rulesSource, /Use Device Setting/);
   assert.match(rulesSource, /addEventListener\?\.\("change"/);
   assert.match(rulesSource, /dataset\.playerTheme = resolved/);
+  assert.ok(rulesSource.indexOf("renderThemeControl();") < rulesSource.indexOf('document.querySelector("[data-markdown]")'));
 });
 
 test("light portal and dark parchment surfaces have explicit theme treatments", () => {
@@ -37,4 +38,15 @@ test("light portal and dark parchment surfaces have explicit theme treatments", 
   assert.match(vaultCss, /html\[data-player-theme="dark"\]/);
   assert.match(vaultCss, /--vault-ivory:#1d1918/);
   assert.match(vaultCss, /\.vault-sheet-card/);
+});
+
+test("theme contrast covers navigation, campaign cards, rules callouts, and sheet details", () => {
+  assert.match(portalCss, /html\[data-player-theme="light"\] \.player-header nav a/);
+  assert.match(portalCss, /\.player-shell \.campaign-card/);
+  assert.match(portalCss, /\.player-shell \.character-card/);
+  assert.match(rulesCss, /html\[data-player-theme="dark"\] \.one-e-rule-panel/);
+  assert.match(rulesCss, /\.one-e-subcard/);
+  assert.match(vaultCss, /html\[data-player-theme="dark"\] \.vault-topline span/);
+  assert.match(vaultCss, /html\[data-player-theme="dark"\] \.vault-equipped-weapons/);
+  assert.match(vaultCss, /html\[data-player-theme="dark"\] \.vault-button\.secondary/);
 });

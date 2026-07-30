@@ -917,6 +917,37 @@ body:before{
     color:#f5ead8;
     border-color:rgba(214,167,86,.28);
   }
+
+  html[data-player-theme="dark"] .one-e-rule-panel,
+  html[data-player-theme="dark"] .one-e-detail-panel,
+  html[data-player-theme="dark"] .one-e-subcard,
+  html[data-player-theme="dark"] .one-e-comparison-grid li{
+    background:linear-gradient(145deg,#2b2320,#191615);
+    border-color:rgba(214,167,86,.26);
+    color:#f5ead8;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.025);
+  }
+
+  html[data-player-theme="dark"] .one-e-markdown :is(
+    .one-e-rule-panel,
+    .one-e-detail-panel,
+    .one-e-subcard,
+    .one-e-write-panel,
+    .one-e-write-card,
+    .one-e-comparison-grid
+  ) :is(h2,h3,h4,p,li){
+    color:#eadcca;
+  }
+
+  html[data-player-theme="dark"] .one-e-markdown .one-e-field-label,
+  html[data-player-theme="dark"] .one-e-markdown .one-e-anchor-nav a,
+  html[data-player-theme="dark"] .one-e-markdown .one-e-comparison-grid a{
+    color:#ff8993;
+  }
+
+  html[data-player-theme="dark"] .one-e-markdown .one-e-rule-panel h3{
+    background:rgba(255,137,147,.08);
+  }
 }
 
 @media (max-width:760px){

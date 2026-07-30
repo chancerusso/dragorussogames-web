@@ -2102,6 +2102,69 @@ html[data-player-theme="light"] .player-shell .table-button {
   background: rgba(255, 250, 242, 0.72);
 }
 
+html[data-player-theme="light"] .player-header nav a {
+  color: #55463f;
+}
+
+html[data-player-theme="light"] .player-header nav a.active,
+html[data-player-theme="light"] .player-header nav a:hover {
+  color: #251b18;
+}
+
+html[data-player-theme="light"] .player-shell .campaign-card,
+html[data-player-theme="light"] .player-shell .character-card,
+html[data-player-theme="light"] .player-shell .panel,
+html[data-player-theme="light"] .player-shell .record-card,
+html[data-player-theme="light"] .player-shell .builder-campaign-strip,
+html[data-player-theme="light"] .player-shell .guide-nav,
+html[data-player-theme="light"] .player-shell .guide-card,
+html[data-player-theme="light"] .player-shell .dragonlance-tree,
+html[data-player-theme="light"] .player-shell .dragonlance-article {
+  background: linear-gradient(145deg, rgba(255, 250, 242, 0.98), rgba(238, 226, 208, 0.97));
+  border-color: #c9b9a4;
+  color: #251b18;
+}
+
+html[data-player-theme="light"] .player-shell :is(
+  h1, h2, h3, h4, p, li, dt, dd, label, summary, strong, span
+) {
+  text-shadow: none;
+}
+
+html[data-player-theme="light"] .player-shell :is(
+  h1, h2, h3, h4, dd, summary
+) {
+  color: #251b18;
+}
+
+html[data-player-theme="light"] .player-shell :is(
+  p, li, label, .portal-copy, .muted
+) {
+  color: #665a53;
+}
+
+html[data-player-theme="light"] .player-shell :is(
+  .eyebrow, dt, .section-kicker, .card-topline span
+) {
+  color: #8e2032;
+}
+
+html[data-player-theme="light"] .player-shell .character-campaign-picker,
+html[data-player-theme="light"] .player-shell .detail-list div,
+html[data-player-theme="light"] .player-shell .session-box,
+html[data-player-theme="light"] .player-shell .race-source-grid div,
+html[data-player-theme="light"] .player-shell .guide-details div,
+html[data-player-theme="light"] .player-shell .reference-breadcrumbs a {
+  background: rgba(255, 250, 242, 0.72);
+  color: #251b18;
+}
+
+html[data-player-theme="light"] .player-shell .table-link,
+html[data-player-theme="light"] .player-shell .ghost-button,
+html[data-player-theme="light"] .player-shell .table-button {
+  color: #451f21;
+}
+
 @media (max-width: 900px) {
   .player-account-tools {
     flex-wrap: wrap;

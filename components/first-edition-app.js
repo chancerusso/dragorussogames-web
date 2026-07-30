@@ -635,13 +635,13 @@ function renderSectionCards(slug) {
 
 async function loadPage() {
   const slug = currentSlug();
-  const article = document.querySelector("[data-markdown]");
-  if (!article) return;
-
   renderPortalReturn();
   renderThemeControl();
   renderNav(slug);
   renderSidebar(slug);
+
+  const article = document.querySelector("[data-markdown]");
+  if (!article) return;
 
   try {
     const response = await fetch(contentPath(slug));

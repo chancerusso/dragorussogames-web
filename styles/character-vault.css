@@ -2108,4 +2108,74 @@
     background:#1a1716;
     color:var(--vault-ink);
   }
+
+  html[data-player-theme="dark"] .vault-topline span,
+  html[data-player-theme="dark"] .vault-abilities span,
+  html[data-player-theme="dark"] .vault-compact-list span,
+  html[data-player-theme="dark"] .vault-combat-summary > span,
+  html[data-player-theme="dark"] .vault-mini-stat-grid span,
+  html[data-player-theme="dark"] .vault-equipped-weapons,
+  html[data-player-theme="dark"] .vault-combat-saves,
+  html[data-player-theme="dark"] .vault-tile-details,
+  html[data-player-theme="dark"] .vault-magic-item-source,
+  html[data-player-theme="dark"] .vault-magic-effects span,
+  html[data-player-theme="dark"] .vault-assign,
+  html[data-player-theme="dark"] .vault-table,
+  html[data-player-theme="dark"] .vault-table tbody tr,
+  html[data-player-theme="dark"] .vault-table tbody tr:nth-child(even){
+    background:#1b1817;
+    border-color:var(--vault-line);
+    color:var(--vault-ink);
+    box-shadow:none;
+  }
+
+  html[data-player-theme="dark"] .vault-shell :is(
+    h1,h2,h3,h4,p,li,dd,summary,em
+  ){
+    color:var(--vault-ink);
+  }
+
+  html[data-player-theme="dark"] .vault-shell :is(
+    .vault-topline strong,
+    .vault-abilities strong,
+    .vault-compact-list strong,
+    .vault-combat-summary strong,
+    .vault-combat-tile strong,
+    .vault-mini-stat-grid strong,
+    .vault-summary-list dt,
+    .vault-field-label,
+    .vault-sheet-card > details > summary::after
+  ){
+    color:#ff8993;
+  }
+
+  html[data-player-theme="dark"] .vault-shell :is(
+    .vault-summary-list dd,
+    .vault-identity-pills span,
+    .vault-saving-row,
+    .vault-tile-details span,
+    .vault-tile-details strong,
+    .vault-weapon-head p,
+    .vault-weapon-stat-block strong,
+    .vault-magic-item-description,
+    .vault-magic-item-notes
+  ){
+    color:var(--vault-ink);
+  }
+
+  html[data-player-theme="dark"] .vault-identity-pills span,
+  html[data-player-theme="dark"] .vault-button.secondary,
+  html[data-player-theme="dark"] .vault-tab,
+  html[data-player-theme="dark"] .vault-chip{
+    background:#302825;
+    border-color:var(--vault-line);
+    color:var(--vault-ink);
+  }
+
+  html[data-player-theme="dark"] .vault-button.secondary:hover,
+  html[data-player-theme="dark"] .vault-tab:hover,
+  html[data-player-theme="dark"] .vault-tab:focus-visible{
+    background:#49322f;
+    color:#fff4df;
+  }
 }
