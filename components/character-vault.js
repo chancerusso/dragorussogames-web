@@ -2563,7 +2563,7 @@ function sheetHeaderHtml(c) {
         <div class="vault-actions vault-sheet-actions"><button class="vault-button secondary" type="button" data-quick-edit-open>Quick Edit</button><a class="vault-button secondary" href="${characterEditHref(c.id || "")}">Full Edit</a><button class="vault-button secondary" type="button" data-level-up-open>Level Up</button></div>
       </div>
       <aside class="vault-sheet-race-class">
-        <div class="vault-kicker">Race / Class</div>
+        <div class="vault-kicker">Race &amp; Class Features</div>
         ${raceClassSummaryHtml(c)}
         <details class="vault-breakdown"><summary>Open Details</summary>${raceClassDetailsHtml(c)}</details>
       </aside>
@@ -2598,7 +2598,7 @@ function raceClassSummaryHtml(c) {
     c.class_display || classDetails.rules_class_name || rulesClassName(c.class_name),
   ].filter(Boolean).join(" / ");
   const fields = [
-    ["Race / Class", raceClass],
+    ["Character", raceClass],
     ["Hit Die", hitDiceText(c)],
     ["Armor", classDetails.armor],
     ["Weapons", classDetails.weapons],

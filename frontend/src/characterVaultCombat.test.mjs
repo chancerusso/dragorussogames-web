@@ -79,7 +79,8 @@ test("top summary uses separate identity pills and concise ability labels", () =
   assert.match(vaultSource, /vault-identity-pills/);
   assert.match(vaultSource, /const raceClass = \[/);
   assert.match(vaultSource, /c\.class_display \|\| classDetails\.rules_class_name/);
-  assert.match(vaultSource, /\["Race \/ Class", raceClass\]/);
+  assert.match(vaultSource, /Race &amp; Class Features/);
+  assert.match(vaultSource, /\["Character", raceClass\]/);
   assert.doesNotMatch(vaultSource, /\["Base", classDetails\.rules_class_name/);
   assert.match(vaultSource, /\["Hit", runtime\.melee_to_hit/);
   assert.match(vaultSource, /\["Dmg", runtime\.melee_damage/);

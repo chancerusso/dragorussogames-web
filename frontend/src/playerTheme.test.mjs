@@ -63,5 +63,5 @@ test("final theme layer keeps VTT text readable and gives cards an inset", () =>
   assert.match(vaultCss, /html\[data-player-theme="dark"\] \.vault-saving-row strong/);
   assert.match(vaultCss, /html\[data-player-theme="dark"\] \.vault-abilities em/);
   assert.match(vaultCss, /html\[data-player-theme="dark"\] \.vault-ability-mods small/);
-  assert.match(vaultCss, /html\[data-player-theme="dark"\] \.vault-sheet-race-class \.vault-kicker/);
+  assert.match(vaultCss, /html\[data-player-theme="dark"\] \.vault-sheet-race-class \.vault-kicker\{[\s\S]*?color:#f5ead8/);
 });
