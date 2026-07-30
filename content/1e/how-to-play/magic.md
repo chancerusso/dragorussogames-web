@@ -10,6 +10,29 @@ Spellcasting classes memorize spells according to their class rules. Magic-users
 
 The spell description controls its details. Some spells take segments, some rounds, some turns, and some use special casting times.
 
+## Starting Spells, Access, And Slots
+
+Spells known or available are not the same as spells prepared. A spell book can
+contain several spells even when its owner can prepare only one. Clerics and
+druids have access to their complete eligible class list, but can prepare only
+as many spells as their daily slots allow.
+
+| Level 1 Class | Spells Known Or Available | Base 1st-Level Slots |
+| --- | --- | ---: |
+| Magic User | Four written spells: Read Magic, one chosen by the player, and two different spells determined randomly | 1 |
+| Illusionist | Four written spells: two chosen by the player and two different spells determined randomly | 1 |
+| Cleric | The complete 1st-level Cleric list through prayer, subject to faith and referee rulings | 1 |
+| Druid | The complete 1st-level Druid list through prayer and meditation | 2 |
+
+Clerics and druids add any 1st-level bonus slots granted by high Wisdom. Magic
+Users and Illusionists do not gain additional slots from high Intelligence.
+Intelligence instead governs which written spells they can understand and how
+many spells they may ultimately learn.
+
+Drago Table uses the OSRIC four-spell starting method for Illusionists. The
+original First Edition method begins an Illusionist with three randomly
+determined spells; that older method is not used for Drago Table characters.
+
 ## Declaring Spells In Combat
 
 Before initiative is rolled, spellcasters must state what spell they intend to cast. As the round proceeds, the caster may choose not to cast, but may not substitute another action.
@@ -51,7 +74,11 @@ The magic-user declares magic missile before initiative. The caster begins on th
 
 ## Notes
 
-Verified against OSRIC core rules, Chapter III, Combat spell declaration and casting-time rules, plus spell descriptions in Chapter II. No DRG 1e magic table rule is added here.
+Starting spellbooks and base slots are verified against OSRIC class tables and
+spell-acquisition rules. The original First Edition Illusionist difference is
+documented from the Dungeon Masters Guide. Combat spell declaration and
+casting-time procedures are verified against OSRIC Chapter III and the spell
+descriptions in Chapter II.
 
 ## Continue
 

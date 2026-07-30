@@ -2058,6 +2058,7 @@ function TrackerPanel({ mode, tracker, onModeChange, onUpdate }) {
       </div>
       <div className="tracker-button-group">
         <button type="button" className="table-button" onClick={() => onUpdate({ turn: tracker.turn + 1, turnsSinceRest: tracker.turnsSinceRest + 1 })}>Turn</button>
+        <button type="button" className="table-button" onClick={() => onUpdate({ turn: 0 })}>Reset Turns</button>
         <button type="button" className="table-button" onClick={() => onUpdate({ turnsSinceRest: 0 })}>Rest</button>
         <button type="button" className="table-button">+10m</button>
         <button type="button" className="table-button">+30m</button>
