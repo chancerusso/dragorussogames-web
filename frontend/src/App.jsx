@@ -36,6 +36,8 @@ import { emptyDrawingState } from "./mapping.js";
 
 const AuthContext = createContext(null);
 const PlayerPortalContext = createContext(null);
+const PLAYER_THEME_KEY = "drago_player_theme";
+const PLAYER_THEME_OPTIONS = ["system", "light", "dark"];
 const SETTINGS = ["dragonlance", "greyhawk"];
 const DRAGONLANCE_RACE_PATH = "/content/settings/dragonlance/races/";
 const CLASSIC_STATIC_VERSION = "2026-07-29-builder-layout-v21";
@@ -70,6 +72,16 @@ function useAuth() {
 
 function usePlayerPortal() {
   return useContext(PlayerPortalContext);
+}
+
+function storedPlayerTheme() {
+  const value = window.localStorage.getItem(PLAYER_THEME_KEY);
+  return PLAYER_THEME_OPTIONS.includes(value) ? value : "system";
+}
+
+function resolvedPlayerTheme(preference) {
+  if (preference === "light" || preference === "dark") return preference;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
 function titleCase(value) {
@@ -309,6 +321,27 @@ function PlayerShell({ children }) {
   const { data: playerCampaigns } = useLoad(() => api("/player/campaigns", { auth: "player" }), []);
   const classic = isClassicHost();
   const hasDragonlanceCampaign = (playerCampaigns || []).some(isDragonlanceCampaign);
+  const [themePreference, setThemePreference] = useState(storedPlayerTheme);
+  const [deviceTheme, setDeviceTheme] = useState(() => resolvedPlayerTheme("system"));
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const updateDeviceTheme = () => setDeviceTheme(media.matches ? "dark" : "light");
+    updateDeviceTheme();
+    media.addEventListener("change", updateDeviceTheme);
+    return () => media.removeEventListener("change", updateDeviceTheme);
+  }, []);
+
+  useEffect(() => {
+    const resolved = themePreference === "system" ? deviceTheme : themePreference;
+    document.documentElement.dataset.playerTheme = resolved;
+    document.documentElement.dataset.playerThemePreference = themePreference;
+    window.localStorage.setItem(PLAYER_THEME_KEY, themePreference);
+    return () => {
+      delete document.documentElement.dataset.playerTheme;
+      delete document.documentElement.dataset.playerThemePreference;
+    };
+  }, [deviceTheme, themePreference]);
 
   async function signOut() {
     await auth.signOutPlayer();
@@ -338,10 +371,24 @@ function PlayerShell({ children }) {
             ...(hasDragonlanceCampaign ? [{ label: "Dragonlance", href: classic ? "/dragonlance" : "/portal/dragonlance" }] : []),
           ]}
           account={
-            <div className="account-card">
-              <span>Player</span>
-              <strong>{error ? "Unavailable" : activePlayer?.display_name || activePlayer?.player_name || "Player Name"}</strong>
-              {error ? <small className="error">{error}</small> : null}
+            <div className="player-account-tools">
+              <label className="player-theme-control">
+                <span>Appearance</span>
+                <select
+                  aria-label="Player appearance"
+                  value={themePreference}
+                  onChange={(event) => setThemePreference(event.target.value)}
+                >
+                  <option value="system">Use Device Setting</option>
+                  <option value="light">Light</option>
+                  <option value="dark">Dark</option>
+                </select>
+              </label>
+              <div className="account-card">
+                <span>Player</span>
+                <strong>{error ? "Unavailable" : activePlayer?.display_name || activePlayer?.player_name || "Player Name"}</strong>
+                {error ? <small className="error">{error}</small> : null}
+              </div>
             </div>
           }
           onSignOut={signOut}

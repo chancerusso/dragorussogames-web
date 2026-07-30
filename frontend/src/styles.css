@@ -2005,6 +2005,113 @@ tbody tr:hover {
   padding: 6px 9px;
 }
 
+.player-account-tools {
+  align-items: stretch;
+  display: flex;
+  gap: 7px;
+}
+
+.player-theme-control {
+  background: rgba(12, 10, 8, 0.72);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 2px;
+  padding: 5px 7px;
+}
+
+.player-theme-control span {
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.player-theme-control select {
+  background: transparent;
+  border: 0;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.76rem;
+  font-weight: 800;
+  min-width: 116px;
+  outline: 0;
+  padding: 0;
+}
+
+html[data-player-theme="light"] {
+  color-scheme: light;
+  --bg: #eee4d4;
+  --panel: rgba(255, 250, 242, 0.96);
+  --panel-2: rgba(246, 237, 223, 0.98);
+  --line: #c9b9a4;
+  --line-bright: #9f2940;
+  --text: #251b18;
+  --muted: #6d615a;
+  --gold: #a81931;
+  --gold-2: #7d1426;
+  --ivory: #251b18;
+}
+
+html[data-player-theme="light"] body {
+  background:
+    radial-gradient(circle at 88% 5%, rgba(40, 110, 203, 0.09), transparent 31%),
+    radial-gradient(circle at 9% 0%, rgba(123, 23, 55, 0.13), transparent 34%),
+    linear-gradient(180deg, #fbf6ed, var(--bg));
+}
+
+html[data-player-theme="light"] .player-shell {
+  background:
+    linear-gradient(180deg, rgba(255, 250, 242, 0.3), rgba(238, 228, 212, 0.96)),
+    linear-gradient(115deg, rgba(92, 117, 88, 0.1), transparent 38%),
+    var(--bg);
+}
+
+html[data-player-theme="light"] .player-header {
+  background: linear-gradient(105deg, rgba(255, 250, 243, 0.98), rgba(240, 229, 217, 0.98));
+  box-shadow: 0 8px 24px rgba(62, 42, 30, 0.12);
+}
+
+html[data-player-theme="light"] .player-theme-control,
+html[data-player-theme="light"] .account-card,
+html[data-player-theme="light"] .portal-switcher,
+html[data-player-theme="light"] .player-shell input,
+html[data-player-theme="light"] .player-shell select,
+html[data-player-theme="light"] .player-shell textarea {
+  background: rgba(255, 250, 242, 0.9);
+  color: var(--text);
+}
+
+html[data-player-theme="light"] .player-theme-control select {
+  background: transparent;
+}
+
+html[data-player-theme="light"] .player-hero,
+html[data-player-theme="light"] .player-shell .panel,
+html[data-player-theme="light"] .player-shell .action-card,
+html[data-player-theme="light"] .player-shell .campaign-card,
+html[data-player-theme="light"] .player-shell .character-card,
+html[data-player-theme="light"] .player-shell .table-panel,
+html[data-player-theme="light"] .player-shell .workspace-panel {
+  background: linear-gradient(145deg, rgba(255, 250, 242, 0.97), rgba(240, 229, 211, 0.96));
+  box-shadow: 0 12px 32px rgba(62, 42, 30, 0.1);
+}
+
+html[data-player-theme="light"] .player-shell .ghost-button,
+html[data-player-theme="light"] .player-shell .table-button {
+  background: rgba(255, 250, 242, 0.72);
+}
+
+@media (max-width: 900px) {
+  .player-account-tools {
+    flex-wrap: wrap;
+  }
+
+  .player-theme-control {
+    flex: 1 1 150px;
+  }
+}
+
 .portal-switcher span,
 .account-card span {
   color: var(--muted);

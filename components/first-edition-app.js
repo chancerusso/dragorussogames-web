@@ -1,5 +1,46 @@
 const RULES_BASE = "/1e";
 const CONTENT_BASE = "/content/1e";
+const PLAYER_THEME_KEY = "drago_player_theme";
+const PLAYER_THEME_OPTIONS = ["system", "light", "dark"];
+const PLAYER_THEME_ENABLED = !window.location.pathname.startsWith("/1e/dm");
+
+function storedPlayerTheme() {
+  const value = window.localStorage?.getItem?.(PLAYER_THEME_KEY);
+  return PLAYER_THEME_OPTIONS.includes(value) ? value : "system";
+}
+
+function applyPlayerTheme(preference = storedPlayerTheme()) {
+  const devicePrefersDark = window.matchMedia?.("(prefers-color-scheme: dark)")?.matches || false;
+  const resolved = preference === "system"
+    ? (devicePrefersDark ? "dark" : "light")
+    : preference;
+  if (document.documentElement?.dataset) {
+    document.documentElement.dataset.playerTheme = resolved;
+    document.documentElement.dataset.playerThemePreference = preference;
+  }
+  window.localStorage?.setItem?.(PLAYER_THEME_KEY, preference);
+}
+
+function renderThemeControl() {
+  if (!PLAYER_THEME_ENABLED) return;
+  const header = document.querySelector(".one-e-header");
+  if (!header || header.querySelector(".one-e-theme-control")) return;
+
+  const control = document.createElement("label");
+  control.className = "one-e-theme-control";
+  control.innerHTML = `
+    <span>Appearance</span>
+    <select aria-label="Player appearance">
+      <option value="system">Use Device Setting</option>
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+    </select>
+  `;
+  const select = control.querySelector("select");
+  select.value = storedPlayerTheme();
+  select.addEventListener("change", () => applyPlayerTheme(select.value));
+  header.appendChild(control);
+}
 
 const navItems = [
   { title: "Home", href: "/1e/" },
@@ -598,6 +639,7 @@ async function loadPage() {
   if (!article) return;
 
   renderPortalReturn();
+  renderThemeControl();
   renderNav(slug);
   renderSidebar(slug);
 
@@ -621,4 +663,10 @@ async function loadPage() {
   renderSectionCards(slug);
 }
 
+if (PLAYER_THEME_ENABLED) {
+  applyPlayerTheme();
+  window.matchMedia?.("(prefers-color-scheme: dark)")?.addEventListener?.("change", () => {
+    if (storedPlayerTheme() === "system") applyPlayerTheme("system");
+  });
+}
 loadPage();

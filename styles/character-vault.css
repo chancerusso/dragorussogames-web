@@ -2027,3 +2027,85 @@
     grid-template-columns:1fr;
   }
 }
+
+@media screen{
+  html[data-player-theme="dark"]{
+    --vault-charcoal:#f4e8d8;
+    --vault-ivory:#1d1918;
+    --vault-line:#51433e;
+    --vault-ink:#f5ead8;
+    --vault-muted:#c4b6a8;
+  }
+
+  html[data-player-theme="dark"] .vault-hero,
+  html[data-player-theme="dark"] .vault-card,
+  html[data-player-theme="dark"] .vault-panel,
+  html[data-player-theme="dark"] .vault-sheet-card,
+  html[data-player-theme="dark"] .vault-sheet-header,
+  html[data-player-theme="dark"] .vault-choice-card,
+  html[data-player-theme="dark"] .vault-slot-card,
+  html[data-player-theme="dark"] .vault-weapon-card,
+  html[data-player-theme="dark"] .vault-magic-item-card,
+  html[data-player-theme="dark"] .vault-rules,
+  html[data-player-theme="dark"] .vault-rules-popout,
+  html[data-player-theme="dark"] .vault-quick-popout{
+    background:
+      radial-gradient(circle at 100% 0%,rgba(122,33,27,.18),transparent 34%),
+      linear-gradient(145deg,#27201e,#181515);
+    color:var(--vault-ink);
+    border-color:var(--vault-line);
+  }
+
+  html[data-player-theme="dark"] .vault-stat,
+  html[data-player-theme="dark"] .vault-combat-tile,
+  html[data-player-theme="dark"] .vault-mini,
+  html[data-player-theme="dark"] .vault-selected-race,
+  html[data-player-theme="dark"] .vault-selected-pill,
+  html[data-player-theme="dark"] .vault-source-notice,
+  html[data-player-theme="dark"] .vault-equipment-catalog-scroll,
+  html[data-player-theme="dark"] .vault-magic-catalog-results,
+  html[data-player-theme="dark"] .vault-magic-catalog-row,
+  html[data-player-theme="dark"] .vault-equipped-row,
+  html[data-player-theme="dark"] .vault-preview-row,
+  html[data-player-theme="dark"] .vault-proficient-row,
+  html[data-player-theme="dark"] .vault-saving-row,
+  html[data-player-theme="dark"] .vault-daily-magic,
+  html[data-player-theme="dark"] .vault-sheet-race-class,
+  html[data-player-theme="dark"] .vault-sheet-notes,
+  html[data-player-theme="dark"] .vault-sheet-inventory,
+  html[data-player-theme="dark"] .vault-sheet-spells,
+  html[data-player-theme="dark"] .vault-sheet-magic-items{
+    background:rgba(255,244,225,.045);
+    color:var(--vault-ink);
+    border-color:var(--vault-line);
+  }
+
+  html[data-player-theme="dark"] .vault-shell input,
+  html[data-player-theme="dark"] .vault-shell select,
+  html[data-player-theme="dark"] .vault-shell textarea{
+    background:#151313;
+    color:var(--vault-ink);
+    border-color:var(--vault-line);
+  }
+
+  html[data-player-theme="dark"] .vault-shell input::placeholder,
+  html[data-player-theme="dark"] .vault-shell textarea::placeholder{
+    color:#9f9187;
+  }
+
+  html[data-player-theme="dark"] .vault-muted,
+  html[data-player-theme="dark"] .vault-choice-summary,
+  html[data-player-theme="dark"] .vault-magic-item-description{
+    color:var(--vault-muted);
+  }
+
+  html[data-player-theme="dark"] .vault-table th{
+    background:#392725;
+    color:#fff4df;
+  }
+
+  html[data-player-theme="dark"] .vault-table td{
+    background:#1a1716;
+    color:var(--vault-ink);
+  }
+}
