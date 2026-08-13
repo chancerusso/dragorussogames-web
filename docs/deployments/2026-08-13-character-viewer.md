@@ -1,25 +1,25 @@
 # 2026-08-13 Public Character Viewer Deployment
 
-- Date/time (UTC): Pending
+- Date/time (UTC): 2026-08-13 14:44 UTC
 - Environment: Production — Cloudflare Pages project `dragorussogames-web`
 - Operator/approver: Codex / Chance Russo
 - Repository: `dragorussogames-web`
 - Branch: `codex/first-edition-mapping`; production branch `main`
-- Deployed commit SHA: Pending
+- Deployed commit SHA: `c0712c31b672a089a4378f2794ae96027cb2043d`
 - Previous commit SHA: `468aaa93d870ceafceedf9c4f65e5d84ce60cd2c`
 - Server identity verified: Cloudflare Pages static public website; not the VPS
-- Source checkout verified: Pending exact release commit
+- Source checkout verified: Yes; clean release snapshot built from the exact commit
 - Clean server worktree verified: Not applicable to Cloudflare Pages
 - Database backup: Not applicable; frontend-only static release
 - Migration before: Not applicable
 - Migration after: Not applicable
-- Frontend build result: Pending clean static snapshot
-- Private-reference exclusion result: Pending
+- Frontend build result: Passed; 999-file, 48 MB static snapshot with no file over 20 MB
+- Private-reference exclusion result: Passed; backend, private references, documentation, tests, and source rulebooks excluded. Two intentional blank/fillable First Edition character-sheet PDFs preserved.
 - Services restarted/reloaded: None expected
 - Internal health result: Not applicable
-- Public health result: Pending
-- Smoke-test result: Pending
-- Rollback required: Pending
-- Rollback result: Pending
+- Public health result: Passed; custom-domain viewer route and deployment URL return the expected document
+- Smoke-test result: Passed; homepage link, viewer HTML, CSS, JavaScript, and logo verified on `www.dragorussogames.com`
+- Rollback required: No
+- Rollback result: Not applicable
 - User impact: Adds a browser-only Foundry JSON character-sheet viewer and a public homepage link
-- Notes: Character JSON remains on the player's device. No backend, persistence, account, or upload endpoint is included.
+- Notes: Character JSON remains on the player's device. No backend, persistence, account, or upload endpoint is included. Cloudflare deployment URL: `https://a34ecc0a.dragorussogames-web.pages.dev`. Private/backend probe paths returned HTML fallbacks rather than source content. The release commit was pushed to `origin/codex/first-edition-mapping`; GitHub returned repeated transient internal errors while fast-forwarding `origin/main` before the direct Cloudflare deployment.
