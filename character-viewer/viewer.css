@@ -155,12 +155,14 @@ main { width: 100%; }
 .sheet-kicker { margin: 0 0 4px; color: #e5c77d; font: 700 .68rem "Source Sans 3", sans-serif; letter-spacing: .21em; text-transform: uppercase; }
 .sheet-masthead h1 { margin: 0; font: 600 clamp(2rem, 5vw, 3.55rem)/1 "Cinzel", serif; letter-spacing: .02em; }
 .identity-line { margin: 8px 0 0; color: #eee1d0; font-size: .9rem; }
-.level-seal { width: 82px; height: 82px; display: grid; place-items: center; align-content: center; border: 2px solid rgba(255,255,255,.68); border-radius: 50%; box-shadow: inset 0 0 0 5px rgba(0,0,0,.14); }
-.level-seal strong { font: 700 2rem/1 "Cinzel", serif; }
-.level-seal span { font: 700 .58rem "Source Sans 3", sans-serif; letter-spacing: .17em; text-transform: uppercase; }
+.level-seal { min-width: 112px; padding: 9px 13px; display: grid; gap: 5px; align-self: center; border: 2px solid rgba(255,255,255,.68); border-radius: 8px; box-shadow: inset 0 0 0 4px rgba(0,0,0,.12); }
+.level-seal div { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.level-seal strong { font: 700 .72rem/1.1 "Cinzel", serif; white-space: nowrap; }
+.level-seal span { font: 700 .58rem "Source Sans 3", sans-serif; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; }
+.level-seal.is-multiclass { min-width: 155px; }
 
 .sheet-body { position: relative; z-index: 1; padding: 18px 22px 26px; }
-.quick-stats { margin-top: -4px; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 7px; }
+.quick-stats { margin-top: -4px; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 7px; }
 .quick-stat { min-height: 70px; padding: 9px 8px; display: grid; align-content: center; text-align: center; border: 1px solid var(--rule); border-top: 4px solid var(--sheet-accent); background: rgba(255,255,255,.52); }
 .quick-stat span, .field-label { color: var(--sheet-accent-dark); font: 700 .61rem "Source Sans 3", sans-serif; letter-spacing: .11em; text-transform: uppercase; }
 .quick-stat strong { margin-top: 3px; font: 700 1.35rem "Cinzel", serif; }
@@ -187,12 +189,17 @@ main { width: 100%; }
 .skill-dot { width: 7px; height: 7px; margin-right: 4px; display: inline-block; border: 1px solid var(--sheet-accent); border-radius: 50%; }
 .is-proficient .skill-dot { background: var(--sheet-accent); }
 
-.weapon-list, .feature-list, .spell-groups { display: grid; gap: 7px; }
-.weapon-row { padding: 8px; display: grid; grid-template-columns: minmax(115px, 1.4fr) repeat(4, minmax(52px, .6fr)); gap: 7px; align-items: center; border: 1px solid #bea888; background: rgba(255,255,255,.38); }
-.weapon-row > strong { color: var(--sheet-accent-dark); font-size: .75rem; }
+.weapon-list, .feature-list, .spell-groups { display: grid; gap: 5px; }
+.weapon-row { padding: 6px 7px; display: grid; grid-template-columns: minmax(105px, 1.25fr) minmax(90px, .75fr) minmax(70px, .65fr) minmax(45px, .4fr) minmax(72px, .65fr); gap: 6px; align-items: center; border: 1px solid #bea888; background: rgba(255,255,255,.38); }
+.weapon-row > strong { color: var(--sheet-accent-dark); font-size: .7rem; }
 .weapon-cell { display: grid; }
 .weapon-cell span { color: var(--muted); font: 700 .52rem "Source Sans 3", sans-serif; letter-spacing: .08em; text-transform: uppercase; }
-.weapon-cell b { font-size: .72rem; }
+.weapon-cell b { font-size: .67rem; line-height: 1.12; }
+.weapon-cell--attack b { white-space: nowrap; }
+.weapon-cell em { display: block; color: var(--sheet-accent); font: 700 .52rem "Source Sans 3", sans-serif; }
+.weapon-cell--rate-range { grid-template-columns: auto 1fr; column-gap: 5px; align-items: baseline; }
+.weapon-cell--rate-range b { text-align: right; }
+.print-continuation { display: none; }
 
 .inventory-table { width: 100%; border-collapse: collapse; font: .69rem "Source Sans 3", sans-serif; }
 .inventory-table th { padding: 5px; color: var(--sheet-accent-dark); border-bottom: 2px solid var(--sheet-accent); text-align: left; font-size: .56rem; letter-spacing: .1em; text-transform: uppercase; }
@@ -238,8 +245,8 @@ main { width: 100%; }
   .sheet-masthead { padding: 19px 15px 16px; }
   .sheet-masthead h1 { font-size: clamp(1.65rem, 9.5vw, 2.45rem); }
   .identity-line { font-size: .76rem; }
-  .level-seal { width: 62px; height: 62px; }
-  .level-seal strong { font-size: 1.5rem; }
+  .level-seal { min-width: 98px; padding: 7px 9px; }
+  .level-seal.is-multiclass { min-width: 125px; }
   .sheet-body { padding: 12px 9px 20px; }
   .quick-stats { grid-template-columns: repeat(3, 1fr); }
   .quick-stat { min-height: 61px; }
@@ -266,8 +273,16 @@ main { width: 100%; }
   .sheet-body { padding: 12px 15px 17px; }
   .quick-stat { min-height: 59px; }
   .sheet-grid { gap: 8px; }
+  .sheet-grid { grid-template-columns: .88fr 1.6fr; }
   .sheet-panel { box-shadow: none; }
   .panel-content { padding: 7px 8px; }
   .ability { min-height: 66px; }
   .feature-chip { padding-block: 5px; }
+  .sheet-column--reference { grid-column: 1 / -1; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sheet-column--reference .sheet-panel:last-child { grid-column: 1 / -1; }
+  .print-continuation { min-height: .62in; padding: 8px 12px 7px; display: flex; grid-column: 1 / -1; justify-content: space-between; gap: 15px; align-items: end; color: #fffaf0; background: linear-gradient(130deg, var(--sheet-accent-dark), var(--sheet-accent)); border: 1px solid #725f49; break-before: page; page-break-before: always; }
+  .print-continuation div { display: grid; gap: 1px; }
+  .print-continuation small { color: #e5c77d; font: 700 .5rem "Source Sans 3", sans-serif; letter-spacing: .14em; text-transform: uppercase; }
+  .print-continuation strong { font: 700 1.08rem "Cinzel", serif; }
+  .print-continuation span { color: #eee1d0; font-size: .62rem; text-align: right; }
 }

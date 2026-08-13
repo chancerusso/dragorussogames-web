@@ -58,7 +58,7 @@
     try { actor = JSON.parse(text); }
     catch { showError("That file is not valid JSON. In Foundry, right-click the character and choose Export Data, then select the exported .json file."); return; }
     const system = detectSystem(actor);
-    if (!system) { showError("This does not look like a supported Foundry character export. The first release supports ARS/OSRIC and D&D 5e Actor JSON files."); return; }
+    if (!system) { showError("This does not look like a supported Foundry character export. The first release supports OSRIC and D&D 5e Actor JSON files."); return; }
     if (actor.type !== "character") { showError("This viewer currently accepts player-character Actor exports. NPC and monster sheets will come later."); return; }
     renderActor(actor, system, label);
   }
@@ -92,19 +92,23 @@
     const system = actor.system || {};
     const race = itemsOf(actor, "race")[0]?.name || "Adventurer";
     const classes = itemsOf(actor, "class");
-    const classNames = classes.map((item) => item.name);
     const classLevels = classes.map(arsClassLevel);
+    const classTracks = classes.map((item, index) => ({ name: item.name, level: classLevels[index] }));
     const level = Math.max(1, ...classLevels);
     const abilities = Object.entries(system.abilities || {}).filter(([key]) => key !== "com").map(([key, data]) => ({ key, name: abilityNames[key] || key.toUpperCase(), short: abilityShort[key] || key.toUpperCase(), score: numeric(data?.value, 0), detail: key === "str" && numeric(data?.percent) ? `${data.percent}%` : "" }));
     const weapons = itemsOf(actor, "weapon").filter((item) => itemState(item) === "equipped" && item.system?.attributes?.type !== "ammunition").map((item) => {
       const attack = item.system?.attack || {};
       const damage = item.system?.damage || {};
       const ranges = attack.range || {};
-      return { name: item.name, attack: attack.type === "ranged" ? "Ranged" : `THAC0 ${formatValue(system.attributes?.thaco?.value, "20")}`, damage: damage.normal || "—", secondary: damage.large ? `L ${damage.large}` : "", speed: formatValue(attack.speed, "—"), rate: attack.perRound || "1/1", range: [ranges.short, ranges.medium, ranges.long].filter(Boolean).join(" / ") || "Melee" };
+      const attackBonus = numeric(attack.modifier) + numeric(attack.magicBonus);
+      return { name: item.name, attack: `THAC0 ${formatValue(system.attributes?.thaco?.value, "20")}`, attackBonus: attackBonus ? signed(attackBonus) : "", damage: damage.normal || "—", secondary: damage.large ? `L ${damage.large}` : "", speed: formatValue(attack.speed, "—"), rate: attack.perRound || "1/1", range: [ranges.short, ranges.medium, ranges.long].filter((value) => value !== "" && value !== null && value !== undefined).join(" / ") || "Melee" };
     });
     const armor = itemsOf(actor, "armor").filter((item) => itemState(item) === "equipped");
     const inventory = array(actor.items).filter((item) => ["item", "container", "armor", "weapon", "potion", "gear"].includes(item.type) && !(item.type === "weapon" && item.system?.attributes?.type === "noDrop")).map((item) => ({ name: item.name, quantity: numeric(item.system?.quantity, 1), weight: numeric(item.system?.weight, 0), state: itemState(item) }));
-    const features = array(actor.items).filter((item) => ["ability", "skill", "proficiency"].includes(item.type)).map((item) => ({ name: item.name, detail: item.type === "skill" && item.system?.features?.target ? `Target ${item.system.features.target}` : titleCase(item.type) }));
+    const features = array(actor.items)
+      .filter((item) => ["ability", "skill", "proficiency"].includes(item.type))
+      .filter((item) => !/^(wrestle\/tackle|base movement\b)/i.test(item.name || ""))
+      .map((item) => ({ name: item.name, detail: classicFeatureDetail(item), group: item.type === "skill" ? "check" : "feature" }));
     const spells = itemsOf(actor, "spell").map((item) => ({ name: item.name, level: numeric(item.system?.level, numeric(item.system?.rank?.level, 0)), prepared: item.system?.memorized || item.system?.location?.state === "memorized" }));
     const quickStats = [
       { label: "Hit Points", value: `${formatValue(system.attributes?.hp?.value, 0)} / ${formatValue(system.attributes?.hp?.max, system.attributes?.hp?.base || 0)}` },
@@ -112,12 +116,13 @@
       { label: "THAC0", value: formatValue(system.attributes?.thaco?.value, 20) },
       { label: "Movement", value: formatValue(arsMovement(actor, system), "—") },
       { label: "Attacks", value: classes[0]?.system?.ranks?.[Math.max(0, level - 1)]?.numatks || "1/1", note: "per round" },
-      { label: "Experience", value: formatValue(system.details?.xp ?? classes.reduce((sum, item) => sum + numeric(item.system?.xp), 0), 0) }
+      { label: "Experience", value: formatValue(system.details?.xp ?? classes.reduce((sum, item) => sum + numeric(item.system?.xp), 0), 0) },
+      { label: "Encumbrance", value: `${formatNumber(inventory.reduce((sum, item) => sum + (item.quantity * item.weight), 0))} lb`, note: "carried load" }
     ];
     const rank = classes[0]?.system?.ranks?.[Math.max(0, classLevels[0] - 1)] || {};
     const saves = Object.entries(system.saves || {}).filter(([key]) => classicSaveNames[key]).map(([key, data]) => ({ name: classicSaveNames[key], value: formatValue(rank[key] ?? data?.value, 20) }));
     return {
-      ruleset: "classic", system: "ARS / OSRIC Foundry Character", name: actor.name || "Unnamed Adventurer", identity: `${race} · ${classNames.join(" / ") || "Adventurer"} · ${alignmentNames[system.details?.alignment] || titleCase(system.details?.alignment || "Unaligned")}`, level,
+      ruleset: "classic", system: "OSRIC Foundry Character", name: actor.name || "Unnamed Adventurer", identity: `${race} · ${classTracks.map((track) => track.name).join(" / ") || "Adventurer"} · ${alignmentNames[system.details?.alignment] || titleCase(system.details?.alignment || "Unaligned")}`, level, classTracks,
       quickStats, abilities, saves, skills: [], weapons, inventory, features, spells, currency: normalizeCurrency(system.currency),
       details: [system.details?.deity && `Deity: ${system.details.deity}`, system.details?.age && `Age: ${system.details.age}`].filter(Boolean)
     };
@@ -174,7 +179,7 @@
     const saves = abilities.map((ability) => ({ name: ability.name, value: signed(ability.modifier + (ability.proficient ? proficiency : 0)), proficient: ability.proficient }));
     const classText = classes.map((item) => `${item.name} ${item.level}`).join(" / ") || "Adventurer";
     return {
-      ruleset: "modern", system: "D&D 5e / SRD 5.2 Foundry Character", name: actor.name || "Unnamed Adventurer", identity: `${race} · ${classText}${background ? ` · ${background}` : ""}`, level,
+      ruleset: "modern", system: "D&D 5e / SRD 5.2 Foundry Character", name: actor.name || "Unnamed Adventurer", identity: `${race} · ${classText}${background ? ` · ${background}` : ""}`, level, classTracks: classes,
       quickStats, abilities, saves, skills, weapons, inventory, features, spells, currency: normalizeCurrency(system.currency),
       details: [system.details?.alignment && `Alignment: ${system.details.alignment}`, system.details?.age && `Age: ${system.details.age}`, system.traits?.languages?.value?.length && `Languages: ${system.traits.languages.value.map(titleCase).join(", ")}`].filter(Boolean)
     };
@@ -211,6 +216,17 @@
     return item.type === "subclass" ? "Subclass" : "Feature";
   }
 
+  function classicFeatureDetail(item) {
+    if (item.type !== "skill") return titleCase(item.type);
+    const formula = String(item.system?.features?.formula || "").toLowerCase().replace(/\s/g, "");
+    const target = numeric(item.system?.features?.target, NaN);
+    if (!Number.isFinite(target)) return "Skill check";
+    if (/^1d100(?:\b|$)/.test(formula)) return `${target}%`;
+    const die = formula.match(/^1d(\d+)/)?.[1];
+    if (die) return `${target} in ${die}`;
+    return `Target ${target}`;
+  }
+
   function renderSheet(model) {
     return `
       <header class="sheet-masthead">
@@ -219,7 +235,9 @@
           <h1>${escapeHtml(model.name)}</h1>
           <p class="identity-line">${escapeHtml(model.identity)}</p>
         </div>
-        <div class="level-seal"><strong>${model.level}</strong><span>Level</span></div>
+        <div class="level-seal ${model.classTracks.length > 1 ? "is-multiclass" : ""}">
+          ${model.classTracks.map((track) => `<div><strong>${escapeHtml(track.name)}</strong><span>Level ${track.level}</span></div>`).join("")}
+        </div>
       </header>
       <div class="sheet-body">
         <section class="quick-stats">${model.quickStats.map(renderQuickStat).join("")}</section>
@@ -227,14 +245,15 @@
           <div class="sheet-column">
             ${panel("Ability Scores", `<div class="ability-grid">${model.abilities.map(renderAbility).join("")}</div>`)}
             ${model.ruleset === "modern" ? panel("Saving Throws", renderLinedList(model.saves, true)) : panel("Saving Throws", renderLinedList(model.saves))}
-            ${model.skills.length ? panel("Skills", renderLinedList(model.skills, true)) : panel("Abilities & Proficiencies", renderFeatures(model.features.slice(0, 10)))}
+            ${model.skills.length ? panel("Skills", renderLinedList(model.skills, true)) : panel("Checks & Proficiencies", renderFeatures(model.features.filter((feature) => feature.group === "check")))}
           </div>
           <div class="sheet-column">
             ${panel("Attacks & Weapons", renderWeapons(model.weapons))}
             ${panel("Equipment", renderInventory(model.inventory))}
-            ${model.ruleset === "modern" ? panel("Features & Traits", renderFeatures(model.features)) : panel("Class & Racial Features", renderFeatures(model.features.slice(10)))}
+            ${model.ruleset === "modern" ? panel("Features & Traits", renderFeatures(model.features)) : panel("Class & Racial Features", renderFeatures(model.features.filter((feature) => feature.group !== "check")))}
           </div>
-          <div class="sheet-column">
+          <div class="sheet-column sheet-column--reference">
+            <header class="print-continuation"><div><small>Character Sheet · Continued</small><strong>${escapeHtml(model.name)}</strong></div><span>${escapeHtml(model.identity)}</span></header>
             ${panel("Spells", renderSpells(model.spells))}
             ${panel("Coin", `<div class="currency-row">${model.currency.map((coin) => `<div class="coin"><span>${coin.name}</span><strong>${coin.value}</strong></div>`).join("")}</div>`)}
             ${panel("Notes & Details", model.details.length ? `<ul class="lined-list">${model.details.map((detail) => `<li>${escapeHtml(detail)}</li>`).join("")}</ul>` : `<p class="empty-note">Use this space for conditions, reminders, and notes at the table.</p>`)}
@@ -264,7 +283,7 @@
 
   function renderWeapons(weapons) {
     if (!weapons.length) return `<p class="empty-note">No equipped attacks were found in this export.</p>`;
-    return `<div class="weapon-list">${weapons.map((weapon) => `<div class="weapon-row"><strong>${escapeHtml(weapon.name)}</strong><span class="weapon-cell"><span>Attack</span><b>${formatValue(weapon.attack)}</b></span><span class="weapon-cell"><span>Damage</span><b>${formatValue(weapon.damage)}${weapon.secondary ? ` <small>${escapeHtml(weapon.secondary)}</small>` : ""}</b></span><span class="weapon-cell"><span>${weapon.speed && !String(weapon.speed).match(/^[-+]?\d+$/) ? "Mastery" : "Speed"}</span><b>${formatValue(weapon.speed)}</b></span><span class="weapon-cell"><span>Rate / Range</span><b>${escapeHtml(`${weapon.rate} · ${weapon.range}`)}</b></span></div>`).join("")}</div>`;
+    return `<div class="weapon-list">${weapons.map((weapon) => `<div class="weapon-row"><strong>${escapeHtml(weapon.name)}</strong><span class="weapon-cell weapon-cell--attack"><span>Attack</span><b>${formatValue(weapon.attack)}${weapon.attackBonus ? ` <em>${escapeHtml(weapon.attackBonus)} to hit</em>` : ""}</b></span><span class="weapon-cell"><span>Damage</span><b>${formatValue(weapon.damage)}${weapon.secondary ? ` <small>${escapeHtml(weapon.secondary)}</small>` : ""}</b></span><span class="weapon-cell"><span>${weapon.speed && !String(weapon.speed).match(/^[-+]?\d+$/) ? "Mastery" : "Speed"}</span><b>${formatValue(weapon.speed)}</b></span><span class="weapon-cell weapon-cell--rate-range"><span>Rate</span><b>${escapeHtml(weapon.rate)}</b><span>Range</span><b>${escapeHtml(weapon.range)}</b></span></div>`).join("")}</div>`;
   }
 
   function renderInventory(inventory) {

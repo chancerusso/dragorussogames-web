@@ -1,0 +1,25 @@
+# 2026-08-13 Public Character Viewer Refinement Deployment
+
+- Date/time (UTC): Pending
+- Environment: Production — Cloudflare Pages project `dragorussogames-web`
+- Operator/approver: Codex / Chance Russo
+- Repository: `dragorussogames-web`
+- Branch: `codex/first-edition-mapping`; production branch `main`
+- Deployed commit SHA: Pending
+- Previous commit SHA: `c0712c31b672a089a4378f2794ae96027cb2043d`
+- Server identity verified: Cloudflare Pages static public website; not the VPS
+- Source checkout verified: Pending exact-commit package
+- Clean server worktree verified: Not applicable to Cloudflare Pages
+- Database backup: Not applicable; frontend-only static release
+- Migration before: Not applicable
+- Migration after: Not applicable
+- Frontend build result: Pending
+- Private-reference exclusion result: Pending
+- Services restarted/reloaded: None expected
+- Internal health result: Not applicable
+- Public health result: Pending
+- Smoke-test result: Pending
+- Rollback required: Pending
+- Rollback result: Pending
+- User impact: Improves the OSRIC Foundry character-sheet layout, multiclass display, attack information, checks, carried load, and printed continuation page
+- Notes: Deployment is limited to the static Character Viewer and its release records. No backend, database, migration, VPS, Foundry world, module, tunnel, DM portal, or Classic portal change is authorized.
