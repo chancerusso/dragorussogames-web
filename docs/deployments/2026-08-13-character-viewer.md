@@ -22,4 +22,4 @@
 - Rollback required: No
 - Rollback result: Not applicable
 - User impact: Adds a browser-only Foundry JSON character-sheet viewer and a public homepage link
-- Notes: Character JSON remains on the player's device. No backend, persistence, account, or upload endpoint is included. Cloudflare deployment URL: `https://a34ecc0a.dragorussogames-web.pages.dev`. Private/backend probe paths returned HTML fallbacks rather than source content. The release commit was pushed to `origin/codex/first-edition-mapping`; GitHub returned repeated transient internal errors while fast-forwarding `origin/main` before the direct Cloudflare deployment.
+- Notes: Character JSON remains on the player's device. No backend, persistence, account, or upload endpoint is included. Cloudflare deployment URL: `https://a34ecc0a.dragorussogames-web.pages.dev`. Private/backend probe paths returned HTML fallbacks rather than source content. GitHub initially returned transient internal errors, but the final non-force retry successfully fast-forwarded `origin/main` to the exact deployed commit. The later recordkeeping commit remains on `origin/codex/first-edition-mapping` only.
