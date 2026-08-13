@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Turn a Foundry VTT Actor JSON export into a private, readable, printable character sheet." />
+  <title>Drago Character Viewer</title>
+  <link rel="icon" type="image/png" href="/assets/LogoDrago_Mesa_de_trabajo_1.png" />
+  <link rel="stylesheet" href="./viewer.css" />
+</head>
+<body>
+  <header class="viewer-header no-print">
+    <a class="viewer-brand" href="/">
+      <img src="/assets/LogoDrago_Mesa_de_trabajo_1.png" alt="" />
+      <span><strong>Drago Character Viewer</strong><small>Foundry VTT sheets, made for the table</small></span>
+    </a>
+    <nav aria-label="Character viewer">
+      <button class="header-action" type="button" data-new hidden>New Character</button>
+      <button class="header-action header-action--primary" type="button" data-print hidden>Print / Save PDF</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="import-stage" data-import-stage>
+      <div class="import-intro">
+        <p class="eyebrow">Your character. Anywhere.</p>
+        <h1>A table-ready sheet from your Foundry character.</h1>
+        <p class="lede">Drop in a Foundry Actor JSON export and get a compact character sheet built for phones, tablets, and paper.</p>
+      </div>
+
+      <div class="import-card">
+        <div class="drop-zone" data-drop-zone tabindex="0" role="button" aria-describedby="privacy-note">
+          <input type="file" accept="application/json,.json" data-file-input />
+          <span class="drop-rune" aria-hidden="true">JSON</span>
+          <h2>Drop your Foundry character here</h2>
+          <p>or choose the exported <strong>Actor JSON</strong> file from your device</p>
+          <span class="choose-file">Choose Character File</span>
+        </div>
+
+        <div class="paste-panel">
+          <button type="button" class="paste-toggle" data-paste-toggle aria-expanded="false">Paste JSON instead</button>
+          <div class="paste-fields" data-paste-fields hidden>
+            <label for="character-json">Foundry Actor JSON</label>
+            <textarea id="character-json" data-json-input spellcheck="false" placeholder="Paste the complete contents of the exported .json file"></textarea>
+            <button type="button" class="render-button" data-render-json>Build Character Sheet</button>
+          </div>
+        </div>
+
+        <p id="privacy-note" class="privacy-note"><span aria-hidden="true">◆</span> Private by design: your file stays in this browser. Nothing is uploaded or saved.</p>
+        <p class="import-error" data-error role="alert" hidden></p>
+      </div>
+
+      <div class="supported-systems" aria-label="Supported Foundry game systems">
+        <div><span class="system-mark system-mark--classic">d20</span><p><strong>Classic Fantasy</strong><small>ARS / OSRIC actors</small></p></div>
+        <div><span class="system-mark system-mark--modern">5e</span><p><strong>Modern Fantasy</strong><small>D&amp;D 5e / SRD 5.2 actors</small></p></div>
+      </div>
+    </section>
+
+    <section class="sheet-stage" data-sheet-stage hidden>
+      <div class="sheet-toolbar no-print">
+        <p><span data-system-label></span><strong data-file-label></strong></p>
+        <div>
+          <button type="button" data-new>Choose Another</button>
+          <button type="button" class="toolbar-primary" data-print>Print / Save PDF</button>
+        </div>
+      </div>
+      <article class="character-sheet" data-sheet aria-live="polite"></article>
+    </section>
+  </main>
+
+  <footer class="viewer-footer no-print">
+    <p>Drago Character Viewer reads Foundry VTT exports locally. Foundry Virtual Tabletop and the supported game systems remain the property of their respective creators.</p>
+  </footer>
+
+  <script src="./viewer.js"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+# 2026-08-13 Public Character Viewer Deployment
+
+- Date/time (UTC): Pending
+- Environment: Production — Cloudflare Pages project `dragorussogames-web`
+- Operator/approver: Codex / Chance Russo
+- Repository: `dragorussogames-web`
+- Branch: `codex/first-edition-mapping`; production branch `main`
+- Deployed commit SHA: Pending
+- Previous commit SHA: `468aaa93d870ceafceedf9c4f65e5d84ce60cd2c`
+- Server identity verified: Cloudflare Pages static public website; not the VPS
+- Source checkout verified: Pending exact release commit
+- Clean server worktree verified: Not applicable to Cloudflare Pages
+- Database backup: Not applicable; frontend-only static release
+- Migration before: Not applicable
+- Migration after: Not applicable
+- Frontend build result: Pending clean static snapshot
+- Private-reference exclusion result: Pending
+- Services restarted/reloaded: None expected
+- Internal health result: Not applicable
+- Public health result: Pending
+- Smoke-test result: Pending
+- Rollback required: Pending
+- Rollback result: Pending
+- User impact: Adds a browser-only Foundry JSON character-sheet viewer and a public homepage link
+- Notes: Character JSON remains on the player's device. No backend, persistence, account, or upload endpoint is included.
