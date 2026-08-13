@@ -1,0 +1,31 @@
+# 2026-08-13 Public Character Viewer Density Deployment
+
+- Date/time (UTC): 2026-08-13 19:37 UTC
+- Environment: Production — Cloudflare Pages project `dragorussogames-web`
+- Operator/approver: Codex / Chance Russo
+- Repository: `dragorussogames-web`
+- Branch: `codex/first-edition-mapping`; production branch `main`
+- Deployed commit SHA: `699863bf93da0ab537004dbe723bf0fe4b56a675`
+- Previous commit SHA: `5361da42583aa7a1316cb7b8d360cb0b6e94579e`
+- Server identity verified: Cloudflare Pages static public website; not the VPS
+- Source checkout verified: Yes. The release package contained the exact committed Character Viewer files layered onto the previously verified clean public snapshot.
+- Clean server worktree verified: Not applicable to Cloudflare Pages
+- Database backup: Not applicable; frontend-only static release
+- Migration before: Not applicable
+- Migration after: Not applicable
+- Frontend build result: Passed. Static package contained 999 files (48 MB); JavaScript syntax and HTML parsing passed.
+- Private-reference exclusion result: Passed. No private-reference, backend, documentation, test, or source-rulebook path entered the package. The only PDFs were the intentional public blank and fillable character sheets.
+- Services restarted/reloaded: None expected
+- Internal health result: Not applicable
+- Public health result: Passed. Viewer HTML, CSS, and JavaScript returned HTTP 200 from both the immutable deployment address and the custom domain.
+- Smoke-test result: Passed. Live CSS and JavaScript hashes exactly matched the verified release package on both addresses. Representative private-reference and backend paths returned only the public HTML fallback, not private or application source content.
+- Rollback required: No
+- Rollback result: Not applicable
+- User impact: Makes the OSRIC Foundry character sheet substantially denser on screen and in print, keeps all Rate/Range values visible, places Equipment and Class & Racial Features side by side, and preserves a complete three-page print layout.
+- Notes:
+  - Deployment scope was limited to the static Character Viewer and release records. No backend, database, migration, VPS, Foundry world, module, tunnel, DM portal, or Classic portal change was included.
+  - Published the exact package to Cloudflare Pages project `dragorussogames-web` as branch `main`.
+  - Immutable deployment: `https://e4714ebe.dragorussogames-web.pages.dev`.
+  - Custom-domain viewer: `https://www.dragorussogames.com/character-viewer/`.
+  - Wrangler uploaded the two changed assets and reused 997 unchanged assets.
+  - Rollback target remains `5361da42583aa7a1316cb7b8d360cb0b6e94579e`.
