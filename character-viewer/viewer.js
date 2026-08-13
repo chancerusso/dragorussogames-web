@@ -267,21 +267,22 @@
       <div class="sheet-body">
         <section class="quick-stats">${model.quickStats.map(renderQuickStat).join("")}</section>
         <div class="sheet-grid">
-          <div class="sheet-column">
+          <div class="sheet-column sheet-column--sidebar">
             ${abilities}
             ${saves}
             ${checks}
           </div>
-          <div class="sheet-column">
+          <div class="sheet-workspace">
             ${attacks}
-            ${equipment}
-            ${features}
-          </div>
-          <div class="sheet-column sheet-column--reference">
-            ${continuation}
-            ${spells}
-            ${coin}
-            ${notes}
+            <div class="sheet-records-grid">
+              ${equipment}
+              ${features}
+            </div>
+            <div class="sheet-reference-grid">
+              ${spells}
+              ${coin}
+            </div>
+            <div class="sheet-notes">${notes}</div>
           </div>
         </div>
         <p class="sheet-footnote">READ-ONLY SNAPSHOT · EXPORT A NEW ACTOR JSON FROM FOUNDRY TO REFRESH THIS SHEET</p>
@@ -294,7 +295,7 @@
         </section>
         <section class="print-page print-page--records">
           ${continuation}
-          <div class="print-page-grid print-page-grid--records"><div>${checks}</div><div>${equipment}${features}</div></div>
+          <div class="print-page-grid print-page-grid--records"><div>${checks}</div><div>${equipment}</div><div>${features}</div></div>
         </section>
         <section class="print-page print-page--reference">
           ${continuation}
