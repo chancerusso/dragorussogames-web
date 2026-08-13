@@ -1,0 +1,25 @@
+# 2026-08-13 Public Character Viewer Readability Deployment
+
+- Date/time (UTC): 2026-08-13 20:19 UTC
+- Environment: Production — Cloudflare Pages project `dragorussogames-web`
+- Operator/approver: Codex / Chance Russo
+- Repository: `dragorussogames-web`
+- Branch: `codex/first-edition-mapping`; production branch `main`
+- Deployed commit SHA: `4ec9944e3f297500684c9f1fb45b8e284ab14427`
+- Previous commit SHA: `5e45a29d3bc8089bcd1e2ce71083ff8491130771`
+- Server identity verified: Cloudflare Pages static public website; not the VPS
+- Source checkout verified: Yes; the exact committed viewer stylesheet was layered onto the previously verified clean public snapshot
+- Clean server worktree verified: Not applicable to Cloudflare Pages
+- Database backup: Not applicable; frontend-only static release
+- Migration before: Not applicable
+- Migration after: Not applicable
+- Frontend build result: Passed; 999-file, 48 MB sanitized static package with no file over 20 MB
+- Private-reference exclusion result: Passed; no backend, documentation, tests, private references, or source rulebooks included. The two intentional public blank/fillable First Edition character-sheet PDFs remain present.
+- Services restarted/reloaded: None expected
+- Internal health result: Not applicable
+- Public health result: Passed; viewer HTML, CSS, and JavaScript returned HTTP 200 from the immutable deployment and custom domain
+- Smoke-test result: Passed; the immutable and custom-domain stylesheets exactly match the committed SHA-256 hash
+- Rollback required: No
+- Rollback result: Not applicable
+- User impact: Restores comfortable on-screen and printed readability while preserving the compact OSRIC Foundry character sheet and its complete three-page print layout.
+- Notes: Deployment scope was limited to the static Character Viewer and release records. No backend, database, migration, VPS, Foundry world, module, tunnel, DM portal, or Classic portal change was included. Immutable deployment: `https://99673ba7.dragorussogames-web.pages.dev`. Custom-domain viewer: `https://www.dragorussogames.com/character-viewer/`. Wrangler uploaded one changed asset and reused 998 unchanged assets. Rollback target remains `5e45a29d3bc8089bcd1e2ce71083ff8491130771`.
