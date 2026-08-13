@@ -1,0 +1,25 @@
+# 2026-08-13 Public Character Viewer Detail Polish Deployment
+
+- Date/time (UTC): 2026-08-13 21:23 UTC
+- Environment: Production — Cloudflare Pages project `dragorussogames-web`
+- Operator/approver: Codex / Chance Russo
+- Repository: `dragorussogames-web`
+- Branch: `codex/first-edition-mapping`; production branch `main`
+- Deployed commit SHA: `bd49776bddd8931713e276ab4896b546948e3b6e`
+- Previous commit SHA: `4ec9944e3f297500684c9f1fb45b8e284ab14427`
+- Server identity verified: Cloudflare Pages static public website; not the VPS
+- Source checkout verified: Yes; the exact two committed Character Viewer assets were layered onto the previously verified clean public snapshot
+- Clean server worktree verified: Not applicable to Cloudflare Pages
+- Database backup: Not applicable; frontend-only static release
+- Migration before: Not applicable
+- Migration after: Not applicable
+- Frontend build result: Passed; 999-file, 48 MB sanitized static package with no file over 20 MB
+- Private-reference exclusion result: Passed; no backend, documentation, tests, private references, or source rulebooks included. The two intentional public blank/fillable First Edition character-sheet PDFs remain present.
+- Services restarted/reloaded: None expected
+- Internal health result: Not applicable
+- Public health result: Passed; viewer HTML, CSS, and JavaScript returned HTTP 200 from the immutable deployment and custom domain
+- Smoke-test result: Passed; immutable and custom-domain CSS and JavaScript hashes exactly match the committed release assets. Representative private-reference and backend paths returned only the public HTML fallback, not private or application source content.
+- Rollback required: No
+- Rollback result: Not applicable
+- User impact: Centers weapon Speed values, normalizes damage-dice typography, and improves compact classic proficiency labels.
+- Notes: Scope was limited to the static Character Viewer and release records. No backend, database, migration, VPS, Foundry world, module, tunnel, DM portal, or Classic portal change was included. Immutable deployment: `https://5a627bd9.dragorussogames-web.pages.dev`. Custom-domain viewer: `https://www.dragorussogames.com/character-viewer/`. Wrangler uploaded two changed assets and reused 997 unchanged assets. Rollback target remains `4ec9944e3f297500684c9f1fb45b8e284ab14427`.
