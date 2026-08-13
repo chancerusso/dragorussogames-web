@@ -86,6 +86,38 @@
     return { value: armorBase - shieldAdjustment + dexterityAdjustment, equipped };
   }
 
+  function arsSpells(actor) {
+    const memorization = actor.system?.spellInfo?.memorization || {};
+    const prepared = [];
+    Object.values(memorization).forEach((levels) => {
+      Object.entries(levels || {}).forEach(([level, slots]) => {
+        Object.values(slots || {}).forEach((slot) => {
+          if (!slot?.name) return;
+          prepared.push({
+            name: slot.name,
+            level: numeric(slot.level, numeric(level, 0)),
+            prepared: true,
+            cast: slot.cast === true
+          });
+        });
+      });
+    });
+    if (prepared.length) return prepared;
+
+    const unique = new Map();
+    itemsOf(actor, "spell").forEach((item) => {
+      const level = numeric(item.system?.level, numeric(item.system?.rank?.level, 0));
+      const key = `${level}:${String(item.name || "").trim().toLowerCase()}`;
+      if (!unique.has(key)) unique.set(key, {
+        name: item.name,
+        level,
+        prepared: item.system?.memorized || item.system?.location?.state === "memorized",
+        cast: false
+      });
+    });
+    return [...unique.values()];
+  }
+
   function detectSystem(actor) {
     if (!actor || typeof actor !== "object" || !actor.system || !Array.isArray(actor.items)) return null;
     if (actor.system.attributes?.thaco || actor.system.saves?.paralyzation || actor.flags?.ars) return "ars";
@@ -182,7 +214,7 @@
       .filter((item) => ["ability", "skill", "proficiency"].includes(item.type))
       .filter((item) => !/^(wrestle\/tackle|base movement\b)/i.test(item.name || ""))
       .map((item) => ({ name: item.name, detail: classicFeatureDetail(item), group: item.type === "skill" ? "check" : "feature" }));
-    const spells = itemsOf(actor, "spell").map((item) => ({ name: item.name, level: numeric(item.system?.level, numeric(item.system?.rank?.level, 0)), prepared: item.system?.memorized || item.system?.location?.state === "memorized" }));
+    const spells = arsSpells(actor);
     const quickStats = [
       { label: "Hit Points", value: `${formatValue(system.attributes?.hp?.value, 0)} / ${formatValue(system.attributes?.hp?.max, system.attributes?.hp?.base || 0)}` },
       { label: "Armor Class", value: formatValue(armor.value, 10), note: armor.equipped.map((item) => item.name).join(" + ") },
@@ -416,7 +448,7 @@
   function renderSpells(spells) {
     if (!spells.length) return `<p class="empty-note">No spells were found in this export.</p>`;
     const grouped = Map.groupBy ? Map.groupBy(spells, (spell) => spell.level) : spells.reduce((map, spell) => map.set(spell.level, [...(map.get(spell.level) || []), spell]), new Map());
-    return `<div class="spell-groups">${[...grouped.entries()].sort(([a], [b]) => a - b).map(([level, entries]) => `<div class="spell-group"><div class="spell-level"><span>${Number(level) === 0 ? "Cantrips" : `Level ${level}`}</span><span>${entries.length}</span></div><div class="spell-names">${entries.map((entry) => `<span>${entry.prepared ? "◆ " : ""}${escapeHtml(entry.name)}</span>`).join("")}</div></div>`).join("")}</div>`;
+    return `<div class="spell-groups">${[...grouped.entries()].sort(([a], [b]) => a - b).map(([level, entries]) => `<div class="spell-group"><div class="spell-level"><span>${Number(level) === 0 ? "Cantrips" : `Level ${level}`}</span><span>${entries.length}</span></div><div class="spell-names">${entries.map((entry) => `<span${entry.cast ? ` class="spell-cast"` : ""}>${entry.prepared ? "◆ " : ""}${escapeHtml(entry.name)}${entry.cast ? " · Cast" : ""}</span>`).join("")}</div></div>`).join("")}</div>`;
   }
 
   fileInput.addEventListener("change", () => {

@@ -90,3 +90,45 @@ test("applies Strength damage, but Dexterity to hit, for OSRIC hurled weapons", 
   assert.equal(javelin.attackBonus, "+1");
   assert.equal(javelin.damage, "1d6+2");
 });
+
+test("uses ARS memorization slots instead of duplicate loose spell items", () => {
+  const actor = actorFixture();
+  actor.system.spellInfo = {
+    memorization: {
+      arcane: { 1: {} },
+      divine: {
+        1: {
+          0: { name: "Cure Light Wounds", level: "1", cast: false },
+          1: { name: "Command", level: "1", cast: true },
+          2: { name: "Sanctuary", level: "1", cast: false }
+        }
+      }
+    }
+  };
+  actor.items.push(
+    ...["sanctuary-a", "sanctuary-b", "sanctuary-c", "sanctuary-d"].map((_id) => ({
+      _id,
+      name: "Sanctuary",
+      type: "spell",
+      system: { level: 1, location: { state: "carried" }, quantity: 1 }
+    }))
+  );
+
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(adaptArs(actor).spells.map(({ name, level, prepared, cast }) => ({ name, level, prepared, cast })))),
+    [
+      { name: "Cure Light Wounds", level: 1, prepared: true, cast: false },
+      { name: "Command", level: 1, prepared: true, cast: true },
+      { name: "Sanctuary", level: 1, prepared: true, cast: false }
+    ]
+  );
+});
+
+test("deduplicates loose ARS spell records when memorization data is absent", () => {
+  const actor = actorFixture();
+  actor.items.push(
+    { _id: "spell-a", name: "Sanctuary", type: "spell", system: { level: 1, location: { state: "carried" } } },
+    { _id: "spell-b", name: "Sanctuary", type: "spell", system: { level: 1, location: { state: "carried" } } }
+  );
+  assert.deepEqual(JSON.parse(JSON.stringify(adaptArs(actor).spells.map((spell) => spell.name))), ["Sanctuary"]);
+});

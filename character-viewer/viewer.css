@@ -221,6 +221,7 @@ main { width: 100%; }
 .spell-level { padding: 4px 5px; display: flex; justify-content: space-between; color: white; background: var(--sheet-accent); font: 700 .46rem "Source Sans 3", sans-serif; letter-spacing: .08em; text-transform: uppercase; }
 .spell-names { padding: 5px; display: flex; flex-wrap: wrap; gap: 3px; }
 .spell-names span { border: 1px solid #b9a383; border-radius: 8px; padding: 2px 4px; background: rgba(255,255,255,.4); font-size: .48rem; }
+.spell-names .spell-cast { opacity: .62; text-decoration: line-through; }
 .empty-note { margin: 0; color: var(--muted); font-size: .6rem; font-style: italic; }
 .currency-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; }
 .coin { padding: 4px 2px; display: grid; place-items: center; border: 1px solid #bba687; background: rgba(255,255,255,.4); }
