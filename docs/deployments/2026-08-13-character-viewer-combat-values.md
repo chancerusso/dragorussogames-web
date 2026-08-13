@@ -1,0 +1,25 @@
+# 2026-08-13 Character Viewer Combat-Value Deployment
+
+- Date/time (UTC): 2026-08-13 22:22:41 UTC
+- Environment: Production Cloudflare Pages
+- Operator/approver: Codex / Chance Russo
+- Repository: `dragorussogames-web`
+- Branch: `main` from `codex/first-edition-mapping`
+- Deployed commit SHA: `f3b9c5d44ca5c7d125e0a5b816d77536d6ff559c`
+- Previous commit SHA: `bd49776bddd8931713e276ab4896b546948e3b6e`
+- Server identity verified: Cloudflare Pages project `dragorussogames-web`
+- Source checkout verified: Yes; committed Character Viewer asset only
+- Clean server worktree verified: Not applicable to Cloudflare Pages direct upload
+- Database backup: Not applicable; static frontend-only release
+- Migration before: Not applicable
+- Migration after: Not applicable
+- Frontend build result: Passed; 999-file, 48 MB sanitized static package
+- Private-reference exclusion result: Passed; no private-reference, backend, documentation, or test files were packaged. Only the two approved public blank/fillable character-sheet PDFs are present.
+- Services restarted/reloaded: None
+- Internal health result: Passed on immutable deployment `https://6e8b7599.dragorussogames-web.pages.dev`
+- Public health result: Passed at `https://www.dragorussogames.com/character-viewer/`
+- Smoke-test result: Viewer HTML and JavaScript return successfully on both hosts; the deployed JavaScript SHA-256 exactly matches commit `f3b9c5d44ca5c7d125e0a5b816d77536d6ff559c` (`fa67531dd1757be9d97170b4e8c70a647b1e2ace7c922e0671398ac9985a4313`). Representative private-reference and backend paths return only the public HTML fallback and no source content.
+- Rollback required: No
+- Rollback result: Not applicable
+- User impact: Correct worn AC, bow/ammunition damage, and OSRIC Strength and Dexterity combat adjustments in imported Foundry character sheets.
+- Notes: Website-only Character Viewer release. Both `origin/main` and `origin/codex/first-edition-mapping` were verified at the deployed release commit. No VPS, backend, database, Foundry, tunnel, DM portal, or Classic portal service was changed.
