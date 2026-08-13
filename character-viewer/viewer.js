@@ -96,12 +96,23 @@
     const classTracks = classes.map((item, index) => ({ name: item.name, level: classLevels[index] }));
     const level = Math.max(1, ...classLevels);
     const abilities = Object.entries(system.abilities || {}).filter(([key]) => key !== "com").map(([key, data]) => ({ key, name: abilityNames[key] || key.toUpperCase(), short: abilityShort[key] || key.toUpperCase(), score: numeric(data?.value, 0), detail: key === "str" && numeric(data?.percent) ? `${data.percent}%` : "" }));
-    const weapons = itemsOf(actor, "weapon").filter((item) => itemState(item) === "equipped" && item.system?.attributes?.type !== "ammunition").map((item) => {
+    const weapons = itemsOf(actor, "weapon").filter((item) => itemState(item) === "equipped" && item.system?.attributes?.type !== "ammunition").flatMap((item) => {
       const attack = item.system?.attack || {};
       const damage = item.system?.damage || {};
       const ranges = attack.range || {};
       const attackBonus = numeric(attack.modifier) + numeric(attack.magicBonus);
-      return { name: item.name, attack: `THAC0 ${formatValue(system.attributes?.thaco?.value, "20")}`, attackBonus: attackBonus ? signed(attackBonus) : "", damage: damage.normal || "—", secondary: damage.large ? `L ${damage.large}` : "", speed: formatValue(attack.speed, "—"), rate: attack.perRound || "1/1", range: [ranges.short, ranges.medium, ranges.long].filter((value) => value !== "" && value !== null && value !== undefined).join(" / ") || "Melee" };
+      const range = [ranges.short, ranges.medium, ranges.long].filter((value) => value !== "" && value !== null && value !== undefined).join(" / ") || "Melee";
+      const baseWeapon = { name: item.name, attack: `THAC0 ${formatValue(system.attributes?.thaco?.value, "20")}`, attackBonus: attackBonus ? signed(attackBonus) : "", damage: damage.normal || "—", secondary: damage.large ? `L ${damage.large}` : "", speed: formatValue(attack.speed, "—"), rate: attack.perRound || "1/1", range };
+      const meleeAction = array(item.system?.actionGroups).flatMap((group) => array(group.actions)).find((action) => action.type === "melee");
+      if (!meleeAction || range === "Melee") return [baseWeapon];
+      const meleeDamageActions = array(item.system?.actionGroups).flatMap((group) => array(group.actions)).filter((action) => action.type === "damage");
+      const meleeNormal = meleeDamageActions[0]?.formula || damage.normal || "—";
+      const meleeLarge = meleeDamageActions[1]?.formula || damage.large || "";
+      const weaponName = item.name.replace(/^(thrown|missile)\s+/i, "");
+      return [
+        { ...baseWeapon, name: `${weaponName} (Melee)`, damage: meleeNormal, secondary: meleeLarge ? `L ${meleeLarge}` : "", rate: "1/1", range: "Melee" },
+        { ...baseWeapon, name: `${weaponName} (Thrown)` }
+      ];
     });
     const armor = itemsOf(actor, "armor").filter((item) => itemState(item) === "equipped");
     const inventory = array(actor.items).filter((item) => ["item", "container", "armor", "weapon", "potion", "gear"].includes(item.type) && !(item.type === "weapon" && item.system?.attributes?.type === "noDrop")).map((item) => ({ name: item.name, quantity: numeric(item.system?.quantity, 1), weight: numeric(item.system?.weight, 0), state: itemState(item) }));
@@ -228,7 +239,7 @@
   }
 
   function renderSheet(model) {
-    return `
+    const masthead = `
       <header class="sheet-masthead">
         <div>
           <p class="sheet-kicker">Drago Russo Games · ${escapeHtml(model.system)}</p>
@@ -238,28 +249,59 @@
         <div class="level-seal ${model.classTracks.length > 1 ? "is-multiclass" : ""}">
           ${model.classTracks.map((track) => `<div><strong>${escapeHtml(track.name)}</strong><span>Level ${track.level}</span></div>`).join("")}
         </div>
-      </header>
+      </header>`;
+    const continuation = `
+      <header class="print-continuation"><div><small>Character Sheet · Continued</small><strong>${escapeHtml(model.name)}</strong></div><span>${escapeHtml(model.identity)}</span></header>`;
+    const abilities = panel("Ability Scores", `<div class="ability-grid">${model.abilities.map(renderAbility).join("")}</div>`);
+    const saves = model.ruleset === "modern" ? panel("Saving Throws", renderLinedList(model.saves, true)) : panel("Saving Throws", renderLinedList(model.saves));
+    const checks = model.skills.length ? panel("Skills", renderLinedList(model.skills, true)) : panel("Checks & Proficiencies", renderFeatures(model.features.filter((feature) => feature.group === "check")));
+    const attacks = panel("Attacks & Weapons", renderWeapons(model.weapons));
+    const equipment = panel("Equipment", renderInventory(model.inventory));
+    const features = model.ruleset === "modern" ? panel("Features & Traits", renderFeatures(model.features)) : panel("Class & Racial Features", renderFeatures(model.features.filter((feature) => feature.group !== "check")));
+    const spells = panel("Spells", renderSpells(model.spells));
+    const coin = panel("Coin", `<div class="currency-row">${model.currency.map((entry) => `<div class="coin"><span>${entry.name}</span><strong>${entry.value}</strong></div>`).join("")}</div>`);
+    const notes = panel("Notes & Details", model.details.length ? `<ul class="lined-list">${model.details.map((detail) => `<li>${escapeHtml(detail)}</li>`).join("")}</ul>` : `<p class="empty-note">Use this space for conditions, reminders, and notes at the table.</p>`);
+
+    return `
+      ${masthead}
       <div class="sheet-body">
         <section class="quick-stats">${model.quickStats.map(renderQuickStat).join("")}</section>
         <div class="sheet-grid">
           <div class="sheet-column">
-            ${panel("Ability Scores", `<div class="ability-grid">${model.abilities.map(renderAbility).join("")}</div>`)}
-            ${model.ruleset === "modern" ? panel("Saving Throws", renderLinedList(model.saves, true)) : panel("Saving Throws", renderLinedList(model.saves))}
-            ${model.skills.length ? panel("Skills", renderLinedList(model.skills, true)) : panel("Checks & Proficiencies", renderFeatures(model.features.filter((feature) => feature.group === "check")))}
+            ${abilities}
+            ${saves}
+            ${checks}
           </div>
           <div class="sheet-column">
-            ${panel("Attacks & Weapons", renderWeapons(model.weapons))}
-            ${panel("Equipment", renderInventory(model.inventory))}
-            ${model.ruleset === "modern" ? panel("Features & Traits", renderFeatures(model.features)) : panel("Class & Racial Features", renderFeatures(model.features.filter((feature) => feature.group !== "check")))}
+            ${attacks}
+            ${equipment}
+            ${features}
           </div>
           <div class="sheet-column sheet-column--reference">
-            <header class="print-continuation"><div><small>Character Sheet · Continued</small><strong>${escapeHtml(model.name)}</strong></div><span>${escapeHtml(model.identity)}</span></header>
-            ${panel("Spells", renderSpells(model.spells))}
-            ${panel("Coin", `<div class="currency-row">${model.currency.map((coin) => `<div class="coin"><span>${coin.name}</span><strong>${coin.value}</strong></div>`).join("")}</div>`)}
-            ${panel("Notes & Details", model.details.length ? `<ul class="lined-list">${model.details.map((detail) => `<li>${escapeHtml(detail)}</li>`).join("")}</ul>` : `<p class="empty-note">Use this space for conditions, reminders, and notes at the table.</p>`)}
+            ${continuation}
+            ${spells}
+            ${coin}
+            ${notes}
           </div>
         </div>
         <p class="sheet-footnote">READ-ONLY SNAPSHOT · EXPORT A NEW ACTOR JSON FROM FOUNDRY TO REFRESH THIS SHEET</p>
+      </div>
+      <div class="print-layout">
+        <section class="print-page print-page--primary">
+          ${masthead}
+          <section class="quick-stats">${model.quickStats.map(renderQuickStat).join("")}</section>
+          <div class="print-page-grid print-page-grid--primary"><div>${abilities}${saves}</div><div>${attacks}</div></div>
+        </section>
+        <section class="print-page print-page--records">
+          ${continuation}
+          <div class="print-page-grid print-page-grid--records"><div>${checks}</div><div>${equipment}${features}</div></div>
+        </section>
+        <section class="print-page print-page--reference">
+          ${continuation}
+          <div class="print-reference-top">${spells}${coin}</div>
+          <div class="print-notes">${notes}</div>
+          <p class="sheet-footnote">READ-ONLY SNAPSHOT · EXPORT A NEW ACTOR JSON FROM FOUNDRY TO REFRESH THIS SHEET</p>
+        </section>
       </div>`;
   }
 
@@ -283,7 +325,7 @@
 
   function renderWeapons(weapons) {
     if (!weapons.length) return `<p class="empty-note">No equipped attacks were found in this export.</p>`;
-    return `<div class="weapon-list">${weapons.map((weapon) => `<div class="weapon-row"><strong>${escapeHtml(weapon.name)}</strong><span class="weapon-cell weapon-cell--attack"><span>Attack</span><b>${formatValue(weapon.attack)}${weapon.attackBonus ? ` <em>${escapeHtml(weapon.attackBonus)} to hit</em>` : ""}</b></span><span class="weapon-cell"><span>Damage</span><b>${formatValue(weapon.damage)}${weapon.secondary ? ` <small>${escapeHtml(weapon.secondary)}</small>` : ""}</b></span><span class="weapon-cell"><span>${weapon.speed && !String(weapon.speed).match(/^[-+]?\d+$/) ? "Mastery" : "Speed"}</span><b>${formatValue(weapon.speed)}</b></span><span class="weapon-cell weapon-cell--rate-range"><span>Rate</span><b>${escapeHtml(weapon.rate)}</b><span>Range</span><b>${escapeHtml(weapon.range)}</b></span></div>`).join("")}</div>`;
+    return `<div class="weapon-list">${weapons.map((weapon) => `<div class="weapon-row"><strong>${escapeHtml(weapon.name)}</strong><span class="weapon-cell weapon-cell--attack"><span>Attack</span><b>${formatValue(weapon.attack)}</b>${weapon.attackBonus ? `<em>${escapeHtml(weapon.attackBonus)} to hit</em>` : ""}</span><span class="weapon-cell"><span>Damage</span><b>${formatValue(weapon.damage)}${weapon.secondary ? ` <small>${escapeHtml(weapon.secondary)}</small>` : ""}</b></span><span class="weapon-cell"><span>${weapon.speed && !String(weapon.speed).match(/^[-+]?\d+$/) ? "Mastery" : "Speed"}</span><b>${formatValue(weapon.speed)}</b></span><span class="weapon-cell weapon-cell--rate-range"><span class="weapon-meta-line"><span>Rate</span><b>${escapeHtml(weapon.rate)}</b></span><span class="weapon-meta-line"><span>Range</span><b>${escapeHtml(weapon.range)}</b></span></span></div>`).join("")}</div>`;
   }
 
   function renderInventory(inventory) {
