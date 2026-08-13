@@ -326,7 +326,7 @@
 
   function renderWeapons(weapons) {
     if (!weapons.length) return `<p class="empty-note">No equipped attacks were found in this export.</p>`;
-    return `<div class="weapon-list">${weapons.map((weapon) => `<div class="weapon-row"><strong>${escapeHtml(weapon.name)}</strong><span class="weapon-cell weapon-cell--attack"><span>Attack</span><b>${formatValue(weapon.attack)}</b>${weapon.attackBonus ? `<em>${escapeHtml(weapon.attackBonus)} to hit</em>` : ""}</span><span class="weapon-cell"><span>Damage</span><b>${formatValue(weapon.damage)}${weapon.secondary ? ` <small>${escapeHtml(weapon.secondary)}</small>` : ""}</b></span><span class="weapon-cell"><span>${weapon.speed && !String(weapon.speed).match(/^[-+]?\d+$/) ? "Mastery" : "Speed"}</span><b>${formatValue(weapon.speed)}</b></span><span class="weapon-cell weapon-cell--rate-range"><span class="weapon-meta-line"><span>Rate</span><b>${escapeHtml(weapon.rate)}</b></span><span class="weapon-meta-line"><span>Range</span><b>${escapeHtml(weapon.range)}</b></span></span></div>`).join("")}</div>`;
+    return `<div class="weapon-list">${weapons.map((weapon) => `<div class="weapon-row"><strong>${escapeHtml(weapon.name)}</strong><span class="weapon-cell weapon-cell--attack"><span>Attack</span><b>${formatValue(weapon.attack)}</b>${weapon.attackBonus ? `<em>${escapeHtml(weapon.attackBonus)} to hit</em>` : ""}</span><span class="weapon-cell weapon-cell--damage"><span>Damage</span><b>${formatValue(weapon.damage)}${weapon.secondary ? ` <small>${escapeHtml(weapon.secondary)}</small>` : ""}</b></span><span class="weapon-cell weapon-cell--speed"><span>${weapon.speed && !String(weapon.speed).match(/^[-+]?\d+$/) ? "Mastery" : "Speed"}</span><b>${formatValue(weapon.speed)}</b></span><span class="weapon-cell weapon-cell--rate-range"><span class="weapon-meta-line"><span>Rate</span><b>${escapeHtml(weapon.rate)}</b></span><span class="weapon-meta-line"><span>Range</span><b>${escapeHtml(weapon.range)}</b></span></span></div>`).join("")}</div>`;
   }
 
   function renderInventory(inventory) {
@@ -341,7 +341,14 @@
 
   function renderFeatures(features) {
     if (!features.length) return `<p class="empty-note">No additional features were found in this export.</p>`;
-    return `<div class="feature-list">${features.map((feature) => `<div class="feature-chip"><strong>${escapeHtml(feature.name)}</strong><small>${escapeHtml(feature.detail || "Feature")}</small></div>`).join("")}</div>`;
+    return `<div class="feature-list">${features.map((feature) => `<div class="feature-chip"><strong>${featureDisplayName(feature.name)}</strong><small>${escapeHtml(feature.detail || "Feature")}</small></div>`).join("")}</div>`;
+  }
+
+  function featureDisplayName(name) {
+    const value = String(name || "Feature").trim();
+    if (/^search secret door$/i.test(value)) return "Secret Door";
+    if (/^open locks\s*\/\s*disarm traps$/i.test(value)) return "Open Locks<br>Disarm Traps";
+    return escapeHtml(value);
   }
 
   function renderSpells(spells) {

@@ -199,6 +199,8 @@ main { width: 100%; }
 .weapon-cell span { color: var(--muted); font: 700 .46rem "Source Sans 3", sans-serif; letter-spacing: .075em; text-transform: uppercase; }
 .weapon-cell b { font-size: .58rem; line-height: 1.08; font-weight: 700; }
 .weapon-cell--attack b { white-space: nowrap; }
+.weapon-cell--damage small { font: inherit; }
+.weapon-cell--speed { justify-items: center; text-align: center; }
 .weapon-cell em { display: block; color: var(--sheet-accent); font: 700 .46rem "Source Sans 3", sans-serif; }
 .weapon-cell--rate-range { display: grid; gap: 2px; }
 .weapon-meta-line { display: grid; grid-template-columns: 29px minmax(0, 1fr); gap: 3px; align-items: baseline; }
