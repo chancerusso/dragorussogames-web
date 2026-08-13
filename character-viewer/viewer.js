@@ -35,6 +35,57 @@
   const itemsOf = (actor, type) => array(actor.items).filter((item) => item.type === type);
   const itemState = (item) => item.system?.location?.state || (item.system?.equipped ? "equipped" : "carried");
 
+  function osricStrengthAdjustments(score, exceptional = 0) {
+    const value = numeric(score, 10);
+    const percentile = numeric(exceptional, 0);
+    if (value <= 3) return { hit: -3, damage: -1 };
+    if (value <= 5) return { hit: -2, damage: -1 };
+    if (value <= 7) return { hit: -1, damage: 0 };
+    if (value <= 15) return { hit: 0, damage: 0 };
+    if (value === 16) return { hit: 0, damage: 1 };
+    if (value === 17) return { hit: 1, damage: 1 };
+    if (value === 18 && percentile >= 91) return { hit: 2, damage: 5 };
+    if (value === 18 && percentile >= 76) return { hit: 2, damage: 4 };
+    if (value === 18 && percentile >= 51) return { hit: 2, damage: 3 };
+    if (value === 18 && percentile >= 1) return { hit: 1, damage: 3 };
+    if (value === 18) return { hit: 1, damage: 2 };
+    return { hit: 3, damage: 6 };
+  }
+
+  function osricDexterityAdjustments(score) {
+    const value = numeric(score, 10);
+    if (value <= 3) return { missile: -3, ac: 4 };
+    if (value === 4) return { missile: -2, ac: 3 };
+    if (value === 5) return { missile: -1, ac: 2 };
+    if (value === 6) return { missile: 0, ac: 1 };
+    if (value <= 14) return { missile: 0, ac: 0 };
+    if (value === 15) return { missile: 0, ac: -1 };
+    if (value === 16) return { missile: 1, ac: -2 };
+    if (value === 17) return { missile: 2, ac: -3 };
+    return { missile: 3, ac: -4 };
+  }
+
+  function addFormulaBonus(formula, bonus) {
+    const base = String(formula || "").trim();
+    if (!base || !bonus) return base;
+    return `${base}${bonus > 0 ? "+" : ""}${bonus}`;
+  }
+
+  function osricHurledStrengthDamage(item) {
+    return /\b(axe|hammer|club|dart|javelin|spear)\b/i.test(item?.name || "");
+  }
+
+  function arsArmorClass(actor, system, dexterityAdjustment) {
+    const equipped = itemsOf(actor, "armor").filter((item) => itemState(item) === "equipped");
+    const wornArmor = equipped.filter((item) => item.system?.protection?.type === "armor");
+    const shields = equipped.filter((item) => item.system?.protection?.type === "shield");
+    const armorBase = wornArmor.length
+      ? Math.min(...wornArmor.map((item) => numeric(item.system?.protection?.ac, 10) - numeric(item.system?.protection?.modifier)))
+      : numeric(system.attributes?.ac?.value, 10);
+    const shieldAdjustment = shields.reduce((total, item) => total + numeric(item.system?.protection?.ac) + numeric(item.system?.protection?.modifier), 0);
+    return { value: armorBase - shieldAdjustment + dexterityAdjustment, equipped };
+  }
+
   function detectSystem(actor) {
     if (!actor || typeof actor !== "object" || !actor.system || !Array.isArray(actor.items)) return null;
     if (actor.system.attributes?.thaco || actor.system.saves?.paralyzation || actor.flags?.ars) return "ars";
@@ -96,25 +147,36 @@
     const classTracks = classes.map((item, index) => ({ name: item.name, level: classLevels[index] }));
     const level = Math.max(1, ...classLevels);
     const abilities = Object.entries(system.abilities || {}).filter(([key]) => key !== "com").map(([key, data]) => ({ key, name: abilityNames[key] || key.toUpperCase(), short: abilityShort[key] || key.toUpperCase(), score: numeric(data?.value, 0), detail: key === "str" && numeric(data?.percent) ? `${data.percent}%` : "" }));
+    const strength = osricStrengthAdjustments(system.abilities?.str?.value, system.abilities?.str?.percent);
+    const dexterity = osricDexterityAdjustments(system.abilities?.dex?.value);
+    const weaponItems = itemsOf(actor, "weapon");
+    const weaponById = new Map(weaponItems.map((item) => [item._id, item]));
     const weapons = itemsOf(actor, "weapon").filter((item) => itemState(item) === "equipped" && item.system?.attributes?.type !== "ammunition").flatMap((item) => {
       const attack = item.system?.attack || {};
-      const damage = item.system?.damage || {};
+      const linkedAmmunition = weaponById.get(item.system?.resource?.itemId);
+      const ownDamage = item.system?.damage || {};
+      const damage = ownDamage.normal || ownDamage.large ? ownDamage : (linkedAmmunition?.system?.damage || ownDamage);
       const ranges = attack.range || {};
-      const attackBonus = numeric(attack.modifier) + numeric(attack.magicBonus);
       const range = [ranges.short, ranges.medium, ranges.long].filter((value) => value !== "" && value !== null && value !== undefined).join(" / ") || "Melee";
-      const baseWeapon = { name: item.name, attack: `THAC0 ${formatValue(system.attributes?.thaco?.value, "20")}`, attackBonus: attackBonus ? signed(attackBonus) : "", damage: damage.normal || "—", secondary: damage.large ? `L ${damage.large}` : "", speed: formatValue(attack.speed, "—"), rate: attack.perRound || "1/1", range };
+      const abilityHit = range === "Melee" ? strength.hit : dexterity.missile;
+      const abilityDamage = range === "Melee" || osricHurledStrengthDamage(item) ? strength.damage : 0;
+      const attackBonus = numeric(attack.modifier) + numeric(attack.magicBonus) + abilityHit;
+      const damageBonus = numeric(damage.modifier) + numeric(damage.magicBonus) + abilityDamage;
+      const baseWeapon = { name: item.name, attack: `THAC0 ${formatValue(system.attributes?.thaco?.value, "20")}`, attackBonus: attackBonus ? signed(attackBonus) : "", damage: addFormulaBonus(damage.normal, damageBonus) || "—", secondary: damage.large ? `L ${addFormulaBonus(damage.large, damageBonus)}` : "", speed: formatValue(attack.speed, "—"), rate: attack.perRound || "1/1", range };
       const meleeAction = array(item.system?.actionGroups).flatMap((group) => array(group.actions)).find((action) => action.type === "melee");
       if (!meleeAction || range === "Melee") return [baseWeapon];
       const meleeDamageActions = array(item.system?.actionGroups).flatMap((group) => array(group.actions)).filter((action) => action.type === "damage");
-      const meleeNormal = meleeDamageActions[0]?.formula || damage.normal || "—";
-      const meleeLarge = meleeDamageActions[1]?.formula || damage.large || "";
+      const meleeDamageBonus = numeric(ownDamage.modifier) + numeric(ownDamage.magicBonus) + strength.damage;
+      const meleeNormal = addFormulaBonus(meleeDamageActions[0]?.formula || ownDamage.normal, meleeDamageBonus) || "—";
+      const meleeLarge = addFormulaBonus(meleeDamageActions[1]?.formula || ownDamage.large, meleeDamageBonus);
+      const meleeAttackBonus = numeric(attack.modifier) + numeric(attack.magicBonus) + strength.hit;
       const weaponName = item.name.replace(/^(thrown|missile)\s+/i, "");
       return [
-        { ...baseWeapon, name: `${weaponName} (Melee)`, damage: meleeNormal, secondary: meleeLarge ? `L ${meleeLarge}` : "", rate: "1/1", range: "Melee" },
+        { ...baseWeapon, name: `${weaponName} (Melee)`, attackBonus: meleeAttackBonus ? signed(meleeAttackBonus) : "", damage: meleeNormal, secondary: meleeLarge ? `L ${meleeLarge}` : "", rate: "1/1", range: "Melee" },
         { ...baseWeapon, name: `${weaponName} (Thrown)` }
       ];
     });
-    const armor = itemsOf(actor, "armor").filter((item) => itemState(item) === "equipped");
+    const armor = arsArmorClass(actor, system, dexterity.ac);
     const inventory = array(actor.items).filter((item) => ["item", "container", "armor", "weapon", "potion", "gear"].includes(item.type) && !(item.type === "weapon" && item.system?.attributes?.type === "noDrop")).map((item) => ({ name: item.name, quantity: numeric(item.system?.quantity, 1), weight: numeric(item.system?.weight, 0), state: itemState(item) }));
     const features = array(actor.items)
       .filter((item) => ["ability", "skill", "proficiency"].includes(item.type))
@@ -123,7 +185,7 @@
     const spells = itemsOf(actor, "spell").map((item) => ({ name: item.name, level: numeric(item.system?.level, numeric(item.system?.rank?.level, 0)), prepared: item.system?.memorized || item.system?.location?.state === "memorized" }));
     const quickStats = [
       { label: "Hit Points", value: `${formatValue(system.attributes?.hp?.value, 0)} / ${formatValue(system.attributes?.hp?.max, system.attributes?.hp?.base || 0)}` },
-      { label: "Armor Class", value: formatValue(system.attributes?.ac?.value, 10), note: armor.map((item) => item.name).join(" + ") },
+      { label: "Armor Class", value: formatValue(armor.value, 10), note: armor.equipped.map((item) => item.name).join(" + ") },
       { label: "THAC0", value: formatValue(system.attributes?.thaco?.value, 20) },
       { label: "Movement", value: formatValue(arsMovement(actor, system), "—") },
       { label: "Attacks", value: classes[0]?.system?.ranks?.[Math.max(0, level - 1)]?.numatks || "1/1", note: "per round" },
