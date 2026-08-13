@@ -1,25 +1,25 @@
 # 2026-08-13 Public Character Viewer Refinement Deployment
 
-- Date/time (UTC): Pending
+- Date/time (UTC): 2026-08-13 17:59 UTC
 - Environment: Production — Cloudflare Pages project `dragorussogames-web`
 - Operator/approver: Codex / Chance Russo
 - Repository: `dragorussogames-web`
 - Branch: `codex/first-edition-mapping`; production branch `main`
-- Deployed commit SHA: Pending
+- Deployed commit SHA: `5361da42583aa7a1316cb7b8d360cb0b6e94579e`
 - Previous commit SHA: `c0712c31b672a089a4378f2794ae96027cb2043d`
 - Server identity verified: Cloudflare Pages static public website; not the VPS
-- Source checkout verified: Pending exact-commit package
+- Source checkout verified: Yes; exact three-file viewer refinement copied into the previously verified clean public snapshot
 - Clean server worktree verified: Not applicable to Cloudflare Pages
 - Database backup: Not applicable; frontend-only static release
 - Migration before: Not applicable
 - Migration after: Not applicable
-- Frontend build result: Pending
-- Private-reference exclusion result: Pending
+- Frontend build result: Passed; 999-file, 48 MB static snapshot with no file over 20 MB
+- Private-reference exclusion result: Passed; no backend, documentation, tests, private references, or source rulebooks included. The two intentional blank/fillable First Edition character-sheet PDFs remain public.
 - Services restarted/reloaded: None expected
 - Internal health result: Not applicable
-- Public health result: Pending
-- Smoke-test result: Pending
-- Rollback required: Pending
-- Rollback result: Pending
+- Public health result: Passed; deployment URL and custom-domain viewer HTML, CSS, and JavaScript returned HTTP 200
+- Smoke-test result: Passed; live files contain the OSRIC label, encumbrance calculation, seven-stat grid, and `Character Sheet · Continued` print masthead
+- Rollback required: No
+- Rollback result: Not applicable
 - User impact: Improves the OSRIC Foundry character-sheet layout, multiclass display, attack information, checks, carried load, and printed continuation page
-- Notes: Deployment is limited to the static Character Viewer and its release records. No backend, database, migration, VPS, Foundry world, module, tunnel, DM portal, or Classic portal change is authorized.
+- Notes: Deployment is limited to the static Character Viewer and its release records. No backend, database, migration, VPS, Foundry world, module, tunnel, DM portal, or Classic portal change was made. Cloudflare deployment URL: `https://f0777154.dragorussogames-web.pages.dev`. Representative private-reference and backend probe paths returned the public HTML fallback rather than source content.
