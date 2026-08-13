@@ -1,0 +1,25 @@
+# 2026-08-13 Character Viewer Spell-List Deployment
+
+- Date/time (UTC): 2026-08-13 23:09:17 UTC
+- Environment: Production Cloudflare Pages
+- Operator/approver: Codex / Chance Russo
+- Repository: `dragorussogames-web`
+- Branch: `main` from `codex/first-edition-mapping`
+- Deployed commit SHA: `edc8c55c4e0c39991db3c97142f09cf20cf94a63`
+- Previous commit SHA: `f3b9c5d44ca5c7d125e0a5b816d77536d6ff559c`
+- Server identity verified: Cloudflare Pages project `dragorussogames-web`
+- Source checkout verified: Yes; committed Character Viewer assets only
+- Clean server worktree verified: Not applicable to Cloudflare Pages direct upload
+- Database backup: Not applicable; static frontend-only release
+- Migration before: Not applicable
+- Migration after: Not applicable
+- Frontend build result: Passed; 999-file, 48 MB sanitized static package
+- Private-reference exclusion result: Passed; no private-reference, backend, documentation, or test files are packaged. Only the two approved public blank/fillable character-sheet PDFs are present.
+- Services restarted/reloaded: None
+- Internal health result: Passed on immutable deployment `https://889b533d.dragorussogames-web.pages.dev`
+- Public health result: Passed at `https://www.dragorussogames.com/character-viewer/`
+- Smoke-test result: Viewer HTML and JavaScript return successfully on both hosts; the deployed JavaScript SHA-256 exactly matches commit `edc8c55c4e0c39991db3c97142f09cf20cf94a63` (`88f0df43b8f5060b5c49a19f632ffa00710ebcf733c79665b236c34599196143`). Representative private-reference and backend paths return only the public HTML fallback and no source content.
+- Rollback required: No
+- Rollback result: Not applicable
+- User impact: ARS memorized spells display once from authoritative memorization data, with already-cast spells clearly identified.
+- Notes: Website-only Character Viewer release. Both `origin/main` and `origin/codex/first-edition-mapping` were verified at the deployed release commit. No VPS, backend, database, Foundry, tunnel, DM portal, or Classic portal service was changed.
