@@ -309,6 +309,10 @@ h3{
   margin-top:24px;
 }
 
+#active-campaigns .campaign-grid > .campaign:last-child:nth-child(3n + 1){
+  grid-column:2;
+}
+
 .campaign{
   min-width:0;
 }
@@ -521,6 +525,10 @@ footer{
   .contact,
   .primer-wrap{
     grid-template-columns:1fr;
+  }
+
+  #active-campaigns .campaign-grid > .campaign:last-child:nth-child(3n + 1){
+    grid-column:auto;
   }
 
   .campaign img{
