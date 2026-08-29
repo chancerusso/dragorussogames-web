@@ -1,0 +1,30 @@
+# 2026-08-29 Public Landing Page and Hacienda Last Light Deployment
+
+- Date/time (UTC): 2026-08-29 18:11:01 UTC
+- Environment: Production — Cloudflare Pages project `dragorussogames-web`
+- Operator/approver: Codex / Chance Russo
+- Repository: `dragorussogames-web`
+- Branch: `codex/first-edition-mapping`; production branch `main`
+- Deployed commit SHA: `3dc47f143e47019b9fa80e36d8b51c699a0fee3c`
+- Previous commit SHA: `edc8c55c4e0c39991db3c97142f09cf20cf94a63`
+- Server identity verified: Cloudflare Pages static public website; not the VPS
+- Source checkout verified: Yes. Both `origin/main` and `origin/codex/first-edition-mapping` point to the exact deployed commit.
+- Clean server worktree verified: Not applicable to Cloudflare Pages
+- Database backup: Not applicable; frontend-only static release
+- Migration before: Not applicable
+- Migration after: Not applicable
+- Frontend build result: Passed. The sanitized static package contains 999 files (49 MB), 480 parsed HTML files, valid JavaScript, and no file over 20 MB.
+- Private-reference exclusion result: Passed. No backend, frontend application, Discord bot, documentation, tests, tools, packaging, scripts, private-reference, or source-rulebook path entered the package. The only PDFs are the two intentional public blank/fillable First Edition character sheets.
+- Services restarted/reloaded: None expected
+- Internal health result: Not applicable
+- Public health result: Passed. The immutable deployment, `www`, root domain, DM portal, Classic portal, and shared API health endpoint all returned HTTP 200.
+- Smoke-test result: Passed. Both approved homepage changes are present. The deployed stylesheet and Hacienda artwork hashes match the release package on the immutable and custom domains. Representative private-reference, backend, deployment-document, and source-rulebook paths returned only the public HTML fallback.
+- Rollback required: No
+- Rollback result: Not applicable
+- User impact: Adds Hacienda Last Light to the active campaign directory using its approved artwork and replaces the Table Experience label `Cinematic Worlds` with `Heavy Roleplay` and consequence-focused copy.
+- Notes:
+  - Deployment scope is limited to the public static website. No backend, database, migration, VPS, Foundry world, module, tunnel, DM portal, or Classic portal change is included.
+  - Rollback target is `edc8c55c4e0c39991db3c97142f09cf20cf94a63`.
+  - Published the exact release package to Cloudflare Pages project `dragorussogames-web` as branch `main`.
+  - Immutable deployment: `https://cacbebb1.dragorussogames-web.pages.dev`.
+  - Wrangler uploaded four changed files and reused 995 existing assets.
